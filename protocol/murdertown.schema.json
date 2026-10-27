@@ -31,6 +31,34 @@
       "title": "BallotCast",
       "type": "object"
     },
+    "BidPlaced": {
+      "additionalProperties": false,
+      "description": "How urgently one Resident wants to make the next Statement on the Open floor.",
+      "properties": {
+        "type": {
+          "const": "bid_placed",
+          "default": "bid_placed",
+          "type": "string"
+        },
+        "resident": {
+          "type": "string"
+        },
+        "urgency": {
+          "type": "integer"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "resident",
+        "urgency",
+        "reason"
+      ],
+      "title": "BidPlaced",
+      "type": "object"
+    },
     "DecisionFellBack": {
       "additionalProperties": false,
       "description": "A decision source could not give a usable answer, so a safe default was used instead.",
@@ -62,7 +90,10 @@
     "DecisionKind": {
       "enum": [
         "statement",
+        "bid",
+        "showdown",
         "ballot",
+        "last_words",
         "reflection"
       ],
       "title": "DecisionKind",
@@ -98,13 +129,16 @@
           "discriminator": {
             "mapping": {
               "ballot_cast": "#/$defs/BallotCast",
+              "bid_placed": "#/$defs/BidPlaced",
               "decision_fell_back": "#/$defs/DecisionFellBack",
               "game_ended": "#/$defs/GameEnded",
               "game_started": "#/$defs/GameStarted",
+              "last_words_spoken": "#/$defs/LastWordsSpoken",
               "phase_started": "#/$defs/PhaseStarted",
               "reflection_written": "#/$defs/ReflectionWritten",
               "resident_died": "#/$defs/ResidentDied",
               "role_assigned": "#/$defs/RoleAssigned",
+              "sheriff_fired": "#/$defs/SheriffFired",
               "statement_made": "#/$defs/StatementMade",
               "vote_resolved": "#/$defs/VoteResolved"
             },
@@ -121,13 +155,22 @@
               "$ref": "#/$defs/PhaseStarted"
             },
             {
+              "$ref": "#/$defs/BidPlaced"
+            },
+            {
               "$ref": "#/$defs/StatementMade"
+            },
+            {
+              "$ref": "#/$defs/SheriffFired"
             },
             {
               "$ref": "#/$defs/BallotCast"
             },
             {
               "$ref": "#/$defs/VoteResolved"
+            },
+            {
+              "$ref": "#/$defs/LastWordsSpoken"
             },
             {
               "$ref": "#/$defs/ResidentDied"
@@ -170,7 +213,7 @@
       "title": "EventPage",
       "type": "object"
     },
-    "GameConfig": {
+    "GameConfig-Input": {
       "additionalProperties": false,
       "properties": {
         "residents": {
@@ -203,11 +246,118 @@
           "minimum": 1,
           "type": "integer"
         },
+        "open_floor_statements": {
+          "default": 8,
+          "maximum": 20,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "open_floor_seconds": {
+          "anyOf": [
+            {
+              "maximum": 3600,
+              "minimum": 10,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 300
+        },
+        "sheriff_shoots_at": {
+          "default": "showdown",
+          "enum": [
+            "showdown",
+            "night"
+          ],
+          "type": "string"
+        },
         "seed": {
           "default": 0,
           "type": "integer"
         }
       },
+      "title": "GameConfigInput",
+      "type": "object"
+    },
+    "GameConfig-Output": {
+      "additionalProperties": false,
+      "properties": {
+        "residents": {
+          "default": 12,
+          "maximum": 15,
+          "minimum": 6,
+          "type": "integer"
+        },
+        "murderers": {
+          "default": 2,
+          "maximum": 3,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "doctor": {
+          "default": true,
+          "type": "boolean"
+        },
+        "detective": {
+          "default": true,
+          "type": "boolean"
+        },
+        "sheriff": {
+          "default": true,
+          "type": "boolean"
+        },
+        "max_days": {
+          "default": 10,
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "open_floor_statements": {
+          "default": 8,
+          "maximum": 20,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "open_floor_seconds": {
+          "anyOf": [
+            {
+              "maximum": 3600,
+              "minimum": 10,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 300
+        },
+        "sheriff_shoots_at": {
+          "default": "showdown",
+          "enum": [
+            "showdown",
+            "night"
+          ],
+          "type": "string"
+        },
+        "seed": {
+          "default": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "residents",
+        "murderers",
+        "doctor",
+        "detective",
+        "sheriff",
+        "max_days",
+        "open_floor_statements",
+        "open_floor_seconds",
+        "sheriff_shoots_at",
+        "seed"
+      ],
       "title": "GameConfig",
       "type": "object"
     },
@@ -255,7 +405,7 @@
           "type": "string"
         },
         "config": {
-          "$ref": "#/$defs/GameConfig"
+          "$ref": "#/$defs/GameConfig-Output"
         },
         "residents": {
           "items": {
@@ -286,7 +436,7 @@
           "type": "string"
         },
         "config": {
-          "$ref": "#/$defs/GameConfig"
+          "$ref": "#/$defs/GameConfig-Output"
         },
         "winner": {
           "anyOf": [
@@ -310,6 +460,30 @@
         "last_seq"
       ],
       "title": "GameSummary",
+      "type": "object"
+    },
+    "LastWordsSpoken": {
+      "additionalProperties": false,
+      "description": "What a banished Resident says before their role is revealed.",
+      "properties": {
+        "type": {
+          "const": "last_words_spoken",
+          "default": "last_words_spoken",
+          "type": "string"
+        },
+        "resident": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "resident",
+        "text"
+      ],
+      "title": "LastWordsSpoken",
       "type": "object"
     },
     "Persona": {
@@ -431,7 +605,7 @@
     },
     "ResidentDied": {
       "additionalProperties": false,
-      "description": "A death, announced to everyone with the dead Resident's role.",
+      "description": "A death, announced to everyone with the dead Resident's role.\n\nA Resident is banished by Vote or shot by the Sheriff; a Sheriff who shoots a\nTown Resident dies of the backfire.",
       "properties": {
         "type": {
           "const": "resident_died",
@@ -442,7 +616,11 @@
           "type": "string"
         },
         "cause": {
-          "const": "banished",
+          "enum": [
+            "banished",
+            "shot",
+            "backfire"
+          ],
           "type": "string"
         },
         "role": {
@@ -505,6 +683,34 @@
       "title": "RoleAssigned",
       "type": "object"
     },
+    "SheriffFired": {
+      "additionalProperties": false,
+      "description": "The Sheriff spends the single bullet. Whoever is hit, and perhaps the Sheriff, dies next.",
+      "properties": {
+        "type": {
+          "const": "sheriff_fired",
+          "default": "sheriff_fired",
+          "type": "string"
+        },
+        "sheriff": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "hit_a_murderer": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "sheriff",
+        "target",
+        "hit_a_murderer"
+      ],
+      "title": "SheriffFired",
+      "type": "object"
+    },
     "Side": {
       "enum": [
         "town",
@@ -515,6 +721,7 @@
     },
     "StatementMade": {
       "additionalProperties": false,
+      "description": "A Statement, with what it does: whom it names, accuses and defends, and any role claim.",
       "properties": {
         "type": {
           "const": "statement_made",
@@ -533,13 +740,49 @@
             "open_floor"
           ],
           "type": "string"
+        },
+        "addressed": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "accused": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "defended": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "claimed_role": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Role"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
         "type",
         "speaker",
         "text",
-        "part"
+        "part",
+        "addressed",
+        "accused",
+        "defended",
+        "claimed_role"
       ],
       "title": "StatementMade",
       "type": "object"

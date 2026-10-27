@@ -17,6 +17,11 @@ export function PhaseBar({ view, connection }: { view: GameView; connection: Con
         {view.day > 0 && <span className="text-stone-400">Day {view.day} · </span>}
         <span className="font-semibold">{phaseLabel[view.phase]}</span>
       </p>
+      {view.config && view.openFloorStatements !== null && (
+        <p className="text-stone-300">
+          Open floor: {view.openFloorStatements} of {view.config.open_floor_statements} Statements
+        </p>
+      )}
       {view.outcome && (
         <p className="text-amber-300">
           <strong>{victoryLabel[view.outcome.winner]}.</strong> {view.outcome.reason}

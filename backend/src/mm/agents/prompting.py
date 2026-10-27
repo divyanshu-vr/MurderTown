@@ -23,21 +23,24 @@ from typing import assert_never
 
 from mm.agents.memory import Memory, remember
 from mm.engine import Role
-from mm.engine.decisions import DecisionKind, DecisionRequest
+from mm.engine.decisions import DecisionKind, DecisionRequest, StatementPart
 from mm.engine.events import (
     BallotCast,
+    BidPlaced,
     DecisionFellBack,
     Event,
     GameEnded,
     GameStarted,
+    LastWordsSpoken,
     PhaseStarted,
     ReflectionWritten,
     ResidentDied,
     RoleAssigned,
+    SheriffFired,
     StatementMade,
     VoteResolved,
 )
-from mm.engine.perception import since_last_reflection
+from mm.engine.perception import briefing, since_last_reflection
 from mm.engine.phases import Phase
 from mm.engine.state import GameState
 
@@ -47,8 +50,28 @@ STATEMENT_CHARACTERS_SHOWN = 600
 
 DECISION_TEMPLATES = {
     DecisionKind.STATEMENT: "decisions/statement.md",
+    DecisionKind.BID: "decisions/bid.md",
+    DecisionKind.SHOWDOWN: "decisions/showdown.md",
     DecisionKind.BALLOT: "decisions/ballot.md",
+    DecisionKind.LAST_WORDS: "decisions/last_words.md",
     DecisionKind.REFLECTION: "decisions/reflection.md",
+}
+
+MOMENTS: dict[StatementPart | None, str] = {
+    "opening_round": "the Opening round of Discussion, where every Resident speaks once",
+    "open_floor": "the Open floor, and you have won the turn to speak",
+    None: "Discussion",
+}
+
+SHERIFF_FIRES: dict[str, str] = {
+    "showdown": "In the Showdown each Day,",
+    "night": "At Night,",
+}
+
+DEATHS: dict[str, str] = {
+    "banished": "{resident} was banished on Day {day}. They were a {role}.",
+    "shot": "{resident} was shot by the Sheriff on Day {day}. They were a {role}.",
+    "backfire": "{resident}, the Sheriff, died of the backfire on Day {day}.",
 }
 
 
@@ -84,13 +107,8 @@ def prompt_version() -> str:
 def build_prompt(request: DecisionRequest, view: Sequence[Event], rng: Random) -> Prompt:
     """The prompt for one decision. `rng` only shuffles the listed options."""
     known = GameState.fold(view)
-    briefing = next(
-        event.payload
-        for event in view
-        if isinstance(event.payload, RoleAssigned) and event.payload.resident == request.resident
-    )
     return Prompt(
-        system=_system(known, briefing),
+        system=_system(known, briefing(view, request.resident)),
         memory=_memory(remember(view, request.resident)),
         task=_task(request, view, known, rng),
     )
@@ -109,6 +127,9 @@ def _system(known: GameState, briefing: RoleAssigned) -> str:
     else:
         article = "a" if briefing.role is Role.CIVILIAN else "the"
         role = render("roles/town.md", role=f"{article} {briefing.role.capitalize()}")
+    if briefing.role is Role.SHERIFF:
+        when = SHERIFF_FIRES[known.config.sheriff_shoots_at]
+        role += "\n\n" + render("powers/sheriff.md", when=when)
     persona = briefing.persona
     return render(
         "system.md",
@@ -142,7 +163,10 @@ def _task(request: DecisionRequest, view: Sequence[Event], known: GameState, rng
     ]
     options = rng.sample(request.options, len(request.options))
     instructions = render(
-        DECISION_TEMPLATES[request.kind], day=known.day, options=", ".join(options)
+        DECISION_TEMPLATES[request.kind],
+        day=known.day,
+        options=", ".join(options),
+        moment=MOMENTS[request.part],
     )
     return render(
         "task.md",
@@ -161,8 +185,11 @@ def _facts(view: Sequence[Event], known: GameState) -> list[str]:
                 ballots = ", ".join([*(f"{n} {v}" for n, v in tally.items()), f"skip {skips}"])
                 outcome = f"{banished} was banished" if banished else "nobody was banished"
                 facts.append(f"Day {event.day} Vote: {ballots}; {outcome}.")
-            case ResidentDied(resident=resident, role=role):
-                facts.append(f"{resident} is gone. They were a {role.capitalize()}.")
+            case ResidentDied(resident=resident, cause=cause, role=role):
+                death = DEATHS[cause].format(
+                    resident=resident, day=event.day, role=role.capitalize()
+                )
+                facts.append(death)
             case _:
                 pass
     return facts
@@ -177,11 +204,13 @@ def _line(event: Event) -> str | None:
             return f'<statement speaker="{speaker}">{untrusted(text)}</statement>'
         case BallotCast(voter=voter, target=target):
             return f"{voter} voted for {target}." if target else f"{voter} voted to skip."
-        case VoteResolved() | ResidentDied():
+        case LastWordsSpoken(resident=resident, text=text):
+            return f'<statement speaker="{resident}">(last words) {untrusted(text)}</statement>'
+        case VoteResolved() | ResidentDied() | SheriffFired():
             return None  # shown among the game master's facts instead
         case GameStarted() | RoleAssigned() | ReflectionWritten():
             return None  # shown in the briefing or the Resident's own memory instead
-        case GameEnded() | DecisionFellBack():
+        case BidPlaced() | GameEnded() | DecisionFellBack():
             return None  # never needed for a decision
         case unknown:
             assert_never(unknown)

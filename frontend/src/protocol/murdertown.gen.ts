@@ -4,7 +4,7 @@
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "DecisionKind".
  */
-export type DecisionKind = "statement" | "ballot" | "reflection";
+export type DecisionKind = "statement" | "bid" | "showdown" | "ballot" | "last_words" | "reflection";
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "Phase".
@@ -36,6 +36,18 @@ export interface BallotCast {
   target: string | null;
 }
 /**
+ * How urgently one Resident wants to make the next Statement on the Open floor.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "BidPlaced".
+ */
+export interface BidPlaced {
+  type: "bid_placed";
+  resident: string;
+  urgency: number;
+  reason: string;
+}
+/**
  * A decision source could not give a usable answer, so a safe default was used instead.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
@@ -63,9 +75,12 @@ export interface Event {
     | GameStarted
     | RoleAssigned
     | PhaseStarted
+    | BidPlaced
     | StatementMade
+    | SheriffFired
     | BallotCast
     | VoteResolved
+    | LastWordsSpoken
     | ResidentDied
     | ReflectionWritten
     | DecisionFellBack
@@ -92,16 +107,19 @@ export interface GameStarted {
 }
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
- * via the `definition` "GameConfig".
+ * via the `definition` "GameConfig-Output".
  */
 export interface GameConfig {
-  residents?: number;
-  murderers?: number;
-  doctor?: boolean;
-  detective?: boolean;
-  sheriff?: boolean;
-  max_days?: number;
-  seed?: number;
+  residents: number;
+  murderers: number;
+  doctor: boolean;
+  detective: boolean;
+  sheriff: boolean;
+  max_days: number;
+  open_floor_statements: number;
+  open_floor_seconds: number | null;
+  sheriff_shoots_at: "showdown" | "night";
+  seed: number;
 }
 /**
  * A character in the town. The seat fixes their house and their place in every ordering.
@@ -147,6 +165,8 @@ export interface PhaseStarted {
   phase: Phase;
 }
 /**
+ * A Statement, with what it does: whom it names, accuses and defends, and any role claim.
+ *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "StatementMade".
  */
@@ -155,6 +175,22 @@ export interface StatementMade {
   speaker: string;
   text: string;
   part: "opening_round" | "open_floor";
+  addressed: string[];
+  accused: string[];
+  defended: string[];
+  claimed_role: Role | null;
+}
+/**
+ * The Sheriff spends the single bullet. Whoever is hit, and perhaps the Sheriff, dies next.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "SheriffFired".
+ */
+export interface SheriffFired {
+  type: "sheriff_fired";
+  sheriff: string;
+  target: string;
+  hit_a_murderer: boolean;
 }
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
@@ -169,7 +205,21 @@ export interface VoteResolved {
   banished: string | null;
 }
 /**
+ * What a banished Resident says before their role is revealed.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "LastWordsSpoken".
+ */
+export interface LastWordsSpoken {
+  type: "last_words_spoken";
+  resident: string;
+  text: string;
+}
+/**
  * A death, announced to everyone with the dead Resident's role.
+ *
+ * A Resident is banished by Vote or shot by the Sheriff; a Sheriff who shoots a
+ * Town Resident dies of the backfire.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "ResidentDied".
@@ -177,7 +227,7 @@ export interface VoteResolved {
 export interface ResidentDied {
   type: "resident_died";
   resident: string;
-  cause: "banished";
+  cause: "banished" | "shot" | "backfire";
   role: Role;
 }
 /**
@@ -226,6 +276,22 @@ export interface GameEnded {
  */
 export interface EventPage {
   events: Event[];
+}
+/**
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "GameConfig-Input".
+ */
+export interface GameConfigInput {
+  residents?: number;
+  murderers?: number;
+  doctor?: boolean;
+  detective?: boolean;
+  sheriff?: boolean;
+  max_days?: number;
+  open_floor_statements?: number;
+  open_floor_seconds?: number | null;
+  sheriff_shoots_at?: "showdown" | "night";
+  seed?: number;
 }
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema

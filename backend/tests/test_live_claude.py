@@ -53,7 +53,7 @@ async def test_an_isolated_session_answers_on_the_subscription_and_caches_its_pr
     repeat = await provider.complete(request_for(statement))
 
     assert first.outcome == "ok", first.error
-    assert isinstance(read_answer(statement.request, first.data), Statement)
+    assert isinstance(read_answer(statement.request, first.data, statement.role), Statement)
     session = provider.last_session
     assert session is not None
     assert session.api_key_source == "none"

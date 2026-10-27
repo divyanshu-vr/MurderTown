@@ -12,15 +12,18 @@ from typing import assert_never
 from mm.engine.config import GameConfig
 from mm.engine.events import (
     BallotCast,
+    BidPlaced,
     DecisionFellBack,
     Event,
     EventPayload,
     GameEnded,
     GameStarted,
+    LastWordsSpoken,
     PhaseStarted,
     ReflectionWritten,
     ResidentDied,
     RoleAssigned,
+    SheriffFired,
     StatementMade,
     VoteResolved,
 )
@@ -37,6 +40,7 @@ class GameState:
     dead: set[str] = field(default_factory=set)
     day: int = 0
     phase: Phase = Phase.SETUP
+    bullet_spent: bool = False
     winner: Side | None = None
 
     @classmethod
@@ -58,11 +62,13 @@ class GameState:
             case ResidentDied(resident=resident, role=role):
                 self.dead.add(resident)
                 self.roles[resident] = role
+            case SheriffFired():
+                self.bullet_spent = True
             case GameEnded(winner=winner):
                 self.winner, self.phase = winner, Phase.ENDED
             case (
-                StatementMade() | BallotCast() | VoteResolved() | ReflectionWritten()
-                | DecisionFellBack()
+                BidPlaced() | StatementMade() | BallotCast() | VoteResolved() | LastWordsSpoken()
+                | ReflectionWritten() | DecisionFellBack()
             ):  # fmt: skip
                 pass  # recorded in the log, but they change nothing the state tracks
             case unknown:

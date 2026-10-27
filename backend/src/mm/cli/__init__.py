@@ -47,6 +47,9 @@ def play(
     model: str = AgentSettings.model,
     effort: Effort = AgentSettings.effort,
     concurrency: Annotated[int, typer.Option(help="Agents thinking at once.")] = 5,
+    open_floor_seconds: Annotated[
+        int | None, typer.Option(help="Time limit on each Open floor; off by default here.")
+    ] = None,
     out: Annotated[Path | None, typer.Option(help="Save the event log as NDJSON.")] = None,
     quiet: Annotated[bool, typer.Option(help="Do not print the transcript.")] = False,
 ) -> None:
@@ -63,6 +66,7 @@ def play(
         doctor=doctor,
         detective=detective,
         sheriff=sheriff,
+        open_floor_seconds=open_floor_seconds,
     )
     tally = CallTally()
     observers: list[EventObserver] = []
@@ -118,7 +122,8 @@ def _brains(
 
 
 async def _print_event(event: Event) -> None:
-    typer.echo(describe(event))
+    if (line := describe(event)) is not None:
+        typer.echo(line)
 
 
 @app.command()

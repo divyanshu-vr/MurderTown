@@ -15,9 +15,10 @@ from mm.agents.answers import ANSWERS, answer_schema, read_answer
 from mm.agents.brain import Brain, BrainFactory
 from mm.agents.calls import CallOutcome, CallRecorder, ModelCall
 from mm.agents.prompting import build_prompt, prompt_version, retry_task
-from mm.engine import Resident
+from mm.engine import Resident, Role
 from mm.engine.decisions import Answer, Decision, DecisionRequest
 from mm.engine.events import Event
+from mm.engine.perception import briefing
 from mm.llm import Effort, ModelProvider, ModelReply, ModelRequest
 
 ATTEMPTS = 2
@@ -38,6 +39,7 @@ class LLMBrain:
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         prompt = build_prompt(request, view, self.rng)
         schema = answer_schema(request.kind)
+        own_role = briefing(view, request.resident).role
         problem: str | None = None
         for attempt in range(1, ATTEMPTS + 1):
             message = prompt.user_message(retry_task(prompt, problem) if problem else None)
@@ -50,7 +52,7 @@ class LLMBrain:
                     effort=self.settings.effort,
                 )
             )
-            decision, problem, outcome = _interpret(request, reply)
+            decision, problem, outcome = _interpret(request, reply, own_role)
             await self.record(
                 self._call(
                     request=request,
@@ -104,11 +106,11 @@ class LLMBrain:
 
 
 def _interpret(
-    request: DecisionRequest, reply: ModelReply
+    request: DecisionRequest, reply: ModelReply, own_role: Role
 ) -> tuple[Decision | None, str | None, CallOutcome]:
     if reply.outcome != "ok":
         return None, reply.error or reply.outcome, reply.outcome
-    answer = read_answer(request, reply.data)
+    answer = read_answer(request, reply.data, own_role)
     if isinstance(answer, str):
         return None, answer, "invalid"
     return answer, None, "ok"

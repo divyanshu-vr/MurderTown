@@ -12,9 +12,10 @@ from random import Random
 
 from mm.agents import Brain, scripted_bots
 from mm.agents.prompting import Prompt, build_prompt
-from mm.engine import GameConfig, Resident
+from mm.engine import GameConfig, Resident, Role
 from mm.engine.decisions import Answer, DecisionKind, DecisionRequest, Reflection, Statement
 from mm.engine.events import Event
+from mm.engine.perception import briefing
 from mm.engine.state import GameState
 from mm.orchestrator import play_game
 
@@ -28,6 +29,8 @@ class Shown:
     prompt: Prompt
     dead: frozenset[str]
     """Who the Resident knew to be dead when the prompt was built."""
+    role: Role
+    """The Resident's own role."""
 
     def text(self) -> str:
         return self.prompt.system + "\n" + self.prompt.user_message()
@@ -40,7 +43,8 @@ class Spy:
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         me = request.resident
         prompt = build_prompt(request, view, Random(me))
-        self.shown.append(Shown(me, request, prompt, frozenset(GameState.fold(view).dead)))
+        dead = frozenset(GameState.fold(view).dead)
+        self.shown.append(Shown(me, request, prompt, dead, briefing(view, me).role))
         match request.kind:
             case DecisionKind.REFLECTION:
                 notes = Reflection(
@@ -50,7 +54,10 @@ class Spy:
                 )
                 return Answer(notes)
             case DecisionKind.STATEMENT if self.says:
-                return Answer(Statement(text=self.says))
+                said = Statement(
+                    text=self.says, addressed=[], accused=[], defended=[], claimed_role=None
+                )
+                return Answer(said)
             case DecisionKind.BALLOT:
                 ballot = await self.inner.decide(request, view)
                 return Answer(ballot.decision, fallback_reason=f"{FALLBACK_SENTINEL}-{me}")

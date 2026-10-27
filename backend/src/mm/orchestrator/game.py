@@ -1,6 +1,7 @@
 """The game runner: plays a whole game from casting to the final verdict."""
 
 import asyncio
+import time
 from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass, replace
 from random import Random
@@ -16,11 +17,13 @@ from mm.engine.state import GameState
 from mm.orchestrator.log import EventLog, EventObserver
 from mm.orchestrator.phases.dawn import run_dawn
 from mm.orchestrator.phases.discussion import run_discussion
+from mm.orchestrator.phases.night import run_night
+from mm.orchestrator.phases.showdown import run_showdown
 from mm.orchestrator.phases.vote import run_vote
 
 PhaseRunner = Callable[["Game"], Awaitable[None]]
 
-DAY: tuple[PhaseRunner, ...] = (run_dawn, run_discussion, run_vote)
+DAY: tuple[PhaseRunner, ...] = (run_dawn, run_discussion, run_showdown, run_vote, run_night)
 """One Day, in order, with a check for a winner after each Phase."""
 
 
@@ -45,9 +48,14 @@ class GameResult:
 
 class Game:
     def __init__(
-        self, config: GameConfig, brain_for: BrainFactory, observers: Sequence[EventObserver] = ()
+        self,
+        config: GameConfig,
+        brain_for: BrainFactory,
+        observers: Sequence[EventObserver] = (),
+        clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self.config = config
+        self.clock = clock
         self.rng = Random(config.seed)
         self.log = EventLog(observers)
         self.brain_for = brain_for
@@ -79,15 +87,19 @@ class Game:
         if cause is None:
             return await self.log.append(payload)
         event = await self.log.append(payload, decision_id=cause.request.id)
-        if cause.fallback_reason and cause.request.id not in self._fallbacks_reported:
-            self._fallbacks_reported.add(cause.request.id)
-            fell_back = DecisionFellBack(
-                resident=cause.request.resident,
-                kind=cause.request.kind,
-                reason=cause.fallback_reason,
-            )
-            await self.log.append(fell_back, decision_id=cause.request.id)
+        await self.report_fallback(cause)
         return event
+
+    async def report_fallback(self, decided: Decided[Decision]) -> None:
+        """Tell Spectators, once, that a decision was a safe default rather than a real choice."""
+        if decided.fallback_reason and decided.request.id not in self._fallbacks_reported:
+            self._fallbacks_reported.add(decided.request.id)
+            fell_back = DecisionFellBack(
+                resident=decided.request.resident,
+                kind=decided.request.kind,
+                reason=decided.fallback_reason,
+            )
+            await self.log.append(fell_back, decision_id=decided.request.id)
 
     async def start_phase(self, phase: Phase) -> None:
         day = self.state.day + 1 if phase is Phase.DAWN else self.state.day
@@ -120,9 +132,12 @@ class Game:
 
 
 async def play_game(
-    config: GameConfig, brain_for: BrainFactory, observers: Sequence[EventObserver] = ()
+    config: GameConfig,
+    brain_for: BrainFactory,
+    observers: Sequence[EventObserver] = (),
+    clock: Callable[[], float] = time.monotonic,
 ) -> GameResult:
     """Play one whole game. Observers hear every event as it is appended."""
-    game = Game(config, brain_for, observers)
+    game = Game(config, brain_for, observers, clock)
     await game.play()
     return GameResult(events=game.log.events, state=game.state)

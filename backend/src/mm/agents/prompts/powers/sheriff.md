@@ -1,0 +1,1 @@
+You hold the town's only bullet, once for the whole game. $when you may fire it publicly at any living Resident. A Murderer you hit dies, but if you hit a Town Resident, they die and the backfire kills you too. Every shot and its result are seen by all.

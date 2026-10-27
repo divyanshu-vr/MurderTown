@@ -1,14 +1,25 @@
 """Helpers shared by the seam-1 tests: reading an event log the way a test needs to."""
 
 import json
+import re
 from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass, field
 from random import Random
 from typing import Any
 
 from mm.agents import Brain, BrainFactory
 from mm.agents.scripted import ScriptedBot
 from mm.engine import GameConfig, Resident, Role
-from mm.engine.decisions import SKIP, Answer, Ballot, DecisionKind, DecisionRequest
+from mm.engine.decisions import (
+    SKIP,
+    Answer,
+    Ballot,
+    Bid,
+    DecisionKind,
+    DecisionRequest,
+    Showdown,
+    Statement,
+)
 from mm.engine.events import Event, Payload, RoleAssigned
 from mm.engine.state import GameState
 from mm.llm import ModelReply, ModelRequest, Usage
@@ -35,22 +46,51 @@ def state_before(events: Sequence[Event], first: Callable[[Event], bool]) -> Gam
 Script = Mapping[int, Mapping[int, int | None]]
 """Ballots by Day, then by voter seat: the target's seat, or None for SKIP."""
 
+BidRule = Callable[[str, GameState], int]
+"""How urgently a Resident bids, given their name and what they know."""
 
+SpeechRule = Callable[[DecisionRequest, GameState], Statement]
+"""What a Resident says, given the request and what they know."""
+
+
+def quiet(name: str, known: GameState) -> int:
+    return 0
+
+
+@dataclass(frozen=True)
 class Puppet:
-    """A test decision source that votes exactly as scripted and otherwise SKIPs.
+    """A test decision source that does exactly what a test scripts.
 
-    Everything else it answers like a scripted bot.
+    By default it bids 0, holds fire and votes to skip. Unscripted Statements,
+    last words and reflections come from a scripted bot.
     """
 
-    def __init__(self, ballots: Script) -> None:
-        self.ballots = ballots
+    ballots: Script = field(default_factory=dict)
+    bids: BidRule = quiet
+    shots: Mapping[int, int] = field(default_factory=dict)
+    """For the Sheriff: the seat to fire at, by Day."""
+    says: SpeechRule | None = None
 
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         known = GameState.fold(view)
-        if request.kind is DecisionKind.BALLOT:
-            target = self.ballots.get(known.day, {}).get(seat_of(known)[request.resident])
-            return Answer(Ballot(choice=SKIP if target is None else known.residents[target].name))
-        return await ScriptedBot(Random(request.resident)).decide(request, view)
+        me = request.resident
+        match request.kind:
+            case DecisionKind.BALLOT:
+                target = self.ballots.get(known.day, {}).get(seat_of(known)[me])
+                choice = SKIP if target is None else known.residents[target].name
+                return Answer(Ballot(choice=choice))
+            case DecisionKind.BID:
+                return Answer(Bid(urgency=self.bids(me, known), reason="scripted"))
+            case DecisionKind.SHOWDOWN:
+                seat = self.shots.get(known.day)
+                if seat is None:
+                    return Answer(Showdown(fire=False, target=None, reason="scripted"))
+                target = known.residents[seat].name
+                return Answer(Showdown(fire=True, target=target, reason="scripted"))
+            case DecisionKind.STATEMENT if self.says:
+                return Answer(self.says(request, known))
+            case _:
+                return await ScriptedBot(Random(me)).decide(request, view)
 
 
 def seat_of(state: GameState) -> dict[str, int]:
@@ -66,11 +106,26 @@ def wrapped(factory: BrainFactory, wrap: Callable[[Brain], Brain]) -> BrainFacto
     return make
 
 
-def puppets(ballots: Script | None = None) -> BrainFactory:
+def puppets(
+    ballots: Script | None = None,
+    *,
+    bids: BidRule = quiet,
+    shots: Mapping[int, int] | None = None,
+    says: SpeechRule | None = None,
+) -> BrainFactory:
+    puppet = Puppet(ballots=ballots or {}, bids=bids, shots=shots or {}, says=says)
+
     def make(resident: Resident) -> Brain:
-        return Puppet(ballots or {})
+        return puppet
 
     return make
+
+
+def saying(text: str, *, addressed: Sequence[str] = ()) -> Statement:
+    """A Statement with only words and the names it addresses."""
+    return Statement(
+        text=text, addressed=list(addressed), accused=[], defended=[], claimed_role=None
+    )
 
 
 def name_at_seat(events: Sequence[Event], seat: int) -> str:
@@ -87,14 +142,27 @@ async def seats_by_role(config: GameConfig) -> dict[Role, list[int]]:
     return {role: sorted(found) for role, found in seats.items()}
 
 
+KIND_BY_FIELD = {
+    "my_role": DecisionKind.STATEMENT,
+    "urgency": DecisionKind.BID,
+    "fire": DecisionKind.SHOWDOWN,
+    "choice": DecisionKind.BALLOT,
+    "journal_entry": DecisionKind.REFLECTION,
+}
+
+
 def answer_kind(request: ModelRequest) -> DecisionKind:
     """Which decision a model request is for, read from the shape of its answer schema."""
     fields = set(request.schema["properties"])
-    if "choice" in fields:
-        return DecisionKind.BALLOT
-    if "journal_entry" in fields:
-        return DecisionKind.REFLECTION
-    return DecisionKind.STATEMENT
+    found = [kind for field, kind in KIND_BY_FIELD.items() if field in fields]
+    return found[0] if found else DecisionKind.LAST_WORDS
+
+
+def own_role(request: ModelRequest) -> str:
+    """The Agent's true role, as its system briefing states it."""
+    found = re.search(r"You are (?:secretly )?(?:a|the) (\w+)", request.system)
+    assert found, "every briefing states the Agent's role"
+    return found.group(1).lower()
 
 
 def model_answer(data: dict[str, Any]) -> ModelReply:
@@ -104,13 +172,25 @@ def model_answer(data: dict[str, Any]) -> ModelReply:
     )
 
 
+def statement_answer(text: str, request: ModelRequest, **fields: Any) -> dict[str, Any]:
+    """A complete Statement answer: the words, what they do, and the speaker's true role."""
+    nothing: dict[str, Any] = {"addressed": [], "accused": [], "defended": [], "claimed_role": None}
+    return {"text": text, **nothing, **fields, "my_role": own_role(request)}
+
+
 def sensible_answer(request: ModelRequest) -> ModelReply:
-    """What a cooperative model says: a short Statement, a SKIP ballot, a brief reflection."""
+    """A cooperative model: short Statements, quiet bids, held fire, SKIP and brief notes."""
     match answer_kind(request):
         case DecisionKind.STATEMENT:
-            return model_answer({"text": "I am watching every one of you."})
+            return model_answer(statement_answer("I am watching every one of you.", request))
+        case DecisionKind.BID:
+            return model_answer({"urgency": 0, "reason": "listening"})
+        case DecisionKind.SHOWDOWN:
+            return model_answer({"fire": False, "target": None, "reason": "not yet"})
         case DecisionKind.BALLOT:
             return model_answer({"choice": "SKIP"})
+        case DecisionKind.LAST_WORDS:
+            return model_answer({"text": "You will regret this."})
         case DecisionKind.REFLECTION:
             return model_answer({"journal_entry": "Quiet so far.", "notebook": "Stay alert.",
                                  "suspicions": []})  # fmt: skip

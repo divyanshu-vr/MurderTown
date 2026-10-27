@@ -1,10 +1,14 @@
-"""Vote: sealed ballots, a banishment if one Resident clearly beats SKIP, then reflection."""
+"""Vote: sealed ballots, a banishment if one Resident clearly beats SKIP, then reflection.
+
+A banished Resident says their last words before their role is revealed.
+"""
 
 from typing import TYPE_CHECKING
 
 from mm.engine import Phase
-from mm.engine.decisions import Ballot, DecisionKind, DecisionRequest
-from mm.engine.events import BallotCast, ResidentDied, VoteResolved
+from mm.engine.decisions import Ballot, DecisionKind, DecisionRequest, LastWords
+from mm.engine.discussion import trimmed
+from mm.engine.events import BallotCast, LastWordsSpoken, ResidentDied, VoteResolved
 from mm.engine.vote import ballot_options, tally_ballots, target_of
 from mm.orchestrator.phases.reflection import reflect
 
@@ -28,7 +32,10 @@ async def run_vote(game: "Game") -> None:
         VoteResolved(tally=outcome.tally, skips=outcome.skips, banished=outcome.banished)
     )
 
-    if outcome.banished:
-        role = game.state.roles[outcome.banished]
-        await game.append(ResidentDied(resident=outcome.banished, cause="banished", role=role))
+    if banished := outcome.banished:
+        words = await game.decide(DecisionRequest(DecisionKind.LAST_WORDS, banished), LastWords)
+        spoken = LastWordsSpoken(resident=banished, text=trimmed(words.decision.text))
+        await game.append(spoken, cause=words)
+        role = game.state.roles[banished]
+        await game.append(ResidentDied(resident=banished, cause="banished", role=role))
     await reflect(game)

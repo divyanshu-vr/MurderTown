@@ -10,10 +10,25 @@ from mm.agents import AgentSettings, ModelCall, llm_agents
 from mm.agents.prompting import prompt_version
 from mm.engine import GameConfig
 from mm.engine.decisions import DecisionKind
-from mm.engine.events import BallotCast, DecisionFellBack, Event, GameEnded, StatementMade
+from mm.engine.events import (
+    BallotCast,
+    DecisionFellBack,
+    Event,
+    GameEnded,
+    SheriffFired,
+    StatementMade,
+)
 from mm.llm import ModelReply, ModelRequest
 from mm.orchestrator import GameResult, play_game
-from tests.support import FakeModel, answer_kind, model_answer, payloads, sensible_answer
+from tests.support import (
+    FakeModel,
+    answer_kind,
+    model_answer,
+    own_role,
+    payloads,
+    sensible_answer,
+    statement_answer,
+)
 
 CONFIG = GameConfig(residents=6, murderers=1, max_days=1, seed=13)
 
@@ -61,7 +76,9 @@ async def test_agents_play_a_whole_game_through_the_model_without_fallbacks() ->
 async def test_every_model_call_is_recorded_before_the_event_its_decision_caused() -> None:
     played = await play_with(FakeModel())
 
-    for call in played.calls:
+    caused = [call for call in played.calls if f"event {call.decision_id}" in played.timeline]
+    assert caused
+    for call in caused:
         assert played.timeline.index(f"call {call.decision_id}") < played.timeline.index(
             f"event {call.decision_id}"
         )
@@ -147,7 +164,7 @@ async def test_details_from_outside_the_game_never_reach_the_event_log() -> None
 
     def respond(request: ModelRequest) -> ModelReply:
         if answer_kind(request) is DecisionKind.STATEMENT:
-            return model_answer({"text": leaky})
+            return model_answer(statement_answer(leaky, request))
         return sensible_answer(request)
 
     played = await play_with(FakeModel(respond))
@@ -170,3 +187,33 @@ async def test_a_suspicion_about_someone_outside_the_options_is_retried_with_the
     reflections = played.calls_for(DecisionKind.REFLECTION)
     assert [call.outcome for call in reflections[:2]] == ["invalid", "ok"]
     assert "not ['Nobody']" in reflections[1].prompt
+
+
+async def test_a_statement_that_gets_its_own_role_wrong_is_retried_with_the_true_role() -> None:
+    def respond(request: ModelRequest) -> ModelReply:
+        if answer_kind(request) is DecisionKind.STATEMENT and not retried(request):
+            wrong = "civilian" if own_role(request) == "murderer" else "murderer"
+            return model_answer({**statement_answer("Trust me.", request), "my_role": wrong})
+        return sensible_answer(request)
+
+    played = await play_with(FakeModel(respond))
+
+    statements = played.calls_for(DecisionKind.STATEMENT)
+    assert [call.outcome for call in statements[:2]] == ["invalid", "ok"]
+    assert "your true role is" in statements[1].prompt
+    assert payloads(played.result.events, DecisionFellBack) == []
+
+
+async def test_a_shot_at_someone_outside_the_options_falls_back_to_holding_fire() -> None:
+    def respond(request: ModelRequest) -> ModelReply:
+        if answer_kind(request) is DecisionKind.SHOWDOWN:
+            return model_answer({"fire": True, "target": "Nobody", "reason": "a hunch"})
+        return sensible_answer(request)
+
+    played = await play_with(FakeModel(respond))
+
+    assert payloads(played.result.events, SheriffFired) == []
+    assert [call.outcome for call in played.calls_for(DecisionKind.SHOWDOWN)] == ["invalid"] * 2
+    (fallback,) = payloads(played.result.events, DecisionFellBack)
+    assert fallback.kind is DecisionKind.SHOWDOWN
+    assert "not 'Nobody'" in fallback.reason

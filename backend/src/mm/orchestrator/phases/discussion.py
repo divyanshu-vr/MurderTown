@@ -1,14 +1,17 @@
 """Discussion: the public debate in the town square.
 
 The Opening round comes first: every living Resident makes exactly one
-Statement, in a random order that changes every Day.
+Statement, in a random order that changes every Day. Then the Open floor: each
+turn, every living Resident bids, the highest bid speaks, and the Open floor
+ends at its Statement cap, its time limit, or after two quiet turns in a row.
 """
 
 from typing import TYPE_CHECKING
 
 from mm.engine import Phase
-from mm.engine.decisions import DecisionKind, DecisionRequest, Statement
-from mm.engine.events import StatementMade
+from mm.engine.decisions import Bid, DecisionKind, DecisionRequest, Statement, StatementPart
+from mm.engine.discussion import named, open_floor_over, speaker_for, trimmed
+from mm.engine.events import BidPlaced, StatementMade
 
 if TYPE_CHECKING:
     from mm.orchestrator.game import Game
@@ -18,7 +21,48 @@ async def run_discussion(game: "Game") -> None:
     await game.start_phase(Phase.DISCUSSION)
     order = list(game.state.living)
     game.rng.shuffle(order)
+    last: StatementMade | None = None
     for speaker in order:
-        said = await game.decide(DecisionRequest(DecisionKind.STATEMENT, speaker), Statement)
-        made = StatementMade(speaker=speaker, text=said.decision.text, part="opening_round")
-        await game.append(made, cause=said)
+        last = await _statement(game, speaker, "opening_round")
+    await _open_floor(game, last)
+
+
+async def _open_floor(game: "Game", last: StatementMade | None) -> None:
+    started = game.clock()
+    made = quiet_turns = 0
+    while not open_floor_over(game.config, made, quiet_turns, game.clock() - started):
+        requests = [DecisionRequest(DecisionKind.BID, name) for name in game.state.living]
+        bids = await game.decide_all(requests, Bid)
+        for bid in bids:
+            placed = BidPlaced(
+                resident=bid.request.resident,
+                urgency=bid.decision.urgency,
+                reason=bid.decision.reason,
+            )
+            await game.append(placed, cause=bid)
+
+        urgency = {bid.request.resident: bid.decision.urgency for bid in bids}
+        speaker = speaker_for(urgency, last.addressed if last else (), game.rng)
+        if speaker is None:
+            quiet_turns += 1
+            continue
+        quiet_turns = 0
+        last = await _statement(game, speaker, "open_floor")
+        made += 1
+
+
+async def _statement(game: "Game", speaker: str, part: StatementPart) -> StatementMade:
+    request = DecisionRequest(DecisionKind.STATEMENT, speaker, part=part)
+    said = await game.decide(request, Statement)
+    statement, state = said.decision, game.state
+    made = StatementMade(
+        speaker=speaker,
+        text=trimmed(statement.text),
+        part=part,
+        addressed=named(statement.addressed, state, speaker),
+        accused=named(statement.accused, state, speaker),
+        defended=named(statement.defended, state, speaker),
+        claimed_role=statement.claimed_role,
+    )
+    await game.append(made, cause=said)
+    return made

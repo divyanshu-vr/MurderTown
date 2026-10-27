@@ -6,6 +6,7 @@ Owns where games are kept and how new events reach watchers.
 
 **Entry points**
 - `store.py`: `GameStore`, which creates games, appends events, records how a game ended and pages a game's events after a sequence number.
+- `database.py`: `open_database(url)`, which opens Postgres or SQLite; SQLite runs in WAL mode so writing an event per row stays fast.
 - `tables.py` and `migrations/`: the `games` and `events` tables. Events are never changed after they are written. `migrate.upgrade(engine)` brings any database (SQLite in tests, Postgres in development and production) to the latest schema.
 - `bus.py`: the `Bus` interface and `InProcessBus`, which fan a game's new events out to everyone watching it.
 

@@ -7,7 +7,14 @@ import pytest
 from mm.agents import Brain
 from mm.engine import GameConfig, Resident
 from mm.engine.decisions import Answer, Ballot, DecisionKind, DecisionRequest
-from mm.engine.events import BallotCast, Event, ResidentDied, RoleAssigned, VoteResolved
+from mm.engine.events import (
+    BallotCast,
+    Event,
+    LastWordsSpoken,
+    ResidentDied,
+    RoleAssigned,
+    VoteResolved,
+)
 from mm.engine.state import GameState
 from mm.orchestrator import IllegalDecisionError, play_game
 from tests.support import Puppet, name_at_seat, payloads, puppets
@@ -84,3 +91,15 @@ async def test_skips_are_counted_apart_from_the_ballots_against_residents() -> N
 
     assert outcome.tally == {name_at_seat(result.events, 5): 2, name_at_seat(result.events, 3): 1}
     assert outcome.skips == 3
+
+
+async def test_a_banished_resident_says_last_words_before_their_role_is_revealed() -> None:
+    result = await play_game(SIX_RESIDENTS, puppets({1: {0: 4, 1: 4, 2: 4, 3: 4}}))
+    banished = name_at_seat(result.events, 4)
+
+    kinds = [type(e.payload).__name__ for e in result.events]
+    spoken = kinds.index("LastWordsSpoken")
+    assert kinds[spoken + 1] == "ResidentDied"
+    (words,) = payloads(result.events, LastWordsSpoken)
+    assert words.resident == banished
+    assert words.text

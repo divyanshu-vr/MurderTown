@@ -102,7 +102,11 @@ To remove a Resident from the game by Vote.
 _Avoid_: vote out, eliminate, lynch, exile, execute
 
 **Last words**:
-The final Statement of a Resident who has just been Banished.
+What a Resident who has just been Banished says before their role is revealed.
+
+**Backfire**:
+The Sheriff's own death after shooting a Resident who is not a Murderer.
+_Avoid_: misfire, recoil
 
 **Conversation**:
 A private exchange between two Residents during Dusk.

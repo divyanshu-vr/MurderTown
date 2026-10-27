@@ -2,17 +2,14 @@
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.engine import make_url
-from sqlalchemy.ext.asyncio import create_async_engine
 
 from mm.api.live_games import BrainsFor, LiveGames, scripted_brains
 from mm.api.routes import Services, router
 from mm.api.settings import Settings
-from mm.persistence import GameStore, InProcessBus, upgrade
+from mm.persistence import GameStore, InProcessBus, open_database, upgrade
 
 
 def create_app(
@@ -22,8 +19,7 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        _ensure_sqlite_folder(settings.database_url)
-        engine = create_async_engine(settings.database_url)
+        engine = open_database(settings.database_url)
         await upgrade(engine)
         store, bus = GameStore(engine), InProcessBus()
         games = LiveGames(store, bus, brains_for)
@@ -41,9 +37,3 @@ def create_app(
     )
     app.include_router(router)
     return app
-
-
-def _ensure_sqlite_folder(database_url: str) -> None:
-    url = make_url(database_url)
-    if url.get_backend_name() == "sqlite" and url.database:
-        Path(url.database).parent.mkdir(parents=True, exist_ok=True)

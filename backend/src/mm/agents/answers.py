@@ -8,30 +8,48 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from pydantic import ValidationError
+from pydantic import Field, ValidationError
 
+from mm.engine import Role
 from mm.engine.decisions import (
     SKIP,
     Ballot,
+    Bid,
     Decision,
     DecisionKind,
     DecisionRequest,
+    LastWords,
     Reflection,
+    Showdown,
     Statement,
 )
 from mm.engine.rules import why_illegal
+
+
+class StatementAnswer(Statement):
+    """An Agent's Statement, plus its own true role as a tripwire. The role is never shown."""
+
+    my_role: Role = Field(description="Your own true role. Nobody else ever sees this field.")
 
 
 @dataclass(frozen=True)
 class AnswerSpec:
     shape: type[Decision]
     fallback: Decision
-    """What happens when the Resident cannot decide: say nothing, skip, write nothing."""
+    """What happens when the Resident cannot decide: silence, a vote to skip, holding fire."""
 
 
 ANSWERS: dict[DecisionKind, AnswerSpec] = {
-    DecisionKind.STATEMENT: AnswerSpec(Statement, Statement(text="(stays silent)")),
+    DecisionKind.STATEMENT: AnswerSpec(
+        StatementAnswer,
+        Statement(text="(stays silent)", addressed=[], accused=[], defended=[], claimed_role=None),
+    ),
+    DecisionKind.BID: AnswerSpec(Bid, Bid(urgency=0, reason="(no answer)")),
+    DecisionKind.SHOWDOWN: AnswerSpec(
+        Showdown, Showdown(fire=False, target=None, reason="(no answer)")
+    ),
     DecisionKind.BALLOT: AnswerSpec(Ballot, Ballot(choice=SKIP)),
+    DecisionKind.LAST_WORDS: AnswerSpec(LastWords, LastWords(text="(says nothing)")),
     DecisionKind.REFLECTION: AnswerSpec(
         Reflection, Reflection(journal_entry="", notebook="", suspicions=[])
     ),
@@ -53,7 +71,9 @@ def answer_schema(kind: DecisionKind) -> dict[str, Any]:
     return flattened
 
 
-def read_answer(request: DecisionRequest, data: dict[str, Any] | None) -> Decision | str:
+def read_answer(
+    request: DecisionRequest, data: dict[str, Any] | None, own_role: Role
+) -> Decision | str:
     """The decision in a model's answer, or why it cannot be used."""
     if data is None:
         return "the answer was not in the requested structure"
@@ -66,6 +86,8 @@ def read_answer(request: DecisionRequest, data: dict[str, Any] | None) -> Decisi
         )
     if problem := why_illegal(request, decision):
         return problem
+    if isinstance(decision, StatementAnswer) and decision.my_role is not own_role:
+        return f"your true role is {own_role.capitalize()}, not {decision.my_role.capitalize()}"
     return scrub(decision)
 
 

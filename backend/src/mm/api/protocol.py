@@ -18,6 +18,9 @@ def protocol_schema() -> dict[str, Any]:
 
     Pydantic titles every field; code generators would turn each title into its
     own type alias, so only the model-level titles (which name the types) are kept.
+    A model the server both accepts and sends, like `GameConfig`, appears twice:
+    as sent, with every field present, and as accepted, where defaults may be
+    left out. The accepted form is named `<Model>Input`.
     """
     _, schema = models_json_schema(
         [
@@ -29,7 +32,9 @@ def protocol_schema() -> dict[str, Any]:
         ],
         title="MurderTown protocol",
     )
-    for definition in schema["$defs"].values():
+    for name, definition in schema["$defs"].items():
+        if name.endswith("-Input"):
+            definition["title"] += "Input"
         for field in definition.get("properties", {}).values():
             field.pop("title", None)
     return schema

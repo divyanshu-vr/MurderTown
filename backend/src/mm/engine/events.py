@@ -10,7 +10,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from mm.engine.config import GameConfig
-from mm.engine.decisions import DecisionKind, Suspicion
+from mm.engine.decisions import DecisionKind, StatementPart, Suspicion
 from mm.engine.personas import Persona
 from mm.engine.phases import Phase
 from mm.engine.residents import Resident
@@ -84,11 +84,41 @@ class PhaseStarted(Payload):
         return Visibility.everyone()
 
 
+class BidPlaced(Payload):
+    """How urgently one Resident wants to make the next Statement on the Open floor."""
+
+    type: Literal["bid_placed"] = "bid_placed"
+    resident: str
+    urgency: int
+    reason: str
+
+    def visibility(self) -> Visibility:
+        return Visibility.only(self.resident)
+
+
 class StatementMade(Payload):
+    """A Statement, with what it does: whom it names, accuses and defends, and any role claim."""
+
     type: Literal["statement_made"] = "statement_made"
     speaker: str
     text: str
-    part: Literal["opening_round", "open_floor"]
+    part: StatementPart
+    addressed: tuple[str, ...] = ()
+    accused: tuple[str, ...] = ()
+    defended: tuple[str, ...] = ()
+    claimed_role: Role | None = None
+
+    def visibility(self) -> Visibility:
+        return Visibility.everyone()
+
+
+class SheriffFired(Payload):
+    """The Sheriff spends the single bullet. Whoever is hit, and perhaps the Sheriff, dies next."""
+
+    type: Literal["sheriff_fired"] = "sheriff_fired"
+    sheriff: str
+    target: str
+    hit_a_murderer: bool
 
     def visibility(self) -> Visibility:
         return Visibility.everyone()
@@ -117,12 +147,27 @@ class VoteResolved(Payload):
         return Visibility.everyone()
 
 
+class LastWordsSpoken(Payload):
+    """What a banished Resident says before their role is revealed."""
+
+    type: Literal["last_words_spoken"] = "last_words_spoken"
+    resident: str
+    text: str
+
+    def visibility(self) -> Visibility:
+        return Visibility.everyone()
+
+
 class ResidentDied(Payload):
-    """A death, announced to everyone with the dead Resident's role."""
+    """A death, announced to everyone with the dead Resident's role.
+
+    A Resident is banished by Vote or shot by the Sheriff; a Sheriff who shoots a
+    Town Resident dies of the backfire.
+    """
 
     type: Literal["resident_died"] = "resident_died"
     resident: str
-    cause: Literal["banished"]
+    cause: Literal["banished", "shot", "backfire"]
     role: Role
 
     def visibility(self) -> Visibility:
@@ -167,9 +212,12 @@ EventPayload = Annotated[
     GameStarted
     | RoleAssigned
     | PhaseStarted
+    | BidPlaced
     | StatementMade
+    | SheriffFired
     | BallotCast
     | VoteResolved
+    | LastWordsSpoken
     | ResidentDied
     | ReflectionWritten
     | DecisionFellBack

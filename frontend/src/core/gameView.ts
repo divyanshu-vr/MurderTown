@@ -4,7 +4,7 @@
  * Pure TypeScript: no React, no Phaser, no I/O. The same fold serves live games
  * and replays, so both always show the same thing for the same events.
  */
-import type { Event, Phase, PayloadOf, Role, Side } from "../protocol";
+import type { Event, GameConfig, Phase, PayloadOf, Role, Side } from "../protocol";
 
 export interface ResidentView {
   name: string;
@@ -17,13 +17,23 @@ export interface ResidentView {
 }
 
 export interface GameView {
+  config: GameConfig | null;
   residents: ResidentView[];
   day: number;
   phase: Phase;
+  /** Statements made so far on the Open floor, or null while it is not under way. */
+  openFloorStatements: number | null;
   outcome: { winner: Side; reason: string } | null;
 }
 
-export const emptyView: GameView = { residents: [], day: 0, phase: "setup", outcome: null };
+export const emptyView: GameView = {
+  config: null,
+  residents: [],
+  day: 0,
+  phase: "setup",
+  openFloorStatements: null,
+  outcome: null,
+};
 
 export function foldEvents(events: readonly Event[]): GameView {
   return events.reduce(applyEvent, emptyView);
@@ -35,6 +45,7 @@ export function applyEvent(view: GameView, event: Event): GameView {
     case "game_started":
       return {
         ...view,
+        config: payload.config,
         residents: payload.residents.map(({ name, seat, occupation }) => ({
           name,
           seat,
@@ -47,7 +58,13 @@ export function applyEvent(view: GameView, event: Event): GameView {
     case "role_assigned":
       return { ...view, residents: change(view.residents, payload.resident, { role: payload.role }) };
     case "phase_started":
-      return { ...view, day: payload.day, phase: payload.phase };
+      return { ...view, day: payload.day, phase: payload.phase, openFloorStatements: null };
+    case "bid_placed": // Residents bid only on the Open floor, so the first bid opens it
+      return { ...view, openFloorStatements: view.openFloorStatements ?? 0 };
+    case "statement_made":
+      return payload.part === "open_floor"
+        ? { ...view, openFloorStatements: (view.openFloorStatements ?? 0) + 1 }
+        : view;
     case "resident_died":
       return {
         ...view,
@@ -59,7 +76,8 @@ export function applyEvent(view: GameView, event: Event): GameView {
       };
     case "game_ended":
       return { ...view, phase: "ended", outcome: { winner: payload.winner, reason: payload.reason } };
-    case "statement_made":
+    case "sheriff_fired": // the deaths that follow change the roster
+    case "last_words_spoken":
     case "ballot_cast":
     case "vote_resolved":
     case "reflection_written":

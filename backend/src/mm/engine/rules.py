@@ -2,7 +2,14 @@
 
 from dataclasses import dataclass
 
-from mm.engine.decisions import Ballot, Decision, DecisionRequest, Reflection, Statement
+from mm.engine.decisions import (
+    Ballot,
+    Decision,
+    DecisionRequest,
+    Reflection,
+    Showdown,
+    Statement,
+)
 from mm.engine.roles import Role, Side
 from mm.engine.state import GameState
 
@@ -16,6 +23,8 @@ def why_illegal(request: DecisionRequest, decision: Decision) -> str | None:
             return "a Statement cannot be empty"
         case Reflection(suspicions=suspicions):
             return _suspicions_problem([s.resident for s in suspicions], request.options)
+        case Showdown(fire=True, target=target) if target not in request.options:
+            return f"to fire, name one of {list(request.options)} as the target, not {target!r}"
     return None
 
 

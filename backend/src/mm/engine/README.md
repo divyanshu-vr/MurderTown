@@ -1,6 +1,6 @@
 # mm.engine: the rules
 
-Owns everything that decides what is true in a game: the configuration and its bounds, roles and sides, casting, the events and who may perceive each one, the state fold, the Vote and the win conditions.
+Owns everything that decides what is true in a game: the configuration and its bounds, roles and sides, casting, the events and who may perceive each one, the state fold, the Open floor, the Showdown, the Vote and the win conditions.
 
 **May import:** nothing else from `mm`. No I/O, clocks or async, so every rule is a plain function that a test can call directly.
 
@@ -10,6 +10,8 @@ Owns everything that decides what is true in a game: the configuration and its b
 - `perception.py`: `perceived_by(events, resident)`, the only way a Resident learns anything, and what a Resident has perceived since their last reflection.
 - `decisions.py`: what a Resident can be asked (`DecisionRequest`) and the shape of each answer.
 - `rules.py` and `vote.py`: legality of decisions, the tally, banishment and the verdict.
+- `discussion.py`: who speaks next on the Open floor, when the Open floor is over, and how a Statement is trimmed and its names checked.
+- `showdown.py`: whether a Sheriff may still fire, at whom, and the deaths a shot causes.
 - `casting.py`: names, seats, personas and roles, all drawn from the game's seeded random source.
 - `personas.py`: who each Resident is as a person. The occupation is public; the rest is private.
 

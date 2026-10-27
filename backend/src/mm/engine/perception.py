@@ -6,7 +6,7 @@ Every prompt, every bot decision and every Mind inspector view is built from
 
 from collections.abc import Iterable, Sequence
 
-from mm.engine.events import Event, PhaseStarted, ReflectionWritten
+from mm.engine.events import Event, PhaseStarted, ReflectionWritten, RoleAssigned
 from mm.engine.phases import Phase
 
 
@@ -33,4 +33,13 @@ def has_news(view: Sequence[Event], resident: str) -> bool:
     return any(
         event.phase is not Phase.SETUP and not isinstance(event.payload, PhaseStarted)
         for event in since_last_reflection(view, resident)
+    )
+
+
+def briefing(view: Sequence[Event], resident: str) -> RoleAssigned:
+    """The Resident's own role assignment: their role, persona and any teammates."""
+    return next(
+        event.payload
+        for event in view
+        if isinstance(event.payload, RoleAssigned) and event.payload.resident == resident
     )
