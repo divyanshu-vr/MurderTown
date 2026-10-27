@@ -4,9 +4,10 @@ The engine decides which choices are legal. A decision source (a scripted bot,
 an Agent or, one day, a human) only picks among them.
 """
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Literal
+from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -50,6 +51,14 @@ class Statement(Decision):
     claimed_role: Role | None = Field(
         description="The role you claim to have, if your words claim one; otherwise null."
     )
+
+    @classmethod
+    def plain(cls, text: str, addressed: Sequence[str] = ()) -> Self:
+        """A Statement that only says something: it accuses, defends and claims nothing.
+
+        The fields have no defaults because a model must fill in every one of them.
+        """
+        return cls(text=text, addressed=list(addressed), accused=[], defended=[], claimed_role=None)
 
 
 class Bid(Decision):

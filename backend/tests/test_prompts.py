@@ -1,23 +1,18 @@
 """Seam 1: what each Agent is shown.
 
-Every test plays a scripted game with a spy that builds the real prompt at each
+Every test plays a game with a spy that builds the real prompt at each
 decision point (see tests/prompt_spy.py).
 """
 
 import re
 
-from mm.agents.prompting import Prompt
-from mm.engine import GameConfig
+import pytest
+
+from mm.engine import GameConfig, Role
 from mm.engine.decisions import DecisionKind
-from mm.engine.events import DecisionFellBack, RoleAssigned
+from mm.engine.events import DecisionFellBack, RoleAssigned, SheriffFired
 from tests.prompt_spy import FALLBACK_SENTINEL, spy_on
-from tests.support import payloads
-
-
-def listed_options(prompt: Prompt) -> list[str]:
-    found = re.search(r"spelled as shown\): (.+)", prompt.task)
-    assert found, "a ballot prompt lists its options"
-    return found.group(1).split(", ")
+from tests.support import listed_options, payloads, puppets, seats_by_role
 
 
 async def test_no_prompt_shows_another_residents_notes_or_private_persona() -> None:
@@ -32,13 +27,21 @@ async def test_no_prompt_shows_another_residents_notes_or_private_persona() -> N
                 assert quirk not in text
 
 
-async def test_no_prompt_pairs_a_living_resident_with_a_role_the_viewer_should_not_know() -> None:
-    shown, events = await spy_on(GameConfig(residents=12, murderers=2, max_days=4, seed=31))
+@pytest.mark.parametrize("sheriff_hits_on_day_one", [False, True])
+async def test_no_prompt_pairs_a_living_resident_with_a_role_the_viewer_should_not_know(
+    sheriff_hits_on_day_one: bool,
+) -> None:
+    config = GameConfig(residents=12, murderers=2, max_days=4, seed=31)
+    murderer = (await seats_by_role(config))[Role.MURDERER][0]
+    inner = puppets(shots={1: murderer}) if sheriff_hits_on_day_one else None
+
+    shown, events = await spy_on(config, inner=inner)
+
     assignments = {a.resident: a for a in payloads(events, RoleAssigned)}
 
     for seen in shown:
         text = seen.text()
-        known = {seen.resident, *seen.dead, *assignments[seen.resident].teammates}
+        known = {seen.resident, *seen.revealed, *assignments[seen.resident].teammates}
         for other, assignment in assignments.items():
             if other in known:
                 continue
@@ -101,6 +104,19 @@ async def test_ballot_options_are_all_listed_in_a_shuffled_order() -> None:
     shown, _ = await spy_on(GameConfig(residents=10, murderers=2, max_days=2, seed=31))
     ballots = [s for s in shown if s.request.kind is DecisionKind.BALLOT]
 
-    pairs = [(listed_options(s.prompt), s) for s in ballots]
+    pairs = [(listed_options(s.prompt.task), s) for s in ballots]
     assert all(sorted(names) == sorted(s.request.options) for names, s in pairs)
     assert any(names != list(s.request.options) for names, s in pairs)
+
+
+async def test_after_a_shot_every_prompt_names_the_sheriff_who_fired() -> None:
+    config = GameConfig(residents=8, murderers=2, max_days=1, seed=9)
+    murderer = (await seats_by_role(config))[Role.MURDERER][0]
+
+    shown, events = await spy_on(config, inner=puppets(shots={1: murderer}))
+
+    (shot,) = payloads(events, SheriffFired)
+    ballots = [s for s in shown if s.request.kind is DecisionKind.BALLOT]
+    assert ballots
+    fact = f"Day 1: {shot.sheriff}, the Sheriff, fired at {shot.target}."
+    assert all(fact in seen.prompt.task for seen in ballots)

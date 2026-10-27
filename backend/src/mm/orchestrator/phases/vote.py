@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 
 from mm.engine import Phase
 from mm.engine.decisions import Ballot, DecisionKind, DecisionRequest, LastWords
-from mm.engine.discussion import trimmed
 from mm.engine.events import BallotCast, LastWordsSpoken, ResidentDied, VoteResolved
+from mm.engine.rules import trimmed
 from mm.engine.vote import ballot_options, tally_ballots, target_of
 from mm.orchestrator.phases.reflection import reflect
 

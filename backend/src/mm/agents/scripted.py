@@ -74,8 +74,7 @@ class ScriptedBot:
     def _statement(self, request: DecisionRequest, known: GameState) -> Statement:
         me = request.resident
         if request.part == "opening_round":
-            text = self.rng.choice(OPENING_LINES).format(me=me)
-            return Statement(text=text, addressed=[], accused=[], defended=[], claimed_role=None)
+            return Statement.plain(self.rng.choice(OPENING_LINES).format(me=me))
         doubted = self.rng.choice([name for name in known.living if name != me])
         return Statement(
             text=f"I have my doubts about {doubted}.",

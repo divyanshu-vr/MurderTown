@@ -1,4 +1,4 @@
-It is Day $day: $moment. Make your Statement to the town square in your own voice, in at most 60 words. You may share suspicions, defend yourself or others, ask questions or claim a role.
+It is Day $day: $moment. Make your Statement to the town square in your own voice, in at most $words words. You may share suspicions, defend yourself or others, ask questions or claim a role.
 
 Besides the words themselves, report what your Statement does:
 - addressed: the Residents you speak to by name;

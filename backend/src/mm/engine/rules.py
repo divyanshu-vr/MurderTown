@@ -1,4 +1,4 @@
-"""Rules that judge decisions and decide when the game is over."""
+"""Rules that judge decisions, limit what a Resident may say, and decide when the game is over."""
 
 from dataclasses import dataclass
 
@@ -26,6 +26,23 @@ def why_illegal(request: DecisionRequest, decision: Decision) -> str | None:
         case Showdown(fire=True, target=target) if target not in request.options:
             return f"to fire, name one of {list(request.options)} as the target, not {target!r}"
     return None
+
+
+WORD_LIMIT = 90
+"""The most words a Resident may say at once, in a Statement or in their last words.
+
+Prompts ask for fewer words than this, so an ordinary answer is never cut and
+the limit only stops a runaway answer from flooding the town. A long answer is
+cut rather than retried, because a retry would cost another model call.
+"""
+
+
+def trimmed(text: str) -> str:
+    """What a Resident said, cut to the word limit."""
+    words = text.split()
+    if len(words) <= WORD_LIMIT:
+        return text.strip()
+    return " ".join(words[:WORD_LIMIT]) + "..."
 
 
 def _suspicions_problem(named: list[str], options: tuple[str, ...]) -> str | None:

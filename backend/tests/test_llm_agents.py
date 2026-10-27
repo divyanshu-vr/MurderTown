@@ -12,9 +12,11 @@ from mm.engine import GameConfig
 from mm.engine.decisions import DecisionKind
 from mm.engine.events import (
     BallotCast,
+    BidPlaced,
     DecisionFellBack,
     Event,
     GameEnded,
+    LastWordsSpoken,
     SheriffFired,
     StatementMade,
 )
@@ -23,6 +25,7 @@ from mm.orchestrator import GameResult, play_game
 from tests.support import (
     FakeModel,
     answer_kind,
+    listed_options,
     model_answer,
     own_role,
     payloads,
@@ -193,7 +196,7 @@ async def test_a_statement_that_gets_its_own_role_wrong_is_retried_with_the_true
     def respond(request: ModelRequest) -> ModelReply:
         if answer_kind(request) is DecisionKind.STATEMENT and not retried(request):
             wrong = "civilian" if own_role(request) == "murderer" else "murderer"
-            return model_answer({**statement_answer("Trust me.", request), "my_role": wrong})
+            return model_answer(statement_answer("Trust me.", request, my_role=wrong))
         return sensible_answer(request)
 
     played = await play_with(FakeModel(respond))
@@ -217,3 +220,39 @@ async def test_a_shot_at_someone_outside_the_options_falls_back_to_holding_fire(
     (fallback,) = payloads(played.result.events, DecisionFellBack)
     assert fallback.kind is DecisionKind.SHOWDOWN
     assert "not 'Nobody'" in fallback.reason
+
+
+async def test_an_unusable_bid_falls_back_to_listening() -> None:
+    def respond(request: ModelRequest) -> ModelReply:
+        if answer_kind(request) is DecisionKind.BID:
+            return model_answer({"urgency": 9, "reason": "me, me, me"})
+        return sensible_answer(request)
+
+    played = await play_with(FakeModel(respond))
+
+    bids = payloads(played.result.events, BidPlaced)
+    fallbacks = payloads(played.result.events, DecisionFellBack)
+    assert bids
+    assert {bid.urgency for bid in bids} == {0}
+    assert sorted((f.kind, f.resident) for f in fallbacks) == sorted(
+        (DecisionKind.BID, bid.resident) for bid in bids
+    )
+
+
+async def test_last_words_the_model_refuses_fall_back_to_saying_nothing() -> None:
+    def respond(request: ModelRequest) -> ModelReply:
+        match answer_kind(request):
+            case DecisionKind.BALLOT:  # everyone votes for the first name, alphabetically
+                names = sorted(set(listed_options(request.prompt)) - {"SKIP"})
+                return model_answer({"choice": names[0]})
+            case DecisionKind.LAST_WORDS:
+                return ModelReply(outcome="refusal", data=None, text="", error="the model declined")
+            case _:
+                return sensible_answer(request)
+
+    played = await play_with(FakeModel(respond))
+
+    (words,) = payloads(played.result.events, LastWordsSpoken)
+    (fallback,) = payloads(played.result.events, DecisionFellBack)
+    assert words.text == "(says nothing)"
+    assert (fallback.kind, fallback.resident) == (DecisionKind.LAST_WORDS, words.resident)

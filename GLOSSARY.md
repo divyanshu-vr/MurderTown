@@ -75,6 +75,10 @@ _Avoid_: round (on its own), introductions
 **Open floor**:
 The part of Discussion after the Opening round, in which Residents Bid for the next Statement.
 
+**Turn**:
+One cycle of the Open floor: every living Resident Bids, then the highest Bid makes a Statement, unless every Bid was to listen.
+_Avoid_: round (on the Open floor)
+
 **Showdown**:
 The Phase in which the Sheriff may fire their bullet.
 
@@ -147,5 +151,5 @@ How strongly a Resident believes another is a Murderer, from 0 to 100, with a re
 _Avoid_: trust score, rating
 
 **Fallback**:
-The safe default used when a Resident gives no usable answer: silence, a vote to skip, or no notes.
+The safe default used when a Resident gives no usable answer: silence, a Bid to listen, holding fire, a vote to skip, no Last words, or no notes.
 _Avoid_: default answer, error

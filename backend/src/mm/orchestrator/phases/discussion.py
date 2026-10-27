@@ -2,16 +2,17 @@
 
 The Opening round comes first: every living Resident makes exactly one
 Statement, in a random order that changes every Day. Then the Open floor: each
-turn, every living Resident bids, the highest bid speaks, and the Open floor
-ends at its Statement cap, its time limit, or after two quiet turns in a row.
+Turn, every living Resident bids, the highest bid speaks, and the Open floor
+ends at its Statement cap, its time limit, or after two quiet Turns in a row.
 """
 
 from typing import TYPE_CHECKING
 
 from mm.engine import Phase
 from mm.engine.decisions import Bid, DecisionKind, DecisionRequest, Statement, StatementPart
-from mm.engine.discussion import named, open_floor_over, speaker_for, trimmed
+from mm.engine.discussion import named, open_floor_over, speaker_for
 from mm.engine.events import BidPlaced, StatementMade
+from mm.engine.rules import trimmed
 
 if TYPE_CHECKING:
     from mm.orchestrator.game import Game
@@ -29,8 +30,8 @@ async def run_discussion(game: "Game") -> None:
 
 async def _open_floor(game: "Game", last: StatementMade | None) -> None:
     started = game.clock()
-    made = quiet_turns = 0
-    while not open_floor_over(game.config, made, quiet_turns, game.clock() - started):
+    statements_made = quiet_turns = 0
+    while not open_floor_over(game.config, statements_made, quiet_turns, game.clock() - started):
         requests = [DecisionRequest(DecisionKind.BID, name) for name in game.state.living]
         bids = await game.decide_all(requests, Bid)
         for bid in bids:
@@ -48,7 +49,7 @@ async def _open_floor(game: "Game", last: StatementMade | None) -> None:
             continue
         quiet_turns = 0
         last = await _statement(game, speaker, "open_floor")
-        made += 1
+        statements_made += 1
 
 
 async def _statement(game: "Game", speaker: str, part: StatementPart) -> StatementMade:

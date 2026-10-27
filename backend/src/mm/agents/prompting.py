@@ -70,9 +70,13 @@ SHERIFF_FIRES: dict[str, str] = {
 
 DEATHS: dict[str, str] = {
     "banished": "{resident} was banished on Day {day}. They were a {role}.",
-    "shot": "{resident} was shot by the Sheriff on Day {day}. They were a {role}.",
+    "shot": "{resident} died of the shot on Day {day}. They were a {role}.",
     "backfire": "{resident}, the Sheriff, died of the backfire on Day {day}.",
 }
+
+WORDS_ASKED_FOR = {DecisionKind.STATEMENT: 60, DecisionKind.LAST_WORDS: 40}
+"""How long a Statement and last words should be. Well under the engine's WORD_LIMIT,
+so the engine only ever cuts a runaway answer."""
 
 
 @dataclass(frozen=True)
@@ -118,22 +122,22 @@ def retry_task(prompt: Prompt, problem: str) -> str:
     return prompt.task + "\n" + render("retry.md", problem=problem)
 
 
-def _system(known: GameState, briefing: RoleAssigned) -> str:
+def _system(known: GameState, assigned: RoleAssigned) -> str:
     assert known.config is not None
-    if briefing.role is Role.MURDERER:
-        mates = ", ".join(briefing.teammates)
+    if assigned.role is Role.MURDERER:
+        mates = ", ".join(assigned.teammates)
         teammates = f"Your fellow Murderers are {mates}." if mates else "You are the only Murderer."
         role = render("roles/murderer.md", teammates=teammates)
     else:
-        article = "a" if briefing.role is Role.CIVILIAN else "the"
-        role = render("roles/town.md", role=f"{article} {briefing.role.capitalize()}")
-    if briefing.role is Role.SHERIFF:
+        article = "a" if assigned.role is Role.CIVILIAN else "the"
+        role = render("roles/town.md", role=f"{article} {assigned.role.capitalize()}")
+    if assigned.role is Role.SHERIFF:
         when = SHERIFF_FIRES[known.config.sheriff_shoots_at]
         role += "\n\n" + render("powers/sheriff.md", when=when)
-    persona = briefing.persona
+    persona = assigned.persona
     return render(
         "system.md",
-        name=briefing.resident,
+        name=assigned.resident,
         occupation=persona.occupation,
         residents=len(known.residents),
         max_days=known.config.max_days,
@@ -167,6 +171,7 @@ def _task(request: DecisionRequest, view: Sequence[Event], known: GameState, rng
         day=known.day,
         options=", ".join(options),
         moment=MOMENTS[request.part],
+        words=WORDS_ASKED_FOR.get(request.kind),
     )
     return render(
         "task.md",
@@ -185,6 +190,8 @@ def _facts(view: Sequence[Event], known: GameState) -> list[str]:
                 ballots = ", ".join([*(f"{n} {v}" for n, v in tally.items()), f"skip {skips}"])
                 outcome = f"{banished} was banished" if banished else "nobody was banished"
                 facts.append(f"Day {event.day} Vote: {ballots}; {outcome}.")
+            case SheriffFired(sheriff=sheriff, target=target):
+                facts.append(f"Day {event.day}: {sheriff}, the Sheriff, fired at {target}.")
             case ResidentDied(resident=resident, cause=cause, role=role):
                 death = DEATHS[cause].format(
                     resident=resident, day=event.day, role=role.capitalize()

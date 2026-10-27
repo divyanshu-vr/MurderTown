@@ -1,9 +1,9 @@
-"""Rules of Discussion: who speaks next on the Open floor, and how long a Statement may be.
+"""Rules of Discussion: who speaks next on the Open floor, and whom a Statement names.
 
 On the Open floor every living Resident bids how urgently they want to speak.
-The highest bid speaks. A tie is drawn at random, but a Resident named in the
-previous Statement is three times as likely to win it, so being addressed
-tends to earn a reply. If every bid is 0, nobody speaks that turn.
+The highest bid speaks. A tie is drawn at random, but a Resident addressed by
+the previous Statement is three times as likely to win it, so being addressed
+tends to earn a reply. If every bid is 0, nobody speaks that Turn.
 """
 
 from collections.abc import Collection, Iterable, Mapping
@@ -12,8 +12,8 @@ from random import Random
 from mm.engine.config import GameConfig
 from mm.engine.state import GameState
 
-STATEMENT_WORD_LIMIT = 90
 ADDRESSED_WEIGHT = 3
+"""How much likelier a Resident the previous Statement addressed is to win a tied bid."""
 
 
 def speaker_for(bids: Mapping[str, int], addressed: Collection[str], rng: Random) -> str | None:
@@ -26,14 +26,6 @@ def speaker_for(bids: Mapping[str, int], addressed: Collection[str], rng: Random
     return rng.choices(tied, weights=weights)[0]
 
 
-def trimmed(text: str) -> str:
-    """A Statement cut to the word limit."""
-    words = text.split()
-    if len(words) <= STATEMENT_WORD_LIMIT:
-        return text.strip()
-    return " ".join(words[:STATEMENT_WORD_LIMIT]) + "..."
-
-
 def named(names: Iterable[str], state: GameState, speaker: str) -> tuple[str, ...]:
     """The real Residents a Statement names, each once, never the speaker themselves."""
     residents = {resident.name for resident in state.residents} - {speaker}
@@ -41,7 +33,7 @@ def named(names: Iterable[str], state: GameState, speaker: str) -> tuple[str, ..
 
 
 QUIET_TURNS_TO_END = 2
-"""The Open floor ends after this many turns in a row in which nobody wanted to speak."""
+"""The Open floor ends after this many Turns in a row in which nobody wanted to speak."""
 
 
 def open_floor_over(

@@ -36,14 +36,12 @@ class StatementAnswer(Statement):
 class AnswerSpec:
     shape: type[Decision]
     fallback: Decision
-    """What happens when the Resident cannot decide: silence, a vote to skip, holding fire."""
+    """What happens when the Resident cannot decide: silence, a bid of 0, holding fire,
+    a vote to skip, no last words or an empty reflection that changes nothing."""
 
 
 ANSWERS: dict[DecisionKind, AnswerSpec] = {
-    DecisionKind.STATEMENT: AnswerSpec(
-        StatementAnswer,
-        Statement(text="(stays silent)", addressed=[], accused=[], defended=[], claimed_role=None),
-    ),
+    DecisionKind.STATEMENT: AnswerSpec(StatementAnswer, Statement.plain("(stays silent)")),
     DecisionKind.BID: AnswerSpec(Bid, Bid(urgency=0, reason="(no answer)")),
     DecisionKind.SHOWDOWN: AnswerSpec(
         Showdown, Showdown(fire=False, target=None, reason="(no answer)")

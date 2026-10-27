@@ -49,7 +49,7 @@ Script = Mapping[int, Mapping[int, int | None]]
 BidRule = Callable[[str, GameState], int]
 """How urgently a Resident bids, given their name and what they know."""
 
-SpeechRule = Callable[[DecisionRequest, GameState], Statement]
+StatementRule = Callable[[DecisionRequest, GameState], Statement]
 """What a Resident says, given the request and what they know."""
 
 
@@ -69,7 +69,7 @@ class Puppet:
     bids: BidRule = quiet
     shots: Mapping[int, int] = field(default_factory=dict)
     """For the Sheriff: the seat to fire at, by Day."""
-    says: SpeechRule | None = None
+    says: StatementRule | None = None
 
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         known = GameState.fold(view)
@@ -111,7 +111,7 @@ def puppets(
     *,
     bids: BidRule = quiet,
     shots: Mapping[int, int] | None = None,
-    says: SpeechRule | None = None,
+    says: StatementRule | None = None,
 ) -> BrainFactory:
     puppet = Puppet(ballots=ballots or {}, bids=bids, shots=shots or {}, says=says)
 
@@ -119,13 +119,6 @@ def puppets(
         return puppet
 
     return make
-
-
-def saying(text: str, *, addressed: Sequence[str] = ()) -> Statement:
-    """A Statement with only words and the names it addresses."""
-    return Statement(
-        text=text, addressed=list(addressed), accused=[], defended=[], claimed_role=None
-    )
 
 
 def name_at_seat(events: Sequence[Event], seat: int) -> str:
@@ -165,6 +158,13 @@ def own_role(request: ModelRequest) -> str:
     return found.group(1).lower()
 
 
+def listed_options(prompt: str) -> list[str]:
+    """The options a ballot prompt lists, in the order it lists them."""
+    found = re.search(r"spelled as shown\): (.+)", prompt)
+    assert found, "a ballot prompt lists its options"
+    return found.group(1).split(", ")
+
+
 def model_answer(data: dict[str, Any]) -> ModelReply:
     usage = Usage(input_tokens=40, output_tokens=12, cache_read_tokens=30, cache_write_tokens=0)
     return ModelReply(
@@ -173,9 +173,9 @@ def model_answer(data: dict[str, Any]) -> ModelReply:
 
 
 def statement_answer(text: str, request: ModelRequest, **fields: Any) -> dict[str, Any]:
-    """A complete Statement answer: the words, what they do, and the speaker's true role."""
-    nothing: dict[str, Any] = {"addressed": [], "accused": [], "defended": [], "claimed_role": None}
-    return {"text": text, **nothing, **fields, "my_role": own_role(request)}
+    """A complete Statement answer: the words, the speaker's true role, then any `fields` given."""
+    plain = Statement.plain(text).model_dump(mode="json")
+    return {**plain, "my_role": own_role(request), **fields}
 
 
 def sensible_answer(request: ModelRequest) -> ModelReply:
