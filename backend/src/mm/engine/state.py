@@ -7,16 +7,22 @@ code, so the two can never drift apart.
 
 from collections.abc import Iterable
 from dataclasses import dataclass, field
+from typing import assert_never
 
 from mm.engine.config import GameConfig
 from mm.engine.events import (
+    BallotCast,
+    DecisionFellBack,
     Event,
     EventPayload,
     GameEnded,
     GameStarted,
     PhaseStarted,
+    ReflectionWritten,
     ResidentDied,
     RoleAssigned,
+    StatementMade,
+    VoteResolved,
 )
 from mm.engine.phases import Phase
 from mm.engine.residents import Resident
@@ -54,6 +60,13 @@ class GameState:
                 self.roles[resident] = role
             case GameEnded(winner=winner):
                 self.winner, self.phase = winner, Phase.ENDED
+            case (
+                StatementMade() | BallotCast() | VoteResolved() | ReflectionWritten()
+                | DecisionFellBack()
+            ):  # fmt: skip
+                pass  # recorded in the log, but they change nothing the state tracks
+            case unknown:
+                assert_never(unknown)
 
     @property
     def living(self) -> list[str]:

@@ -28,13 +28,6 @@ class Brains(StrEnum):
     CLAUDE = "claude"
 
 
-class EffortLevel(StrEnum):
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    MAX = "max"
-
-
 @app.callback()
 def main() -> None:
     """Keep `mm` a group of commands even while it has only a few."""
@@ -51,8 +44,8 @@ def play(
     detective: bool = True,
     sheriff: bool = True,
     brains: Annotated[Brains, typer.Option(help="Who plays the Residents.")] = Brains.SCRIPTED,
-    model: str = "claude-haiku-5-5",
-    effort: EffortLevel = EffortLevel.LOW,
+    model: str = AgentSettings.model,
+    effort: Effort = AgentSettings.effort,
     concurrency: Annotated[int, typer.Option(help="Agents thinking at once.")] = 5,
     out: Annotated[Path | None, typer.Option(help="Save the event log as NDJSON.")] = None,
     quiet: Annotated[bool, typer.Option(help="Do not print the transcript.")] = False,
@@ -106,7 +99,7 @@ def _brains(
     *,
     config: GameConfig,
     model: str,
-    effort: EffortLevel,
+    effort: Effort,
     concurrency: int,
     tally: CallTally,
     out: Path | None,
@@ -121,20 +114,7 @@ def _brains(
         if calls_file:
             await calls_file(call)
 
-    settings = AgentSettings(model=model, effort=_effort(effort))
-    return llm_agents(provider, settings, record, config.seed)
-
-
-def _effort(level: EffortLevel) -> Effort:
-    match level:
-        case EffortLevel.LOW:
-            return "low"
-        case EffortLevel.MEDIUM:
-            return "medium"
-        case EffortLevel.HIGH:
-            return "high"
-        case EffortLevel.MAX:
-            return "max"
+    return llm_agents(provider, AgentSettings(model=model, effort=effort), record, config.seed)
 
 
 async def _print_event(event: Event) -> None:

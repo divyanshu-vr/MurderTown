@@ -10,8 +10,10 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict
 
 from mm.engine.decisions import DecisionKind
+from mm.llm import Effort, Outcome
 
-CallOutcome = Literal["ok", "invalid", "refusal", "timeout", "error"]
+CallOutcome = Outcome | Literal["invalid"]
+"""What came of one attempt: the provider's outcome, or an answer the game could not use."""
 
 
 class ModelCall(BaseModel):
@@ -23,7 +25,7 @@ class ModelCall(BaseModel):
     attempt: int
     provider: str
     model: str
-    effort: str
+    effort: Effort
     prompt_version: str
     system: str
     prompt: str

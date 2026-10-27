@@ -4,12 +4,12 @@ from collections import Counter
 from collections.abc import Sequence
 
 from mm.agents import Brain, scripted_bots
-from mm.engine import GameConfig, Resident, Role
+from mm.engine import GameConfig, Role
 from mm.engine.decisions import Answer, DecisionRequest
 from mm.engine.events import Event, RoleAssigned
 from mm.engine.perception import perceived_by
 from mm.orchestrator import play_game
-from tests.support import payloads
+from tests.support import payloads, wrapped
 
 
 async def test_the_roles_dealt_match_the_configuration() -> None:
@@ -56,7 +56,6 @@ def may_perceive(event: Event, resident: str) -> bool:
 
 async def test_a_decision_source_is_only_ever_shown_what_its_resident_may_perceive() -> None:
     shown: list[tuple[str, list[Event]]] = []
-    bots = scripted_bots(seed=17)
 
     class Watching:
         def __init__(self, inner: Brain) -> None:
@@ -66,10 +65,8 @@ async def test_a_decision_source_is_only_ever_shown_what_its_resident_may_percei
             shown.append((request.resident, list(view)))
             return await self.inner.decide(request, view)
 
-    def make(resident: Resident) -> Brain:
-        return Watching(bots(resident))
-
-    await play_game(GameConfig(residents=10, murderers=2, max_days=3, seed=17), make)
+    config = GameConfig(residents=10, murderers=2, max_days=3, seed=17)
+    await play_game(config, wrapped(scripted_bots(seed=17), Watching))
 
     assert shown
     for resident, view in shown:

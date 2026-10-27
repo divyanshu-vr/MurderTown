@@ -16,13 +16,12 @@ from mm.engine.state import GameState
 from mm.orchestrator.log import EventLog, EventObserver
 from mm.orchestrator.phases.dawn import run_dawn
 from mm.orchestrator.phases.discussion import run_discussion
-from mm.orchestrator.phases.reflection import run_reflections
 from mm.orchestrator.phases.vote import run_vote
 
-Step = Callable[["Game"], Awaitable[None]]
+PhaseRunner = Callable[["Game"], Awaitable[None]]
 
-DAY: tuple[Step, ...] = (run_dawn, run_reflections, run_discussion, run_vote, run_reflections)
-"""One Day: a Phase or a round of reflections per step, with a win check after each."""
+DAY: tuple[PhaseRunner, ...] = (run_dawn, run_discussion, run_vote)
+"""One Day, in order, with a check for a winner after each Phase."""
 
 
 class IllegalDecisionError(Exception):
@@ -65,8 +64,8 @@ class Game:
             await self.append(payload)
         self.brains = {resident.name: self.brain_for(resident) for resident in self.state.residents}
         while True:
-            for step in DAY:
-                await step(self)
+            for run_phase in DAY:
+                await run_phase(self)
                 if outcome := verdict(self.state):
                     return await self.end(outcome)
             if outcome := verdict_at_end_of_day(self.state):

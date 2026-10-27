@@ -3,17 +3,18 @@
 from collections.abc import Callable
 
 from mm.agents import scripted_bots
-from mm.engine import GameConfig, Phase
+from mm.engine import GameConfig, Phase, Role
 from mm.engine.events import (
     BallotCast,
     Event,
     PhaseStarted,
     ReflectionWritten,
+    ResidentDied,
     StatementMade,
 )
 from mm.engine.perception import perceived_by
 from mm.orchestrator import play_game
-from tests.support import payloads, state_before
+from tests.support import payloads, puppets, seats_by_role, state_before
 
 CONFIG = GameConfig(residents=8, murderers=2, max_days=3, seed=21)
 
@@ -73,3 +74,14 @@ async def test_every_event_a_decision_caused_names_that_decision() -> None:
     ids = [event.decision_id for event in caused]
     assert all(ids)
     assert len(set(ids)) == len(ids)
+
+
+async def test_nobody_reflects_once_the_game_is_decided() -> None:
+    six = GameConfig(residents=6, murderers=1, max_days=3, seed=2)
+    (murderer,) = (await seats_by_role(six))[Role.MURDERER]
+    banish_the_murderer = {seat: murderer for seat in range(6) if seat != murderer}
+
+    result = await play_game(six, puppets({1: banish_the_murderer}))
+
+    death = next(i for i, e in enumerate(result.events) if isinstance(e.payload, ResidentDied))
+    assert not [e for e in result.events[death:] if isinstance(e.payload, ReflectionWritten)]

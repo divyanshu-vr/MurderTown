@@ -136,7 +136,7 @@ class ClaudeAgentSDKProvider:
             skills=[],
             permission_mode="dontAsk",
             model=request.model,
-            effort=request.effort,
+            effort=request.effort.value,
             output_format={"type": "json_schema", "schema": dict(request.schema)},
             max_turns=3,
             cwd=str(self.sandbox),
@@ -149,7 +149,8 @@ class ClaudeAgentSDKProvider:
     async def _ask(self, request: ModelRequest) -> ModelReply:
         """One session: closing the message stream on any exit also ends the subprocess."""
         result: ResultMessage | None = None
-        problem: str | None = None
+        isolation: str | None = None
+        model_error: str | None = None
         # query() is an async generator; closing it also ends the Claude Code subprocess.
         messages = cast(
             AsyncGenerator[Message], query(prompt=request.prompt, options=self._options(request))
@@ -158,18 +159,18 @@ class ClaudeAgentSDKProvider:
             async for message in stream:
                 if isinstance(message, SystemMessage) and message.subtype == "init":
                     self.last_session = _session_facts(message.data)
-                    problem = _isolation_problem(self.last_session)
-                    if problem:
+                    isolation = _isolation_problem(self.last_session)
+                    if isolation:
                         break
                 elif isinstance(message, AssistantMessage) and message.error:
-                    problem = f"the model call failed: {message.error}"
+                    model_error = f"the model call failed: {message.error}"
                 elif isinstance(message, ResultMessage):
                     result = message
-        if problem and problem.startswith("isolation"):
-            raise SubscriptionError(problem)
+        if isolation:
+            raise SubscriptionError(isolation)
         if result is None:
-            return ModelReply(outcome="error", data=None, text="", error=problem or "no result")
-        return _reply_from(result, problem)
+            return ModelReply(outcome="error", data=None, text="", error=model_error or "no result")
+        return _reply_from(result, model_error)
 
 
 def _session_facts(data: dict[str, Any]) -> SessionFacts:

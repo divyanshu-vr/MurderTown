@@ -26,7 +26,7 @@ ATTEMPTS = 2
 @dataclass(frozen=True)
 class AgentSettings:
     model: str = "claude-haiku-5-5"
-    effort: Effort = "low"
+    effort: Effort = Effort.LOW
 
 
 class LLMBrain:

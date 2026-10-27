@@ -19,14 +19,19 @@ from functools import cache
 from pathlib import Path
 from random import Random
 from string import Template
+from typing import assert_never
 
 from mm.agents.memory import Memory, remember
 from mm.engine import Role
 from mm.engine.decisions import DecisionKind, DecisionRequest
 from mm.engine.events import (
     BallotCast,
+    DecisionFellBack,
     Event,
+    GameEnded,
+    GameStarted,
     PhaseStarted,
+    ReflectionWritten,
     ResidentDied,
     RoleAssigned,
     StatementMade,
@@ -135,13 +140,9 @@ def _task(request: DecisionRequest, view: Sequence[Event], known: GameState, rng
         for event in since_last_reflection(view, request.resident)
         if event.phase is not Phase.SETUP and (line := _line(event))
     ]
-    others = [name for name in known.living if name != request.resident]
     options = rng.sample(request.options, len(request.options))
     instructions = render(
-        DECISION_TEMPLATES[request.kind],
-        day=known.day,
-        options=", ".join(options),
-        others=", ".join(others),
+        DECISION_TEMPLATES[request.kind], day=known.day, options=", ".join(options)
     )
     return render(
         "task.md",
@@ -176,8 +177,14 @@ def _line(event: Event) -> str | None:
             return f'<statement speaker="{speaker}">{untrusted(text)}</statement>'
         case BallotCast(voter=voter, target=target):
             return f"{voter} voted for {target}." if target else f"{voter} voted to skip."
-        case _:
-            return None
+        case VoteResolved() | ResidentDied():
+            return None  # shown among the game master's facts instead
+        case GameStarted() | RoleAssigned() | ReflectionWritten():
+            return None  # shown in the briefing or the Resident's own memory instead
+        case GameEnded() | DecisionFellBack():
+            return None  # never needed for a decision
+        case unknown:
+            assert_never(unknown)
 
 
 def untrusted(text: str) -> str:

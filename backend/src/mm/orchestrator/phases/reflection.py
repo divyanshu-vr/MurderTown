@@ -1,7 +1,8 @@
-"""Reflections: Residents write private notes to their future selves.
+"""Reflection: Residents write private notes to their future selves.
 
-They run after Dawn and after the Vote. A Resident with no news since their last
-reflection skips it, so a quiet stretch costs nothing.
+Dawn and the Vote each end with reflection. A Resident with no news since their
+last reflection skips it, so a quiet stretch costs nothing, and nobody reflects
+once the game is already decided.
 """
 
 from typing import TYPE_CHECKING
@@ -9,24 +10,27 @@ from typing import TYPE_CHECKING
 from mm.engine.decisions import DecisionKind, DecisionRequest, Reflection
 from mm.engine.events import ReflectionWritten
 from mm.engine.perception import has_news, perceived_by
+from mm.engine.reflection import suspect_options
+from mm.engine.rules import verdict
 
 if TYPE_CHECKING:
     from mm.orchestrator.game import Game
 
 
-async def run_reflections(game: "Game") -> None:
-    writers = [
-        name for name in game.state.living if has_news(perceived_by(game.log.events, name), name)
+async def reflect(game: "Game") -> None:
+    if verdict(game.state):
+        return
+    requests = [
+        DecisionRequest(DecisionKind.REFLECTION, name, suspect_options(game.state, name))
+        for name in game.state.living
+        if has_news(perceived_by(game.log.events, name), name)
     ]
-    requests = [DecisionRequest(DecisionKind.REFLECTION, name) for name in writers]
-    others = {resident.name for resident in game.state.residents}
-
     for decided in await game.decide_all(requests, Reflection):
-        writer, reflection = decided.request.resident, decided.decision
+        reflection = decided.decision
         written = ReflectionWritten(
-            resident=writer,
+            resident=decided.request.resident,
             journal_entry=reflection.journal_entry,
             notebook=reflection.notebook,
-            suspicions=tuple(s for s in reflection.suspicions if s.resident in others - {writer}),
+            suspicions=tuple(reflection.suspicions),
         )
         await game.append(written, cause=decided)

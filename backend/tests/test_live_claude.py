@@ -1,17 +1,18 @@
-"""Opt-in live check of the Claude Agent SDK provider, on the Host's Claude subscription.
+"""Opt-in live checks of the Claude Agent SDK provider, on the Host's Claude subscription.
 
-Skipped unless MM_LIVE_TESTS=1. One run makes two Claude Haiku calls.
+Skipped unless MM_LIVE_TESTS=1. A full run makes four Claude Haiku calls.
 """
 
 import os
 
 import pytest
 
+from mm.agents import AgentSettings
 from mm.agents.answers import answer_schema, read_answer
 from mm.engine import GameConfig
 from mm.engine.decisions import DecisionKind, Statement
 from mm.llm import ModelRequest
-from tests.test_prompts import spy_on
+from tests.prompt_spy import Shown, spy_on
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("MM_LIVE_TESTS") != "1",
@@ -19,32 +20,66 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-async def test_an_isolated_session_answers_on_the_subscription_and_reuses_the_cache() -> None:
+async def first_two_decisions() -> tuple[Shown, Shown]:
+    """One Resident's first Statement and the ballot they cast next."""
+    shown, _ = await spy_on(GameConfig(residents=8, murderers=2, max_days=1, seed=31))
+    statement = next(s for s in shown if s.request.kind is DecisionKind.STATEMENT)
+    ballot = next(
+        s
+        for s in shown
+        if s.request.kind is DecisionKind.BALLOT and s.resident == statement.resident
+    )
+    return statement, ballot
+
+
+def request_for(seen: Shown) -> ModelRequest:
+    settings = AgentSettings()
+    return ModelRequest(
+        system=seen.prompt.system,
+        prompt=seen.prompt.user_message(),
+        schema=answer_schema(seen.request.kind),
+        model=settings.model,
+        effort=settings.effort,
+    )
+
+
+async def test_an_isolated_session_answers_on_the_subscription_and_caches_its_prompt() -> None:
     from mm.llm.claude_agent_sdk import ClaudeAgentSDKProvider  # checks the login on creation
 
-    shown, _ = await spy_on(GameConfig(residents=8, murderers=2, max_days=1, seed=31))
-    first_statement = next(s for s in shown if s.request.kind is DecisionKind.STATEMENT)
-    request = ModelRequest(
-        system=first_statement.prompt.system,
-        prompt=first_statement.prompt.user_message(),
-        schema=answer_schema(DecisionKind.STATEMENT),
-        model="claude-haiku-5-5",
-        effort="low",
-    )
+    statement, _ = await first_two_decisions()
     provider = ClaudeAgentSDKProvider(concurrency=1)
 
-    first = await provider.complete(request)
-    second = await provider.complete(request)
+    first = await provider.complete(request_for(statement))
+    repeat = await provider.complete(request_for(statement))
 
     assert first.outcome == "ok", first.error
-    assert isinstance(read_answer(first_statement.request, first.data), Statement)
+    assert isinstance(read_answer(statement.request, first.data), Statement)
     session = provider.last_session
     assert session is not None
     assert session.api_key_source == "none"
     assert session.tools == ("StructuredOutput",)
     assert session.mcp_servers == ()
-    assert first.usage.input_tokens + first.usage.cache_write_tokens > 0
-    assert second.usage.cache_read_tokens > 0
+    assert repeat.usage.cache_read_tokens > 0
     print(f"\nfirst: {first.latency_ms} ms, {first.usage}, ${first.cost_usd}")
-    print(f"second: {second.latency_ms} ms, {second.usage}, ${second.cost_usd}")
-    print(f"answer: {first.data}")
+    print(f"repeat: {repeat.latency_ms} ms, {repeat.usage}, ${repeat.cost_usd}")
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Each decision is a fresh Claude Code session that caches its whole prompt, so an "
+        "Agent's next decision, with the same briefing but a new task, finds nothing to reuse. "
+        "Measured in docs/agent-sdk-findings.md; the cost ticket (#9) decides what to do."
+    ),
+)
+async def test_an_agents_next_decision_reads_its_briefing_from_the_cache() -> None:
+    from mm.llm.claude_agent_sdk import ClaudeAgentSDKProvider
+
+    statement, ballot = await first_two_decisions()
+    provider = ClaudeAgentSDKProvider(concurrency=1)
+
+    await provider.complete(request_for(statement))
+    next_decision = await provider.complete(request_for(ballot))
+
+    assert next_decision.outcome == "ok", next_decision.error
+    assert next_decision.usage.cache_read_tokens > 0

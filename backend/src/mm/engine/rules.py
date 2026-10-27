@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from mm.engine.decisions import Ballot, Decision, DecisionRequest, Statement
+from mm.engine.decisions import Ballot, Decision, DecisionRequest, Reflection, Statement
 from mm.engine.roles import Role, Side
 from mm.engine.state import GameState
 
@@ -14,6 +14,16 @@ def why_illegal(request: DecisionRequest, decision: Decision) -> str | None:
             return f"{choice!r} is not one of the options {list(request.options)}"
         case Statement(text=text) if not text.strip():
             return "a Statement cannot be empty"
+        case Reflection(suspicions=suspicions):
+            return _suspicions_problem([s.resident for s in suspicions], request.options)
+    return None
+
+
+def _suspicions_problem(named: list[str], options: tuple[str, ...]) -> str | None:
+    if strays := sorted(set(named) - set(options)):
+        return f"suspicions may only name {list(options)}, not {strays}"
+    if len(named) != len(set(named)):
+        return "name each Resident at most once in your suspicions"
     return None
 
 

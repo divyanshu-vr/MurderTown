@@ -1,4 +1,4 @@
-"""Vote: sealed ballots, then a banishment if one Resident clearly beats SKIP."""
+"""Vote: sealed ballots, a banishment if one Resident clearly beats SKIP, then reflection."""
 
 from typing import TYPE_CHECKING
 
@@ -6,6 +6,7 @@ from mm.engine import Phase
 from mm.engine.decisions import Ballot, DecisionKind, DecisionRequest
 from mm.engine.events import BallotCast, ResidentDied, VoteResolved
 from mm.engine.vote import ballot_options, tally_ballots, target_of
+from mm.orchestrator.phases.reflection import reflect
 
 if TYPE_CHECKING:
     from mm.orchestrator.game import Game
@@ -30,3 +31,4 @@ async def run_vote(game: "Game") -> None:
     if outcome.banished:
         role = game.state.roles[outcome.banished]
         await game.append(ResidentDied(resident=outcome.banished, cause="banished", role=role))
+    await reflect(game)

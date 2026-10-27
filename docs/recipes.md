@@ -19,8 +19,9 @@ pnpm gen:types
 1. Define the payload in `backend/src/mm/engine/events.py`: a `type` literal and a `visibility()` saying who may perceive it. Add it to the `EventPayload` union.
 2. If it changes state, handle it in `GameState.apply` (`engine/state.py`). If it only records something, leave the fold alone.
 3. Append it from the Phase that causes it (`orchestrator/phases/`), through `game.append`.
-4. Regenerate the shared contract. TypeScript's exhaustive `switch` statements then fail to compile at every place that needs a case: the feed line (`ui/describeEvent.ts`) and the view fold (`core/gameView.ts`). Add the transcript line in `cli/transcript.py`.
-5. Write a seam-1 test for when the event is appended and who perceives it, and a seam-3 test if Spectators see it.
+4. Decide how Agents read it: a line in `_line` or a fact in `_facts` (`agents/prompting.py`). Both `_line` and `GameState.apply` end in `assert_never`, so `mypy` fails until the new type has a case in each.
+5. Regenerate the shared contract. TypeScript's exhaustive `switch` statements then fail to compile at every place that needs a case: the feed line (`ui/describeEvent.ts`) and the view fold (`core/gameView.ts`). Add the transcript line in `cli/transcript.py`.
+6. Write a seam-1 test for when the event is appended and who perceives it, and a seam-3 test if Spectators see it.
 
 ## Add a decision kind
 
@@ -29,7 +30,8 @@ pnpm gen:types
 3. Teach `ScriptedBot` to answer it legally (`agents/scripted.py`).
 4. Give LLM Agents what they need: an `AnswerSpec` with its safe default in `ANSWERS` (`agents/answers.py`), and an instructions template in `agents/prompts/decisions/`, listed in `DECISION_TEMPLATES` (`agents/prompting.py`).
 5. Ask for it from the Phase with `game.decide` (one Resident) or `game.decide_all` (several at once, answers in the order asked), and append the event it causes with `cause=` so the event names the decision.
-6. Write seam-1 tests that script the answers with a `Puppet`-style test decision source, and seam-2 tests with `FakeModel` for its fallback.
+6. Add its label to `decisionLabel` (`frontend/src/ui/labels.ts`); the `Record` type will not compile until you do.
+7. Write seam-1 tests that script the answers with a `Puppet`-style test decision source, and seam-2 tests with `FakeModel` for its fallback.
 
 ## Add a role
 

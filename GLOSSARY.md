@@ -115,3 +115,33 @@ _Avoid_: hideout, lair, murderer chat
 **Victim**:
 The Resident the Murderers choose to murder at Night.
 _Avoid_: target (for the chosen Resident), kill
+
+### Agents' minds
+
+**Persona**:
+Who a Resident is as a person: occupation, temperament, speaking style and a quirk.
+_Avoid_: character sheet, personality
+
+**Occupation**:
+A Resident's trade in town, the one part of their Persona everyone knows.
+_Avoid_: job, profession
+
+**Reflection**:
+A Resident's private notes to their future self, written after Dawn and after the Vote.
+_Avoid_: summary, memory dump
+
+**Journal**:
+The dated entries a Resident adds with each Reflection; the latest few are kept in mind.
+_Avoid_: diary, log
+
+**Notebook**:
+The one page a Resident rewrites in full with each Reflection, holding everything they mean to remember.
+_Avoid_: summary, scratchpad
+
+**Suspicion**:
+How strongly a Resident believes another is a Murderer, from 0 to 100, with a reason.
+_Avoid_: trust score, rating
+
+**Fallback**:
+The safe default used when a Resident gives no usable answer: silence, a vote to skip, or no notes.
+_Avoid_: default answer, error

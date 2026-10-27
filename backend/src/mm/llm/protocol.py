@@ -7,9 +7,18 @@ so every provider behaves the same way to the rest of the game.
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from enum import StrEnum
 from typing import Any, Literal, Protocol
 
-Effort = Literal["low", "medium", "high", "max"]
+
+class Effort(StrEnum):
+    """How hard the model thinks before answering: more effort, slower and dearer answers."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    MAX = "max"
+
 
 Outcome = Literal["ok", "refusal", "timeout", "error"]
 

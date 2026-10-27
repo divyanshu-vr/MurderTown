@@ -156,3 +156,17 @@ async def test_details_from_outside_the_game_never_reach_the_event_log() -> None
     assert "host@example.com" not in text
     assert "secrets.txt" not in text
     assert text.count("[hidden]") == 2
+
+
+async def test_a_suspicion_about_someone_outside_the_options_is_retried_with_the_problem() -> None:
+    def respond(request: ModelRequest) -> ModelReply:
+        if answer_kind(request) is DecisionKind.REFLECTION and not retried(request):
+            return model_answer({"journal_entry": "Hmm.", "notebook": "Watch.", "suspicions": [
+                {"resident": "Nobody", "suspicion": 90, "note": "a stranger"}]})  # fmt: skip
+        return sensible_answer(request)
+
+    played = await play_with(FakeModel(respond))
+
+    reflections = played.calls_for(DecisionKind.REFLECTION)
+    assert [call.outcome for call in reflections[:2]] == ["invalid", "ok"]
+    assert "not ['Nobody']" in reflections[1].prompt
