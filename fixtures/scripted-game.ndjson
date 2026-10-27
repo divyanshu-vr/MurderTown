@@ -1,0 +1,237 @@
+{"seq":1,"day":0,"phase":"setup","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"game_started","config":{"residents":12,"murderers":2,"doctor":true,"detective":true,"sheriff":true,"max_days":10,"seed":7},"residents":[{"name":"Kit","seat":0},{"name":"Elsie","seat":1},{"name":"Milo","seat":2},{"name":"Umar","seat":3},{"name":"Bram","seat":4},{"name":"Cora","seat":5},{"name":"Rosa","seat":6},{"name":"Dax","seat":7},{"name":"Luna","seat":8},{"name":"Silas","seat":9},{"name":"Zane","seat":10},{"name":"Quinn","seat":11}]}}
+{"seq":2,"day":0,"phase":"setup","visibility":{"scope":"residents","residents":["Kit"]},"payload":{"type":"role_assigned","resident":"Kit","role":"civilian","teammates":[]}}
+{"seq":3,"day":0,"phase":"setup","visibility":{"scope":"residents","residents":["Elsie"]},"payload":{"type":"role_assigned","resident":"Elsie","role":"doctor","teammates":[]}}
+{"seq":4,"day":0,"phase":"setup","visibility":{"scope":"residents","residents":["Milo"]},"payload":{"type":"role_assigned","resident":"Milo","role":"sheriff","teammates":[]}}
+{"seq":5,"day":0,"phase":"setup","visibility":{"scope":"residents","residents":["Umar"]},"payload":{"type":"role_assigned","resident":"Umar","role":"civilian","teammates":[]}}
+{"seq":6,"day":0,"phase":"setup","visibility":{"scope":"residents","residents":["Bram"]},"payload":{"type":"role_assigned","resident":"Bram","role":"civilian","teammates":[]}}
+{"seq":7,"day":0,"phase":"setup","visibility":{"scope":"residents","residents":["Cora"]},"payload":{"type":"role_assigned","resident":"Cora","role":"civilian","teammates":[]}}
+{"seq":8,"day":0,"phase":"setup","visibility":{"scope":"residents","residents":["Rosa"]},"payload":{"type":"role_assigned","resident":"Rosa","role":"civilian","teammates":[]}}
+{"seq":9,"day":0,"phase":"setup","visibility":{"scope":"residents","residents":["Dax"]},"payload":{"type":"role_assigned","resident":"Dax","role":"civilian","teammates":[]}}
+{"seq":10,"day":0,"phase":"setup","visibility":{"scope":"residents","residents":["Luna"]},"payload":{"type":"role_assigned","resident":"Luna","role":"civilian","teammates":[]}}
+{"seq":11,"day":0,"phase":"setup","visibility":{"scope":"residents","residents":["Silas"]},"payload":{"type":"role_assigned","resident":"Silas","role":"murderer","teammates":["Zane"]}}
+{"seq":12,"day":0,"phase":"setup","visibility":{"scope":"residents","residents":["Zane"]},"payload":{"type":"role_assigned","resident":"Zane","role":"murderer","teammates":["Silas"]}}
+{"seq":13,"day":0,"phase":"setup","visibility":{"scope":"residents","residents":["Quinn"]},"payload":{"type":"role_assigned","resident":"Quinn","role":"detective","teammates":[]}}
+{"seq":14,"day":1,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":1,"phase":"dawn"}}
+{"seq":15,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":1,"phase":"discussion"}}
+{"seq":16,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Bram","text":"I'm Bram, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":17,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Milo","text":"Milo here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":18,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Quinn","text":"I'm Quinn. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":19,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Cora","text":"I'm Cora, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":20,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Dax","text":"I'm Dax. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":21,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Elsie","text":"I'm Elsie, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":22,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Luna","text":"Luna here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":23,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Rosa","text":"Hello, I'm Rosa. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":24,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Kit","text":"Kit here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":25,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Silas","text":"I'm Silas, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":26,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Zane","text":"Zane here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":27,"day":1,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Umar","text":"Umar here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":28,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":1,"phase":"vote"}}
+{"seq":29,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Kit","choice":"Elsie"}}
+{"seq":30,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Elsie","choice":"Quinn"}}
+{"seq":31,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Milo","choice":"Kit"}}
+{"seq":32,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Umar","choice":"Elsie"}}
+{"seq":33,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Bram","choice":"Kit"}}
+{"seq":34,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Cora","choice":"Elsie"}}
+{"seq":35,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Rosa","choice":"Dax"}}
+{"seq":36,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Dax","choice":"Kit"}}
+{"seq":37,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Luna","choice":"Dax"}}
+{"seq":38,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Silas","choice":"Elsie"}}
+{"seq":39,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Zane","choice":"Milo"}}
+{"seq":40,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Quinn","choice":"Dax"}}
+{"seq":41,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"vote_resolved","tally":{"Dax":3,"Elsie":4,"Kit":3,"Milo":1,"Quinn":1},"banished":"Elsie"}}
+{"seq":42,"day":1,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"resident_died","resident":"Elsie","cause":"banished","role":"doctor"}}
+{"seq":43,"day":2,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":2,"phase":"dawn"}}
+{"seq":44,"day":2,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":2,"phase":"discussion"}}
+{"seq":45,"day":2,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Dax","text":"Hello, I'm Dax. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":46,"day":2,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Bram","text":"I'm Bram, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":47,"day":2,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Quinn","text":"Hello, I'm Quinn. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":48,"day":2,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Kit","text":"Kit here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":49,"day":2,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Zane","text":"I'm Zane. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":50,"day":2,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Rosa","text":"Hello, I'm Rosa. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":51,"day":2,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Luna","text":"I'm Luna, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":52,"day":2,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Cora","text":"Hello, I'm Cora. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":53,"day":2,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Milo","text":"Hello, I'm Milo. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":54,"day":2,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Silas","text":"I'm Silas, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":55,"day":2,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Umar","text":"I'm Umar, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":56,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":2,"phase":"vote"}}
+{"seq":57,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Kit","choice":"Quinn"}}
+{"seq":58,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Milo","choice":"Dax"}}
+{"seq":59,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Umar","choice":"Bram"}}
+{"seq":60,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Bram","choice":"Luna"}}
+{"seq":61,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Cora","choice":"Umar"}}
+{"seq":62,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Rosa","choice":"Zane"}}
+{"seq":63,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Dax","choice":"Zane"}}
+{"seq":64,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Luna","choice":"Zane"}}
+{"seq":65,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Silas","choice":"Milo"}}
+{"seq":66,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Zane","choice":"Rosa"}}
+{"seq":67,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Quinn","choice":"Umar"}}
+{"seq":68,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"vote_resolved","tally":{"Bram":1,"Dax":1,"Luna":1,"Milo":1,"Quinn":1,"Rosa":1,"Umar":2,"Zane":3},"banished":"Zane"}}
+{"seq":69,"day":2,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"resident_died","resident":"Zane","cause":"banished","role":"murderer"}}
+{"seq":70,"day":3,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":3,"phase":"dawn"}}
+{"seq":71,"day":3,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":3,"phase":"discussion"}}
+{"seq":72,"day":3,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Quinn","text":"I'm Quinn. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":73,"day":3,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Umar","text":"Umar here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":74,"day":3,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Bram","text":"Bram here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":75,"day":3,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Luna","text":"I'm Luna, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":76,"day":3,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Dax","text":"I'm Dax. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":77,"day":3,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Kit","text":"I'm Kit, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":78,"day":3,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Cora","text":"Cora here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":79,"day":3,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Silas","text":"I'm Silas, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":80,"day":3,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Milo","text":"Hello, I'm Milo. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":81,"day":3,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Rosa","text":"I'm Rosa. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":82,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":3,"phase":"vote"}}
+{"seq":83,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Kit","choice":"Dax"}}
+{"seq":84,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Milo","choice":"Quinn"}}
+{"seq":85,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Umar","choice":"Bram"}}
+{"seq":86,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Bram","choice":"Kit"}}
+{"seq":87,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Cora","choice":"Silas"}}
+{"seq":88,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Rosa","choice":"Quinn"}}
+{"seq":89,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Dax","choice":"SKIP"}}
+{"seq":90,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Luna","choice":"Quinn"}}
+{"seq":91,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Silas","choice":"Quinn"}}
+{"seq":92,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Quinn","choice":"Umar"}}
+{"seq":93,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"vote_resolved","tally":{"Bram":1,"Dax":1,"Kit":1,"Quinn":4,"SKIP":1,"Silas":1,"Umar":1},"banished":"Quinn"}}
+{"seq":94,"day":3,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"resident_died","resident":"Quinn","cause":"banished","role":"detective"}}
+{"seq":95,"day":4,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":4,"phase":"dawn"}}
+{"seq":96,"day":4,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":4,"phase":"discussion"}}
+{"seq":97,"day":4,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Milo","text":"I'm Milo, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":98,"day":4,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Silas","text":"I'm Silas, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":99,"day":4,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Kit","text":"Kit here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":100,"day":4,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Dax","text":"I'm Dax. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":101,"day":4,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Umar","text":"Hello, I'm Umar. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":102,"day":4,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Bram","text":"I'm Bram, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":103,"day":4,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Cora","text":"I'm Cora. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":104,"day":4,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Luna","text":"I'm Luna, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":105,"day":4,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Rosa","text":"I'm Rosa, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":106,"day":4,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":4,"phase":"vote"}}
+{"seq":107,"day":4,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Kit","choice":"Umar"}}
+{"seq":108,"day":4,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Milo","choice":"Bram"}}
+{"seq":109,"day":4,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Umar","choice":"Silas"}}
+{"seq":110,"day":4,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Bram","choice":"Dax"}}
+{"seq":111,"day":4,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Cora","choice":"Bram"}}
+{"seq":112,"day":4,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Rosa","choice":"Cora"}}
+{"seq":113,"day":4,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Dax","choice":"Kit"}}
+{"seq":114,"day":4,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Luna","choice":"Cora"}}
+{"seq":115,"day":4,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Silas","choice":"Luna"}}
+{"seq":116,"day":4,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"vote_resolved","tally":{"Bram":2,"Cora":2,"Dax":1,"Kit":1,"Luna":1,"Silas":1,"Umar":1},"banished":null}}
+{"seq":117,"day":5,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":5,"phase":"dawn"}}
+{"seq":118,"day":5,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":5,"phase":"discussion"}}
+{"seq":119,"day":5,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Kit","text":"I'm Kit, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":120,"day":5,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Rosa","text":"I'm Rosa, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":121,"day":5,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Luna","text":"Hello, I'm Luna. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":122,"day":5,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Silas","text":"I'm Silas, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":123,"day":5,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Dax","text":"I'm Dax. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":124,"day":5,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Umar","text":"I'm Umar. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":125,"day":5,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Cora","text":"Hello, I'm Cora. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":126,"day":5,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Milo","text":"Milo here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":127,"day":5,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Bram","text":"Bram here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":128,"day":5,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":5,"phase":"vote"}}
+{"seq":129,"day":5,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Kit","choice":"Umar"}}
+{"seq":130,"day":5,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Milo","choice":"Luna"}}
+{"seq":131,"day":5,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Umar","choice":"Dax"}}
+{"seq":132,"day":5,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Bram","choice":"Umar"}}
+{"seq":133,"day":5,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Cora","choice":"Umar"}}
+{"seq":134,"day":5,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Rosa","choice":"Silas"}}
+{"seq":135,"day":5,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Dax","choice":"Umar"}}
+{"seq":136,"day":5,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Luna","choice":"Rosa"}}
+{"seq":137,"day":5,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Silas","choice":"Cora"}}
+{"seq":138,"day":5,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"vote_resolved","tally":{"Cora":1,"Dax":1,"Luna":1,"Rosa":1,"Silas":1,"Umar":4},"banished":"Umar"}}
+{"seq":139,"day":5,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"resident_died","resident":"Umar","cause":"banished","role":"civilian"}}
+{"seq":140,"day":6,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":6,"phase":"dawn"}}
+{"seq":141,"day":6,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":6,"phase":"discussion"}}
+{"seq":142,"day":6,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Bram","text":"Bram here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":143,"day":6,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Milo","text":"I'm Milo, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":144,"day":6,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Luna","text":"Hello, I'm Luna. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":145,"day":6,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Cora","text":"Hello, I'm Cora. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":146,"day":6,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Dax","text":"Hello, I'm Dax. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":147,"day":6,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Kit","text":"I'm Kit, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":148,"day":6,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Silas","text":"Silas here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":149,"day":6,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Rosa","text":"Rosa here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":150,"day":6,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":6,"phase":"vote"}}
+{"seq":151,"day":6,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Kit","choice":"Bram"}}
+{"seq":152,"day":6,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Milo","choice":"Bram"}}
+{"seq":153,"day":6,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Bram","choice":"Kit"}}
+{"seq":154,"day":6,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Cora","choice":"Silas"}}
+{"seq":155,"day":6,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Rosa","choice":"Dax"}}
+{"seq":156,"day":6,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Dax","choice":"Milo"}}
+{"seq":157,"day":6,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Luna","choice":"Silas"}}
+{"seq":158,"day":6,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Silas","choice":"SKIP"}}
+{"seq":159,"day":6,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"vote_resolved","tally":{"Bram":2,"Dax":1,"Kit":1,"Milo":1,"SKIP":1,"Silas":2},"banished":null}}
+{"seq":160,"day":7,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":7,"phase":"dawn"}}
+{"seq":161,"day":7,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":7,"phase":"discussion"}}
+{"seq":162,"day":7,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Dax","text":"I'm Dax. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":163,"day":7,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Milo","text":"Hello, I'm Milo. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":164,"day":7,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Silas","text":"I'm Silas, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":165,"day":7,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Rosa","text":"I'm Rosa. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":166,"day":7,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Kit","text":"I'm Kit, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":167,"day":7,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Luna","text":"Hello, I'm Luna. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":168,"day":7,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Cora","text":"I'm Cora, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":169,"day":7,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Bram","text":"I'm Bram. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":170,"day":7,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":7,"phase":"vote"}}
+{"seq":171,"day":7,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Kit","choice":"Bram"}}
+{"seq":172,"day":7,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Milo","choice":"Bram"}}
+{"seq":173,"day":7,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Bram","choice":"Kit"}}
+{"seq":174,"day":7,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Cora","choice":"SKIP"}}
+{"seq":175,"day":7,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Rosa","choice":"Bram"}}
+{"seq":176,"day":7,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Dax","choice":"Kit"}}
+{"seq":177,"day":7,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Luna","choice":"Milo"}}
+{"seq":178,"day":7,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Silas","choice":"Kit"}}
+{"seq":179,"day":7,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"vote_resolved","tally":{"Bram":3,"Kit":3,"Milo":1,"SKIP":1},"banished":null}}
+{"seq":180,"day":8,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":8,"phase":"dawn"}}
+{"seq":181,"day":8,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":8,"phase":"discussion"}}
+{"seq":182,"day":8,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Kit","text":"I'm Kit. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":183,"day":8,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Milo","text":"Milo here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":184,"day":8,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Luna","text":"Hello, I'm Luna. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":185,"day":8,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Cora","text":"I'm Cora. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":186,"day":8,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Rosa","text":"I'm Rosa. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":187,"day":8,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Bram","text":"Hello, I'm Bram. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":188,"day":8,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Silas","text":"Silas here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":189,"day":8,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Dax","text":"Hello, I'm Dax. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":190,"day":8,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":8,"phase":"vote"}}
+{"seq":191,"day":8,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Kit","choice":"Milo"}}
+{"seq":192,"day":8,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Milo","choice":"Bram"}}
+{"seq":193,"day":8,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Bram","choice":"Cora"}}
+{"seq":194,"day":8,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Cora","choice":"SKIP"}}
+{"seq":195,"day":8,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Rosa","choice":"Luna"}}
+{"seq":196,"day":8,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Dax","choice":"Cora"}}
+{"seq":197,"day":8,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Luna","choice":"Dax"}}
+{"seq":198,"day":8,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Silas","choice":"Rosa"}}
+{"seq":199,"day":8,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"vote_resolved","tally":{"Bram":1,"Cora":2,"Dax":1,"Luna":1,"Milo":1,"Rosa":1,"SKIP":1},"banished":"Cora"}}
+{"seq":200,"day":8,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"resident_died","resident":"Cora","cause":"banished","role":"civilian"}}
+{"seq":201,"day":9,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":9,"phase":"dawn"}}
+{"seq":202,"day":9,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":9,"phase":"discussion"}}
+{"seq":203,"day":9,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Milo","text":"Milo here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":204,"day":9,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Luna","text":"I'm Luna. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":205,"day":9,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Dax","text":"I'm Dax, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":206,"day":9,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Rosa","text":"Rosa here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":207,"day":9,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Bram","text":"I'm Bram, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":208,"day":9,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Silas","text":"Hello, I'm Silas. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":209,"day":9,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Kit","text":"I'm Kit, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":210,"day":9,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":9,"phase":"vote"}}
+{"seq":211,"day":9,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Kit","choice":"Luna"}}
+{"seq":212,"day":9,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Milo","choice":"Bram"}}
+{"seq":213,"day":9,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Bram","choice":"Dax"}}
+{"seq":214,"day":9,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Rosa","choice":"Luna"}}
+{"seq":215,"day":9,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Dax","choice":"Kit"}}
+{"seq":216,"day":9,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Luna","choice":"Rosa"}}
+{"seq":217,"day":9,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Silas","choice":"Kit"}}
+{"seq":218,"day":9,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"vote_resolved","tally":{"Bram":1,"Dax":1,"Kit":2,"Luna":2,"Rosa":1},"banished":null}}
+{"seq":219,"day":10,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":10,"phase":"dawn"}}
+{"seq":220,"day":10,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":10,"phase":"discussion"}}
+{"seq":221,"day":10,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Silas","text":"Silas here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":222,"day":10,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Dax","text":"Dax here. Let's stay calm and think this through.","part":"opening_round"}}
+{"seq":223,"day":10,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Milo","text":"I'm Milo, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":224,"day":10,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Rosa","text":"I'm Rosa, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":225,"day":10,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Bram","text":"I'm Bram. Someone in this square is not who they seem.","part":"opening_round"}}
+{"seq":226,"day":10,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Luna","text":"I'm Luna, and I intend to survive this. Who's with me?","part":"opening_round"}}
+{"seq":227,"day":10,"phase":"discussion","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"statement_made","speaker":"Kit","text":"Hello, I'm Kit. Keep your eyes open, everyone.","part":"opening_round"}}
+{"seq":228,"day":10,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"phase_started","day":10,"phase":"vote"}}
+{"seq":229,"day":10,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Kit","choice":"Dax"}}
+{"seq":230,"day":10,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Milo","choice":"Rosa"}}
+{"seq":231,"day":10,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Bram","choice":"Dax"}}
+{"seq":232,"day":10,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Rosa","choice":"Silas"}}
+{"seq":233,"day":10,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Dax","choice":"Silas"}}
+{"seq":234,"day":10,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Luna","choice":"Kit"}}
+{"seq":235,"day":10,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"ballot_cast","voter":"Silas","choice":"Milo"}}
+{"seq":236,"day":10,"phase":"vote","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"vote_resolved","tally":{"Dax":2,"Kit":1,"Milo":1,"Rosa":1,"Silas":2},"banished":null}}
+{"seq":237,"day":10,"phase":"ended","visibility":{"scope":"everyone","residents":[]},"payload":{"type":"game_ended","winner":"murderers","reason":"The town ran out of days."}}

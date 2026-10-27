@@ -1,0 +1,13 @@
+{
+  "threshold": 0,
+  "minTokens": 60,
+  "reporters": ["console"],
+  "format": ["python", "typescript", "tsx"],
+  "ignore": [
+    "**/node_modules/**",
+    "**/.venv/**",
+    "**/dist/**",
+    "**/*.gen.ts",
+    "**/migrations/**"
+  ]
+}

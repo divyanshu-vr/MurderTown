@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: murdertown
+          POSTGRES_PASSWORD: murdertown
+          POSTGRES_DB: murdertown
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U murdertown -d murdertown"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Lint
+        run: uv run ruff check && uv run ruff format --check
+      - name: Types
+        run: uv run mypy
+      - name: Import layers
+        run: uv run lint-imports
+      - name: Tests (SQLite)
+        run: uv run pytest
+      - name: Transport tests (Postgres)
+        run: uv run pytest tests/test_transport.py
+        env:
+          MM_TEST_DATABASE_URL: postgresql+asyncpg://murdertown:murdertown@localhost:5432/murdertown
+      - name: Protocol schema and shared fixture are up to date
+        run: |
+          uv run mm schema
+          uv run mm play --seed 7 --quiet --out ../fixtures/scripted-game.ndjson
+          git diff --exit-code -- ../protocol ../fixtures
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: frontend/package.json
+      - run: pnpm install --frozen-lockfile
+      - name: Generated protocol types are up to date
+        run: pnpm gen:types && git diff --exit-code -- src/protocol
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+
+  duplication:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: No copy-pasted code
+        run: npx --yes jscpd@5.4.2 --config .jscpd.json backend/src frontend/src

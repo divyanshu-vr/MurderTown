@@ -1,0 +1,477 @@
+{
+  "$defs": {
+    "BallotCast": {
+      "additionalProperties": false,
+      "description": "One Resident's ballot, revealed once every ballot of the Vote has been cast.",
+      "properties": {
+        "type": {
+          "const": "ballot_cast",
+          "default": "ballot_cast",
+          "type": "string"
+        },
+        "voter": {
+          "type": "string"
+        },
+        "choice": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "voter",
+        "choice"
+      ],
+      "title": "BallotCast",
+      "type": "object"
+    },
+    "Event": {
+      "description": "One entry in a game's log: a payload stamped with its place in the game.",
+      "properties": {
+        "seq": {
+          "type": "integer"
+        },
+        "day": {
+          "type": "integer"
+        },
+        "phase": {
+          "$ref": "#/$defs/Phase"
+        },
+        "visibility": {
+          "$ref": "#/$defs/Visibility"
+        },
+        "payload": {
+          "discriminator": {
+            "mapping": {
+              "ballot_cast": "#/$defs/BallotCast",
+              "game_ended": "#/$defs/GameEnded",
+              "game_started": "#/$defs/GameStarted",
+              "phase_started": "#/$defs/PhaseStarted",
+              "resident_died": "#/$defs/ResidentDied",
+              "role_assigned": "#/$defs/RoleAssigned",
+              "statement_made": "#/$defs/StatementMade",
+              "vote_resolved": "#/$defs/VoteResolved"
+            },
+            "propertyName": "type"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/GameStarted"
+            },
+            {
+              "$ref": "#/$defs/RoleAssigned"
+            },
+            {
+              "$ref": "#/$defs/PhaseStarted"
+            },
+            {
+              "$ref": "#/$defs/StatementMade"
+            },
+            {
+              "$ref": "#/$defs/BallotCast"
+            },
+            {
+              "$ref": "#/$defs/VoteResolved"
+            },
+            {
+              "$ref": "#/$defs/ResidentDied"
+            },
+            {
+              "$ref": "#/$defs/GameEnded"
+            }
+          ]
+        }
+      },
+      "required": [
+        "seq",
+        "day",
+        "phase",
+        "visibility",
+        "payload"
+      ],
+      "title": "Event",
+      "type": "object"
+    },
+    "EventPage": {
+      "properties": {
+        "events": {
+          "items": {
+            "$ref": "#/$defs/Event"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "events"
+      ],
+      "title": "EventPage",
+      "type": "object"
+    },
+    "GameConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "residents": {
+          "default": 12,
+          "maximum": 15,
+          "minimum": 6,
+          "type": "integer"
+        },
+        "murderers": {
+          "default": 2,
+          "maximum": 3,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "doctor": {
+          "default": true,
+          "type": "boolean"
+        },
+        "detective": {
+          "default": true,
+          "type": "boolean"
+        },
+        "sheriff": {
+          "default": true,
+          "type": "boolean"
+        },
+        "max_days": {
+          "default": 10,
+          "maximum": 10,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "seed": {
+          "default": 0,
+          "type": "integer"
+        }
+      },
+      "title": "GameConfig",
+      "type": "object"
+    },
+    "GameCreated": {
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "GameCreated",
+      "type": "object"
+    },
+    "GameEnded": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "game_ended",
+          "default": "game_ended",
+          "type": "string"
+        },
+        "winner": {
+          "$ref": "#/$defs/Side"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "winner",
+        "reason"
+      ],
+      "title": "GameEnded",
+      "type": "object"
+    },
+    "GameStarted": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "game_started",
+          "default": "game_started",
+          "type": "string"
+        },
+        "config": {
+          "$ref": "#/$defs/GameConfig"
+        },
+        "residents": {
+          "items": {
+            "$ref": "#/$defs/Resident"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "config",
+        "residents"
+      ],
+      "title": "GameStarted",
+      "type": "object"
+    },
+    "GameSummary": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "running",
+            "finished",
+            "failed"
+          ],
+          "type": "string"
+        },
+        "config": {
+          "$ref": "#/$defs/GameConfig"
+        },
+        "winner": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Side"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last_seq": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "status",
+        "config",
+        "winner",
+        "last_seq"
+      ],
+      "title": "GameSummary",
+      "type": "object"
+    },
+    "Phase": {
+      "enum": [
+        "setup",
+        "dawn",
+        "discussion",
+        "showdown",
+        "vote",
+        "dusk",
+        "night",
+        "ended"
+      ],
+      "title": "Phase",
+      "type": "string"
+    },
+    "PhaseStarted": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "phase_started",
+          "default": "phase_started",
+          "type": "string"
+        },
+        "day": {
+          "type": "integer"
+        },
+        "phase": {
+          "$ref": "#/$defs/Phase"
+        }
+      },
+      "required": [
+        "type",
+        "day",
+        "phase"
+      ],
+      "title": "PhaseStarted",
+      "type": "object"
+    },
+    "Resident": {
+      "description": "A character in the town. The seat fixes their house and their place in every ordering.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "seat": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "seat"
+      ],
+      "title": "Resident",
+      "type": "object"
+    },
+    "ResidentDied": {
+      "additionalProperties": false,
+      "description": "A death, announced to everyone with the dead Resident's role.",
+      "properties": {
+        "type": {
+          "const": "resident_died",
+          "default": "resident_died",
+          "type": "string"
+        },
+        "resident": {
+          "type": "string"
+        },
+        "cause": {
+          "const": "banished",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        }
+      },
+      "required": [
+        "type",
+        "resident",
+        "cause",
+        "role"
+      ],
+      "title": "ResidentDied",
+      "type": "object"
+    },
+    "Role": {
+      "enum": [
+        "murderer",
+        "doctor",
+        "detective",
+        "sheriff",
+        "civilian"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "RoleAssigned": {
+      "additionalProperties": false,
+      "description": "A Resident learns their role. Murderers also learn who their teammates are.",
+      "properties": {
+        "type": {
+          "const": "role_assigned",
+          "default": "role_assigned",
+          "type": "string"
+        },
+        "resident": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        },
+        "teammates": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "resident",
+        "role",
+        "teammates"
+      ],
+      "title": "RoleAssigned",
+      "type": "object"
+    },
+    "Side": {
+      "enum": [
+        "town",
+        "murderers"
+      ],
+      "title": "Side",
+      "type": "string"
+    },
+    "StatementMade": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "statement_made",
+          "default": "statement_made",
+          "type": "string"
+        },
+        "speaker": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "part": {
+          "enum": [
+            "opening_round",
+            "open_floor"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "speaker",
+        "text",
+        "part"
+      ],
+      "title": "StatementMade",
+      "type": "object"
+    },
+    "Visibility": {
+      "description": "Who may perceive an event: everyone, a named set of Residents, or Spectators only.",
+      "properties": {
+        "scope": {
+          "enum": [
+            "everyone",
+            "residents",
+            "spectators"
+          ],
+          "type": "string"
+        },
+        "residents": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "scope",
+        "residents"
+      ],
+      "title": "Visibility",
+      "type": "object"
+    },
+    "VoteResolved": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "vote_resolved",
+          "default": "vote_resolved",
+          "type": "string"
+        },
+        "tally": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "type": "object"
+        },
+        "banished": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "tally",
+        "banished"
+      ],
+      "title": "VoteResolved",
+      "type": "object"
+    }
+  },
+  "title": "MurderTown protocol"
+}
