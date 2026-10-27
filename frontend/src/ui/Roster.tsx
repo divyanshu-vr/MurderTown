@@ -1,9 +1,5 @@
 import type { ResidentView } from "../core/gameView";
-import { roleLabel } from "./labels";
-
-const fateLabel: Record<NonNullable<ResidentView["fate"]>, string> = {
-  banished: "Banished",
-};
+import { fateLabel, roleLabel } from "./labels";
 
 export function Roster({ residents }: { residents: readonly ResidentView[] }) {
   return (

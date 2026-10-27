@@ -1,5 +1,7 @@
 """HTTP and WebSocket routes."""
 
+from collections.abc import AsyncGenerator
+from contextlib import aclosing
 from dataclasses import dataclass
 from typing import Annotated
 
@@ -21,12 +23,12 @@ class Services:
     games: LiveGames
 
 
-def services(request: Request) -> Services:
+def get_services(request: Request) -> Services:
     found: Services = request.app.state.services
     return found
 
 
-ServicesDep = Annotated[Services, Depends(services)]
+ServicesDep = Annotated[Services, Depends(get_services)]
 
 
 class GameCreated(BaseModel):
@@ -51,19 +53,19 @@ async def healthz() -> dict[str, str]:
 
 
 @router.get("/readyz")
-async def readyz(app: ServicesDep) -> dict[str, str]:
-    await app.store.ping()
+async def readyz(services: ServicesDep) -> dict[str, str]:
+    await services.store.ping()
     return {"status": "ready"}
 
 
 @router.post("/games", status_code=201)
-async def create_game(config: GameConfig, app: ServicesDep) -> GameCreated:
-    return GameCreated(id=await app.games.start(config))
+async def create_game(config: GameConfig, services: ServicesDep) -> GameCreated:
+    return GameCreated(id=await services.games.start(config))
 
 
 @router.get("/games/{game_id}")
-async def get_game(game_id: str, app: ServicesDep) -> GameSummary:
-    game = await app.store.game(game_id)
+async def get_game(game_id: str, services: ServicesDep) -> GameSummary:
+    game = await services.store.game(game_id)
     if game is None:
         raise HTTPException(status_code=404, detail="No such game")
     return GameSummary(
@@ -78,40 +80,43 @@ async def get_game(game_id: str, app: ServicesDep) -> GameSummary:
 @router.get("/games/{game_id}/events")
 async def get_events(
     game_id: str,
-    app: ServicesDep,
+    services: ServicesDep,
     after: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int | None, Query(ge=1, le=5000)] = None,
 ) -> EventPage:
-    return EventPage(events=await app.store.events(game_id, after=after, limit=limit))
+    return EventPage(events=await services.store.events(game_id, after=after, limit=limit))
 
 
 @router.websocket("/ws/games/{game_id}")
 async def stream_game(socket: WebSocket, game_id: str, after: int = 0) -> None:
-    """Send the stored backlog after `after`, then every new event, ending with the game.
-
-    Subscribing before reading the backlog means no event can slip between the
-    two; anything seen twice is dropped by its sequence number.
-    """
-    app: Services = socket.app.state.services
+    """Send every event after `after`, stored or still to come, and close when the game ends."""
+    services: Services = socket.app.state.services
     await socket.accept()
-    if await app.store.game(game_id) is None:
+    if await services.store.game(game_id) is None:
         await socket.close(code=4404, reason="No such game")
         return
 
-    with app.bus.subscribe(game_id) as live:
-        last_sent = after
-        for event in await app.store.events(game_id, after=after):
+    async with aclosing(backlog_then_live(services, game_id, after)) as events:
+        async for event in events:
             await socket.send_text(event.model_dump_json())
-            last_sent = event.seq
             if isinstance(event.payload, GameEnded):
-                await socket.close()
-                return
+                break
+    await socket.close()
+
+
+async def backlog_then_live(services: Services, game_id: str, after: int) -> AsyncGenerator[Event]:
+    """A game's stored events after `after`, then its new events as they happen.
+
+    Subscribing before reading the backlog means no event can slip between the
+    two; an event that arrives both ways is yielded once, by its sequence number.
+    """
+    with services.bus.subscribe(game_id) as live:
+        last = after
+        for event in await services.store.events(game_id, after=after):
+            last = event.seq
+            yield event
         while True:
             event = await live.get()
-            if event.seq <= last_sent:
-                continue
-            await socket.send_text(event.model_dump_json())
-            last_sent = event.seq
-            if isinstance(event.payload, GameEnded):
-                await socket.close()
-                return
+            if event.seq > last:
+                last = event.seq
+                yield event

@@ -1,0 +1,12 @@
+# mm.persistence: storage and live delivery
+
+Owns where games are kept and how new events reach watchers.
+
+**May import:** the layers below it (`mm.orchestrator`, `mm.agents`, `mm.engine`). Today it needs only `mm.engine`.
+
+**Entry points**
+- `store.py`: `GameStore`, which creates games, appends events, records how a game ended and pages a game's events after a sequence number.
+- `tables.py` and `migrations/`: the `games` and `events` tables. Events are never changed after they are written. `migrate.upgrade(engine)` brings any database (SQLite in tests, Postgres in development and production) to the latest schema.
+- `bus.py`: the `Bus` interface and `InProcessBus`, which fan a game's new events out to everyone watching it.
+
+**Why it is shaped this way:** the store is the source of truth and the bus only carries news, so a watcher who reads the stored backlog and then follows the bus can never miss an event. The bus is an interface because a Redis-backed one will replace the in-memory bus when the API runs on several workers.

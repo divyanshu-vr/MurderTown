@@ -19,7 +19,8 @@ class GameConfig(BaseModel):
     doctor: bool = True
     detective: bool = True
     sheriff: bool = True
-    max_days: int = Field(default=10, ge=1, le=10)
+    max_days: int = Field(default=10, ge=1, le=20)
+    """If the Murderers survive this many Days, they win. Capped to bound a game's cost."""
     seed: int = 0
 
     @model_validator(mode="after")

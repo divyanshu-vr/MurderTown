@@ -8,11 +8,12 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from mm.agents import Brain, scripted_bots
-from mm.engine import GameConfig, Resident
-from mm.engine.decisions import SKIP, Decision, DecisionRequest
+from mm.engine import GameConfig
+from mm.engine.decisions import Decision, DecisionRequest
 from mm.engine.events import BallotCast, Event, GameEnded
 from mm.engine.state import GameState
 from mm.orchestrator import GameResult, play_game
+from tests.support import wrapped
 
 
 @st.composite
@@ -43,12 +44,8 @@ class Watched:
 
 def play_watched(config: GameConfig) -> tuple[GameResult, list[str]]:
     asked_while_dead: list[str] = []
-    bots = scripted_bots(config.seed)
-
-    def make(resident: Resident) -> Brain:
-        return Watched(bots(resident), asked_while_dead)
-
-    return asyncio.run(play_game(config, make)), asked_while_dead
+    brains = wrapped(scripted_bots(config.seed), lambda bot: Watched(bot, asked_while_dead))
+    return asyncio.run(play_game(config, brains)), asked_while_dead
 
 
 @settings(max_examples=60, deadline=None)
@@ -66,7 +63,7 @@ def test_every_game_obeys_the_invariants(config: GameConfig) -> None:
     for event in events:
         if isinstance(event.payload, BallotCast):
             assert event.payload.voter in state.living
-            assert event.payload.choice in {*state.living, SKIP} - {event.payload.voter}
+            assert event.payload.target in {*state.living, None} - {event.payload.voter}
         state.apply(event.payload)
         living_counts.append(len(state.living))
     after_casting = living_counts[1:]

@@ -28,7 +28,7 @@ export interface MurderTownProtocol {
 export interface BallotCast {
   type: "ballot_cast";
   voter: string;
-  choice: string;
+  target: string | null;
 }
 /**
  * One entry in a game's log: a payload stamped with its place in the game.
@@ -126,6 +126,7 @@ export interface VoteResolved {
   tally: {
     [k: string]: number;
   };
+  skips: number;
   banished: string | null;
 }
 /**

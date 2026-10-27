@@ -40,11 +40,22 @@ class Puppet:
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Decision:
         known = GameState.fold(view)
         if request.kind is DecisionKind.BALLOT:
-            seat_of = {resident.name: resident.seat for resident in known.residents}
-            name_at = {resident.seat: resident.name for resident in known.residents}
-            target = self.ballots.get(known.day, {}).get(seat_of[request.resident])
-            return Ballot(choice=SKIP if target is None else name_at[target])
+            target = self.ballots.get(known.day, {}).get(seat_of(known)[request.resident])
+            return Ballot(choice=SKIP if target is None else known.residents[target].name)
         return Statement(text="I have nothing to add.")
+
+
+def seat_of(state: GameState) -> dict[str, int]:
+    return {resident.name: resident.seat for resident in state.residents}
+
+
+def wrapped(factory: BrainFactory, wrap: Callable[[Brain], Brain]) -> BrainFactory:
+    """Every Resident's decision source from `factory`, passed through `wrap`."""
+
+    def make(resident: Resident) -> Brain:
+        return wrap(factory(resident))
+
+    return make
 
 
 def puppets(ballots: Script | None = None) -> BrainFactory:
@@ -61,8 +72,8 @@ def name_at_seat(events: Sequence[Event], seat: int) -> str:
 async def seats_by_role(config: GameConfig) -> dict[Role, list[int]]:
     """Which seats hold which role for this config. Casting is deterministic, so a dry run tells."""
     events = (await play_game(config.model_copy(update={"max_days": 1}), puppets())).events
-    seat_of = {resident.name: resident.seat for resident in GameState.fold(events).residents}
+    seats_of_names = seat_of(GameState.fold(events))
     seats: dict[Role, list[int]] = {}
     for assignment in payloads(events, RoleAssigned):
-        seats.setdefault(assignment.role, []).append(seat_of[assignment.resident])
+        seats.setdefault(assignment.role, []).append(seats_of_names[assignment.resident])
     return {role: sorted(found) for role, found in seats.items()}

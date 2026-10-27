@@ -27,3 +27,13 @@ def test_a_configuration_outside_the_bounds_is_rejected(residents: int, murderer
 )
 def test_a_configuration_inside_the_bounds_is_accepted(residents: int, murderers: int) -> None:
     assert GameConfig(residents=residents, murderers=murderers).murderers == murderers
+
+
+@pytest.mark.parametrize("max_days", [0, 21])
+def test_a_day_limit_outside_one_to_twenty_is_rejected(max_days: int) -> None:
+    with pytest.raises(ValidationError):
+        GameConfig(max_days=max_days)
+
+
+def test_the_host_may_lengthen_the_game_beyond_the_default_ten_days() -> None:
+    assert GameConfig(max_days=20).max_days == 20

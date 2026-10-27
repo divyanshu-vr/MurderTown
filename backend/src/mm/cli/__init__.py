@@ -28,7 +28,7 @@ def write_events(path: Path, events: list[Event]) -> None:
     """Save a game as newline-delimited JSON, one event per line."""
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = (event.model_dump_json() for event in events)
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
 @app.command()
@@ -96,5 +96,5 @@ def new_game(
 def schema(out: Path = Path("../protocol/murdertown.schema.json")) -> None:
     """Export the backend-frontend protocol as JSON Schema."""
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(protocol_schema(), indent=2) + "\n", encoding="utf-8")
+    out.write_text(json.dumps(protocol_schema(), indent=2) + "\n", encoding="utf-8", newline="\n")
     typer.echo(f"Wrote {out}")

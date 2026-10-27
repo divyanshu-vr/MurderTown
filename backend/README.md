@@ -26,9 +26,7 @@ Settings come from `MM_*` environment variables or `backend/.env` (see `.env.exa
                                           api: REST pages the store, WebSocket = backlog + bus
 ```
 
-- **`mm.engine`**: the rules. Events and who may perceive them, the state fold, casting, the Vote and win conditions. No I/O, clocks or async, so every rule is a plain function you can read and test.
-- **`mm.agents`**: decision sources. The `Brain` interface, and scripted bots that play legally without a model.
-- **`mm.orchestrator`**: runs a game. One module per Phase, the event log and the `Game` that asks Residents for decisions.
-- **`mm.persistence`**: the game store (SQLAlchemy, migrations with Alembic) and the in-process live bus.
-- **`mm.api`**: FastAPI. Starts games in the background and serves their logs over REST and WebSocket.
-- **`mm.cli`**: the `mm` command.
+Each package explains what it owns, what it may import and why it is shaped that way:
+[engine](src/mm/engine/README.md), [agents](src/mm/agents/README.md),
+[orchestrator](src/mm/orchestrator/README.md), [persistence](src/mm/persistence/README.md),
+[api](src/mm/api/README.md) and [cli](src/mm/cli/README.md).

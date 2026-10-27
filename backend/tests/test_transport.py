@@ -17,10 +17,11 @@ from fastapi.testclient import TestClient
 
 from mm.agents import Brain, BrainFactory, scripted_bots
 from mm.api import Settings, create_app
-from mm.engine import GameConfig, Resident
+from mm.engine import GameConfig
 from mm.engine.decisions import Decision, DecisionRequest
 from mm.engine.events import Event
 from mm.orchestrator import play_game
+from tests.support import wrapped
 
 CONFIG = {"residents": 8, "murderers": 2, "max_days": 4, "seed": 4}
 
@@ -43,12 +44,7 @@ class Unhurried:
 
 
 def unhurried_bots(config: GameConfig) -> BrainFactory:
-    bots = scripted_bots(config.seed)
-
-    def make(resident: Resident) -> Brain:
-        return Unhurried(bots(resident))
-
-    return make
+    return wrapped(scripted_bots(config.seed), Unhurried)
 
 
 @pytest.fixture

@@ -12,14 +12,21 @@
         "voter": {
           "type": "string"
         },
-        "choice": {
-          "type": "string"
+        "target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
         "type",
         "voter",
-        "choice"
+        "target"
       ],
       "title": "BallotCast",
       "type": "object"
@@ -135,7 +142,7 @@
         },
         "max_days": {
           "default": 10,
-          "maximum": 10,
+          "maximum": 20,
           "minimum": 1,
           "type": "integer"
         },
@@ -453,6 +460,9 @@
           },
           "type": "object"
         },
+        "skips": {
+          "type": "integer"
+        },
         "banished": {
           "anyOf": [
             {
@@ -467,6 +477,7 @@
       "required": [
         "type",
         "tally",
+        "skips",
         "banished"
       ],
       "title": "VoteResolved",

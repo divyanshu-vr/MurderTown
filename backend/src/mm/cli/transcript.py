@@ -4,6 +4,7 @@ The console only needs plain ASCII, so the transcript avoids box-drawing
 characters that some Windows terminals cannot print.
 """
 
+from mm.engine import Side
 from mm.engine.events import (
     BallotCast,
     Event,
@@ -15,6 +16,8 @@ from mm.engine.events import (
     StatementMade,
     VoteResolved,
 )
+
+VICTORY = {Side.TOWN: "The Town wins.", Side.MURDERERS: "The Murderers win."}
 
 
 def describe(event: Event) -> str:
@@ -29,13 +32,13 @@ def describe(event: Event) -> str:
             return f"\n=== Day {day}: {phase.capitalize()} ==="
         case StatementMade(speaker=speaker, text=text):
             return f'{speaker}: "{text}"'
-        case BallotCast(voter=voter, choice=choice):
-            return f"  {voter} votes {choice}"
-        case VoteResolved(tally=tally, banished=banished):
-            counts = ", ".join(f"{name} {votes}" for name, votes in tally.items())
+        case BallotCast(voter=voter, target=target):
+            return f"  {voter} votes for {target}" if target else f"  {voter} votes to skip"
+        case VoteResolved(tally=tally, skips=skips, banished=banished):
+            counts = [f"{name} {votes}" for name, votes in tally.items()] + [f"skip {skips}"]
             result = f"{banished} is banished." if banished else "Nobody is banished."
-            return f"Tally: {counts}. {result}"
+            return f"Tally: {', '.join(counts)}. {result}"
         case ResidentDied(resident=resident, role=role):
             return f"{resident} leaves the town forever. They were a {role.capitalize()}."
         case GameEnded(winner=winner, reason=reason):
-            return f"\n*** The {winner} win. {reason} ***"
+            return f"\n*** {VICTORY[winner]} {reason} ***"

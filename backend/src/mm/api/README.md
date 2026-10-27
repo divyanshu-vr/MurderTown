@@ -1,0 +1,14 @@
+# mm.api: the HTTP and WebSocket API
+
+Owns how Spectators and the Host reach games over the network.
+
+**May import:** every layer below it.
+
+**Entry points**
+- `app.py`: `create_app(settings, brains_for)` wires the store, the bus and live games together and runs migrations at startup.
+- `routes.py`: create a game, read its summary, page its events, and `/ws/games/{id}?after=N`, which sends the backlog after `N` and then every new event until the game ends. Health (`/healthz`) and readiness (`/readyz`) checks.
+- `live_games.py`: `LiveGames` runs each game as a background task, storing every event before publishing it.
+- `protocol.py`: the protocol as one JSON Schema document, from which the frontend's types are generated.
+- `settings.py`: `MM_*` environment settings.
+
+**Why it is shaped this way:** routes only translate between HTTP and the layers below, so every rule stays testable without a network.

@@ -1,5 +1,5 @@
 /** Every name the interface shows for a domain value, in one place. Vocabulary follows GLOSSARY.md. */
-import type { Phase, Role, Side } from "../protocol";
+import type { PayloadOf, Phase, Role, Side } from "../protocol";
 
 export const phaseLabel: Record<Phase, string> = {
   setup: "Setting up",
@@ -23,4 +23,8 @@ export const roleLabel: Record<Role, string> = {
 export const victoryLabel: Record<Side, string> = {
   town: "The Town wins",
   murderers: "The Murderers win",
+};
+
+export const fateLabel: Record<PayloadOf<"resident_died">["cause"], string> = {
+  banished: "Banished",
 };

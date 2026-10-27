@@ -76,3 +76,12 @@ async def test_a_ballot_for_someone_who_is_not_an_option_is_rejected() -> None:
 
     with pytest.raises(IllegalDecisionError):
         await play_game(SIX_RESIDENTS, make)
+
+
+async def test_skips_are_counted_apart_from_the_ballots_against_residents() -> None:
+    result = await play_game(SIX_RESIDENTS, puppets({1: {0: 5, 1: 5, 2: 3}}))
+
+    (outcome,) = payloads(result.events, VoteResolved)
+
+    assert outcome.tally == {name_at_seat(result.events, 5): 2, name_at_seat(result.events, 3): 1}
+    assert outcome.skips == 3

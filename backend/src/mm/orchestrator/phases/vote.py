@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from mm.engine import Phase
 from mm.engine.decisions import Ballot, DecisionKind, DecisionRequest
 from mm.engine.events import BallotCast, ResidentDied, VoteResolved
-from mm.engine.vote import ballot_options, tally_ballots
+from mm.engine.vote import ballot_options, tally_ballots, target_of
 
 if TYPE_CHECKING:
     from mm.orchestrator.game import Game
@@ -21,9 +21,11 @@ async def run_vote(game: "Game") -> None:
     ballots = await game.decide_all(requests, Ballot)
 
     for voter, ballot in zip(voters, ballots, strict=True):
-        await game.append(BallotCast(voter=voter, choice=ballot.choice))
+        await game.append(BallotCast(voter=voter, target=target_of(ballot.choice)))
     outcome = tally_ballots(ballot.choice for ballot in ballots)
-    await game.append(VoteResolved(tally=outcome.tally, banished=outcome.banished))
+    await game.append(
+        VoteResolved(tally=outcome.tally, skips=outcome.skips, banished=outcome.banished)
+    )
 
     if outcome.banished:
         role = game.state.roles[outcome.banished]

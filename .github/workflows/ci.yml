@@ -36,6 +36,8 @@ jobs:
         run: uv run lint-imports
       - name: Tests (SQLite)
         run: uv run pytest
+      - name: Build
+        run: uv build
       - name: Transport tests (Postgres)
         run: uv run pytest tests/test_transport.py
         env:

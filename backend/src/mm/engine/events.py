@@ -96,7 +96,8 @@ class BallotCast(Payload):
 
     type: Literal["ballot_cast"] = "ballot_cast"
     voter: str
-    choice: str
+    target: str | None
+    """The Resident voted for, or None for a vote to skip."""
 
     def visibility(self) -> Visibility:
         return Visibility.everyone()
@@ -105,6 +106,8 @@ class BallotCast(Payload):
 class VoteResolved(Payload):
     type: Literal["vote_resolved"] = "vote_resolved"
     tally: dict[str, int]
+    """Ballots against each Resident who received any."""
+    skips: int
     banished: str | None
 
     def visibility(self) -> Visibility:

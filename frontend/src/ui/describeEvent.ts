@@ -14,9 +14,9 @@ export function describeEvent(event: Event): string | null {
     case "statement_made":
       return `${payload.speaker}: "${payload.text}"`;
     case "ballot_cast":
-      return payload.choice === "SKIP"
+      return payload.target === null
         ? `${payload.voter} votes to skip.`
-        : `${payload.voter} votes for ${payload.choice}.`;
+        : `${payload.voter} votes for ${payload.target}.`;
     case "vote_resolved":
       return payload.banished ? `${payload.banished} is banished.` : "Nobody is banished.";
     case "resident_died":
