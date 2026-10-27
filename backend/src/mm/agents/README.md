@@ -2,10 +2,15 @@
 
 Owns the things that play a Resident. Every one of them answers a `DecisionRequest`, seeing only the events that Resident may perceive.
 
-**May import:** `mm.engine`.
+**May import:** `mm.llm`, `mm.engine`.
 
 **Entry points**
-- `brain.py`: the `Brain` interface (`decide(request, view)`) and `BrainFactory`, which gives each Resident its own Brain.
-- `scripted.py`: `ScriptedBot` and `scripted_bots(seed)`, rule-based Residents that play legally without a language model. Town bots vote at random; Murderer bots never vote for a teammate.
+- `brain.py`: the `Brain` interface (`decide(request, view)` returns an `Answer`) and `BrainFactory`, which gives each Resident its own Brain.
+- `scripted.py`: `ScriptedBot` and `scripted_bots(seed)`, rule-based Residents that play legally without a language model.
+- `llm_brain.py`: `LLMBrain` and `llm_agents(...)`. Every decision kind runs the same pipeline: build the prompt, call the model, read the answer, retry once with the problem quoted, fall back to a safe default, and record every attempt before returning.
+- `prompting.py` and `prompts/`: the prompt, built only from perceived events and ordered from most to least stable (system briefing, memory, task). The templates are versioned text files; `prompt_version()` hashes them.
+- `memory.py`: an Agent's notebook, journal and suspicions, folded from its own reflection events. There is no separate memory store.
+- `answers.py`: the shape of a usable answer per decision kind, its safe default, and the scrub that keeps email addresses and file paths out of the game.
+- `calls.py`: `ModelCall`, the record of one model attempt.
 
-**Why it is shaped this way:** the game runner never knows what kind of Brain it is talking to, so scripted bots, LLM Agents and, later, a human seat are interchangeable per Resident.
+**Why it is shaped this way:** the game runner never knows what kind of Brain it is talking to, so scripted bots, LLM Agents and, later, a human seat are interchangeable per Resident. One pipeline for every decision kind means adding a decision is a table entry and a template, not a new copy of the flow.

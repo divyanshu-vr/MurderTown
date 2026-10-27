@@ -2,6 +2,11 @@
 
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "DecisionKind".
+ */
+export type DecisionKind = "statement" | "ballot" | "reflection";
+/**
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "Phase".
  */
 export type Phase = "setup" | "dawn" | "discussion" | "showdown" | "vote" | "dusk" | "night" | "ended";
@@ -31,6 +36,18 @@ export interface BallotCast {
   target: string | null;
 }
 /**
+ * A decision source could not give a usable answer, so a safe default was used instead.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "DecisionFellBack".
+ */
+export interface DecisionFellBack {
+  type: "decision_fell_back";
+  resident: string;
+  kind: DecisionKind;
+  reason: string;
+}
+/**
  * One entry in a game's log: a payload stamped with its place in the game.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
@@ -41,8 +58,18 @@ export interface Event {
   day: number;
   phase: Phase;
   visibility: Visibility;
+  decision_id: string | null;
   payload:
-    GameStarted | RoleAssigned | PhaseStarted | StatementMade | BallotCast | VoteResolved | ResidentDied | GameEnded;
+    | GameStarted
+    | RoleAssigned
+    | PhaseStarted
+    | StatementMade
+    | BallotCast
+    | VoteResolved
+    | ResidentDied
+    | ReflectionWritten
+    | DecisionFellBack
+    | GameEnded;
 }
 /**
  * Who may perceive an event: everyone, a named set of Residents, or Spectators only.
@@ -85,9 +112,10 @@ export interface GameConfig {
 export interface Resident {
   name: string;
   seat: number;
+  occupation: string;
 }
 /**
- * A Resident learns their role. Murderers also learn who their teammates are.
+ * A Resident learns their role and persona. Murderers also learn who their teammates are.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "RoleAssigned".
@@ -96,7 +124,18 @@ export interface RoleAssigned {
   type: "role_assigned";
   resident: string;
   role: Role;
+  persona: Persona;
   teammates: string[];
+}
+/**
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Persona".
+ */
+export interface Persona {
+  occupation: string;
+  temperament: string;
+  speaking_style: string;
+  quirk: string;
 }
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
@@ -140,6 +179,37 @@ export interface ResidentDied {
   resident: string;
   cause: "banished";
   role: Role;
+}
+/**
+ * A Resident's private journal entry, rewritten notebook and changed suspicions.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "ReflectionWritten".
+ */
+export interface ReflectionWritten {
+  type: "reflection_written";
+  resident: string;
+  journal_entry: string;
+  notebook: string;
+  suspicions: Suspicion[];
+}
+/**
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Suspicion".
+ */
+export interface Suspicion {
+  /**
+   * Another Resident's name.
+   */
+  resident: string;
+  /**
+   * 0 = certainly innocent, 100 = certainly a Murderer.
+   */
+  suspicion: number;
+  /**
+   * Why, in a few words.
+   */
+  note: string;
 }
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema

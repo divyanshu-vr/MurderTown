@@ -3,32 +3,41 @@
 import asyncio
 import json
 import urllib.request
+from enum import StrEnum
 from pathlib import Path
 from typing import Annotated
 
 import typer
 import uvicorn
 
-from mm.agents import scripted_bots
+from mm.agents import AgentSettings, BrainFactory, ModelCall, llm_agents, scripted_bots
 from mm.api.protocol import protocol_schema
+from mm.cli.recording import CallTally, NdjsonFile
 from mm.cli.transcript import describe
 from mm.engine import GameConfig
-from mm.engine.events import Event
-from mm.orchestrator import play_game
+from mm.engine.events import DecisionFellBack, Event
+from mm.llm import Effort
+from mm.llm.claude_agent_sdk import ClaudeAgentSDKProvider, SubscriptionError
+from mm.orchestrator import EventObserver, play_game
 
 app = typer.Typer(help="MurderTown: a town where every Resident is played by an Agent.")
+
+
+class Brains(StrEnum):
+    SCRIPTED = "scripted"
+    CLAUDE = "claude"
+
+
+class EffortLevel(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    MAX = "max"
 
 
 @app.callback()
 def main() -> None:
     """Keep `mm` a group of commands even while it has only a few."""
-
-
-def write_events(path: Path, events: list[Event]) -> None:
-    """Save a game as newline-delimited JSON, one event per line."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    lines = (event.model_dump_json() for event in events)
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
 @app.command()
@@ -41,10 +50,18 @@ def play(
     doctor: bool = True,
     detective: bool = True,
     sheriff: bool = True,
+    brains: Annotated[Brains, typer.Option(help="Who plays the Residents.")] = Brains.SCRIPTED,
+    model: str = "claude-haiku-5-5",
+    effort: EffortLevel = EffortLevel.LOW,
+    concurrency: Annotated[int, typer.Option(help="Agents thinking at once.")] = 5,
     out: Annotated[Path | None, typer.Option(help="Save the event log as NDJSON.")] = None,
     quiet: Annotated[bool, typer.Option(help="Do not print the transcript.")] = False,
 ) -> None:
-    """Play one game with scripted bots and print its transcript."""
+    """Play one game and print its transcript as it happens.
+
+    With --brains claude, every Resident is an Agent on your Claude subscription.
+    With --out game.ndjson, model calls are also saved to game.calls.ndjson.
+    """
     config = GameConfig(
         residents=residents,
         murderers=murderers,
@@ -54,13 +71,74 @@ def play(
         detective=detective,
         sheriff=sheriff,
     )
-    result = asyncio.run(play_game(config, scripted_bots(seed)))
+    tally = CallTally()
+    observers: list[EventObserver] = []
     if not quiet:
-        for event in result.events:
-            typer.echo(describe(event))
-    if out:
-        write_events(out, result.events)
-        typer.echo(f"Saved {len(result.events)} events to {out}")
+        observers.append(_print_event)
+    events_file = NdjsonFile(out) if out else None
+    if events_file:
+        observers.append(events_file)
+
+    try:
+        brain_for = _brains(
+            brains,
+            config=config,
+            model=model,
+            effort=effort,
+            concurrency=concurrency,
+            tally=tally,
+            out=out,
+        )
+    except SubscriptionError as error:
+        typer.echo(f"Cannot start a live game: {error}", err=True)
+        raise typer.Exit(code=1) from error
+
+    result = asyncio.run(play_game(config, brain_for, observers))
+    fallbacks = sum(isinstance(event.payload, DecisionFellBack) for event in result.events)
+    if brains is Brains.CLAUDE:
+        typer.echo(f"\n{tally.summary()} Fallbacks: {fallbacks}.")
+    if events_file:
+        typer.echo(f"Saved {events_file.count} events to {out}")
+
+
+def _brains(
+    brains: Brains,
+    *,
+    config: GameConfig,
+    model: str,
+    effort: EffortLevel,
+    concurrency: int,
+    tally: CallTally,
+    out: Path | None,
+) -> BrainFactory:
+    if brains is Brains.SCRIPTED:
+        return scripted_bots(config.seed)
+    provider = ClaudeAgentSDKProvider(concurrency=concurrency)
+    calls_file = NdjsonFile(out.with_suffix(".calls.ndjson")) if out else None
+
+    async def record(call: ModelCall) -> None:
+        await tally(call)
+        if calls_file:
+            await calls_file(call)
+
+    settings = AgentSettings(model=model, effort=_effort(effort))
+    return llm_agents(provider, settings, record, config.seed)
+
+
+def _effort(level: EffortLevel) -> Effort:
+    match level:
+        case EffortLevel.LOW:
+            return "low"
+        case EffortLevel.MEDIUM:
+            return "medium"
+        case EffortLevel.HIGH:
+            return "high"
+        case EffortLevel.MAX:
+            return "max"
+
+
+async def _print_event(event: Event) -> None:
+    typer.echo(describe(event))
 
 
 @app.command()

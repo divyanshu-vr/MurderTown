@@ -18,7 +18,7 @@ from fastapi.testclient import TestClient
 from mm.agents import Brain, BrainFactory, scripted_bots
 from mm.api import Settings, create_app
 from mm.engine import GameConfig
-from mm.engine.decisions import Decision, DecisionRequest
+from mm.engine.decisions import Answer, DecisionRequest
 from mm.engine.events import Event
 from mm.orchestrator import play_game
 from tests.support import wrapped
@@ -38,7 +38,7 @@ class Unhurried:
     def __init__(self, inner: Brain) -> None:
         self.inner = inner
 
-    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Decision:
+    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         await asyncio.sleep(0.005)
         return await self.inner.decide(request, view)
 

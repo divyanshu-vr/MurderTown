@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Literal
+from typing import Literal, cast
 from uuid import uuid4
 
 from sqlalchemy import func, select, text, update
@@ -56,6 +56,7 @@ class GameStore:
                     day=event.day,
                     phase=event.phase,
                     type=event.payload.type,
+                    decision_id=event.decision_id,
                     visibility=event.visibility.model_dump(mode="json"),
                     payload=event.payload.model_dump(mode="json"),
                 )
@@ -80,7 +81,7 @@ class GameStore:
         return StoredGame(
             id=row.id,
             config=GameConfig.model_validate(row.config),
-            status=row.status,  # type: ignore[arg-type]
+            status=cast(GameStatus, row.status),
             winner=Side(row.winner) if row.winner else None,
             last_seq=last_seq or 0,
         )
@@ -102,6 +103,7 @@ class GameStore:
                     "day": row.day,
                     "phase": row.phase,
                     "visibility": row.visibility,
+                    "decision_id": row.decision_id,
                     "payload": row.payload,
                 }
             )

@@ -31,6 +31,43 @@
       "title": "BallotCast",
       "type": "object"
     },
+    "DecisionFellBack": {
+      "additionalProperties": false,
+      "description": "A decision source could not give a usable answer, so a safe default was used instead.",
+      "properties": {
+        "type": {
+          "const": "decision_fell_back",
+          "default": "decision_fell_back",
+          "type": "string"
+        },
+        "resident": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/DecisionKind"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "resident",
+        "kind",
+        "reason"
+      ],
+      "title": "DecisionFellBack",
+      "type": "object"
+    },
+    "DecisionKind": {
+      "enum": [
+        "statement",
+        "ballot",
+        "reflection"
+      ],
+      "title": "DecisionKind",
+      "type": "string"
+    },
     "Event": {
       "description": "One entry in a game's log: a payload stamped with its place in the game.",
       "properties": {
@@ -46,13 +83,26 @@
         "visibility": {
           "$ref": "#/$defs/Visibility"
         },
+        "decision_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "payload": {
           "discriminator": {
             "mapping": {
               "ballot_cast": "#/$defs/BallotCast",
+              "decision_fell_back": "#/$defs/DecisionFellBack",
               "game_ended": "#/$defs/GameEnded",
               "game_started": "#/$defs/GameStarted",
               "phase_started": "#/$defs/PhaseStarted",
+              "reflection_written": "#/$defs/ReflectionWritten",
               "resident_died": "#/$defs/ResidentDied",
               "role_assigned": "#/$defs/RoleAssigned",
               "statement_made": "#/$defs/StatementMade",
@@ -83,6 +133,12 @@
               "$ref": "#/$defs/ResidentDied"
             },
             {
+              "$ref": "#/$defs/ReflectionWritten"
+            },
+            {
+              "$ref": "#/$defs/DecisionFellBack"
+            },
+            {
               "$ref": "#/$defs/GameEnded"
             }
           ]
@@ -93,6 +149,7 @@
         "day",
         "phase",
         "visibility",
+        "decision_id",
         "payload"
       ],
       "title": "Event",
@@ -255,6 +312,30 @@
       "title": "GameSummary",
       "type": "object"
     },
+    "Persona": {
+      "properties": {
+        "occupation": {
+          "type": "string"
+        },
+        "temperament": {
+          "type": "string"
+        },
+        "speaking_style": {
+          "type": "string"
+        },
+        "quirk": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "occupation",
+        "temperament",
+        "speaking_style",
+        "quirk"
+      ],
+      "title": "Persona",
+      "type": "object"
+    },
     "Phase": {
       "enum": [
         "setup",
@@ -292,6 +373,41 @@
       "title": "PhaseStarted",
       "type": "object"
     },
+    "ReflectionWritten": {
+      "additionalProperties": false,
+      "description": "A Resident's private journal entry, rewritten notebook and changed suspicions.",
+      "properties": {
+        "type": {
+          "const": "reflection_written",
+          "default": "reflection_written",
+          "type": "string"
+        },
+        "resident": {
+          "type": "string"
+        },
+        "journal_entry": {
+          "type": "string"
+        },
+        "notebook": {
+          "type": "string"
+        },
+        "suspicions": {
+          "items": {
+            "$ref": "#/$defs/Suspicion"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "resident",
+        "journal_entry",
+        "notebook",
+        "suspicions"
+      ],
+      "title": "ReflectionWritten",
+      "type": "object"
+    },
     "Resident": {
       "description": "A character in the town. The seat fixes their house and their place in every ordering.",
       "properties": {
@@ -300,11 +416,15 @@
         },
         "seat": {
           "type": "integer"
+        },
+        "occupation": {
+          "type": "string"
         }
       },
       "required": [
         "name",
-        "seat"
+        "seat",
+        "occupation"
       ],
       "title": "Resident",
       "type": "object"
@@ -351,7 +471,7 @@
     },
     "RoleAssigned": {
       "additionalProperties": false,
-      "description": "A Resident learns their role. Murderers also learn who their teammates are.",
+      "description": "A Resident learns their role and persona. Murderers also learn who their teammates are.",
       "properties": {
         "type": {
           "const": "role_assigned",
@@ -363,6 +483,9 @@
         },
         "role": {
           "$ref": "#/$defs/Role"
+        },
+        "persona": {
+          "$ref": "#/$defs/Persona"
         },
         "teammates": {
           "default": [],
@@ -376,6 +499,7 @@
         "type",
         "resident",
         "role",
+        "persona",
         "teammates"
       ],
       "title": "RoleAssigned",
@@ -418,6 +542,32 @@
         "part"
       ],
       "title": "StatementMade",
+      "type": "object"
+    },
+    "Suspicion": {
+      "additionalProperties": false,
+      "properties": {
+        "resident": {
+          "description": "Another Resident's name.",
+          "type": "string"
+        },
+        "suspicion": {
+          "description": "0 = certainly innocent, 100 = certainly a Murderer.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "note": {
+          "description": "Why, in a few words.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resident",
+        "suspicion",
+        "note"
+      ],
+      "title": "Suspicion",
       "type": "object"
     },
     "Visibility": {

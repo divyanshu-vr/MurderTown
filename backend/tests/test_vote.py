@@ -6,7 +6,7 @@ import pytest
 
 from mm.agents import Brain
 from mm.engine import GameConfig, Resident
-from mm.engine.decisions import Decision, DecisionKind, DecisionRequest
+from mm.engine.decisions import Answer, Ballot, DecisionKind, DecisionRequest
 from mm.engine.events import BallotCast, Event, ResidentDied, RoleAssigned, VoteResolved
 from mm.engine.state import GameState
 from mm.orchestrator import IllegalDecisionError, play_game
@@ -49,7 +49,7 @@ async def test_every_ballot_is_cast_without_seeing_another_ballot_from_the_same_
     ballots_seen_today: list[int] = []
 
     class Peeking(Puppet):
-        async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Decision:
+        async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
             if request.kind is DecisionKind.BALLOT:
                 today = GameState.fold(view).day
                 ballots_seen_today.append(
@@ -65,11 +65,10 @@ async def test_every_ballot_is_cast_without_seeing_another_ballot_from_the_same_
 
 async def test_a_ballot_for_someone_who_is_not_an_option_is_rejected() -> None:
     class Cheater(Puppet):
-        async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Decision:
-            decision = await super().decide(request, view)
+        async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
             if request.kind is DecisionKind.BALLOT:
-                return decision.model_copy(update={"choice": request.resident})
-            return decision
+                return Answer(Ballot(choice=request.resident))
+            return await super().decide(request, view)
 
     def make(resident: Resident) -> Brain:
         return Cheater({})

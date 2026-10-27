@@ -19,5 +19,6 @@ async def run_discussion(game: "Game") -> None:
     order = list(game.state.living)
     game.rng.shuffle(order)
     for speaker in order:
-        statement = await game.decide(DecisionRequest(DecisionKind.STATEMENT, speaker), Statement)
-        await game.append(StatementMade(speaker=speaker, text=statement.text, part="opening_round"))
+        said = await game.decide(DecisionRequest(DecisionKind.STATEMENT, speaker), Statement)
+        made = StatementMade(speaker=speaker, text=said.decision.text, part="opening_round")
+        await game.append(made, cause=said)

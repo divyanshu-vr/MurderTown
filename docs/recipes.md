@@ -27,8 +27,9 @@ pnpm gen:types
 1. Add the kind to `DecisionKind` and its answer, a `Decision` subclass, in `engine/decisions.py`.
 2. Add its legality rule to `why_illegal` (`engine/rules.py`). Its options builder lives with the rules of its Phase, as `ballot_options` lives in `engine/vote.py`.
 3. Teach `ScriptedBot` to answer it legally (`agents/scripted.py`).
-4. Ask for it from the Phase with `game.decide` (one Resident) or `game.decide_all` (several at once, answers in the order asked).
-5. Write seam-1 tests that script the answers with a `Puppet`-style test decision source.
+4. Give LLM Agents what they need: an `AnswerSpec` with its safe default in `ANSWERS` (`agents/answers.py`), and an instructions template in `agents/prompts/decisions/`, listed in `DECISION_TEMPLATES` (`agents/prompting.py`).
+5. Ask for it from the Phase with `game.decide` (one Resident) or `game.decide_all` (several at once, answers in the order asked), and append the event it causes with `cause=` so the event names the decision.
+6. Write seam-1 tests that script the answers with a `Puppet`-style test decision source, and seam-2 tests with `FakeModel` for its fallback.
 
 ## Add a role
 

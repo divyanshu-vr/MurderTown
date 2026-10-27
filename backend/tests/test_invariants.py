@@ -9,7 +9,7 @@ from hypothesis import strategies as st
 
 from mm.agents import Brain, scripted_bots
 from mm.engine import GameConfig
-from mm.engine.decisions import Decision, DecisionRequest
+from mm.engine.decisions import Answer, DecisionRequest
 from mm.engine.events import BallotCast, Event, GameEnded
 from mm.engine.state import GameState
 from mm.orchestrator import GameResult, play_game
@@ -36,7 +36,7 @@ class Watched:
     def __init__(self, inner: Brain, asked_while_dead: list[str]) -> None:
         self.inner, self.asked_while_dead = inner, asked_while_dead
 
-    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Decision:
+    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         if request.resident in GameState.fold(view).dead:
             self.asked_while_dead.append(request.resident)
         return await self.inner.decide(request, view)

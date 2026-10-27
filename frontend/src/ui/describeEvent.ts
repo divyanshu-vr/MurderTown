@@ -1,6 +1,6 @@
 /** One line of the town feed for each event, or null for events the feed does not show. */
 import type { Event } from "../protocol";
-import { phaseLabel, roleLabel, victoryLabel } from "./labels";
+import { decisionLabel, phaseLabel, roleLabel, victoryLabel } from "./labels";
 
 export function describeEvent(event: Event): string | null {
   const payload = event.payload;
@@ -21,6 +21,10 @@ export function describeEvent(event: Event): string | null {
       return payload.banished ? `${payload.banished} is banished.` : "Nobody is banished.";
     case "resident_died":
       return `${payload.resident} leaves town forever. They were a ${roleLabel[payload.role]}.`;
+    case "reflection_written":
+      return null; // private notes belong in the Mind inspector, not the town feed
+    case "decision_fell_back":
+      return `${payload.resident}'s ${decisionLabel[payload.kind]} used a safe default: ${payload.reason}`;
     case "game_ended":
       return `${victoryLabel[payload.winner]}. ${payload.reason}`;
   }

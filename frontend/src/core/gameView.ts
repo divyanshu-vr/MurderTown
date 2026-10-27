@@ -9,6 +9,7 @@ import type { Event, Phase, PayloadOf, Role, Side } from "../protocol";
 export interface ResidentView {
   name: string;
   seat: number;
+  occupation: string;
   /** Spectators see every role; `revealed` says whether the town has learned it too. */
   role: Role | null;
   revealed: boolean;
@@ -34,9 +35,10 @@ export function applyEvent(view: GameView, event: Event): GameView {
     case "game_started":
       return {
         ...view,
-        residents: payload.residents.map(({ name, seat }) => ({
+        residents: payload.residents.map(({ name, seat, occupation }) => ({
           name,
           seat,
+          occupation,
           role: null,
           revealed: false,
           fate: null,
@@ -60,7 +62,9 @@ export function applyEvent(view: GameView, event: Event): GameView {
     case "statement_made":
     case "ballot_cast":
     case "vote_resolved":
-      return view; // these only appear in the feed
+    case "reflection_written":
+    case "decision_fell_back":
+      return view; // these only appear in the feed or, later, the Mind inspector
   }
 }
 

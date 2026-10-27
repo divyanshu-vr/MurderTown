@@ -7,9 +7,10 @@ Owns everything that decides what is true in a game: the configuration and its b
 **Entry points**
 - `events.py`: every event type, each declaring its own `visibility()`. Start here when adding behaviour.
 - `state.py`: `GameState.fold(events)`. The full log gives the truth; one Resident's perceived events give what they know.
-- `perception.py`: `perceived_by(events, resident)`, the only way a Resident learns anything.
+- `perception.py`: `perceived_by(events, resident)`, the only way a Resident learns anything, and what a Resident has perceived since their last reflection.
 - `decisions.py`: what a Resident can be asked (`DecisionRequest`) and the shape of each answer.
 - `rules.py` and `vote.py`: legality of decisions, the tally, banishment and the verdict.
-- `casting.py`: names, seats and roles, all drawn from the game's seeded random source.
+- `casting.py`: names, seats, personas and roles, all drawn from the game's seeded random source.
+- `personas.py`: who each Resident is as a person. The occupation is public; the rest is private.
 
 **Why it is shaped this way:** keeping the rules free of I/O and randomness-from-nowhere makes a game a pure function of its configuration and decisions, which is what makes replay, resume and the isolation tests possible.

@@ -13,6 +13,7 @@ dependencies = [
     "aiosqlite>=0.20",
     "alembic>=1.14",
     "typer>=0.12",
+    "claude-agent-sdk>=0.2",
 ]
 
 [project.scripts]
@@ -80,6 +81,7 @@ layers = [
     "mm.persistence",
     "mm.orchestrator",
     "mm.agents",
+    "mm.llm",
     "mm.engine",
 ]
 ignore_imports = []

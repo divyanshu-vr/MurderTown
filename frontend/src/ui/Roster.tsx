@@ -12,7 +12,10 @@ export function Roster({ residents }: { residents: readonly ResidentView[] }) {
             aria-label={resident.name}
             className={`flex items-baseline justify-between gap-3 ${resident.fate ? "text-stone-500" : ""}`}
           >
-            <span className={resident.fate ? "line-through" : "font-medium"}>{resident.name}</span>
+            <span>
+              <span className={resident.fate ? "line-through" : "font-medium"}>{resident.name}</span>
+              <span className="ml-2 text-xs text-stone-500">{resident.occupation}</span>
+            </span>
             <span className="text-sm">
               {resident.role && (
                 <span className={resident.revealed ? "text-stone-300" : "text-stone-500 italic"}>

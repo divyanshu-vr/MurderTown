@@ -10,6 +10,8 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from mm.engine.config import GameConfig
+from mm.engine.decisions import DecisionKind, Suspicion
+from mm.engine.personas import Persona
 from mm.engine.phases import Phase
 from mm.engine.residents import Resident
 from mm.engine.roles import Role, Side
@@ -61,11 +63,12 @@ class GameStarted(Payload):
 
 
 class RoleAssigned(Payload):
-    """A Resident learns their role. Murderers also learn who their teammates are."""
+    """A Resident learns their role and persona. Murderers also learn who their teammates are."""
 
     type: Literal["role_assigned"] = "role_assigned"
     resident: str
     role: Role
+    persona: Persona
     teammates: tuple[str, ...] = ()
 
     def visibility(self) -> Visibility:
@@ -126,6 +129,31 @@ class ResidentDied(Payload):
         return Visibility.everyone()
 
 
+class ReflectionWritten(Payload):
+    """A Resident's private journal entry, rewritten notebook and changed suspicions."""
+
+    type: Literal["reflection_written"] = "reflection_written"
+    resident: str
+    journal_entry: str
+    notebook: str
+    suspicions: tuple[Suspicion, ...]
+
+    def visibility(self) -> Visibility:
+        return Visibility.only(self.resident)
+
+
+class DecisionFellBack(Payload):
+    """A decision source could not give a usable answer, so a safe default was used instead."""
+
+    type: Literal["decision_fell_back"] = "decision_fell_back"
+    resident: str
+    kind: DecisionKind
+    reason: str
+
+    def visibility(self) -> Visibility:
+        return Visibility.spectators()
+
+
 class GameEnded(Payload):
     type: Literal["game_ended"] = "game_ended"
     winner: Side
@@ -143,6 +171,8 @@ EventPayload = Annotated[
     | BallotCast
     | VoteResolved
     | ResidentDied
+    | ReflectionWritten
+    | DecisionFellBack
     | GameEnded,
     Field(discriminator="type"),
 ]
@@ -157,4 +187,6 @@ class Event(BaseModel):
     day: int
     phase: Phase
     visibility: Visibility
+    decision_id: str | None = None
+    """The decision that caused this event, if any."""
     payload: EventPayload

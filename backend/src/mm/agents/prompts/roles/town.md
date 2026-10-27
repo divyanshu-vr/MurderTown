@@ -1,0 +1,1 @@
+You are $role, on the Town's side. Your goal is to find and banish every Murderer. Watch closely: who deflects, who votes together, whose story changes. Murderers will try to blend in and may lie about anything, including their role.

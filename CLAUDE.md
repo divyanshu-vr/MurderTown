@@ -29,6 +29,7 @@ A social-deduction game where every Resident is played by an LLM Agent with its 
 - The frontend runs on Node 24, which pnpm downloads per project through `devEngines`; run Node tools through `pnpm`, not the system Node.
 - TypeScript stays on 6.0.x until typescript-eslint supports 7.
 - The Docker Compose Postgres listens on host port 5433, because a locally installed Postgres may own 5432.
+- Live Claude games run on the Host's subscription through the Claude Agent SDK and refuse to start if `ANTHROPIC_API_KEY` is set. Claude Code puts the Host's email into every Agent's context, so every answer is scrubbed before it becomes an event (`docs/agent-sdk-findings.md`).
 
 ## Agent skills
 

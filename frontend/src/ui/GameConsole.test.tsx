@@ -51,6 +51,18 @@ describe("the game console", () => {
     }
   });
 
+  it("shows each Resident's occupation in the roster", () => {
+    render(<GameConsole events={events} connection="ended" />);
+
+    const [started] = payloadsOf(events, "game_started");
+    const roster = screen.getByRole("list", { name: "Residents" });
+    for (const resident of started?.residents ?? []) {
+      expect(within(roster).getByRole("listitem", { name: resident.name })).toHaveTextContent(
+        resident.occupation,
+      );
+    }
+  });
+
   it("announces the winner and the reason once the game is over", () => {
     render(<GameConsole events={events} connection="ended" />);
 

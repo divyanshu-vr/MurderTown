@@ -16,7 +16,8 @@ NAME_POOL: tuple[str, ...] = (
 class Resident(BaseModel):
     """A character in the town. The seat fixes their house and their place in every ordering."""
 
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, json_schema_serialization_defaults_required=True)
 
     name: str
     seat: int
+    occupation: str

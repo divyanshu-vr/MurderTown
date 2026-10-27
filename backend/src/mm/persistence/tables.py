@@ -36,5 +36,6 @@ class EventRow(Base):
     day: Mapped[int] = mapped_column(Integer)
     phase: Mapped[str] = mapped_column(String(16))
     type: Mapped[str] = mapped_column(String(32))
+    decision_id: Mapped[str | None] = mapped_column(String(32))
     visibility: Mapped[dict[str, Any]] = mapped_column(Json)
     payload: Mapped[dict[str, Any]] = mapped_column(Json)

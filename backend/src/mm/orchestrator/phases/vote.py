@@ -13,16 +13,16 @@ if TYPE_CHECKING:
 
 async def run_vote(game: "Game") -> None:
     await game.start_phase(Phase.VOTE)
-    voters = game.state.living
     requests = [
         DecisionRequest(DecisionKind.BALLOT, voter, ballot_options(game.state, voter))
-        for voter in voters
+        for voter in game.state.living
     ]
     ballots = await game.decide_all(requests, Ballot)
 
-    for voter, ballot in zip(voters, ballots, strict=True):
-        await game.append(BallotCast(voter=voter, target=target_of(ballot.choice)))
-    outcome = tally_ballots(ballot.choice for ballot in ballots)
+    for ballot in ballots:
+        cast = BallotCast(voter=ballot.request.resident, target=target_of(ballot.decision.choice))
+        await game.append(cast, cause=ballot)
+    outcome = tally_ballots(ballot.decision.choice for ballot in ballots)
     await game.append(
         VoteResolved(tally=outcome.tally, skips=outcome.skips, banished=outcome.banished)
     )

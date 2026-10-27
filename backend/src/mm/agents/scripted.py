@@ -10,7 +10,15 @@ from random import Random
 
 from mm.agents.brain import Brain, BrainFactory
 from mm.engine import Resident, Role
-from mm.engine.decisions import Ballot, Decision, DecisionKind, DecisionRequest, Statement
+from mm.engine.decisions import (
+    Answer,
+    Ballot,
+    Decision,
+    DecisionKind,
+    DecisionRequest,
+    Reflection,
+    Statement,
+)
 from mm.engine.events import Event
 from mm.engine.state import GameState
 
@@ -26,12 +34,22 @@ class ScriptedBot:
     def __init__(self, rng: Random) -> None:
         self.rng = rng
 
-    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Decision:
+    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
+        return Answer(self._decision(request, view))
+
+    def _decision(self, request: DecisionRequest, view: Sequence[Event]) -> Decision:
         match request.kind:
             case DecisionKind.STATEMENT:
                 return Statement(text=self.rng.choice(OPENING_LINES).format(me=request.resident))
             case DecisionKind.BALLOT:
                 return Ballot(choice=self.rng.choice(self._ballot_options(request, view)))
+            case DecisionKind.REFLECTION:
+                day = GameState.fold(view).day
+                return Reflection(
+                    journal_entry=f"Day {day}: nothing certain yet.",
+                    notebook="Watch who votes with whom.",
+                    suspicions=[],
+                )
 
     def _ballot_options(self, request: DecisionRequest, view: Sequence[Event]) -> list[str]:
         known = GameState.fold(view)

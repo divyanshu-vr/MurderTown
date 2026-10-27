@@ -9,6 +9,7 @@ const toneByKind: Partial<Record<Event["payload"]["type"], string>> = {
   ballot_cast: "text-sm text-stone-400",
   vote_resolved: "font-medium text-stone-200",
   resident_died: "font-medium text-rose-300",
+  decision_fell_back: "text-sm italic text-stone-500",
   game_ended: "mt-4 text-lg font-semibold text-amber-300",
 };
 

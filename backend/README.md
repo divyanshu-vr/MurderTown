@@ -5,6 +5,7 @@ Python 3.12, managed with [uv](https://docs.astral.sh/uv/).
 ```
 uv sync                  # install
 uv run mm play           # play a scripted game in the terminal
+uv run mm play --brains claude --residents 6 --max-days 1   # a short live game on your Claude subscription
 uv run mm serve          # run the API on http://127.0.0.1:8000
 uv run mm new-game       # start a game on the running API and print where to watch it
 uv run pytest            # tests
@@ -28,5 +29,5 @@ Settings come from `MM_*` environment variables or `backend/.env` (see `.env.exa
 
 Each package explains what it owns, what it may import and why it is shaped that way:
 [engine](src/mm/engine/README.md), [agents](src/mm/agents/README.md),
-[orchestrator](src/mm/orchestrator/README.md), [persistence](src/mm/persistence/README.md),
-[api](src/mm/api/README.md) and [cli](src/mm/cli/README.md).
+[orchestrator](src/mm/orchestrator/README.md), [llm](src/mm/llm/README.md),
+[persistence](src/mm/persistence/README.md), [api](src/mm/api/README.md) and [cli](src/mm/cli/README.md).
