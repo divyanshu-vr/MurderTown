@@ -1,13 +1,14 @@
 """The post-game review: what changed the game, who lied, and whose accusations others followed.
 
-One pure function over a game's full log, which the API serves and `mm play --out` and
-`mm export` write beside a game file, and which the evaluation harness is to reuse. A
+One pure function over a game's full log, which the API serves, `mm play --out` and
+`mm export` write beside a game file, and the evaluation harness counts Lies and Influence from. A
 Resident's private belief about another is what they know, if they are a Murderer (their
 teammates are Murderers, everyone else is not), or else their latest suspicion of them, by the
 same rule as their prompts (`remember`).
 """
 
 from collections.abc import Callable, Sequence
+from dataclasses import dataclass
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
@@ -215,24 +216,59 @@ def _belief(
     return _suspicions(before, speaker).get(about)
 
 
-def _influence(events: Sequence[Event]) -> list[Influence]:
+@dataclass(frozen=True)
+class Accusation:
+    """One living Resident accused in a Statement, and everyone who could have been instead: the
+    living, but the accuser."""
+
+    day: int
+    accuser: str
+    accused: str
+    accusable: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class Accusations:
+    """Every accusation of a game in the order made, every ballot cast by Day, and who was
+    alive when each Day's Vote began."""
+
+    made: list[Accusation]
+    ballots: dict[int, list[BallotCast]]
+    living_at_vote: dict[int, tuple[str, ...]]
+
+
+def accusations_of(events: Sequence[Event]) -> Accusations:
     state = GameState()
-    accused: dict[tuple[int, str], set[str]] = {}
+    made: list[Accusation] = []
     ballots: dict[int, list[BallotCast]] = {}
+    living_at_vote: dict[int, tuple[str, ...]] = {}
     for event in events:
         payload = event.payload
         if isinstance(payload, StatementMade):
-            named = {name for name in payload.accused if name not in state.dead}
-            accused.setdefault((event.day, payload.speaker), set()).update(named)
+            accusable = state.others_living(payload.speaker)
+            made += [
+                Accusation(event.day, payload.speaker, name, accusable)
+                for name in payload.accused
+                if name in accusable
+            ]
         elif isinstance(payload, BallotCast):
             ballots.setdefault(event.day, []).append(payload)
+            living_at_vote.setdefault(event.day, tuple(state.living))
         state.apply(payload)
+    return Accusations(made, ballots, living_at_vote)
+
+
+def _influence(events: Sequence[Event]) -> list[Influence]:
+    accusations = accusations_of(events)
+    accused: dict[tuple[int, str], set[str]] = {}
+    for accusation in accusations.made:
+        accused.setdefault((accusation.day, accusation.accuser), set()).add(accusation.accused)
 
     followed: dict[str, int] = {}
     cast: dict[str, int] = {}
     for (day, accuser), targets in accused.items():
-        others = [b for b in ballots.get(day, []) if b.voter != accuser]
-        if not targets or not others:
+        others = [b for b in accusations.ballots.get(day, []) if b.voter != accuser]
+        if not others:
             continue
         followed[accuser] = followed.get(accuser, 0) + sum(b.target in targets for b in others)
         cast[accuser] = cast.get(accuser, 0) + len(others)

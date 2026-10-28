@@ -5,7 +5,7 @@ from collections.abc import Callable, Mapping, Sequence
 from mm.agents.brain import Brain, BrainFactory, own_random
 from mm.agents.calls import CallRecorder, ModelCall
 from mm.agents.llm_brain import LLMBrain
-from mm.agents.scripted import ScriptedBot
+from mm.agents.scripted import InjectionProber, ScriptedBot
 from mm.engine import GameConfig, PlayedBy, Resident
 from mm.engine.casting import seated_roles
 from mm.llm import ModelProvider
@@ -73,7 +73,7 @@ def _brains(
         played_by = choose(resident)
         rng = own_random(seed, resident)
         if played_by.scripted:
-            return ScriptedBot(rng)
+            return InjectionProber(rng) if played_by.probes else ScriptedBot(rng)
         return LLMBrain(providers[played_by.provider], played_by, record, rng, by_key)
 
     return make

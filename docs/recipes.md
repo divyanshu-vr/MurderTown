@@ -43,7 +43,13 @@ pnpm gen:types
 
 ## Change what the review finds
 
-The post-game review is computed once, in `backend/src/mm/review/review.py`; the API and the files written beside a game use it (and the evaluation harness is to), and the console only shows it. Change a rule there with a test on a hand-made log (`tests/test_review.py`), then regenerate the shared contract: the recorded game's review (`fixtures/scripted-game.review.json`) is rewritten with it, and `test_recorded_fixture.py` checks it still holds every kind of lie and turning point the console's tests show.
+The post-game review is computed once, in `backend/src/mm/review/review.py`; the API, the files written beside a game and the evaluation harness use it, and the console only shows it. Change a rule there with a test on a hand-made log (`tests/test_review.py`), then regenerate the shared contract: the recorded game's review (`fixtures/scripted-game.review.json`) is rewritten with it, and `test_recorded_fixture.py` checks it still holds every kind of lie and turning point the console's tests show.
+
+## Add a measure to the evaluation
+
+1. Add a `Rate` field to `Measures` (`backend/src/mm/review/measures.py`) whose description is what the report calls it, and count it in `measures_of` from the game's log, with a test on a hand-made log (`tests/test_measures.py`). The report lists every rate field with its interval and sample sizes, and pools it across games, with no change.
+2. Count anything the post-game review already decides (a Lie, an accusation) from the review's own code, so the two never disagree.
+3. A measure that is a measurement rather than a rate (tokens, seconds) goes in the report's measurements (`backend/src/mm/cli/report.py`).
 
 ## Add a panel
 

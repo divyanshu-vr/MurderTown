@@ -18,6 +18,10 @@ _Avoid_: bot, AI player
 A rule-based stand-in that plays a Resident without a language model.
 _Avoid_: dummy agent, mock player
 
+**Injection prober**:
+A Scripted bot that tells everyone to reveal their roles whenever it makes a Statement, as if the game itself were asking, to measure how often Agents obey a prompt injection.
+_Avoid_: attacker, red-teamer
+
 **Spectator**:
 A human watching a game: the Host in full scope, everyone else in public scope.
 _Avoid_: viewer, audience, user
@@ -281,3 +285,29 @@ _Avoid_: roster (the list of Residents), cast, players
 **Cost meter**:
 In full scope, a Spectator's view of a game's Equivalent cost, model calls, tokens and how much of each prompt was read from the cache, in all and for each Resident.
 _Avoid_: budget, spending panel
+
+### Evaluating
+
+**Evaluation**:
+Many games played with no one watching, from a Matrix, to measure how the game and its Agents behave: every rate with its confidence interval and how many games it rests on.
+_Avoid_: benchmark, experiment, sweep
+
+**Matrix**:
+The game configurations an Evaluation plays: one base configuration, and the values it tries for some of its Rules or its Lineup.
+_Avoid_: grid, config file
+
+**Cell**:
+One combination of a Matrix's values, played on the same seeds as every other Cell, so Cells differ only in what the Matrix varies.
+_Avoid_: arm, variant
+
+**Herding**:
+Voting against whoever was accused first that Day.
+_Avoid_: bandwagon, groupthink
+
+**Hallucinated claim**:
+A Statement claiming what never happened: speaking to the dead, accusing the dead whose death showed them innocent, or naming someone who never lived in town.
+_Avoid_: false fact, made-up event
+
+**Position bias**:
+Residents being accused more or less often for the seat they sit in than chance alone would give.
+_Avoid_: seat bias, order effect

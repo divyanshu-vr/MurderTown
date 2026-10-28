@@ -14,28 +14,32 @@ import typer
 import uvicorn
 
 from mm.agents import ModelCall
+from mm.agents.calls import unrecorded
 from mm.agents.cassette import Cassette
 from mm.agents.lineup import lineup_brains
 from mm.agents.memory import mind_of
 from mm.api.protocol import protocol_schema
 from mm.api.routes import HOST_TOKEN_HEADER
 from mm.api.settings import Settings
+from mm.cli.evaluation import MatrixChangedError, play_batch
+from mm.cli.matrix import Cell, Matrix
 from mm.cli.recording import (
     CallTally,
-    NdjsonFile,
+    GameRecording,
     calls_beside,
     read_ndjson,
     write_json,
     write_ndjson,
     write_review_beside,
 )
-from mm.cli.transcript import describe
+from mm.cli.report import write_report
+from mm.cli.transcript import SIDES, describe
 from mm.engine import SCRIPTED, GameConfig, Lineup, PlayedBy
 from mm.engine.events import DecisionFellBack, Event, GameConfigured, ReflectionWritten
 from mm.llm import Effort, ModelProvider
 from mm.llm.providers import NAMES
 from mm.observability import observed
-from mm.orchestrator import EventObserver, play_game
+from mm.orchestrator import EventObserver, GameResult, play_game
 from mm.persistence import UNFINISHED, GameStore, open_database
 
 app = typer.Typer(help="MurderTown: a town where every Resident is played by an Agent.")
@@ -51,11 +55,26 @@ Provider = Annotated[
     str, typer.Option(help=f"Who plays every Resident: scripted, or one of {', '.join(NAMES)}.")
 ]
 
+LogLevel = Annotated[
+    str, typer.Option(help="JSON log lines on stderr from this level up, e.g. info.")
+]
+
 LIVE_GAME = Path("../fixtures/live-game.ndjson")
 """The live game CI replays from its recorded model calls."""
 
 HOST_TOKEN_FILE = Path("runs/host-token")
 """Where the Host token is kept when MM_HOST_TOKEN is not set, so it stays the same between runs."""
+
+EVALUATIONS = Path("runs/evaluations")
+"""Where `mm evaluate` keeps each matrix's run, in a folder named after the matrix."""
+
+STOPPED = {
+    "complete": "Every game is played.",
+    "capped": "Stopped at this batch's cap of games: run the same command again to go on.",
+    "aborted": "Stopped because a game aborted ({reason}): run the same command again to play "
+    "it once more.",
+}
+"""What `mm evaluate` says when a batch stops, by why it stopped."""
 
 WEB = "http://localhost:5173"
 """Where the frontend's dev server runs."""
@@ -111,9 +130,7 @@ def play(
     ] = None,
     out: Annotated[Path | None, typer.Option(help="Save the event log as NDJSON.")] = None,
     quiet: Annotated[bool, typer.Option(help="Do not print the transcript.")] = False,
-    log_level: Annotated[
-        str, typer.Option(help="JSON log lines on stderr from this level up, e.g. info.")
-    ] = "warning",
+    log_level: LogLevel = "warning",
 ) -> None:
     """Play one game and print its transcript as it happens.
 
@@ -140,34 +157,25 @@ def play(
             else _everyone(provider, model, effort),
         )
         providers = Settings().providers(concurrency)
-    tally = CallTally()
-    calls_file: NdjsonFile | None = None  # made with the first call, so scripted games have none
-    events_file = NdjsonFile(out) if out else None
+    recording = GameRecording(out) if out else None
+    tally = recording.tally if recording else CallTally()
     observers: list[EventObserver] = [] if quiet else [_print_event]
-    if events_file:
-        observers.append(events_file)
-
-    async def record(call: ModelCall) -> None:
-        nonlocal calls_file
-        await tally(call)
-        if out:
-            calls_file = calls_file or NdjsonFile(calls_beside(out))
-            await calls_file(call)
-
+    if recording:
+        observers.append(recording.events)
     try:
-        brains = lineup_brains(config, providers, record)
+        brains = lineup_brains(config, providers, recording.record if recording else tally)
     except ValueError as error:  # a provider not available, or a model with no price
         typer.echo(f"Cannot start the game: {error}", err=True)
         raise typer.Exit(code=1) from error
 
-    with observed(logging.getLevelNamesMapping()[log_level.upper()]):
+    with observed(_level(log_level)):
         result = asyncio.run(play_game(config, brains, observers=observers))
     if tally.cost.calls:
         fallbacks = sum(isinstance(event.payload, DecisionFellBack) for event in result.events)
         typer.echo(f"\n{tally.summary()} Fallbacks: {fallbacks}.")
-    if events_file:
-        write_review_beside(events_file.path, result.events)
-        typer.echo(f"Saved {events_file.count} events and their review to {out}")
+    if recording:
+        recording.finish(result.events)
+        typer.echo(f"Saved {recording.events.count} events and their review to {out}")
     if result.state.aborted:
         raise typer.Exit(code=1)  # the transcript says why
 
@@ -218,6 +226,61 @@ def rerecord(out: Path = LIVE_GAME) -> None:
     Needed after any change to the prompts: the old recording no longer answers them.
     """
     play(provider="claude", residents=6, murderers=1, max_days=2, seed=3, quiet=True, out=out)
+
+
+@app.command()
+def evaluate(
+    matrix_file: Annotated[
+        Path, typer.Argument(metavar="MATRIX", help="The matrix to play: a TOML file.")
+    ],
+    out: Annotated[
+        Path | None,
+        typer.Option(help="The run's folder: runs/evaluations/<the matrix's name> if left out."),
+    ] = None,
+    concurrency: Annotated[int, typer.Option(help="Agents thinking at once.")] = 5,
+    log_level: LogLevel = "warning",
+) -> None:
+    """Play a matrix of game configurations headlessly, then report what came of every game.
+
+    Games are played one at a time, at most the matrix's games_per_batch of them, waiting
+    pause_seconds between them. Run the same command again to go on where it stopped, so an
+    evaluation on your subscription can be played in batches as its quota allows. A game that
+    aborts, as every game does once the quota runs out, stops the batch and is played again next
+    time. The report (report.md in the run's folder) is written again after every batch.
+    """
+    try:
+        matrix = Matrix.read(matrix_file)
+        cells = matrix.cells()
+    except (OSError, ValueError) as error:  # unreadable, not TOML, or games the rules forbid
+        raise typer.BadParameter(f"{matrix_file} cannot be played: {error}") from error
+    providers = Settings().providers(concurrency)
+    try:
+        for cell in cells:  # a provider not available, or a model with no price
+            lineup_brains(cell.config(matrix.first_seed), providers, unrecorded)
+    except ValueError as error:
+        typer.echo(f"Cannot evaluate: {error}", err=True)
+        raise typer.Exit(code=1) from error
+    folder = out or EVALUATIONS / matrix.name
+    try:
+        with observed(_level(log_level)):
+            batch = asyncio.run(play_batch(matrix, folder, providers, on_game=_print_game))
+    except MatrixChangedError as error:
+        typer.echo(f"Cannot evaluate: {error}", err=True)
+        raise typer.Exit(code=1) from error
+    report = write_report(folder)
+    typer.echo(f"{STOPPED[batch.stopped].format(reason=batch.reason)} Report: {report}")
+    if batch.stopped == "aborted":
+        raise typer.Exit(code=1)
+
+
+def _level(name: str) -> int:
+    return logging.getLevelNamesMapping()[name.upper()]
+
+
+def _print_game(cell: Cell, seed: int, result: GameResult) -> None:
+    state = result.state
+    outcome = f"the {SIDES[state.winner]} won on Day {state.day}" if state.winner else "aborted"
+    typer.echo(f"Cell {cell.index} ({cell.name}), seed {seed}: {outcome}")
 
 
 @app.command()

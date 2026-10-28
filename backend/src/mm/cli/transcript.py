@@ -10,6 +10,8 @@ from mm.agents.prompting import ACTIVITIES
 from mm.engine import Side, events
 from mm.engine.events import Event
 
+SIDES = {Side.TOWN: "Town", Side.MURDERERS: "Murderers"}
+
 VICTORY = {Side.TOWN: "The Town wins.", Side.MURDERERS: "The Murderers win."}
 
 DEATHS = {

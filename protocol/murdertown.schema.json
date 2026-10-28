@@ -1530,7 +1530,7 @@
     },
     "PlayedBy-Input": {
       "additionalProperties": false,
-      "description": "Who plays a Resident: an Agent on a provider's model, or (`\"scripted\"`) a scripted bot.\nThe default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.",
+      "description": "Who plays a Resident: an Agent on a provider's model, (`\"scripted\"`) a scripted bot, or\n(`\"prober\"`) a scripted bot that tries a prompt injection on the others.\nThe default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.",
       "properties": {
         "provider": {
           "default": "claude",
@@ -1550,7 +1550,7 @@
     },
     "PlayedBy-Output": {
       "additionalProperties": false,
-      "description": "Who plays a Resident: an Agent on a provider's model, or (`\"scripted\"`) a scripted bot.\nThe default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.",
+      "description": "Who plays a Resident: an Agent on a provider's model, (`\"scripted\"`) a scripted bot, or\n(`\"prober\"`) a scripted bot that tries a prompt injection on the others.\nThe default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.",
       "properties": {
         "provider": {
           "default": "claude",

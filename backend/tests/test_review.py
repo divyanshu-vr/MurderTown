@@ -4,23 +4,9 @@ Built on hand-made logs, so each rule is seen on its own; the recorded fixture's
 checked in test_recorded_fixture.py.
 """
 
-from random import Random
-
-from mm.engine import GameConfig, Phase, Role
-from mm.engine.casting import cast
+from mm.engine import Phase, Role
 from mm.engine.decisions import Suspicion
-from mm.engine.events import (
-    BallotCast,
-    Event,
-    EventPayload,
-    PhaseStarted,
-    ReflectionWritten,
-    ResidentDied,
-    RoleAssigned,
-    SheriffFired,
-    StatementMade,
-)
-from mm.orchestrator.log import EventLog
+from mm.engine.events import ResidentDied, SheriffFired
 from mm.review import (
     KNOWS_GUILTY,
     KNOWS_INNOCENT,
@@ -31,62 +17,21 @@ from mm.review import (
     TurningEvent,
     review_of,
 )
-
-CONFIG = GameConfig(residents=8, murderers=2, seed=4)
-OPENING = cast(CONFIG, Random(CONFIG.seed))
-
-
-def holding(role: Role) -> list[str]:
-    return [p.resident for p in OPENING if isinstance(p, RoleAssigned) and p.role is role]
-
-
-(M1, M2), (C1, C2, C3) = holding(Role.MURDERER), holding(Role.CIVILIAN)
-(DOC,), (DET,), (SHERIFF,) = holding(Role.DOCTOR), holding(Role.DETECTIVE), holding(Role.SHERIFF)
-
-
-async def logged(*later: EventPayload) -> list[Event]:
-    """The game's opening, then these events, stamped as the game stamps them."""
-    log = EventLog()
-    for payload in [*OPENING, *later]:
-        await log.append(payload)
-    return log.events
-
-
-def day(number: int, phase: Phase = Phase.DISCUSSION) -> PhaseStarted:
-    return PhaseStarted(day=number, phase=phase)
-
-
-def says(
-    speaker: str,
-    *,
-    accused: tuple[str, ...] = (),
-    defended: tuple[str, ...] = (),
-    claims: Role | None = None,
-) -> StatementMade:
-    return StatementMade(
-        speaker=speaker,
-        text=f"{speaker} speaks.",
-        part="open_floor",
-        accused=accused,
-        defended=defended,
-        claimed_role=claims,
-    )
-
-
-def suspects(resident: str, **levels: int) -> ReflectionWritten:
-    """A reflection suspecting each Resident named (by variable) at the given level."""
-    names = {"c1": C1, "c2": C2, "c3": C3, "doc": DOC, "det": DET, "sheriff": SHERIFF}
-    suspicions = tuple(
-        Suspicion(resident=names[who], suspicion=level, note=f"{who} at {level}")
-        for who, level in levels.items()
-    )
-    return ReflectionWritten(
-        resident=resident, journal_entry="", notebook="", suspicions=suspicions
-    )
-
-
-def ballot(voter: str, target: str | None) -> BallotCast:
-    return BallotCast(voter=voter, target=target)
+from tests.hand_made import (
+    C1,
+    C2,
+    C3,
+    DET,
+    DOC,
+    M1,
+    M2,
+    SHERIFF,
+    ballot,
+    day,
+    logged,
+    says,
+    suspects,
+)
 
 
 async def test_claiming_a_false_role_is_a_lie_told_beside_the_true_role_once_per_role() -> None:

@@ -1,0 +1,22 @@
+# The matrix CI plays on every push (tests/test_evaluation.py): scripted bots only, so it checks
+# the harness rather than the Agents. An injection prober takes seat 0.
+name = "smoke"
+games_per_cell = 2
+first_seed = 1
+
+[base]
+residents = 8
+max_days = 4
+
+[base.lineup.everyone]
+provider = "scripted"
+
+[base.lineup.seats.0]
+provider = "prober"
+
+[axes]
+murderers = [1, 2]
+detective_accuracy = [0.6, 1.0]
+
+[caps]
+games_per_batch = 100

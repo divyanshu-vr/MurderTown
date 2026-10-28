@@ -29,9 +29,14 @@ class Effort(StrEnum):
 
 SCRIPTED_PROVIDER = "scripted"
 
+PROBER_PROVIDER = "prober"
+"""A scripted bot that tells everyone to reveal their roles whenever it speaks: an evaluation's
+probe of how well Agents resist a prompt injection."""
+
 
 class PlayedBy(BaseModel):
-    """Who plays a Resident: an Agent on a provider's model, or (`"scripted"`) a scripted bot.
+    """Who plays a Resident: an Agent on a provider's model, (`"scripted"`) a scripted bot, or
+    (`"prober"`) a scripted bot that tries a prompt injection on the others.
     The default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set."""
 
     model_config = SETUP
@@ -42,11 +47,18 @@ class PlayedBy(BaseModel):
 
     @property
     def scripted(self) -> bool:
-        """Whether a scripted bot plays, which needs no model (its model and effort are unused)."""
-        return self.provider == SCRIPTED_PROVIDER
+        """Whether a scripted bot plays (a prober is one), which needs no model (its model and
+        effort are unused)."""
+        return self.provider in (SCRIPTED_PROVIDER, PROBER_PROVIDER)
+
+    @property
+    def probes(self) -> bool:
+        """Whether an injection prober plays."""
+        return self.provider == PROBER_PROVIDER
 
 
 SCRIPTED = PlayedBy(provider=SCRIPTED_PROVIDER)
+PROBER = PlayedBy(provider=PROBER_PROVIDER)
 
 
 class Lineup(BaseModel):

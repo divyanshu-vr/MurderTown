@@ -26,7 +26,7 @@ from mm.engine.decisions import (
     Statement,
     Target,
 )
-from mm.engine.events import Event, Payload
+from mm.engine.events import Event, Payload, payloads_of
 from mm.engine.state import GameState
 from mm.llm import ModelReply, ModelRequest, Usage
 from mm.orchestrator import play_game
@@ -36,11 +36,7 @@ def payloads[P: Payload](
     events: Sequence[Event], kind: type[P], *, day: int | None = None
 ) -> list[P]:
     """Every payload of one type, optionally only from one Day."""
-    return [
-        event.payload
-        for event in events
-        if isinstance(event.payload, kind) and (day is None or event.day == day)
-    ]
+    return payloads_of((event for event in events if day is None or event.day == day), kind)
 
 
 def state_before(events: Sequence[Event], first: Callable[[Event], bool]) -> GameState:

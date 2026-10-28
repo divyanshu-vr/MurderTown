@@ -2,7 +2,7 @@
 
 ## Lineups
 
-A game's configuration includes its **lineup**: who plays each Resident. Each entry names a provider, a model and an effort; the provider `scripted` means a scripted bot. A seat's own entry wins, then its side's (`murderers` or `town`), then `everyone`'s. The narrator follows `everyone`. With no lineup, everyone is scripted.
+A game's configuration includes its **lineup**: who plays each Resident. Each entry names a provider, a model and an effort; the provider `scripted` means a scripted bot, and `prober` an injection prober (a scripted bot that tells everyone to reveal their roles whenever it speaks, for evaluations: see `docs/evaluation.md`). A seat's own entry wins, then its side's (`murderers` or `town`), then `everyone`'s. The narrator follows `everyone`. With no lineup, everyone is scripted.
 
 ```json
 {

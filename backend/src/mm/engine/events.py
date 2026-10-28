@@ -5,6 +5,7 @@ definition, so the rule for who knows what lives in exactly one place. An
 Agent's knowledge is built only from the events it may perceive.
 """
 
+from collections.abc import Iterable
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -444,3 +445,8 @@ class Event(BaseModel):
     decision_id: str | None = None
     """The decision that caused this event, if any."""
     payload: EventPayload
+
+
+def payloads_of[P: Payload](events: Iterable[Event], kind: type[P]) -> list[P]:
+    """Every payload of one type, in the order logged."""
+    return [event.payload for event in events if isinstance(event.payload, kind)]

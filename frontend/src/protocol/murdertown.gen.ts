@@ -306,7 +306,8 @@ export interface Lineup {
   };
 }
 /**
- * Who plays a Resident: an Agent on a provider's model, or (`"scripted"`) a scripted bot.
+ * Who plays a Resident: an Agent on a provider's model, (`"scripted"`) a scripted bot, or
+ * (`"prober"`) a scripted bot that tries a prompt injection on the others.
  * The default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.
  */
 export interface PlayedBy {
@@ -315,7 +316,8 @@ export interface PlayedBy {
   effort: Effort1;
 }
 /**
- * Who plays a Resident: an Agent on a provider's model, or (`"scripted"`) a scripted bot.
+ * Who plays a Resident: an Agent on a provider's model, (`"scripted"`) a scripted bot, or
+ * (`"prober"`) a scripted bot that tries a prompt injection on the others.
  * The default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
@@ -698,7 +700,8 @@ export interface LineupInput {
   };
 }
 /**
- * Who plays a Resident: an Agent on a provider's model, or (`"scripted"`) a scripted bot.
+ * Who plays a Resident: an Agent on a provider's model, (`"scripted"`) a scripted bot, or
+ * (`"prober"`) a scripted bot that tries a prompt injection on the others.
  * The default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.
  */
 export interface PlayedByInput {
@@ -707,7 +710,8 @@ export interface PlayedByInput {
   effort?: Effort2;
 }
 /**
- * Who plays a Resident: an Agent on a provider's model, or (`"scripted"`) a scripted bot.
+ * Who plays a Resident: an Agent on a provider's model, (`"scripted"`) a scripted bot, or
+ * (`"prober"`) a scripted bot that tries a prompt injection on the others.
  * The default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema

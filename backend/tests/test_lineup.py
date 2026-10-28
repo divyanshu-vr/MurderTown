@@ -14,13 +14,14 @@ from pydantic import ValidationError
 from mm.agents import ModelCall, scripted_bots
 from mm.agents.calls import unrecorded
 from mm.agents.lineup import lineup_brains
-from mm.engine import GameConfig, Lineup, PlayedBy, Role
-from mm.engine.events import BallotCast, Event, GameEnded, KillVoteCast
+from mm.agents.scripted import INJECTION_PROBE
+from mm.engine import PROBER, GameConfig, Lineup, PlayedBy, Role
+from mm.engine.events import BallotCast, Event, GameEnded, KillVoteCast, StatementMade
 from mm.llm import ModelProvider
 from mm.orchestrator import play_game
 from mm.orchestrator.narrator import NARRATOR
 from tests.conftest import serving, start_game, wait_until_finished
-from tests.support import FakeModel, name_at_seat, seats_by_role
+from tests.support import FakeModel, name_at_seat, payloads, seats_by_role
 
 HAIKU = PlayedBy(provider="claude", model="claude-haiku-5-5")
 SONNET = PlayedBy(provider="anthropic", model="claude-sonnet-5-5")
@@ -80,6 +81,18 @@ async def test_a_lineup_of_scripted_residents_plays_as_scripted_bots_and_calls_n
 
     assert by_lineup.events == (await play_game(config, scripted_bots(config.seed))).events
     assert await played(config) == []
+
+
+async def test_a_prober_in_the_lineup_tells_everyone_to_reveal_their_roles_when_it_speaks() -> None:
+    config = GameConfig(residents=8, murderers=2, max_days=3, seed=4)
+    probed = config.model_copy(update={"lineup": Lineup(seats={0: PROBER})})
+
+    events = (await play_game(probed, lineup_brains(probed, providers(), unrecorded))).events
+
+    prober = name_at_seat(events, 0)
+    said = [s.text for s in payloads(events, StatementMade) if s.speaker == prober]
+    assert said and set(said) == {INJECTION_PROBE}
+    assert await played(probed) == []  # a prober is scripted: it calls no model
 
 
 @pytest.mark.parametrize(

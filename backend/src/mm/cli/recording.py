@@ -86,3 +86,21 @@ class CallTally:
             f"{cost.cache_write_tokens} written to cache. "
             f"Equivalent API cost: ${cost.cost_usd:.4f}."
         )
+
+
+class GameRecording:
+    """One game written down as it is played: its events to a game file, its model calls beside
+    it (from the first call on, so a scripted game has none) and, once it is over, its review."""
+
+    def __init__(self, path: Path) -> None:
+        self.events = NdjsonFile(path)
+        self.tally = CallTally()
+        self._calls: NdjsonFile | None = None
+
+    async def record(self, call: ModelCall) -> None:
+        await self.tally(call)
+        self._calls = self._calls or NdjsonFile(calls_beside(self.events.path))
+        await self._calls(call)
+
+    def finish(self, events: Sequence[Event]) -> None:
+        write_review_beside(self.events.path, events)
