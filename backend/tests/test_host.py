@@ -76,7 +76,9 @@ def test_a_wrong_host_token_is_refused_not_given_less(client: TestClient) -> Non
     assert response.status_code == 401
 
 
-@pytest.mark.parametrize("path", ["residents/{name}/mind", "events/{seq}/explain", "cost"])
+@pytest.mark.parametrize(
+    "path", ["residents/{name}/mind", "events/{seq}/explain", "cost", "review"]
+)
 def test_only_the_host_may_look_inside_a_game(client: TestClient, path: str) -> None:
     game_id = played_to_the_end(client, CONFIG)
     ballot = next(e for e in logged(client, game_id) if e["payload"]["type"] == "ballot_cast")

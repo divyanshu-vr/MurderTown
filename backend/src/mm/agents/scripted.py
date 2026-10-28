@@ -5,9 +5,12 @@ They play legally but naively: Town bots vote at random, Murderer bots at
 random among everyone except their teammates, and a scripted Sheriff fires now
 and then at a random Resident. At Night, Murderer bots each propose a random
 Victim and then vote for the most proposed; the Doctor and Detective choose at
-random. In their reflections they suspect whoever they have accused. Now and
-then a bot loses its train of thought and falls back to the safe default, as an
-Agent sometimes does, so recorded games show fallbacks.
+random. In their reflections they suspect whoever they have accused, and a
+Detective suspects whoever its Findings named. Murderer bots lie: they claim to
+be Civilians in the Opening round and speak up for a fellow Murderer, so
+recorded games show lies. Now and then a bot loses its train of thought and
+falls back to the safe default, as an Agent sometimes does, so recorded games
+show fallbacks. None of this draws more from a bot's Random than playing does.
 """
 
 from collections.abc import Sequence
@@ -39,6 +42,7 @@ from mm.engine.events import (
     DenMessagePosted,
     Event,
     ResidentDied,
+    ResidentInvestigated,
     StatementMade,
 )
 from mm.engine.perception import began, since_last
@@ -143,29 +147,52 @@ class ScriptedBot:
 
     def _statement(self, request: DecisionRequest, known: GameState) -> Statement:
         me = request.resident
+        murderer = known.roles.get(me) is Role.MURDERER
         if request.part == "opening_round":
-            return Statement.plain(self.rng.choice(OPENING_LINES).format(me=me))
+            line = self.rng.choice(OPENING_LINES).format(me=me)
+            if not murderer:
+                return Statement.plain(line)
+            return Statement(
+                text=f"{line} I'm just a Civilian.",
+                addressed=[],
+                accused=[],
+                defended=[],
+                claimed_role=Role.CIVILIAN,
+            )
         doubted = self._someone_else(known, me)
+        mates = [name for name in known.others_living(me) if known.roles.get(name) is Role.MURDERER]
+        defended = [mate for mate in mates if mate != doubted][:1] if murderer else []
+        trusted = f" {defended[0]} has my trust." if defended else ""
         return Statement(
-            text=f"I have my doubts about {doubted}.",
+            text=f"I have my doubts about {doubted}.{trusted}",
             addressed=[doubted],
             accused=[doubted],
-            defended=[],
+            defended=defended,
             claimed_role=None,
         )
 
     def _reflection(self, request: DecisionRequest, view: Sequence[Event]) -> Reflection:
         day = GameState.fold(view).day
         doubted = [name for name in _accused_by(view, request.resident) if name in request.options]
-        suspicions = [
-            Suspicion(resident=name, suspicion=self.rng.randint(55, 90), note="I said I doubt them")
+        suspicions = {
+            name: Suspicion(
+                resident=name, suspicion=self.rng.randint(55, 90), note="I said I doubt them"
+            )
             for name in doubted
-        ]
+        }
+        suspicions.update(
+            (
+                name,
+                Suspicion(resident=name, suspicion=90 if guilty else 10, note="my investigation"),
+            )
+            for name, guilty in _findings_of(view, request.resident).items()
+            if name in request.options
+        )
         plan = f"I doubt {', '.join(doubted)}." if doubted else "Watch who votes with whom."
         return Reflection(
             journal_entry=f"Still wary of {doubted[-1]}." if doubted else "Nothing certain yet.",
             notebook=f"As of Day {day}: {plan}",
-            suspicions=suspicions,
+            suspicions=list(suspicions.values()),
         )
 
     def _ballot_options(self, request: DecisionRequest, view: Sequence[Event]) -> list[str]:
@@ -192,6 +219,15 @@ def _accused_by(view: Sequence[Event], me: str) -> list[str]:
         for name in event.payload.accused
     ]
     return list(dict.fromkeys(accused))
+
+
+def _findings_of(view: Sequence[Event], detective: str) -> dict[str, bool]:
+    """What each of this Detective's Findings said: whether the Resident is a Murderer."""
+    return {
+        event.payload.target: event.payload.found_murderer
+        for event in view
+        if isinstance(event.payload, ResidentInvestigated) and event.payload.detective == detective
+    }
 
 
 def _proposed_tonight(view: Sequence[Event]) -> list[str]:

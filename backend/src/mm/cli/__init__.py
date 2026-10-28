@@ -20,7 +20,15 @@ from mm.agents.memory import mind_of
 from mm.api.protocol import protocol_schema
 from mm.api.routes import HOST_TOKEN_HEADER
 from mm.api.settings import Settings
-from mm.cli.recording import CallTally, NdjsonFile, calls_beside, read_ndjson, write_ndjson
+from mm.cli.recording import (
+    CallTally,
+    NdjsonFile,
+    calls_beside,
+    read_ndjson,
+    write_json,
+    write_ndjson,
+    write_review_beside,
+)
 from mm.cli.transcript import describe
 from mm.engine import SCRIPTED, GameConfig, Lineup, PlayedBy
 from mm.engine.events import DecisionFellBack, Event, GameConfigured, ReflectionWritten
@@ -158,7 +166,8 @@ def play(
         fallbacks = sum(isinstance(event.payload, DecisionFellBack) for event in result.events)
         typer.echo(f"\n{tally.summary()} Fallbacks: {fallbacks}.")
     if events_file:
-        typer.echo(f"Saved {events_file.count} events to {out}")
+        write_review_beside(events_file.path, result.events)
+        typer.echo(f"Saved {events_file.count} events and their review to {out}")
     if result.state.aborted:
         raise typer.Exit(code=1)  # the transcript says why
 
@@ -218,8 +227,9 @@ def export(
         Path | None, typer.Option(help="Where to write it: <game id>.ndjson if left out.")
     ] = None,
 ) -> None:
-    """Write a finished game's whole log to a game file, as the server stored it, and its model
-    calls beside it, as `play --out` does, so `play --replay` can play it again.
+    """Write a finished game's whole log to a game file, as the server stored it, with its
+    review beside it, and its model calls, as `play --out` does, so `play --replay` can play it
+    again.
 
     The console replays a game file with no server: serve it with the frontend and open
     /replay?file=<its address>. The file holds every event, the seed and roles included.
@@ -227,9 +237,10 @@ def export(
     out = out or Path(f"{game_id}.ndjson")
     events, calls = asyncio.run(_finished_game(game_id))
     write_ndjson(out, events)
+    write_review_beside(out, events)
     if calls:
         write_ndjson(calls_beside(out), calls)
-    typer.echo(f"Saved {len(events)} events and {len(calls)} model calls to {out}")
+    typer.echo(f"Saved {len(events)} events, their review and {len(calls)} model calls to {out}")
 
 
 async def _finished_game(game_id: str) -> tuple[list[Event], list[ModelCall]]:
@@ -305,13 +316,12 @@ def minds(
             assert mind is not None, "a Resident who reflects has a role"
             folded = mind.model_dump(mode="json", exclude={"perceived"})
             minds.append({"seq": event.seq, "mind": folded})
-    out.write_text(json.dumps(minds, indent=1) + "\n", encoding="utf-8", newline="\n")
+    write_json(out, minds)
     typer.echo(f"Saved {len(minds)} minds to {out}")
 
 
 @app.command()
 def schema(out: Path = Path("../protocol/murdertown.schema.json")) -> None:
     """Export the backend-frontend protocol as JSON Schema."""
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(protocol_schema(), indent=2) + "\n", encoding="utf-8", newline="\n")
+    write_json(out, protocol_schema())
     typer.echo(f"Wrote {out}")

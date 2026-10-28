@@ -30,4 +30,4 @@ Settings come from `MM_*` environment variables or `backend/.env` (see `.env.exa
 Each package explains what it owns, what it may import and why it is shaped that way:
 [engine](src/mm/engine/README.md), [agents](src/mm/agents/README.md),
 [orchestrator](src/mm/orchestrator/README.md), [llm](src/mm/llm/README.md),
-[persistence](src/mm/persistence/README.md), [api](src/mm/api/README.md) and [cli](src/mm/cli/README.md).
+[review](src/mm/review/README.md), [persistence](src/mm/persistence/README.md), [api](src/mm/api/README.md) and [cli](src/mm/cli/README.md).

@@ -38,7 +38,7 @@ MM_MODEL_PRICES={"gpt-5-mini": {"input": 0.25, "output": 2.0, "cache_read": 0.02
 
 ## Cassettes
 
-A cassette is a recorded game's model calls, played back with no model and no network. `mm play --out game.ndjson` saves the game's events and, beside them, every model call in `game.calls.ndjson`, scrubbed of details from outside the game. `mm play --replay game.ndjson` plays the same game again from those records.
+A cassette is a recorded game's model calls, played back with no model and no network. `mm play --out game.ndjson` saves the game's events and, beside them, every model call in `game.calls.ndjson`, scrubbed of details from outside the game, and the post-game review in `game.review.json`. `mm play --replay game.ndjson` plays the same game again from those records.
 
 CI replays `fixtures/live-game.ndjson`, a short live Claude game, and checks that the replay makes exactly the recorded log (`tests/test_providers.py`).
 

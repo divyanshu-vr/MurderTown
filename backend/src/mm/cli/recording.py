@@ -1,5 +1,6 @@
 """Recording a headless game: event and model-call logs on disk, and a running tally of calls."""
 
+import json
 from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass, field
@@ -8,11 +9,28 @@ from pathlib import Path
 from pydantic import BaseModel
 
 from mm.agents import Cost, ModelCall
+from mm.engine.events import Event
+from mm.review import review_of
 
 
 def calls_beside(events: Path) -> Path:
     """Where `mm play --out` keeps the model calls of the game it saved at `events`."""
     return events.with_suffix(".calls.ndjson")
+
+
+def review_beside(events: Path) -> Path:
+    """Where the review of the game saved at `events` is kept, for replays to show."""
+    return events.with_suffix(".review.json")
+
+
+def write_json(path: Path, data: object) -> None:
+    """Write `data` as indented JSON, ending with a newline, whatever the platform."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
+
+
+def write_review_beside(events_file: Path, events: Sequence[Event]) -> None:
+    write_json(review_beside(events_file), review_of(events).model_dump(mode="json"))
 
 
 def ndjson_line(record: BaseModel) -> str:

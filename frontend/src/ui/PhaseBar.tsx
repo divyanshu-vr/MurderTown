@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 
 import type { GameView } from "../core/gameView";
 import type { ConnectionStatus } from "../net/sources";
-import { phaseLabel, victoryLabel } from "./labels";
+import { phaseLabel } from "./labels";
+import { OutcomeText } from "./Outcome";
 
 const connectionLabel: Record<ConnectionStatus, string> = {
   connecting: "Connecting",
@@ -60,12 +61,12 @@ export function PhaseBar({
       )}
       {view.outcome?.ended === "won" && (
         <p className="text-amber-300">
-          <strong>{victoryLabel[view.outcome.winner]}.</strong> {view.outcome.reason}
+          <OutcomeText outcome={view.outcome} />
         </p>
       )}
       {view.outcome?.ended === "aborted" && (
         <p role="alert" className="text-rose-300">
-          <strong>Game aborted:</strong> {view.outcome.reason}
+          <OutcomeText outcome={view.outcome} />
         </p>
       )}
       <div className="ml-auto flex items-center gap-3">

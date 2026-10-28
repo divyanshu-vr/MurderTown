@@ -9,7 +9,7 @@ Run after any change to an event, a decision answer or an API model:
 ```
 cd backend
 uv run mm schema
-uv run mm play --seed 1 --quiet --out ../fixtures/scripted-game.ndjson
+uv run mm play --seed 2 --quiet --out ../fixtures/scripted-game.ndjson
 uv run mm minds
 cd ../frontend
 pnpm gen:types
@@ -41,10 +41,16 @@ pnpm gen:types
 3. Its powers are decision kinds (see above), asked for by the Phase where they act.
 4. Add its label to `roleLabel` (`frontend/src/ui/labels.ts`). The `Record` type will not compile until you do.
 
+## Change what the review finds
+
+The post-game review is computed once, in `backend/src/mm/review/review.py`; the API and the files written beside a game use it (and the evaluation harness is to), and the console only shows it. Change a rule there with a test on a hand-made log (`tests/test_review.py`), then regenerate the shared contract: the recorded game's review (`fixtures/scripted-game.review.json`) is rewritten with it, and `test_recorded_fixture.py` checks it still holds every kind of lie and turning point the console's tests show.
+
 ## Add a panel
 
 1. Derive what it shows in `frontend/src/core` (pure, from events), not inside the component.
 2. Render it from a component in `frontend/src/ui` and mount it in `GameConsole`.
 3. Write a seam-3 test: render from the recorded fixture and assert what a Spectator sees, by role and accessible name.
 
-A panel that shows what the events do not hold, such as the cost meter (from the stored model calls), asks the server through a source function in `frontend/src/net` (`costSource`, like `explainer`) that `GamePage` passes to `GameConsole` only on the Host's page, since only the Host may ask; a game file replayed with no server has none. Panels read what playback has reached (the `events` up to `playback.shown`), not everything received. Its seam-3 test passes a stub source instead.
+Panels read what playback has reached (the `events` up to `playback.shown`), not everything received, and a panel that tells private beliefs (the suspicion heatmap, the post-game review) is left out of mystery mode.
+
+A panel that shows what the events do not hold gets it from the server, only on the Host's page, since only the Host may ask. Two ways, by how often it changes: the cost meter, asked again as events arrive, takes a source function from `frontend/src/net` (`costSource`, like `explainer`), and its seam-3 test passes a stub source; the post-game review, asked once the game has ended, is fetched by `GamePage` (`useReview`, from the server or from beside a game file) and passed in as data, and its seam-3 test passes the recorded review (`fixtures/scripted-game.review.json`).

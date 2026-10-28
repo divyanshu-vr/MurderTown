@@ -5,7 +5,7 @@ import { type DecisionView, type DossierRow, dossierRows, type MindView } from "
 import type { Explain } from "../net/explain";
 import { describeEvent } from "./describeEvent";
 import { FallbackNote } from "./FallbackNote";
-import { roleLabel, whenLabel } from "./labels";
+import { residentName, roleLabel, whenLabel } from "./labels";
 import { WhyDrawer } from "./WhyDrawer";
 
 /**
@@ -98,10 +98,7 @@ function Dossier({ rows }: { rows: readonly DossierRow[] }) {
       {rows.map(({ name, dead, suspicion }) => (
         <li key={name} aria-label={name} className={dead ? "text-stone-500" : ""}>
           <div className="flex items-baseline justify-between gap-2">
-            <span>
-              {name}
-              {dead && " (dead)"}
-            </span>
+            <span>{residentName(name, dead)}</span>
             {suspicion ? (
               <meter min={0} max={100} value={suspicion.suspicion} className="w-24" aria-label={`Suspicion of ${name}`} />
             ) : (

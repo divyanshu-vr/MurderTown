@@ -20,6 +20,7 @@ from mm.api.routes import (
 )
 from mm.engine import GameConfig
 from mm.engine.events import Event
+from mm.review import Review
 
 
 def protocol_schema() -> dict[str, Any]:
@@ -43,6 +44,7 @@ def protocol_schema() -> dict[str, Any]:
             (Mind, "serialization"),
             (Explanation, "serialization"),
             (CostReport, "serialization"),
+            (Review, "serialization"),
             (GameConfig, "validation"),
         ],
         title="MurderTown protocol",

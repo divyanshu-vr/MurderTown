@@ -9,6 +9,7 @@ import type {
   ModelCall,
   PayloadOf,
   Phase,
+  Review,
   Role,
   Side,
 } from "../protocol";
@@ -117,6 +118,23 @@ export const sheriffFiresLabel: Record<NonNullable<GameConfigInput["sheriff_shoo
   showdown: "In each Day's Showdown",
   night: "At Night",
 };
+
+/** A role as a phrase: there are several Murderers and Civilians, but one of each power. */
+export function aRole(role: Role): string {
+  return `${role === "murderer" || role === "civilian" ? "a" : "the"} ${roleLabel[role]}`;
+}
+
+/** What a Statement did that made it a Lie, before whom it named or what it claimed. */
+export const lieLabel: Record<Review["lies"][number]["kind"], string> = {
+  false_role: "claimed to be",
+  accused_trusted: "accused",
+  defended_suspected: "defended",
+};
+
+/** A Resident's name, marked if they are dead. */
+export function residentName(name: string, dead: boolean): string {
+  return dead ? `${name} (dead)` : name;
+}
 
 /** An Equivalent cost, to the hundredth of a cent. */
 export function dollars(amount: number): string {

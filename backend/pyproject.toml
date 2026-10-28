@@ -86,6 +86,7 @@ layers = [
     "mm.api",
     "mm.persistence",
     "mm.orchestrator",
+    "mm.review",
     "mm.agents",
     "mm.llm",
     "mm.observability",

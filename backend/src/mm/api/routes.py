@@ -37,6 +37,7 @@ from mm.llm.prices import priced_models
 from mm.llm.providers import NAMES
 from mm.orchestrator.narrator import NARRATOR
 from mm.persistence import Bus, GameStatus, GameStore, StoredGame
+from mm.review import Review, review_of
 
 router = APIRouter()
 
@@ -218,10 +219,15 @@ async def control_game(game_id: str, control: Control, services: ServicesDep) ->
 
 
 async def summary_of(services: Services, game_id: str, scope: Scope) -> GameSummary:
+    return at_a_glance(services, await stored_game(services, game_id), scope)
+
+
+async def stored_game(services: Services, game_id: str) -> StoredGame:
+    """The game, or a 404 if there is none."""
     game = await services.store.game(game_id)
     if game is None:
         raise HTTPException(status_code=404, detail="No such game")
-    return at_a_glance(services, game, scope)
+    return game
 
 
 def at_a_glance(services: Services, game: StoredGame, scope: Scope) -> GameSummary:
@@ -280,13 +286,19 @@ async def explain(game_id: str, seq: int, services: ServicesDep) -> Explanation:
 @router.get("/games/{game_id}/cost", dependencies=[HostOnly])
 async def cost(game_id: str, services: ServicesDep) -> CostReport:
     """Full scope only: what each Resident's calls cost reveals who acts at Night."""
-    if await services.store.game(game_id) is None:
-        raise HTTPException(status_code=404, detail="No such game")
+    await stored_game(services, game_id)
     residents = await services.store.cost(game_id)
     narrator = residents.pop(NARRATOR.name, Cost())
     return CostReport(
         total=sum(residents.values(), narrator), residents=residents, narrator=narrator
     )
+
+
+@router.get("/games/{game_id}/review", dependencies=[HostOnly])
+async def review(game_id: str, services: ServicesDep) -> Review:
+    """The review of the events stored so far. Host only: it shows private beliefs and roles."""
+    await stored_game(services, game_id)
+    return review_of(await services.store.events(game_id))
 
 
 @router.websocket("/ws/games/{game_id}")

@@ -45,7 +45,7 @@ jobs:
       - name: Protocol schema and shared fixture are up to date
         run: |
           uv run mm schema
-          uv run mm play --seed 1 --quiet --out ../fixtures/scripted-game.ndjson
+          uv run mm play --seed 2 --quiet --out ../fixtures/scripted-game.ndjson
           uv run mm minds
           git diff --exit-code -- ../protocol ../fixtures
 

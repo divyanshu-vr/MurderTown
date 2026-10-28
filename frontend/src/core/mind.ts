@@ -36,7 +36,7 @@ export function mindOf(events: readonly Event[], resident: string): MindView | n
       if (payload.journal_entry) {
         journal.push({ day: event.day, phase: event.phase, text: payload.journal_entry });
       }
-      for (const suspicion of payload.suspicions) dossier.set(suspicion.resident, suspicion);
+      noteSuspicions(dossier, payload.suspicions);
     }
     const id = event.decision_id;
     if (id && decider(payload) === resident) {
@@ -64,12 +64,17 @@ export function mindOf(events: readonly Event[], resident: string): MindView | n
   };
 }
 
+/** A dossier's rule: the latest suspicion about each Resident replaces any earlier one. */
+export function noteSuspicions(dossier: Map<string, Suspicion>, suspicions: readonly Suspicion[]): void {
+  for (const suspicion of suspicions) dossier.set(suspicion.resident, suspicion);
+}
+
 /** Sorts by name in code-point order, as the backend does, so both folds give the same list. */
 function byName(a: Suspicion, b: Suspicion): number {
   return a.resident < b.resident ? -1 : a.resident > b.resident ? 1 : 0;
 }
 
-/** One row of the Dossier as the inspector shows it: every other Resident, rated or not. */
+/** One row of the Dossier as the inspector shows it: every other Resident, with a Suspicion of them or not. */
 export interface DossierRow {
   name: string;
   dead: boolean;

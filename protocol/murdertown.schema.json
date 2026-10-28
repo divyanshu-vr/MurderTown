@@ -612,6 +612,41 @@
       "title": "Explanation",
       "type": "object"
     },
+    "FalseClaim": {
+      "description": "A Statement claiming a role that is not the speaker's.",
+      "properties": {
+        "kind": {
+          "const": "false_role",
+          "default": "false_role",
+          "type": "string"
+        },
+        "seq": {
+          "type": "integer"
+        },
+        "speaker": {
+          "type": "string"
+        },
+        "said": {
+          "type": "string"
+        },
+        "claimed_role": {
+          "$ref": "#/$defs/Role"
+        },
+        "true_role": {
+          "$ref": "#/$defs/Role"
+        }
+      },
+      "required": [
+        "kind",
+        "seq",
+        "speaker",
+        "said",
+        "claimed_role",
+        "true_role"
+      ],
+      "title": "FalseClaim",
+      "type": "object"
+    },
     "GameAborted": {
       "additionalProperties": false,
       "description": "The game stopped before either side won: a decision got no answer, or the game itself\nfailed. `reason` is only the problem, such as a timeout, never the decision itself, so the\nwhole town may see the game stop.",
@@ -998,6 +1033,27 @@
       "title": "GameSummary",
       "type": "object"
     },
+    "Influence": {
+      "description": "How many of the others' ballots (`followed`) went against someone this Resident had\naccused that Day, out of all the others' `ballots` on the Days they accused anyone before\na Vote. A vote to skip is a ballot that follows nobody.",
+      "properties": {
+        "resident": {
+          "type": "string"
+        },
+        "followed": {
+          "type": "integer"
+        },
+        "ballots": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "resident",
+        "followed",
+        "ballots"
+      ],
+      "title": "Influence",
+      "type": "object"
+    },
     "JournalEntry": {
       "properties": {
         "day": {
@@ -1071,6 +1127,39 @@
         "text"
       ],
       "title": "LastWordsSpoken",
+      "type": "object"
+    },
+    "LieAbout": {
+      "description": "A Statement accusing someone the speaker trusts, or defending someone they suspect,\nbeside what the speaker privately held about them.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "accused_trusted",
+            "defended_suspected"
+          ],
+          "type": "string"
+        },
+        "seq": {
+          "type": "integer"
+        },
+        "speaker": {
+          "type": "string"
+        },
+        "said": {
+          "type": "string"
+        },
+        "belief": {
+          "$ref": "#/$defs/Suspicion"
+        }
+      },
+      "required": [
+        "kind",
+        "seq",
+        "speaker",
+        "said",
+        "belief"
+      ],
+      "title": "LieAbout",
       "type": "object"
     },
     "Lineup-Input": {
@@ -1651,6 +1740,64 @@
       "title": "ResidentProtected",
       "type": "object"
     },
+    "Review": {
+      "properties": {
+        "turning_points": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "event": "#/$defs/TurningEvent",
+                "swing": "#/$defs/Swing"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/TurningEvent"
+              },
+              {
+                "$ref": "#/$defs/Swing"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "lies": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "accused_trusted": "#/$defs/LieAbout",
+                "defended_suspected": "#/$defs/LieAbout",
+                "false_role": "#/$defs/FalseClaim"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/FalseClaim"
+              },
+              {
+                "$ref": "#/$defs/LieAbout"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "influence": {
+          "items": {
+            "$ref": "#/$defs/Influence"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "turning_points",
+        "lies",
+        "influence"
+      ],
+      "title": "Review",
+      "type": "object"
+    },
     "Role": {
       "enum": [
         "murderer",
@@ -1957,6 +2104,60 @@
         "note"
       ],
       "title": "Suspicion",
+      "type": "object"
+    },
+    "Swing": {
+      "description": "One reflection (at `seq`) moving a Resident's suspicion of another a long way at once.",
+      "properties": {
+        "kind": {
+          "const": "swing",
+          "default": "swing",
+          "type": "string"
+        },
+        "seq": {
+          "type": "integer"
+        },
+        "resident": {
+          "type": "string"
+        },
+        "suspect": {
+          "type": "string"
+        },
+        "before": {
+          "type": "integer"
+        },
+        "after": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "seq",
+        "resident",
+        "suspect",
+        "before",
+        "after"
+      ],
+      "title": "Swing",
+      "type": "object"
+    },
+    "TurningEvent": {
+      "description": "A death or the Sheriff's shot: the event at `seq`.",
+      "properties": {
+        "kind": {
+          "const": "event",
+          "default": "event",
+          "type": "string"
+        },
+        "seq": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "seq"
+      ],
+      "title": "TurningEvent",
       "type": "object"
     },
     "VictimChosen": {

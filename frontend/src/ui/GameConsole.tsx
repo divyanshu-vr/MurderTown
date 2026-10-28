@@ -1,20 +1,27 @@
 import { type ReactNode, useCallback, useMemo, useState } from "react";
 
 import { foldEvents, isPublic } from "../core/gameView";
+import { heatAt } from "../core/heat";
 import { mindOf } from "../core/mind";
 import { snapshotsOf, viewAt } from "../core/snapshots";
 import type { CostSource } from "../net/cost";
 import type { Explain } from "../net/explain";
 import type { ConnectionStatus, Scope } from "../net/sources";
 import { useCost } from "../net/useCost";
-import type { Event } from "../protocol";
+import type { Event, Review } from "../protocol";
 import { CostMeter } from "./CostMeter";
 import { EventFeed } from "./EventFeed";
 import { MindInspector } from "./MindInspector";
 import { PhaseBar } from "./PhaseBar";
 import { PlaybackBar, usePlaybackKeys } from "./PlaybackBar";
+import { PostGameReview } from "./PostGameReview";
 import { Roster } from "./Roster";
+import { SuspicionHeatmap } from "./SuspicionHeatmap";
 import type { PlaybackView } from "./usePlayback";
+
+type Tab = "feed" | "suspicion" | "review";
+
+const tabLabel: Record<Tab, string> = { feed: "Feed", suspicion: "Suspicion", review: "Review" };
 
 /**
  * The text console: phase bar, town feed, roster, cost meter and Mind inspector, for the
@@ -27,6 +34,10 @@ import type { PlaybackView } from "./usePlayback";
  * shown. The cost meter needs a `cost` source, and the Host's `controls` come from the
  * page: only the Host's has them. The cost meter shows what the game has cost so far,
  * not as of the view: the server adds up calls, not events.
+ *
+ * Outside mystery mode, a Suspicion tab shows the heatmap as of the view, and once the view
+ * reaches the game's end the `review` opens in a Review tab. Both tell private beliefs, so
+ * mystery mode (and so a public page) has neither.
  */
 export function GameConsole({
   events,
@@ -38,6 +49,7 @@ export function GameConsole({
   controls,
   playback,
   replayUrl,
+  review,
 }: {
   events: readonly Event[];
   connection: ConnectionStatus;
@@ -49,9 +61,11 @@ export function GameConsole({
   playback?: PlaybackView | undefined;
   /** Where to replay the game, offered once the view reaches its end. */
   replayUrl?: string | undefined;
+  review?: Review | null | undefined;
 }) {
   const [mysteryChosen, setMysteryChosen] = useState(false);
   const [inspected, setInspected] = useState<string | null>(null);
+  const [chosenTab, setChosenTab] = useState<Tab | null>(null);
   const mystery = scope === "public" || mysteryChosen;
 
   const count = playback?.shown ?? events.length;
@@ -62,6 +76,10 @@ export function GameConsole({
   const shownView = useMemo(() => (mystery ? foldEvents(shownEvents) : view), [mystery, shownEvents, view]);
   const mind = useMemo(() => (inspected ? mindOf(reached, inspected) : null), [reached, inspected]);
   const report = useCost(cost, events.length);
+  const heat = useMemo(() => (mystery ? null : heatAt(reached)), [mystery, reached]);
+  const ending = mystery ? null : view.outcome;
+  const tabs: Tab[] = ["feed", ...(heat ? ["suspicion" as const] : []), ...(review && ending ? ["review" as const] : [])];
+  const tab = chosenTab && tabs.includes(chosenTab) ? chosenTab : tabs.includes("review") ? "review" : "feed";
 
   const chooseMystery = useCallback((on: boolean) => {
     setMysteryChosen(on);
@@ -91,7 +109,29 @@ export function GameConsole({
       <main
         className={`grid min-h-0 flex-1 grid-cols-1 ${mind ? "lg:grid-cols-[1fr_18rem_28rem]" : "md:grid-cols-[1fr_20rem]"}`}
       >
-        <EventFeed events={shownEvents} />
+        <div className="flex min-h-0 flex-col">
+          {tabs.length > 1 && (
+            <div role="tablist" aria-label="What to show" className="flex gap-1 border-b border-stone-800 px-6 pt-2">
+              {tabs.map((name) => (
+                <button
+                  key={name}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === name}
+                  onClick={() => setChosenTab(name)}
+                  className="rounded-t px-3 py-1 text-sm text-stone-400 aria-selected:bg-stone-800 aria-selected:text-amber-200"
+                >
+                  {tabLabel[name]}
+                </button>
+              ))}
+            </div>
+          )}
+          {tab === "feed" && <EventFeed events={shownEvents} />}
+          {tab === "suspicion" && heat && <SuspicionHeatmap heat={heat} residents={view.residents} />}
+          {tab === "review" && review && ending && (
+            <PostGameReview review={review} events={reached} outcome={ending} />
+          )}
+        </div>
         <div className="min-h-0 overflow-y-auto border-l border-stone-800">
           <Roster residents={shownView.residents} inspected={inspected} onInspect={mystery ? undefined : setInspected} />
           {report && <CostMeter report={report} residents={view.residents} mystery={mystery} />}

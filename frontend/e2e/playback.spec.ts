@@ -114,10 +114,13 @@ test("new lines fade in, unless the Spectator prefers reduced motion", async ({ 
   await expect.poll(animationOfFirstLine).toBe("none");
 });
 
-test("a game file replays with no server at all", async ({ page }) => {
+test("a game file replays with no server at all, ending with the review beside it", async ({ page }) => {
   await page.route(`${API}/**`, (route) => route.abort()); // the server is gone
   await page.route(({ pathname }) => pathname === "/a-game.ndjson", (route) =>
     route.fulfill({ body: readFileSync("../fixtures/scripted-game.ndjson", "utf-8") }),
+  );
+  await page.route(({ pathname }) => pathname === "/a-game.review.json", (route) =>
+    route.fulfill({ body: readFileSync("../fixtures/scripted-game.review.json", "utf-8") }),
   );
 
   await page.goto("/replay?file=/a-game.ndjson");
@@ -125,6 +128,28 @@ test("a game file replays with no server at all", async ({ page }) => {
   await page.keyboard.press("l");
 
   await expect(page.getByRole("banner")).toContainText("Game over");
+  await expect(page.getByRole("region", { name: "Post-game review" })).toContainText("Lies told");
   await page.getByRole("list", { name: "Residents" }).getByRole("button").first().click();
   await expect(page.getByRole("complementary", { name: /^Mind of / })).toBeVisible(); // folded from the file alone
+});
+
+test("the Host's replay shows the suspicion heatmap as it goes, and the review at the end", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("murdertown.host-token", "the-token"));
+  await serveTheGame(page);
+  await page.route(`${API}/games/abc/events`, (route) => route.fulfill({ json: { events: recordedGame() } }));
+  await page.route(`${API}/games/abc/review`, (route) =>
+    route.fulfill({ body: readFileSync("../fixtures/scripted-game.review.json", "utf-8") }),
+  );
+  await page.route(`${API}/games/abc/cost`, (route) => route.abort());
+
+  await page.goto("/games/abc/replay");
+  await page.keyboard.press("Space");
+  await playback(page).getByRole("slider", { name: "Timeline" }).fill("300");
+  await page.getByRole("tab", { name: "Suspicion" }).click();
+  await expect(page.getByRole("table", { name: /^Suspicion at the start of Day/ })).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Review" })).toHaveCount(0); // not before the end
+
+  await page.keyboard.press("l");
+  await page.getByRole("tab", { name: "Review" }).click();
+  await expect(page.getByRole("region", { name: "Post-game review" })).toContainText("Influence");
 });

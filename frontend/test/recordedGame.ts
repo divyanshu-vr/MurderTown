@@ -2,9 +2,9 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { eventsInGameFile } from "../src/core/gameFile";
-import type { Event, Mind, PayloadOf } from "../src/protocol";
+import type { Event, Mind, PayloadOf, Review } from "../src/protocol";
 
-/** The scripted game the backend records with `mm play --seed 1 --out ../fixtures/scripted-game.ndjson`, chosen because it shows every kind of event. */
+/** The scripted game the backend records with `mm play --seed 2 --out ../fixtures/scripted-game.ndjson`, chosen because it shows every kind of event, every kind of lie and a swing in suspicion. */
 export function recordedGame(): Event[] {
   return eventsInGameFile(readFileSync(resolve(process.cwd(), "../fixtures/scripted-game.ndjson"), "utf-8"));
 }
@@ -19,8 +19,17 @@ export function eventsOf<T extends Event["payload"]["type"]>(events: readonly Ev
   return events.filter((event): event is Event & { payload: PayloadOf<T> } => event.payload.type === type);
 }
 
+/** A JSON file the backend writes beside the recorded game. */
+function beside<T>(name: string): T {
+  return JSON.parse(readFileSync(resolve(process.cwd(), `../fixtures/scripted-game.${name}.json`), "utf-8")) as T;
+}
+
 /** The server's mind of each Resident right after each of their reflections (`mm minds`). */
 export function recordedMinds(): { seq: number; mind: Omit<Mind, "perceived"> }[] {
-  const file = resolve(process.cwd(), "../fixtures/scripted-game.minds.json");
-  return JSON.parse(readFileSync(file, "utf-8")) as { seq: number; mind: Omit<Mind, "perceived"> }[];
+  return beside("minds");
+}
+
+/** The backend's review of the recorded game, which `mm play --out` writes beside it. */
+export function recordedReview(): Review {
+  return beside("review");
 }

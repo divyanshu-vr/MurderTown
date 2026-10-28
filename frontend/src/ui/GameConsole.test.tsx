@@ -117,7 +117,8 @@ describe("the game console", () => {
     expect(phaseBar).toHaveTextContent(ending?.reason ?? "");
   });
 
-  it("shows Dusk and the Night in full, and in mystery mode only what the whole town saw", () => {
+  // renders the whole recorded game twice, which jsdom takes a few seconds to do
+  it("shows Dusk and the Night in full, and in mystery mode only what the whole town saw", { timeout: 20_000 }, () => {
     render(<GameConsole events={events} connection="ended" />);
     const secret: Kind[] = [
       "den_message_posted",

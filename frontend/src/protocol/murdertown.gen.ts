@@ -648,6 +648,20 @@ export interface ModelCall {
   trace_id: string | null;
 }
 /**
+ * A Statement claiming a role that is not the speaker's.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "FalseClaim".
+ */
+export interface FalseClaim {
+  kind: "false_role";
+  seq: number;
+  speaker: string;
+  said: string;
+  claimed_role: Role;
+  true_role: Role;
+}
+/**
  * Everything the Host chooses before a game starts: its rules, its seed and who plays.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
@@ -737,6 +751,19 @@ export interface GameSummary {
   controls: Control[];
 }
 /**
+ * How many of the others' ballots (`followed`) went against someone this Resident had
+ * accused that Day, out of all the others' `ballots` on the Days they accused anyone before
+ * a Vote. A vote to skip is a ballot that follows nobody.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Influence".
+ */
+export interface Influence {
+  resident: string;
+  followed: number;
+  ballots: number;
+}
+/**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "JournalEntry".
  */
@@ -744,6 +771,20 @@ export interface JournalEntry {
   day: number;
   phase: Phase;
   text: string;
+}
+/**
+ * A Statement accusing someone the speaker trusts, or defending someone they suspect,
+ * beside what the speaker privately held about them.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "LieAbout".
+ */
+export interface LieAbout {
+  kind: "accused_trusted" | "defended_suspected";
+  seq: number;
+  speaker: string;
+  said: string;
+  belief: Suspicion;
 }
 /**
  * Who plays each Resident. A seat's own choice wins, then its side's, then everyone's;
@@ -799,6 +840,39 @@ export interface Mind {
   teammates: string[];
   memory: Memory;
   perceived: Event[];
+}
+/**
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Review".
+ */
+export interface Review {
+  turning_points: (TurningEvent | Swing)[];
+  lies: (FalseClaim | LieAbout)[];
+  influence: Influence[];
+}
+/**
+ * A death or the Sheriff's shot: the event at `seq`.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "TurningEvent".
+ */
+export interface TurningEvent {
+  kind: "event";
+  seq: number;
+}
+/**
+ * One reflection (at `seq`) moving a Resident's suspicion of another a long way at once.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Swing".
+ */
+export interface Swing {
+  kind: "swing";
+  seq: number;
+  resident: string;
+  suspect: string;
+  before: number;
+  after: number;
 }
 /**
  * What the setup form may offer: every provider, and every model with a price. A provider

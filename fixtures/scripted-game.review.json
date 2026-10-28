@@ -1,0 +1,409 @@
+{
+  "turning_points": [
+    {
+      "kind": "event",
+      "seq": 153
+    },
+    {
+      "kind": "event",
+      "seq": 387
+    },
+    {
+      "kind": "event",
+      "seq": 517
+    },
+    {
+      "kind": "event",
+      "seq": 550
+    },
+    {
+      "kind": "swing",
+      "seq": 554,
+      "resident": "Luna",
+      "suspect": "Finn",
+      "before": 70,
+      "after": 10
+    },
+    {
+      "kind": "event",
+      "seq": 692
+    },
+    {
+      "kind": "event",
+      "seq": 835
+    },
+    {
+      "kind": "swing",
+      "seq": 839,
+      "resident": "Luna",
+      "suspect": "Bram",
+      "before": 88,
+      "after": 10
+    },
+    {
+      "kind": "event",
+      "seq": 942
+    },
+    {
+      "kind": "event",
+      "seq": 1102
+    },
+    {
+      "kind": "event",
+      "seq": 1103
+    },
+    {
+      "kind": "event",
+      "seq": 1104
+    },
+    {
+      "kind": "event",
+      "seq": 1128
+    }
+  ],
+  "lies": [
+    {
+      "kind": "false_role",
+      "seq": 19,
+      "speaker": "Tess",
+      "said": "Tess here. Let's stay calm and think this through. I'm just a Civilian.",
+      "claimed_role": "civilian",
+      "true_role": "murderer"
+    },
+    {
+      "kind": "false_role",
+      "seq": 28,
+      "speaker": "Cora",
+      "said": "Cora here. Let's stay calm and think this through. I'm just a Civilian.",
+      "claimed_role": "civilian",
+      "true_role": "murderer"
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 54,
+      "speaker": "Cora",
+      "said": "I have my doubts about Luna. Tess has my trust.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 54,
+      "speaker": "Cora",
+      "said": "I have my doubts about Luna. Tess has my trust.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 120,
+      "speaker": "Cora",
+      "said": "I have my doubts about Finn. Tess has my trust.",
+      "belief": {
+        "resident": "Finn",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 120,
+      "speaker": "Cora",
+      "said": "I have my doubts about Finn. Tess has my trust.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 135,
+      "speaker": "Cora",
+      "said": "I have my doubts about Ezra. Tess has my trust.",
+      "belief": {
+        "resident": "Ezra",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 135,
+      "speaker": "Cora",
+      "said": "I have my doubts about Ezra. Tess has my trust.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 288,
+      "speaker": "Cora",
+      "said": "I have my doubts about Greta. Tess has my trust.",
+      "belief": {
+        "resident": "Greta",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 288,
+      "speaker": "Cora",
+      "said": "I have my doubts about Greta. Tess has my trust.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 312,
+      "speaker": "Cora",
+      "said": "I have my doubts about Greta. Tess has my trust.",
+      "belief": {
+        "resident": "Greta",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 312,
+      "speaker": "Cora",
+      "said": "I have my doubts about Greta. Tess has my trust.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 422,
+      "speaker": "Cora",
+      "said": "I have my doubts about Luna. Tess has my trust.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 422,
+      "speaker": "Cora",
+      "said": "I have my doubts about Luna. Tess has my trust.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 587,
+      "speaker": "Luna",
+      "said": "I have my doubts about Greta.",
+      "belief": {
+        "resident": "Greta",
+        "suspicion": 10,
+        "note": "my investigation"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 615,
+      "speaker": "Luna",
+      "said": "I have my doubts about Greta.",
+      "belief": {
+        "resident": "Greta",
+        "suspicion": 10,
+        "note": "my investigation"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 752,
+      "speaker": "Tess",
+      "said": "I have my doubts about Bram.",
+      "belief": {
+        "resident": "Bram",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 857,
+      "speaker": "Luna",
+      "said": "I have my doubts about Finn.",
+      "belief": {
+        "resident": "Finn",
+        "suspicion": 10,
+        "note": "my investigation"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 871,
+      "speaker": "Luna",
+      "said": "I have my doubts about Finn.",
+      "belief": {
+        "resident": "Finn",
+        "suspicion": 10,
+        "note": "my investigation"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 885,
+      "speaker": "Luna",
+      "said": "I have my doubts about Bram.",
+      "belief": {
+        "resident": "Bram",
+        "suspicion": 10,
+        "note": "my investigation"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 900,
+      "speaker": "Luna",
+      "said": "I have my doubts about Bram.",
+      "belief": {
+        "resident": "Bram",
+        "suspicion": 10,
+        "note": "my investigation"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 972,
+      "speaker": "Luna",
+      "said": "I have my doubts about Bram.",
+      "belief": {
+        "resident": "Bram",
+        "suspicion": 10,
+        "note": "my investigation"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 996,
+      "speaker": "Tess",
+      "said": "I have my doubts about Luna.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 1003,
+      "speaker": "Luna",
+      "said": "I have my doubts about Finn.",
+      "belief": {
+        "resident": "Finn",
+        "suspicion": 10,
+        "note": "my investigation"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 1054,
+      "speaker": "Tess",
+      "said": "I have my doubts about Bram.",
+      "belief": {
+        "resident": "Bram",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 1072,
+      "speaker": "Tess",
+      "said": "I have my doubts about Greta.",
+      "belief": {
+        "resident": "Greta",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 1086,
+      "speaker": "Luna",
+      "said": "I have my doubts about Finn.",
+      "belief": {
+        "resident": "Finn",
+        "suspicion": 10,
+        "note": "my investigation"
+      }
+    }
+  ],
+  "influence": [
+    {
+      "resident": "Cora",
+      "followed": 9,
+      "ballots": 30
+    },
+    {
+      "resident": "Luna",
+      "followed": 8,
+      "ballots": 44
+    },
+    {
+      "resident": "Greta",
+      "followed": 7,
+      "ballots": 50
+    },
+    {
+      "resident": "Jonah",
+      "followed": 2,
+      "ballots": 16
+    },
+    {
+      "resident": "Bram",
+      "followed": 4,
+      "ballots": 36
+    },
+    {
+      "resident": "Bea",
+      "followed": 1,
+      "ballots": 9
+    },
+    {
+      "resident": "Vera",
+      "followed": 1,
+      "ballots": 10
+    },
+    {
+      "resident": "Finn",
+      "followed": 1,
+      "ballots": 25
+    },
+    {
+      "resident": "Iris",
+      "followed": 1,
+      "ballots": 30
+    },
+    {
+      "resident": "Tess",
+      "followed": 0,
+      "ballots": 12
+    }
+  ]
+}

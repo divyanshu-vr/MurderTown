@@ -178,6 +178,10 @@ _Avoid_: summary, scratchpad
 How strongly a Resident believes another is a Murderer, from 0 to 100, with a reason.
 _Avoid_: trust score, rating
 
+**Lie**:
+A Statement that says what its speaker privately does not believe: claiming a role that is not theirs, accusing someone they trust, or defending someone they suspect. A Murderer's private belief is what they know.
+_Avoid_: deception, bluff
+
 **Dossier**:
 A Resident's latest Suspicion about each other Resident they have formed an opinion of.
 _Avoid_: suspicion list, belief state
@@ -213,6 +217,22 @@ Letting one batch of decisions through a paused game.
 _Avoid_: tick, advance
 
 ### Watching
+
+**Post-game review**:
+In full scope, what a Spectator sees once a game is over: who won, its Turning points, every Lie beside the speaker's private belief, and each Resident's Influence.
+_Avoid_: summary, report
+
+**Suspicion heatmap**:
+In full scope, every Resident's Suspicion of every other at the start of the Phase being watched, and how each changed.
+_Avoid_: trust matrix, grid
+
+**Turning point**:
+A moment that changed a game: a death, the Sheriff's shot, or one Resident's Suspicion of another swinging by a lot at once.
+_Avoid_: highlight, key event
+
+**Influence**:
+How often the other Residents voted against whom one Resident had accused that Day.
+_Avoid_: persuasiveness, score
 
 **Mind inspector**:
 In full scope, a Spectator's view into one Resident's mind as of the moment being watched: their role, Persona, Notebook, Journal, Dossier and every decision they made.
