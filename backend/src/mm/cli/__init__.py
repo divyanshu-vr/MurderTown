@@ -25,8 +25,8 @@ from mm.orchestrator import EventObserver, play_game
 
 app = typer.Typer(help="MurderTown: a town where every Resident is played by an Agent.")
 
-GRACEFUL_SECONDS = 5
-"""How long the server waits for open connections before shutting games down."""
+CONNECTION_GRACE_SECONDS = 5
+"""How long the server waits for open connections to close before it halts its games."""
 
 
 class Brains(StrEnum):
@@ -157,7 +157,7 @@ def serve(host: str = "127.0.0.1", port: int = 8000, reload: bool = False) -> No
         host=host,
         port=port,
         reload=reload,
-        timeout_graceful_shutdown=GRACEFUL_SECONDS,  # Spectators' sockets never close by themselves
+        timeout_graceful_shutdown=CONNECTION_GRACE_SECONDS,  # Spectators' sockets stay open
     )
 
 

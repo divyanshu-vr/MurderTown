@@ -8,6 +8,7 @@ tends to earn a reply. If every bid is 0, nobody speaks that Turn.
 
 from collections.abc import Collection, Mapping
 from random import Random
+from typing import Literal
 
 from mm.engine.config import GameConfig
 from mm.engine.tally import drawn_from_the_top
@@ -27,13 +28,16 @@ QUIET_TURNS_TO_END = 2
 """The Open floor ends after this many Turns in a row in which nobody wanted to speak."""
 
 
-def open_floor_over(
-    config: GameConfig, statements_made: int, quiet_turns: int, out_of_time: bool = False
-) -> bool:
-    """Whether the Open floor has reached any of its three limits. Whether its time is up
-    is for the caller to say: the engine reads no clock."""
-    return (
-        statements_made >= config.open_floor_statements
-        or quiet_turns >= QUIET_TURNS_TO_END
-        or out_of_time
-    )
+OpenFloorLimit = Literal["statements", "quiet", "time"]
+
+
+def open_floor_limit(
+    config: GameConfig, statements_made: int, quiet_turns: int, out_of_time: bool
+) -> OpenFloorLimit | None:
+    """Which of its three limits ended the Open floor, or None while it goes on. Whether
+    its time is up is for the caller to say: the engine reads no clock."""
+    if statements_made >= config.open_floor_statements:
+        return "statements"
+    if quiet_turns >= QUIET_TURNS_TO_END:
+        return "quiet"
+    return "time" if out_of_time else None

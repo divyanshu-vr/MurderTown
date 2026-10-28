@@ -35,7 +35,7 @@ from claude_agent_sdk import (
     query,
 )
 
-from mm.llm.protocol import ModelReply, ModelRequest, Usage
+from mm.llm.protocol import CALL_TIMEOUT_S, ModelReply, ModelRequest, Usage
 
 ISOLATION_ENV = {
     "CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1",
@@ -108,7 +108,7 @@ def require_subscription_login(cli: str) -> None:
 class ClaudeAgentSDKProvider:
     name = "claude-agent-sdk"
 
-    def __init__(self, *, concurrency: int = 5, timeout_s: float = 90.0) -> None:
+    def __init__(self, *, concurrency: int = 5, timeout_s: float = CALL_TIMEOUT_S) -> None:
         self.cli = claude_cli()
         require_subscription_login(self.cli)
         self.sandbox = Path(tempfile.gettempdir()) / "murdertown-agent-sandbox"

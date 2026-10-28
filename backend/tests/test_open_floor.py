@@ -1,26 +1,30 @@
 """Seam 1: the Open floor. Bids, who speaks, and the three limits that end it."""
 
-from itertools import count
-
 import pytest
 
 from mm.engine import GameConfig
 from mm.engine.decisions import DecisionRequest, Statement
-from mm.engine.events import BidPlaced, Event, GameEnded, StatementMade
+from mm.engine.events import BidPlaced, Event, GameEnded, OpenFloorTimedOut, StatementMade
 from mm.engine.perception import perceived_by
 from mm.engine.state import GameState
 from mm.orchestrator import play_game
-from tests.support import BidRule, StatementRule, name_at_seat, payloads, puppets, seat_of
+from tests.support import (
+    BidRule,
+    StatementRule,
+    keen,
+    may_perceive,
+    name_at_seat,
+    payloads,
+    puppets,
+    seat_of,
+    ticking,
+)
 
 CONFIG = GameConfig(residents=8, murderers=2, max_days=1, seed=4, open_floor_seconds=None)
 
 
 def open_floor(events: list[Event]) -> list[StatementMade]:
     return [s for s in payloads(events, StatementMade, day=1) if s.part == "open_floor"]
-
-
-def keen(name: str, known: GameState) -> int:
-    return 2
 
 
 async def test_the_open_floor_stops_at_its_statement_cap() -> None:
@@ -113,13 +117,14 @@ async def test_a_tie_nobody_was_addressed_in_is_an_even_draw() -> None:
     assert 0.42 < await share_of_ties_won_by_seat_one(None) < 0.58
 
 
-async def test_the_open_floor_stops_when_its_time_is_up() -> None:
-    ticks = count(start=0, step=200)  # each look at the clock finds 200 more seconds gone
+async def test_the_open_floor_stops_when_its_time_is_up_and_everyone_hears_so() -> None:
     config = CONFIG.model_copy(update={"open_floor_seconds": 300})
 
-    result = await play_game(config, puppets(bids=keen), clock=lambda: next(ticks))
+    result = await play_game(config, puppets(bids=keen), clock=ticking(200))
 
     assert len(open_floor(result.events)) == 1
+    timed_out = next(e for e in result.events if isinstance(e.payload, OpenFloorTimedOut))
+    assert all(may_perceive(timed_out, r.name) for r in result.state.residents)
 
 
 async def test_each_bid_is_perceived_only_by_its_bidder() -> None:

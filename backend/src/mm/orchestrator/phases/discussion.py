@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 from mm.engine import Phase
 from mm.engine.decisions import Bid, DecisionKind, DecisionRequest, Statement, StatementPart
-from mm.engine.discussion import open_floor_over, speaker_for
+from mm.engine.discussion import open_floor_limit, speaker_for
 from mm.engine.events import BidPlaced, OpenFloorTimedOut, StatementMade
 from mm.engine.rules import named, trimmed
 
@@ -34,9 +34,9 @@ async def _open_floor(game: "Game", last: StatementMade | None) -> None:
     started = game.clock()
     statements_made = quiet_turns = 0
     while True:
-        out_of_time = game.out_of_time(started, game.config.open_floor_seconds)
-        if open_floor_over(game.config, statements_made, quiet_turns, out_of_time):
-            if out_of_time and not open_floor_over(game.config, statements_made, quiet_turns):
+        out_of_time = game.open_floor_out_of_time(started)
+        if limit := open_floor_limit(game.config, statements_made, quiet_turns, out_of_time):
+            if limit == "time":
                 await game.append(OpenFloorTimedOut())
             return
         requests = [DecisionRequest(DecisionKind.BID, name) for name in game.state.living]

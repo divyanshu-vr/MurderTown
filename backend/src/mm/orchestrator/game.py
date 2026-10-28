@@ -57,6 +57,7 @@ INTERNAL_ERROR = "the game stopped on an internal error"
 """What Spectators are told when the game crashes; the details stay in the server's logs."""
 
 DIVERGED = "resuming the game did not reproduce its log"
+"""What Spectators are told when a resumed game makes an event different from the stored one."""
 
 
 class GameHaltedError(Exception):
@@ -154,10 +155,15 @@ class Game:
 
     async def abort(self, aborted: GameAborted, decision_id: str | None = None) -> None:
         """End the log with an abort, so Spectators see the game stop and why. An abort for a
-        decision names it, so the Mind inspector can explain it. A resumed game that stops
-        while still replaying puts the abort right after the log it had stored."""
-        self.log.stop_replaying()
-        await self.log.append(aborted, decision_id=decision_id)
+        decision names it, so the Mind inspector can explain it.
+
+        A resumed game replaying up to an abort it had stored makes that same abort again.
+        If its stored log went on instead, the log goes back to it and the abort follows.
+        """
+        try:
+            await self.log.append(aborted, decision_id=decision_id)
+        except ReplayDivergedError:
+            await self.log.append(aborted, decision_id=decision_id)
         logger.warning("game aborted", resident=aborted.resident, reason=aborted.reason)
 
     async def append(self, payload: EventPayload, cause: Decided[Decision] | None = None) -> Event:
@@ -230,12 +236,13 @@ class Game:
         self._decisions_asked += 1
         return replace(request, id=f"d{self._decisions_asked}")
 
-    def out_of_time(self, started: float, limit: int | None) -> bool:
-        """Whether `limit` seconds have passed since `started`. A replay follows what the
-        game recorded instead, since its clock reads differently."""
+    def open_floor_out_of_time(self, started: float) -> bool:
+        """Whether the Open floor's time limit has passed since `started`. A replay follows
+        what the game recorded instead, since its clock reads differently."""
+        limit = self.config.open_floor_seconds
         if limit is None:
             return False
-        if self.log.replaying and (upcoming := self.log.upcoming()):
+        if upcoming := self.log.upcoming():
             return isinstance(upcoming.payload, OpenFloorTimedOut)
         return self.clock() - started >= limit
 

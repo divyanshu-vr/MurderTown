@@ -1,14 +1,14 @@
 """Resuming a game after the process stopped: the game replays from its seed and ends with
 exactly the log it would have had.
 
-Seam 1 kills a game right after it stored an event, as a crash would, or halts it as a
-graceful shutdown does, and resumes it from the events stored so far. Seam 2 does the
-same with a fake model, whose recorded calls answer the replay.
+Seam 1 crashes a game right after it stored an event, or halts it as a graceful shutdown
+does, and resumes it from the events stored so far. Seam 2 does the same with a fake
+model, whose recorded calls answer the replay. The transport tests stop a server mid-game
+and start another on the same database.
 """
 
 import asyncio
 from collections.abc import Callable, Sequence
-from itertools import count
 
 import pytest
 from fastapi.testclient import TestClient
@@ -21,12 +21,12 @@ from mm.agents import (
     llm_agents,
     scripted_bots,
 )
-from mm.api.live_games import BrainsFor
 from mm.engine import GameConfig
 from mm.engine.decisions import DecisionKind
 from mm.engine.events import (
     BallotCast,
     BidPlaced,
+    DecisionFellBack,
     Event,
     GameAborted,
     OpenFloorTimedOut,
@@ -37,41 +37,59 @@ from mm.llm import ModelReply, ModelRequest
 from mm.orchestrator import EventObserver, GameHaltedError, play_game
 from mm.orchestrator.log import ReplayDivergedError
 from tests.conftest import serving, start_game, wait_until, wait_until_finished
-from tests.support import FakeModel, answer_kind, model_answer, puppets, sensible_answer
+from tests.support import (
+    FakeModel,
+    agents_on,
+    answer_kind,
+    keen,
+    model_answer,
+    puppets,
+    sensible_answer,
+    ticking,
+)
 
 CONFIG = GameConfig(residents=8, murderers=2, max_days=3, seed=4)
 
 
-class Killed(BaseException):
+class Crashed(BaseException):
     """The process died. Not an `Exception`: nothing in the game gets to clean up after it."""
 
 
+def never(call: ModelCall) -> bool:
+    return False
+
+
 class Process:
-    """What one run of the game stored before it died. Once dead, it stores nothing more."""
+    """What one run of a game stored before it crashed. Once crashed, it stores nothing more."""
 
     def __init__(self) -> None:
         self.events: list[Event] = []
         self.calls: list[ModelCall] = []
-        self.dead = False
+        self.crashed = False
 
-    def die_if(self, dies: bool) -> None:
-        if self.dead or dies:
-            self.dead = True
-            raise Killed
+    def alive(self) -> None:
+        if self.crashed:
+            raise Crashed
 
-    def store(self, dies_at: int | None = None) -> EventObserver:
+    def crash(self) -> None:
+        self.crashed = True
+        raise Crashed
+
+    def store(self, crashes_at: int | None = None) -> EventObserver:
         async def store(event: Event) -> None:
-            self.die_if(False)
+            self.alive()
             self.events.append(event)
-            self.die_if(event.seq == dies_at)
+            if event.seq == crashes_at:
+                self.crash()
 
         return store
 
-    def record(self, dies_after: Callable[[ModelCall], bool]) -> CallRecorder:
+    def record(self, crashes_after: Callable[[ModelCall], bool] = never) -> CallRecorder:
         async def record(call: ModelCall) -> None:
-            self.die_if(False)
+            self.alive()
             self.calls.append(call)
-            self.die_if(dies_after(call))
+            if crashes_after(call):
+                self.crash()
 
         return record
 
@@ -80,17 +98,15 @@ def logged(events: Sequence[Event]) -> list[object]:
     return [event.model_dump(mode="json") for event in events]
 
 
-async def killed_after(seq: int, brains: BrainFactory) -> Process:
-    """What a game had stored when it was killed, right after storing event `seq`."""
+async def crashed_after(seq: int, brains: BrainFactory, config: GameConfig = CONFIG) -> Process:
+    """What a game had stored when it crashed, right after storing event `seq`."""
     process = Process()
-    with pytest.raises(Killed):
-        await play_game(CONFIG, brains, observers=[process.store(dies_at=seq)])
+    with pytest.raises(Crashed):
+        await play_game(config, brains, observers=[process.store(crashes_at=seq)])
     return process
 
 
-async def first_seq_of(kind: str, brains: BrainFactory) -> int:
-    """Where an event of this type first happens in an uninterrupted game."""
-    events = (await play_game(CONFIG, brains)).events
+def first_seq_of(kind: str, events: Sequence[Event]) -> int:
     return next(event.seq for event in events if event.payload.type == kind)
 
 
@@ -99,20 +115,20 @@ SOURCES: dict[str, Callable[[], BrainFactory]] = {
     "puppets": lambda: puppets(talks={1: {0: [1]}}),
 }
 
-KILLED_IN = ["statement_made", "ballot_cast", "conversation_message_posted", "kill_vote_cast"]
+CRASHED_IN = ["statement_made", "ballot_cast", "conversation_message_posted", "kill_vote_cast"]
 
 
 # Seam 1
 
 
 @pytest.mark.parametrize("source", SOURCES)
-@pytest.mark.parametrize("killed_in", KILLED_IN)
-async def test_a_game_killed_mid_phase_resumes_to_the_log_it_would_have_had(
-    source: str, killed_in: str
+@pytest.mark.parametrize("crashed_in", CRASHED_IN)
+async def test_a_game_that_crashed_mid_phase_resumes_to_the_log_it_would_have_had(
+    source: str, crashed_in: str
 ) -> None:
     brains = SOURCES[source]
     uninterrupted = (await play_game(CONFIG, brains())).events
-    stored = (await killed_after(await first_seq_of(killed_in, brains()), brains())).events
+    stored = (await crashed_after(first_seq_of(crashed_in, uninterrupted), brains())).events
     after = Process()
 
     resumed = await play_game(CONFIG, brains(), observers=[after.store()], replay=stored)
@@ -132,9 +148,8 @@ async def test_a_game_halted_mid_batch_stops_cleanly_and_resumes_to_the_same_log
             halt.set()  # the rest of the ballots are already asked: they finish
 
     with pytest.raises(GameHaltedError):
-        await play_game(
-            CONFIG, brains(), observers=[before.store(), halt_at_first_ballot], halt=halt
-        )
+        observers = [before.store(), halt_at_first_ballot]
+        await play_game(CONFIG, brains(), observers=observers, halt=halt)
     resumed = await play_game(CONFIG, brains(), replay=before.events)
 
     assert not any(isinstance(e.payload, GameAborted) for e in before.events)
@@ -143,7 +158,8 @@ async def test_a_game_halted_mid_batch_stops_cleanly_and_resumes_to_the_same_log
 
 async def test_a_replay_that_differs_from_the_stored_log_is_aborted_right_after_it() -> None:
     brains = SOURCES["scripted bots"]
-    stored = (await killed_after(await first_seq_of("ballot_cast", brains()), brains())).events
+    uninterrupted = (await play_game(CONFIG, brains())).events
+    stored = (await crashed_after(first_seq_of("ballot_cast", uninterrupted), brains())).events
     changed = next(e for e in stored if isinstance(e.payload, StatementMade))
     altered: Payload = changed.payload.model_copy(update={"text": "Not what was said."})
     tampered = [e.model_copy(update={"payload": altered}) if e is changed else e for e in stored]
@@ -159,70 +175,74 @@ async def test_a_replay_that_differs_from_the_stored_log_is_aborted_right_after_
     assert abort.payload.reason == "resuming the game did not reproduce its log"
 
 
-def ticking(seconds_per_look: int) -> Callable[[], float]:
-    looks = count(start=0, step=seconds_per_look)
-    return lambda: next(looks)
-
-
 KEEN = GameConfig(residents=6, murderers=1, max_days=1, seed=4, open_floor_seconds=300)
 
 
-def keen(name: str, known: object) -> int:
-    return 2
-
-
-def keen_puppets() -> BrainFactory:
-    """Every Resident always wants to speak, so only the time limit ends the Open floor."""
-    return puppets(bids=keen)
-
-
 async def test_an_open_floor_that_ran_out_of_time_does_so_again_when_resumed() -> None:
-    brains = keen_puppets
-    timed = await play_game(KEEN, brains(), clock=ticking(200))
-    timed_out = next(e.seq for e in timed.events if isinstance(e.payload, OpenFloorTimedOut))
+    timed = await play_game(KEEN, puppets(bids=keen), clock=ticking(200))
+    timed_out = first_seq_of("open_floor_timed_out", timed.events)
     process = Process()
-    with pytest.raises(Killed):
-        await play_game(KEEN, brains(), observers=[process.store(timed_out)], clock=ticking(200))
+    with pytest.raises(Crashed):
+        observers = [process.store(timed_out)]
+        await play_game(KEEN, puppets(bids=keen), observers=observers, clock=ticking(200))
 
-    frozen = await play_game(KEEN, brains(), clock=lambda: 0.0, replay=process.events)
+    frozen = await play_game(KEEN, puppets(bids=keen), clock=ticking(0), replay=process.events)
 
     assert logged(frozen.events) == logged(timed.events)
 
 
 async def test_an_open_floor_that_had_time_left_keeps_going_when_resumed_on_a_fast_clock() -> None:
-    brains = keen_puppets
-    patient = await play_game(KEEN, brains(), clock=lambda: 0.0)
-    first_bid = next(e.seq for e in patient.events if isinstance(e.payload, BidPlaced))
-    process = Process()
-    with pytest.raises(Killed):
-        await play_game(KEEN, brains(), observers=[process.store(first_bid)], clock=lambda: 0.0)
+    patient = await play_game(KEEN, puppets(bids=keen), clock=ticking(0))
+    first_bid = first_seq_of("bid_placed", patient.events)
+    stored = (await crashed_after(first_bid, puppets(bids=keen), KEEN)).events
 
-    hasty = await play_game(KEEN, brains(), clock=ticking(10_000), replay=process.events)
+    hasty = await play_game(KEEN, puppets(bids=keen), clock=ticking(10_000), replay=stored)
 
-    replayed = hasty.events[: len(process.events)]  # the stored Turn did not time out, so ...
-    assert logged(replayed) == logged(process.events)  # ... the replay did not either
-    assert any(isinstance(e.payload, OpenFloorTimedOut) for e in hasty.events[len(replayed) :])
+    assert isinstance(stored[-1].payload, BidPlaced)  # the stored Turn did not time out, so ...
+    assert logged(hasty.events[: len(stored)]) == logged(stored)  # ... the replay did not either
+    assert any(isinstance(e.payload, OpenFloorTimedOut) for e in hasty.events[len(stored) :])
 
 
 # Seam 2: a fake model, whose recorded calls answer the replay
 
-
-def never(call: ModelCall) -> bool:
-    return False
+Respond = Callable[[ModelRequest], ModelReply]
 
 
 def agents(
     model: FakeModel,
     process: Process,
-    replay: Sequence[ModelCall] = (),
-    dies_after: Callable[[ModelCall], bool] = never,
+    recorded: Sequence[ModelCall] = (),
+    crashes_after: Callable[[ModelCall], bool] = never,
 ) -> BrainFactory:
-    record = process.record(dies_after)
-    return llm_agents(model, AgentSettings(), record, CONFIG.seed, replay=replay)
+    record = process.record(crashes_after)
+    return llm_agents(model, AgentSettings(), record, CONFIG.seed, recorded=recorded)
 
 
-def keyed(calls: Sequence[ModelCall]) -> set[tuple[str, int]]:
-    return {(call.decision_id, call.attempt) for call in calls}
+async def crash_and_resume(
+    respond: Respond,
+    crashes_at: Callable[[list[Event]], int] | None = None,
+    crashes_after: Callable[[ModelCall], bool] = never,
+) -> tuple[list[Event], Process, Process, Process, FakeModel]:
+    """Play a game through, then the same game until it crashes, then resume it, checking the
+    resumed game ends with the uninterrupted log. Returns that log, what the full, crashed and
+    resumed runs recorded, and the model the resumed run asked."""
+    full = Process()
+    uninterrupted = (await play_game(CONFIG, agents(FakeModel(respond), full))).events
+    before = Process()
+    seq = crashes_at(uninterrupted) if crashes_at else None
+    with pytest.raises(Crashed):
+        brains = agents(FakeModel(respond), before, crashes_after=crashes_after)
+        await play_game(CONFIG, brains, observers=[before.store(crashes_at=seq)])
+    model, after = FakeModel(respond), Process()
+    resumed = await play_game(
+        CONFIG, agents(model, after, recorded=before.calls), replay=before.events
+    )
+    assert logged(resumed.events) == logged(uninterrupted)
+    return uninterrupted, full, before, after, model
+
+
+def keys(calls: Sequence[ModelCall]) -> set[tuple[str, int]]:
+    return {call.key for call in calls}
 
 
 def night_choices_refused(request: ModelRequest) -> ModelReply:
@@ -232,27 +252,17 @@ def night_choices_refused(request: ModelRequest) -> ModelReply:
     return sensible_answer(request)
 
 
-@pytest.mark.parametrize("killed_in", KILLED_IN)
+@pytest.mark.parametrize("crashed_in", CRASHED_IN)
 async def test_a_resumed_game_asks_the_model_only_for_the_calls_it_had_not_recorded(
-    killed_in: str,
+    crashed_in: str,
 ) -> None:
-    full = Process()
-    uninterrupted = (await play_game(CONFIG, agents(FakeModel(night_choices_refused), full))).events
-    seq = next(e.seq for e in uninterrupted if e.payload.type == killed_in)
-    before = Process()
-    with pytest.raises(Killed):
-        brains = agents(FakeModel(night_choices_refused), before)
-        await play_game(CONFIG, brains, observers=[before.store(dies_at=seq)])
-    model, after = FakeModel(night_choices_refused), Process()
-
-    resumed = await play_game(
-        CONFIG, agents(model, after, replay=before.calls), replay=before.events
+    _, full, before, after, model = await crash_and_resume(
+        night_choices_refused, crashes_at=lambda events: first_seq_of(crashed_in, events)
     )
 
-    assert logged(resumed.events) == logged(uninterrupted)
     assert len(model.requests) == len(full.calls) - len(before.calls)
-    assert keyed(before.calls) | keyed(after.calls) == keyed(full.calls)
-    assert not keyed(before.calls) & keyed(after.calls)
+    assert keys(before.calls) | keys(after.calls) == keys(full.calls)
+    assert not keys(before.calls) & keys(after.calls)
 
 
 async def test_a_retry_cut_short_by_the_crash_is_the_only_call_made_again() -> None:
@@ -262,24 +272,44 @@ async def test_a_retry_cut_short_by_the_crash_is_the_only_call_made_again() -> N
             return model_answer({"target": "Nobody", "reason": "a hunch"})
         return sensible_answer(request)
 
-    full = Process()
-    uninterrupted = (await play_game(CONFIG, agents(FakeModel(ballots_retried), full))).events
-    first_try = next(c for c in full.calls if c.kind is DecisionKind.BALLOT)
-    before = Process()
-    with pytest.raises(Killed):
-        brains = agents(
-            FakeModel(ballots_retried), before, dies_after=lambda call: call == first_try
-        )
-        await play_game(CONFIG, brains, observers=[before.store()])
-    model, after = FakeModel(ballots_retried), Process()
+    def first_ballot_tried(call: ModelCall) -> bool:
+        return call.kind is DecisionKind.BALLOT and call.attempt == 1
 
-    resumed = await play_game(
-        CONFIG, agents(model, after, replay=before.calls), replay=before.events
+    _, _, before, after, _ = await crash_and_resume(
+        ballots_retried, crashes_after=first_ballot_tried
     )
 
-    assert logged(resumed.events) == logged(uninterrupted)
-    again = [c for c in after.calls if c.decision_id == first_try.decision_id]
-    assert [(c.attempt, c.outcome) for c in again] == [(2, "ok")]
+    (first_try,) = [call for call in before.calls if first_ballot_tried(call)]
+    again = [call for call in after.calls if call.decision_id == first_try.decision_id]
+    assert [(call.attempt, call.outcome) for call in again] == [(2, "ok")]
+
+
+async def test_a_fallback_reason_that_quoted_a_hidden_detail_replays_as_it_was_written() -> None:
+    def ballots_name_a_file(request: ModelRequest) -> ModelReply:
+        if answer_kind(request) is DecisionKind.BALLOT:
+            return model_answer({"target": r"C:\Users\host\notes.txt", "reason": "a hunch"})
+        return sensible_answer(request)
+
+    uninterrupted, *_ = await crash_and_resume(
+        ballots_name_a_file, crashes_at=lambda events: first_seq_of("ballot_cast", events)
+    )
+
+    reasons = [e.payload.reason for e in uninterrupted if isinstance(e.payload, DecisionFellBack)]
+    assert reasons
+    assert all("[hidden]" in reason and "Users" not in reason for reason in reasons)
+
+
+async def test_a_game_that_crashed_right_after_its_abort_resumes_to_that_one_abort() -> None:
+    def statements_time_out(request: ModelRequest) -> ModelReply:
+        if answer_kind(request) is DecisionKind.STATEMENT:
+            return ModelReply.failure("no answer within 90 seconds", outcome="timeout")
+        return sensible_answer(request)
+
+    uninterrupted, *_ = await crash_and_resume(
+        statements_time_out, crashes_at=lambda events: first_seq_of("game_aborted", events)
+    )
+
+    assert sum(isinstance(e.payload, GameAborted) for e in uninterrupted) == 1
 
 
 # Transport: a server stops mid-game, and the next one resumes it
@@ -288,34 +318,25 @@ SERVED = {"residents": 8, "murderers": 2, "max_days": 3, "seed": 4, "open_floor_
 
 
 class UnhurriedModel(FakeModel):
-    """A fake model that takes a moment to answer, so a game is still going when we stop."""
+    """A fake model that takes a moment to answer, so a game is still going when the server
+    stops. Each call counts as soon as it is made, so one cut off part-way counts too."""
 
     async def complete(self, request: ModelRequest) -> ModelReply:
+        self.requests.append(request)
         await asyncio.sleep(0.005)
-        return await super().complete(request)
-
-
-def agents_on(model: FakeModel) -> BrainsFor:
-    def brains_for(
-        config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
-    ) -> BrainFactory:
-        return llm_agents(model, AgentSettings(), record, config.seed, replay=replay)
-
-    return brains_for
+        return self.respond(request)
 
 
 def uninterrupted_game() -> tuple[list[object], int]:
     """The log a served game would have without stopping, and how many model calls it makes."""
     process = Process()
-    config = GameConfig(**SERVED)
-    brains = llm_agents(FakeModel(), AgentSettings(), process.record(never), config.seed)
-    result = asyncio.run(play_game(config, brains))
+    result = asyncio.run(play_game(GameConfig(**SERVED), agents(FakeModel(), process)))
     return logged(result.events), len(process.calls)
 
 
-def stopped_mid_game(database_url: str, brains_for: BrainsFor) -> tuple[str, list[object]]:
+def stopped_mid_game(database_url: str, model: FakeModel) -> tuple[str, list[object]]:
     """A game whose server stopped while it was going, and the events it had stored."""
-    with serving(database_url, brains_for, shutdown_grace_seconds=5) as client:
+    with serving(database_url, agents_on(model), shutdown_grace_seconds=5) as client:
         game_id = start_game(client, SERVED)
         wait_until(lambda: client.get(f"/games/{game_id}").json()["last_seq"] >= 80, "got going")
     with serving(database_url, resume_on_boot=False) as client:
@@ -336,7 +357,7 @@ def test_a_game_whose_server_stops_mid_game_resumes_when_the_next_one_starts(
 ) -> None:
     expected, calls_needed = uninterrupted_game()
     first, second = UnhurriedModel(), UnhurriedModel()
-    game_id, stored = stopped_mid_game(database_url, agents_on(first))
+    game_id, stored = stopped_mid_game(database_url, first)
 
     with serving(database_url, agents_on(second)) as client:
         wait_until_finished(client, game_id)
@@ -354,10 +375,10 @@ def test_a_game_whose_server_stops_mid_game_resumes_when_the_next_one_starts(
 def test_a_game_that_resumes_differently_is_aborted_right_after_its_stored_log(
     database_url: str,
 ) -> None:
-    game_id, stored = stopped_mid_game(database_url, agents_on(UnhurriedModel()))
+    game_id, stored = stopped_mid_game(database_url, UnhurriedModel())
 
     def another_town(
-        config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
+        config: GameConfig, record: CallRecorder, recorded: Sequence[ModelCall]
     ) -> BrainFactory:
         return scripted_bots(config.seed + 1)  # not the Agents that played it
 

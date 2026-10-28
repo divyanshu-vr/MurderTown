@@ -35,8 +35,7 @@ def create_app(
         store, bus = GameStore(engine), InProcessBus()
         games = LiveGames(store, bus, brains_for)
         app.state.services = Services(store=store, bus=bus, games=games)
-        if settings.resume_on_boot:
-            await games.resume_unfinished()
+        await games.unfinished_at_start(resume=settings.resume_on_boot)
         yield
         await games.shutdown(settings.shutdown_grace_seconds)
         await engine.dispose()

@@ -4,14 +4,12 @@ The mind endpoint shows one Resident's mind as of a moment in the game; the
 explain endpoint shows the model attempts behind the decision that caused an event.
 """
 
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterator
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
 
-from mm.agents import AgentSettings, BrainFactory, CallRecorder, ModelCall, llm_agents
-from mm.engine import GameConfig
 from mm.engine.decisions import DecisionKind, Suspicion
 from mm.engine.events import (
     BallotCast,
@@ -26,7 +24,14 @@ from mm.engine.events import (
 from mm.llm import ModelReply, ModelRequest
 from mm.orchestrator.narrator import NARRATOR
 from tests.conftest import serving, start_game, wait_until_finished
-from tests.support import FakeModel, answer_kind, may_perceive, model_answer, sensible_answer
+from tests.support import (
+    FakeModel,
+    agents_on,
+    answer_kind,
+    may_perceive,
+    model_answer,
+    sensible_answer,
+)
 
 CONFIG = {"residents": 8, "murderers": 2, "max_days": 2, "seed": 4}
 
@@ -132,16 +137,9 @@ def leaky_first_ballots(request: ModelRequest) -> ModelReply:
             return sensible_answer(request)
 
 
-def fake_agents(
-    config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
-) -> BrainFactory:
-    model = FakeModel(leaky_first_ballots)
-    return llm_agents(model, AgentSettings(), record, config.seed, replay=replay)
-
-
 @pytest.fixture
 def agents_client(database_url: str) -> Iterator[TestClient]:
-    with serving(database_url, fake_agents) as test_client:
+    with serving(database_url, agents_on(FakeModel(leaky_first_ballots))) as test_client:
         yield test_client
 
 

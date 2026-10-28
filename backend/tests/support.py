@@ -5,11 +5,13 @@ import json
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
+from itertools import count
 from random import Random
 from typing import Any
 
-from mm.agents import AgentSettings, Brain, BrainFactory, ModelCall, llm_agents
+from mm.agents import AgentSettings, Brain, BrainFactory, CallRecorder, ModelCall, llm_agents
 from mm.agents.scripted import ScriptedBot
+from mm.api.live_games import BrainsFor
 from mm.engine import GameConfig, Resident, Role
 from mm.engine.decisions import (
     SKIP,
@@ -64,6 +66,17 @@ Talks = Mapping[int, Mapping[int, Sequence[int]]]
 
 def quiet(name: str, known: GameState) -> int:
     return 0
+
+
+def keen(name: str, known: GameState) -> int:
+    """Every Resident always wants to speak, so only a cap or the clock ends the Open floor."""
+    return 2
+
+
+def ticking(seconds_per_look: float) -> Callable[[], float]:
+    """A clock that finds this many more seconds gone each time it is read."""
+    looks = count(start=0, step=seconds_per_look)
+    return lambda: next(looks)
 
 
 @dataclass(frozen=True)
@@ -329,6 +342,17 @@ async def played_by(model: "FakeModel", config: GameConfig) -> tuple[list[Event]
 
     result = await play_game(config, llm_agents(model, AgentSettings(), record, config.seed))
     return result.events, calls
+
+
+def agents_on(model: "FakeModel") -> BrainsFor:
+    """An API decision source: every Resident an Agent on `model`, resuming from its records."""
+
+    def brains_for(
+        config: GameConfig, record: CallRecorder, recorded: Sequence[ModelCall]
+    ) -> BrainFactory:
+        return llm_agents(model, AgentSettings(), record, config.seed, recorded=recorded)
+
+    return brains_for
 
 
 class FakeModel:

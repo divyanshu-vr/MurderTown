@@ -15,7 +15,7 @@ from claude_agent_sdk import ResultError, ResultMessage, SystemMessage
 from fastapi.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 
-from mm.agents import AgentSettings, Brain, BrainFactory, CallRecorder, ModelCall, llm_agents
+from mm.agents import Brain, BrainFactory, CallRecorder, ModelCall
 from mm.agents.brain import ModelFailureError
 from mm.engine import GameConfig
 from mm.engine.decisions import Answer, DecisionKind, DecisionRequest
@@ -39,6 +39,7 @@ from mm.orchestrator import play_game
 from tests.conftest import serving, start_game, wait_until_finished
 from tests.support import (
     FakeModel,
+    agents_on,
     answer_kind,
     may_perceive,
     model_answer,
@@ -360,13 +361,9 @@ async def test_the_claude_provider_reports_a_failed_isolation_check_as_an_error_
 # Transport: an aborted game, as a Spectator's browser sees it
 
 
-def timing_out(
-    config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
+def crashing(
+    config: GameConfig, record: CallRecorder, recorded: Sequence[ModelCall]
 ) -> BrainFactory:
-    return llm_agents(FakeModel(statements_get(TIMEOUT)), AgentSettings(), record, config.seed)
-
-
-def crashing(config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]) -> BrainFactory:
     return failing(ballots, error=crash)
 
 
@@ -384,7 +381,7 @@ def stream_until_aborted(client: TestClient, game_id: str) -> dict[str, Any]:
 def test_an_aborted_games_stream_ends_with_the_abort_which_explains_the_failed_call(
     database_url: str,
 ) -> None:
-    with serving(database_url, timing_out) as client:
+    with serving(database_url, agents_on(FakeModel(statements_get(TIMEOUT)))) as client:
         game_id = start_game(client, CONFIG.model_dump(mode="json"))
         wait_until_finished(client, game_id)
 

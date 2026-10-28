@@ -23,6 +23,9 @@ class Effort(StrEnum):
 
 Outcome = Literal["ok", "refusal", "timeout", "error"]
 
+CALL_TIMEOUT_S = 90.0
+"""How long a provider waits for one answer before giving up, unless told otherwise."""
+
 
 @dataclass(frozen=True)
 class ModelRequest:

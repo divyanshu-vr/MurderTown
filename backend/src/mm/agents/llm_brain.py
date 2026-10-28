@@ -43,7 +43,7 @@ class AgentSettings:
 
 
 Recorded = Mapping[tuple[str, int], ModelCall]
-"""Model calls a resumed game had already made, by decision id and attempt."""
+"""Model calls a resumed game had already made, by `ModelCall.key`."""
 
 
 class LLMBrain:
@@ -66,8 +66,10 @@ class LLMBrain:
         for attempt in range(1, ATTEMPTS + 1):
             message = prompt.user_message(retry_task(prompt, problem) if problem else None)
             if recorded := self.recorded.get((request.id, attempt)):
-                reply = recorded.as_reply()  # made before the game stopped: not asked again
-                decision, problem, outcome = _interpret(request, reply, own_role)
+                # made before the game stopped, so not asked again; its problem was worked out
+                # from the answer before it was scrubbed, so it is taken as recorded too
+                decision, _, _ = _interpret(request, recorded.as_reply(), own_role)
+                problem, outcome = recorded.problem, recorded.outcome
             else:
                 decision, problem, outcome = await self._attempt(
                     request, attempt, prompt.system, message, own_role
@@ -180,18 +182,18 @@ def llm_agents(
     settings: AgentSettings,
     record: CallRecorder,
     seed: int,
-    replay: Sequence[ModelCall] = (),
+    recorded: Sequence[ModelCall] = (),
 ) -> BrainFactory:
     """A factory giving every Resident its own Agent, sharing one provider.
 
     A model with no price is refused here, before the game starts. A resumed game
-    passes the model calls it had recorded as `replay`: those answer again, so no
-    call is made twice.
+    passes the model calls it had `recorded`: those answer again, so no call is made
+    twice.
     """
     price_of(settings.model)
-    recorded = {(call.decision_id, call.attempt): call for call in replay}
+    by_key = {call.key: call for call in recorded}
 
     def make(resident: Resident) -> Brain:
-        return LLMBrain(provider, settings, record, Random(f"{seed}:{resident.name}"), recorded)
+        return LLMBrain(provider, settings, record, Random(f"{seed}:{resident.name}"), by_key)
 
     return make

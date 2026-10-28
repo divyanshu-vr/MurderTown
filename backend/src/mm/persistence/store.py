@@ -122,7 +122,8 @@ class GameStore:
             session.add(ModelCallRow(game_id=game_id, **call.model_dump(mode="json")))
 
     async def calls(self, game_id: str, decision_id: str | None = None) -> list[ModelCall]:
-        """Every model attempt at one decision, in order; or, with no decision, the game's."""
+        """Every model attempt at one decision, in order; or, with no decision, every attempt
+        the game has made."""
         query = select(ModelCallRow).where(ModelCallRow.game_id == game_id)
         if decision_id is not None:
             query = query.where(ModelCallRow.decision_id == decision_id)

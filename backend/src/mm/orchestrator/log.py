@@ -46,8 +46,8 @@ class EventLog:
     def upcoming(self) -> Event | None:
         """While replaying, the stored event that comes next: what the game did at this point
         before it stopped, for decisions the replay cannot make again (such as the clock's)."""
-        seq = len(self.events) + 1
-        return self.replay[seq - 1] if seq <= len(self.replay) else None
+        made = len(self.events)
+        return self.replay[made] if made < len(self.replay) else None
 
     async def append(self, payload: EventPayload, decision_id: str | None = None) -> Event:
         self.state.apply(payload)

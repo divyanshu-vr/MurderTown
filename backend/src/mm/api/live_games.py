@@ -29,7 +29,7 @@ a resumed game's Agents answer again from the calls it had recorded (empty for a
 
 
 def scripted_brains(
-    config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
+    config: GameConfig, record: CallRecorder, recorded: Sequence[ModelCall]
 ) -> BrainFactory:
     return scripted_bots(config.seed)  # scripted bots call no model, so there is nothing to record
 
@@ -46,34 +46,20 @@ class LiveGames:
         self._run(game_id, config)
         return game_id
 
-    async def resume_unfinished(self) -> None:
-        """Start again every game the server left running, from what it had stored."""
+    async def unfinished_at_start(self, resume: bool) -> None:
+        """Resume every game the server left running, or, when told not to, list them."""
         for game in await self.store.unfinished():
-            events = await self.store.events(game.id)
-            calls = await self.store.calls(game.id)
-            logger.info("game resumed", game=game.id, events=len(events), calls=len(calls))
-            self._run(game.id, game.config, events, calls)
+            if resume:
+                self._run(game.id, game.config, resuming=True)
+            else:
+                logger.warning("game left running, not resumed", game=game.id)
 
-    def _run(
-        self,
-        game_id: str,
-        config: GameConfig,
-        replay: Sequence[Event] = (),
-        calls: Sequence[ModelCall] = (),
-    ) -> None:
-        task = asyncio.create_task(
-            self._play(game_id, config, replay, calls), name=f"game-{game_id}"
-        )
+    def _run(self, game_id: str, config: GameConfig, resuming: bool = False) -> None:
+        task = asyncio.create_task(self._play(game_id, config, resuming), name=f"game-{game_id}")
         self._tasks.add(task)
         task.add_done_callback(self._tasks.discard)
 
-    async def _play(
-        self,
-        game_id: str,
-        config: GameConfig,
-        replay: Sequence[Event],
-        calls: Sequence[ModelCall],
-    ) -> None:
+    async def _play(self, game_id: str, config: GameConfig, resuming: bool) -> None:
         async def store(event: Event) -> None:
             await self.store.append_event(game_id, event)
 
@@ -84,6 +70,10 @@ class LiveGames:
             await self.store.record_call(game_id, call)
 
         try:
+            replay = await self.store.events(game_id) if resuming else []
+            calls = await self.store.calls(game_id) if resuming else []
+            if resuming:
+                logger.info("game resumed", game=game_id, events=len(replay), calls=len(calls))
             result = await play_game(
                 config,
                 self.brains_for(config, record, calls),

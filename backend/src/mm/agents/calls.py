@@ -48,9 +48,16 @@ class ModelCall(BaseModel):
     trace_id: str | None
     """The trace of the decision this attempt belongs to, when tracing is on."""
 
+    @property
+    def key(self) -> tuple[str, int]:
+        """Which attempt at which decision this was: unique within a game."""
+        return self.decision_id, self.attempt
+
     def as_reply(self) -> ModelReply:
-        """The reply this call recorded, to answer a resumed game again without the model."""
-        return _replied(self)
+        """The reply this call recorded, to answer a resumed game again without the model.
+        An unusable answer was a usable reply as far as the provider knew."""
+        outcome = "ok" if self.outcome == "invalid" else self.outcome
+        return ModelReply(outcome=outcome, data=self.answer, text=self.raw_text, error=self.problem)
 
 
 class Cost(BaseModel):
@@ -94,13 +101,6 @@ class Cost(BaseModel):
     def __add__(self, other: Self) -> Self:
         counted = ("calls", *self.SUMMED)
         return type(self)(**{name: getattr(self, name) + getattr(other, name) for name in counted})
-
-
-def _replied(call: ModelCall) -> ModelReply:
-    """The reply a call recorded, as the provider gave it. An unusable answer was a usable
-    reply as far as the provider knew."""
-    outcome = "ok" if call.outcome == "invalid" else call.outcome
-    return ModelReply(outcome=outcome, data=call.answer, text=call.raw_text, error=call.problem)
 
 
 def label_generation(span: Span, call: ModelCall) -> None:
