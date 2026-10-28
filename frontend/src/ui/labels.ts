@@ -1,5 +1,5 @@
 /** Every name the interface shows for a domain value, in one place. Vocabulary follows GLOSSARY.md. */
-import type { DecisionKind, PayloadOf, Phase, Role, Side } from "../protocol";
+import type { DecisionKind, ModelCall, PayloadOf, Phase, Role, Side } from "../protocol";
 
 export const phaseLabel: Record<Phase, string> = {
   setup: "Setting up",
@@ -48,4 +48,13 @@ export const decisionLabel: Record<DecisionKind, string> = {
   ballot: "ballot",
   last_words: "last words",
   reflection: "reflection",
+};
+
+/** What came of one model attempt at a decision. */
+export const attemptLabel: Record<ModelCall["outcome"], string> = {
+  ok: "a usable answer",
+  invalid: "an answer the game could not use",
+  refusal: "the model refused",
+  timeout: "no answer in time",
+  error: "the call failed",
 };

@@ -1,7 +1,14 @@
 """Seam 1: the Sheriff's single bullet, fired in the Showdown or, if so set up, at Night."""
 
 from mm.engine import GameConfig, Phase, Role, Side
-from mm.engine.events import Event, GameEnded, PhaseStarted, ResidentDied, SheriffFired
+from mm.engine.events import (
+    Event,
+    GameEnded,
+    PhaseStarted,
+    ResidentDied,
+    SheriffFired,
+    SheriffHeldFire,
+)
 from mm.orchestrator import play_game
 from tests.support import name_at_seat, payloads, puppets, seats_by_role
 
@@ -82,3 +89,11 @@ async def test_the_night_setting_moves_the_shot_from_the_showdown_to_night() -> 
     assert showdown_days(result.events) == []
     (shot,) = [e for e in result.events if isinstance(e.payload, SheriffFired)]
     assert shot.phase is Phase.NIGHT
+
+
+async def test_holding_fire_is_recorded_for_spectators_and_perceived_by_no_resident() -> None:
+    result = await play_game(CONFIG, puppets())
+
+    holds = [e for e in result.events if isinstance(e.payload, SheriffHeldFire)]
+    assert [e.day for e in holds] == showdown_days(result.events)
+    assert all(e.visibility.scope == "spectators" for e in holds)

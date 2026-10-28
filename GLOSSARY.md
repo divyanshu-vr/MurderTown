@@ -150,6 +150,24 @@ _Avoid_: summary, scratchpad
 How strongly a Resident believes another is a Murderer, from 0 to 100, with a reason.
 _Avoid_: trust score, rating
 
+**Dossier**:
+A Resident's latest Suspicion about each other Resident they have formed an opinion of.
+_Avoid_: suspicion list, belief state
+
 **Fallback**:
 The safe default used when a Resident gives no usable answer: silence, a Bid to listen, holding fire, a vote to skip, no Last words, or no notes.
 _Avoid_: default answer, error
+
+### Watching
+
+**Mind inspector**:
+A Spectator's view into one Resident's mind as of the moment being watched: their role, Persona, Notebook, Journal, Dossier and every decision they made.
+_Avoid_: debugger, agent view
+
+**Mystery mode**:
+A way of watching that shows a Spectator only what the whole town saw, with no Mind inspector.
+_Avoid_: hidden mode, fog of war
+
+**Scope**:
+How much of a game a request may see: public scope is only what the whole town saw, full scope is everything.
+_Avoid_: access level, permission

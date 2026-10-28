@@ -48,7 +48,7 @@ describe("the game console", () => {
 
     const roster = screen.getByRole("list", { name: "Residents" });
     const deaths = payloadsOf(events, "resident_died");
-    expect(new Set(deaths.map((death) => death.cause))).toEqual(new Set(["banished", "shot"]));
+    expect(new Set(deaths.map((death) => death.cause))).toEqual(new Set(["banished", "shot", "backfire"]));
     const marks = { banished: "Banished", shot: "Shot", backfire: "Backfire" };
     for (const death of deaths) {
       const row = within(roster).getByRole("listitem", { name: death.resident });

@@ -99,6 +99,17 @@
       "title": "DecisionKind",
       "type": "string"
     },
+    "Effort": {
+      "description": "How hard the model thinks before answering: more effort, slower and dearer answers.",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "max"
+      ],
+      "title": "Effort",
+      "type": "string"
+    },
     "Event": {
       "description": "One entry in a game's log: a payload stamped with its place in the game.",
       "properties": {
@@ -139,6 +150,7 @@
               "resident_died": "#/$defs/ResidentDied",
               "role_assigned": "#/$defs/RoleAssigned",
               "sheriff_fired": "#/$defs/SheriffFired",
+              "sheriff_held_fire": "#/$defs/SheriffHeldFire",
               "statement_made": "#/$defs/StatementMade",
               "vote_resolved": "#/$defs/VoteResolved"
             },
@@ -162,6 +174,9 @@
             },
             {
               "$ref": "#/$defs/SheriffFired"
+            },
+            {
+              "$ref": "#/$defs/SheriffHeldFire"
             },
             {
               "$ref": "#/$defs/BallotCast"
@@ -211,6 +226,37 @@
         "events"
       ],
       "title": "EventPage",
+      "type": "object"
+    },
+    "Explanation": {
+      "description": "The decision behind an event: every model attempt at it, and the fallback if one was used.\n\nA decision made by a scripted bot has no attempts, because no model was asked.",
+      "properties": {
+        "event": {
+          "$ref": "#/$defs/Event"
+        },
+        "attempts": {
+          "items": {
+            "$ref": "#/$defs/ModelCall"
+          },
+          "type": "array"
+        },
+        "fallback_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "event",
+        "attempts",
+        "fallback_reason"
+      ],
+      "title": "Explanation",
       "type": "object"
     },
     "GameConfig-Input": {
@@ -462,6 +508,26 @@
       "title": "GameSummary",
       "type": "object"
     },
+    "JournalEntry": {
+      "properties": {
+        "day": {
+          "type": "integer"
+        },
+        "phase": {
+          "$ref": "#/$defs/Phase"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "day",
+        "phase",
+        "text"
+      ],
+      "title": "JournalEntry",
+      "type": "object"
+    },
     "LastWordsSpoken": {
       "additionalProperties": false,
       "description": "What a banished Resident says before their role is revealed.",
@@ -484,6 +550,196 @@
         "text"
       ],
       "title": "LastWordsSpoken",
+      "type": "object"
+    },
+    "Memory": {
+      "description": "What a Resident carries in mind from one decision to the next.",
+      "properties": {
+        "notebook": {
+          "type": "string"
+        },
+        "journal": {
+          "items": {
+            "$ref": "#/$defs/JournalEntry"
+          },
+          "type": "array"
+        },
+        "dossier": {
+          "items": {
+            "$ref": "#/$defs/Suspicion"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "notebook",
+        "journal",
+        "dossier"
+      ],
+      "title": "Memory",
+      "type": "object"
+    },
+    "Mind": {
+      "description": "One Resident's mind at one moment: who they are, what they remember, what they perceived.",
+      "properties": {
+        "resident": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        },
+        "persona": {
+          "$ref": "#/$defs/Persona"
+        },
+        "teammates": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "memory": {
+          "$ref": "#/$defs/Memory"
+        },
+        "perceived": {
+          "items": {
+            "$ref": "#/$defs/Event"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "resident",
+        "role",
+        "persona",
+        "teammates",
+        "memory",
+        "perceived"
+      ],
+      "title": "Mind",
+      "type": "object"
+    },
+    "ModelCall": {
+      "properties": {
+        "decision_id": {
+          "type": "string"
+        },
+        "resident": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/DecisionKind"
+        },
+        "attempt": {
+          "type": "integer"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "effort": {
+          "$ref": "#/$defs/Effort"
+        },
+        "prompt_version": {
+          "type": "string"
+        },
+        "system": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "enum": [
+                "ok",
+                "refusal",
+                "timeout",
+                "error"
+              ],
+              "type": "string"
+            },
+            {
+              "const": "invalid",
+              "type": "string"
+            }
+          ]
+        },
+        "problem": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "raw_text": {
+          "type": "string"
+        },
+        "answer": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_tokens": {
+          "type": "integer"
+        },
+        "output_tokens": {
+          "type": "integer"
+        },
+        "cache_read_tokens": {
+          "type": "integer"
+        },
+        "cache_write_tokens": {
+          "type": "integer"
+        },
+        "cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "latency_ms": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "decision_id",
+        "resident",
+        "kind",
+        "attempt",
+        "provider",
+        "model",
+        "effort",
+        "prompt_version",
+        "system",
+        "prompt",
+        "outcome",
+        "problem",
+        "raw_text",
+        "answer",
+        "input_tokens",
+        "output_tokens",
+        "cache_read_tokens",
+        "cache_write_tokens",
+        "cost_usd",
+        "latency_ms"
+      ],
+      "title": "ModelCall",
       "type": "object"
     },
     "Persona": {
@@ -709,6 +965,26 @@
         "hit_a_murderer"
       ],
       "title": "SheriffFired",
+      "type": "object"
+    },
+    "SheriffHeldFire": {
+      "additionalProperties": false,
+      "description": "The Sheriff chose not to fire this time and keeps the bullet.\n\nIt is recorded so every decision leaves a mark in the log. Only Spectators\nperceive it: the town learns nothing, and the Sheriff already knows.",
+      "properties": {
+        "type": {
+          "const": "sheriff_held_fire",
+          "default": "sheriff_held_fire",
+          "type": "string"
+        },
+        "sheriff": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "sheriff"
+      ],
+      "title": "SheriffHeldFire",
       "type": "object"
     },
     "Side": {

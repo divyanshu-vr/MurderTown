@@ -87,19 +87,15 @@ class Game:
         if cause is None:
             return await self.log.append(payload)
         event = await self.log.append(payload, decision_id=cause.request.id)
-        await self.report_fallback(cause)
-        return event
-
-    async def report_fallback(self, decided: Decided[Decision]) -> None:
-        """Tell Spectators, once, that a decision was a safe default rather than a real choice."""
-        if decided.fallback_reason and decided.request.id not in self._fallbacks_reported:
-            self._fallbacks_reported.add(decided.request.id)
+        if cause.fallback_reason and cause.request.id not in self._fallbacks_reported:
+            self._fallbacks_reported.add(cause.request.id)
             fell_back = DecisionFellBack(
-                resident=decided.request.resident,
-                kind=decided.request.kind,
-                reason=decided.fallback_reason,
+                resident=cause.request.resident,
+                kind=cause.request.kind,
+                reason=cause.fallback_reason,
             )
-            await self.log.append(fell_back, decision_id=decided.request.id)
+            await self.log.append(fell_back, decision_id=cause.request.id)
+        return event
 
     async def start_phase(self, phase: Phase) -> None:
         day = self.state.day + 1 if phase is Phase.DAWN else self.state.day

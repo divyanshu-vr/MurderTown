@@ -17,3 +17,7 @@ export function payloadsOf<T extends Event["payload"]["type"]>(events: readonly 
     .map((event) => event.payload)
     .filter((payload): payload is PayloadOf<T> => payload.type === type);
 }
+
+export function eventsOf<T extends Event["payload"]["type"]>(events: readonly Event[], type: T) {
+  return events.filter((event): event is Event & { payload: PayloadOf<T> } => event.payload.type === type);
+}

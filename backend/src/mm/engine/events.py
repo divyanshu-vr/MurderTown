@@ -124,6 +124,20 @@ class SheriffFired(Payload):
         return Visibility.everyone()
 
 
+class SheriffHeldFire(Payload):
+    """The Sheriff chose not to fire this time and keeps the bullet.
+
+    It is recorded so every decision leaves a mark in the log. Only Spectators
+    perceive it: the town learns nothing, and the Sheriff already knows.
+    """
+
+    type: Literal["sheriff_held_fire"] = "sheriff_held_fire"
+    sheriff: str
+
+    def visibility(self) -> Visibility:
+        return Visibility.spectators()
+
+
 class BallotCast(Payload):
     """One Resident's ballot, revealed once every ballot of the Vote has been cast."""
 
@@ -215,6 +229,7 @@ EventPayload = Annotated[
     | BidPlaced
     | StatementMade
     | SheriffFired
+    | SheriffHeldFire
     | BallotCast
     | VoteResolved
     | LastWordsSpoken

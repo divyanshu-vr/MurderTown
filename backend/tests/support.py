@@ -62,7 +62,7 @@ class Puppet:
     """A test decision source that does exactly what a test scripts.
 
     By default it bids 0, holds fire and votes to skip. Unscripted Statements,
-    last words and reflections come from a scripted bot.
+    last words and reflections come from a scripted bot that never lapses.
     """
 
     ballots: Script = field(default_factory=dict)
@@ -90,7 +90,13 @@ class Puppet:
             case DecisionKind.STATEMENT if self.says:
                 return Answer(self.says(request, known))
             case _:
-                return await ScriptedBot(Random(me)).decide(request, view)
+                return await ScriptedBot(Random(me), lapses=False).decide(request, view)
+
+
+def may_perceive(event: Event, resident: str) -> bool:
+    """The visibility rule, restated independently of the code under test."""
+    scope = event.visibility.scope
+    return scope == "everyone" or (scope == "residents" and resident in event.visibility.residents)
 
 
 def seat_of(state: GameState) -> dict[str, int]:

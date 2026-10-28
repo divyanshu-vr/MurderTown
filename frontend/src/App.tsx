@@ -1,3 +1,7 @@
+import { useMemo } from "react";
+
+import { explainer } from "./net/explain";
+import type { Scope } from "./net/followGame";
 import { useFollowedGame } from "./net/useFollowedGame";
 import { GameConsole } from "./ui/GameConsole";
 
@@ -10,7 +14,9 @@ export function App() {
 
 function LiveGame({ gameId }: { gameId: string }) {
   const { events, connection } = useFollowedGame(gameId);
-  return <GameConsole events={events} connection={connection} />;
+  const scope: Scope = new URLSearchParams(window.location.search).get("scope") === "public" ? "public" : "full";
+  const explain = useMemo(() => (scope === "full" ? explainer(gameId) : undefined), [gameId, scope]);
+  return <GameConsole events={events} connection={connection} explain={explain} scope={scope} />;
 }
 
 function Welcome() {

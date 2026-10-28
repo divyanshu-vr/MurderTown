@@ -4,14 +4,15 @@ Every decision, whatever its kind, goes the same way: build the prompt from
 what the Resident perceived, call the model, read the answer, and retry once
 with the problem quoted if it is unusable. If it still is, or the model
 refused or timed out, a safe default is used and the reason is reported. Each
-attempt is recorded before the decision is returned.
+attempt is recorded before the decision is returned, with anything from outside
+the game world hidden, because records are shown to Spectators.
 """
 
 from collections.abc import Sequence
 from dataclasses import dataclass
 from random import Random
 
-from mm.agents.answers import ANSWERS, answer_schema, read_answer
+from mm.agents.answers import ANSWERS, answer_schema, read_answer, scrubbed
 from mm.agents.brain import Brain, BrainFactory
 from mm.agents.calls import CallOutcome, CallRecorder, ModelCall
 from mm.agents.prompting import build_prompt, prompt_version, retry_task
@@ -94,8 +95,8 @@ class LLMBrain:
             prompt=prompt,
             outcome=outcome,
             problem=problem,
-            raw_text=reply.text,
-            answer=reply.data,
+            raw_text=scrubbed(reply.text),
+            answer=scrubbed(reply.data),
             input_tokens=reply.usage.input_tokens,
             output_tokens=reply.usage.output_tokens,
             cache_read_tokens=reply.usage.cache_read_tokens,
@@ -108,11 +109,16 @@ class LLMBrain:
 def _interpret(
     request: DecisionRequest, reply: ModelReply, own_role: Role
 ) -> tuple[Decision | None, str | None, CallOutcome]:
+    """The decision in a reply, or why there is none.
+
+    A problem can quote the model's own words, and it travels into the retry
+    prompt, the call record and the fallback reason, so it is scrubbed too.
+    """
     if reply.outcome != "ok":
-        return None, reply.error or reply.outcome, reply.outcome
+        return None, scrubbed(reply.error or reply.outcome), reply.outcome
     answer = read_answer(request, reply.data, own_role)
     if isinstance(answer, str):
-        return None, answer, "invalid"
+        return None, scrubbed(answer), "invalid"
     return answer, None, "ok"
 
 

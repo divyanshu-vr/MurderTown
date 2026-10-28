@@ -1,16 +1,17 @@
-"""The game store: where games and their event logs are kept."""
+"""The game store: where games, their event logs and their model calls are kept."""
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Literal, cast
 from uuid import uuid4
 
-from sqlalchemy import func, select, text, update
+from sqlalchemy import Select, func, select, text, update
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
+from mm.agents import ModelCall
 from mm.engine import GameConfig, Side
 from mm.engine.events import Event
-from mm.persistence.tables import EventRow, GameRow
+from mm.persistence.tables import EventRow, GameRow, ModelCallRow
 
 GameStatus = Literal["running", "finished", "failed"]
 
@@ -88,12 +89,35 @@ class GameStore:
 
     async def events(self, game_id: str, after: int = 0, limit: int | None = None) -> list[Event]:
         """A game's events with a sequence number above `after`, oldest first."""
-        query = (
-            select(EventRow)
-            .where(EventRow.game_id == game_id, EventRow.seq > after)
-            .order_by(EventRow.seq)
-            .limit(limit)
+        query = select(EventRow).where(EventRow.game_id == game_id, EventRow.seq > after)
+        return await self._events(query.order_by(EventRow.seq).limit(limit))
+
+    async def event(self, game_id: str, seq: int) -> Event | None:
+        query = select(EventRow).where(EventRow.game_id == game_id, EventRow.seq == seq)
+        found = await self._events(query)
+        return found[0] if found else None
+
+    async def caused_by(self, game_id: str, decision_id: str) -> list[Event]:
+        """Every event one decision caused, oldest first."""
+        query = select(EventRow).where(
+            EventRow.game_id == game_id, EventRow.decision_id == decision_id
         )
+        return await self._events(query.order_by(EventRow.seq))
+
+    async def record_call(self, game_id: str, call: ModelCall) -> None:
+        async with self._sessions.begin() as session:
+            session.add(ModelCallRow(game_id=game_id, **call.model_dump(mode="json")))
+
+    async def calls(self, game_id: str, decision_id: str) -> list[ModelCall]:
+        """Every model attempt at one decision, in order."""
+        query = select(ModelCallRow).where(
+            ModelCallRow.game_id == game_id, ModelCallRow.decision_id == decision_id
+        )
+        async with self._sessions() as session:
+            rows = (await session.scalars(query.order_by(ModelCallRow.attempt))).all()
+        return [ModelCall.model_validate(row, from_attributes=True) for row in rows]
+
+    async def _events(self, query: Select[EventRow]) -> list[Event]:
         async with self._sessions() as session:
             rows = (await session.scalars(query)).all()
         return [

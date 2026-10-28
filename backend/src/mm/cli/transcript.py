@@ -18,6 +18,7 @@ from mm.engine.events import (
     ResidentDied,
     RoleAssigned,
     SheriffFired,
+    SheriffHeldFire,
     StatementMade,
     VoteResolved,
 )
@@ -42,6 +43,8 @@ def describe(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per 
             return f'{speaker}: "{text}"'
         case SheriffFired(sheriff=sheriff, target=target):
             return f"BANG! {sheriff}, the Sheriff, fires at {target}."
+        case SheriffHeldFire(sheriff=sheriff):
+            return f"  ({sheriff}, the Sheriff, holds fire.)"
         case LastWordsSpoken(resident=resident, text=text):
             return f'{resident}\'s last words: "{text}"'
         case BallotCast(voter=voter, target=target):

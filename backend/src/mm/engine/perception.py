@@ -1,6 +1,6 @@
 """Perception: the only way any Resident learns anything.
 
-Every prompt, every bot decision and every Mind inspector view is built from
+Every prompt, every bot decision and the server's mind endpoint are built from
 `perceived_by`, so information isolation is enforced in this one function.
 """
 
@@ -37,9 +37,22 @@ def has_news(view: Sequence[Event], resident: str) -> bool:
 
 
 def briefing(view: Sequence[Event], resident: str) -> RoleAssigned:
-    """The Resident's own role assignment: their role, persona and any teammates."""
+    """The Resident's own role assignment: their role, persona and any teammates.
+
+    Every Resident is given a role before they are ever asked to decide anything.
+    """
+    found = assignment(view, resident)
+    assert found is not None, f"{resident} has not been given a role"
+    return found
+
+
+def assignment(view: Sequence[Event], resident: str) -> RoleAssigned | None:
+    """The Resident's own role assignment, or None if they have not perceived it yet."""
     return next(
-        event.payload
-        for event in view
-        if isinstance(event.payload, RoleAssigned) and event.payload.resident == resident
+        (
+            event.payload
+            for event in view
+            if isinstance(event.payload, RoleAssigned) and event.payload.resident == resident
+        ),
+        None,
     )

@@ -42,7 +42,7 @@ Even with a custom system prompt, about 1,000 tokens of scaffolding reach the mo
 No skill descriptions reach the model, although the session lists Claude Code's built-in skills. There is no switch for the email reminder that does not also change how Claude Code connects to the API, so two guards contain it:
 
 - the system briefing tells every Agent to talk only about the town and never mention email addresses, computers or files;
-- every answer is scrubbed before it can become an event: email addresses and file paths become `[hidden]`. A test covers it.
+- every answer is scrubbed before it can become an event or a stored model call (raw text, parsed answer and any problem quoting it): email addresses and file paths become `[hidden]`. Tests cover both.
 
 ## Settings that matter
 

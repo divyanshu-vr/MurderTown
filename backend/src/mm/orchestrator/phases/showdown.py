@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from mm.engine import Phase
 from mm.engine.decisions import DecisionKind, DecisionRequest, Showdown
+from mm.engine.events import SheriffHeldFire
 from mm.engine.showdown import armed_sheriff, shot_events, shot_options
 
 if TYPE_CHECKING:
@@ -28,7 +29,7 @@ async def sheriff_decides(game: "Game", sheriff: str) -> None:
     choice = await game.decide(request, Showdown)
     target = choice.decision.target
     if not (choice.decision.fire and target):
-        await game.report_fallback(choice)
+        await game.append(SheriffHeldFire(sheriff=sheriff), cause=choice)
         return
     shot, *deaths = shot_events(game.state, sheriff, target)
     await game.append(shot, cause=choice)

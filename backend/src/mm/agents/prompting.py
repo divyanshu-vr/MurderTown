@@ -37,6 +37,7 @@ from mm.engine.events import (
     ResidentDied,
     RoleAssigned,
     SheriffFired,
+    SheriffHeldFire,
     StatementMade,
     VoteResolved,
 )
@@ -47,6 +48,9 @@ from mm.engine.state import GameState
 TEMPLATES = Path(__file__).parent / "prompts"
 
 STATEMENT_CHARACTERS_SHOWN = 600
+
+JOURNAL_ENTRIES_KEPT = 6
+"""How many of the latest journal entries a prompt shows; the notebook carries the rest."""
 
 DECISION_TEMPLATES = {
     DecisionKind.STATEMENT: "decisions/statement.md",
@@ -149,8 +153,9 @@ def _system(known: GameState, assigned: RoleAssigned) -> str:
 
 
 def _memory(memory: Memory) -> str:
-    journal = [f"- Day {e.day}, {e.phase}: {e.text}" for e in memory.journal]
-    suspicions = [f"- {name}: {s.suspicion} ({s.note})" for name, s in memory.suspicions.items()]
+    recent = memory.journal[-JOURNAL_ENTRIES_KEPT:]
+    journal = [f"- Day {e.day}, {e.phase}: {e.text}" for e in recent]
+    suspicions = [f"- {s.resident}: {s.suspicion} ({s.note})" for s in memory.dossier]
     return render(
         "memory.md",
         notebook=memory.notebook or "(empty)",
@@ -217,8 +222,8 @@ def _line(event: Event) -> str | None:
             return None  # shown among the game master's facts instead
         case GameStarted() | RoleAssigned() | ReflectionWritten():
             return None  # shown in the briefing or the Resident's own memory instead
-        case BidPlaced() | GameEnded() | DecisionFellBack():
-            return None  # never needed for a decision
+        case BidPlaced() | SheriffHeldFire() | GameEnded() | DecisionFellBack():
+            return None  # never needed for a decision, or never perceived
         case unknown:
             assert_never(unknown)
 

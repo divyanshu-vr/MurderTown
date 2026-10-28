@@ -1,14 +1,15 @@
 """Live games: each game runs as a background task inside the API process.
 
 Every event is stored first and published second, so a Spectator who reads the
-stored backlog and then follows the live bus can never miss one.
+stored backlog and then follows the live bus can never miss one. Every model
+call is stored too, before the event its decision causes.
 """
 
 import asyncio
 import logging
 from collections.abc import Callable
 
-from mm.agents import BrainFactory, scripted_bots
+from mm.agents import BrainFactory, CallRecorder, ModelCall, scripted_bots
 from mm.engine import GameConfig
 from mm.engine.events import Event
 from mm.orchestrator import play_game
@@ -16,12 +17,12 @@ from mm.persistence import Bus, GameStore
 
 logger = logging.getLogger(__name__)
 
-BrainsFor = Callable[[GameConfig], BrainFactory]
-"""Chooses the decision source for every Resident of a new game."""
+BrainsFor = Callable[[GameConfig, CallRecorder], BrainFactory]
+"""Chooses the decision source for every Resident of a new game; Agents record their calls."""
 
 
-def scripted_brains(config: GameConfig) -> BrainFactory:
-    return scripted_bots(config.seed)
+def scripted_brains(config: GameConfig, record: CallRecorder) -> BrainFactory:
+    return scripted_bots(config.seed)  # scripted bots call no model, so there is nothing to record
 
 
 class LiveGames:
@@ -43,8 +44,12 @@ class LiveGames:
         async def publish(event: Event) -> None:
             await self.bus.publish(game_id, event)
 
+        async def record(call: ModelCall) -> None:
+            await self.store.record_call(game_id, call)
+
         try:
-            result = await play_game(config, self.brains_for(config), observers=[store, publish])
+            brains = self.brains_for(config, record)
+            result = await play_game(config, brains, observers=[store, publish])
         except Exception:
             logger.exception("game %s failed", game_id)
             await self.store.set_status(game_id, "failed")

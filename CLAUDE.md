@@ -5,7 +5,7 @@ A social-deduction game where every Resident is played by an LLM Agent with its 
 ## How the code is shaped
 
 - **The event log is the single source of truth.** True state, each Agent's knowledge, the Spectator view and replays are all folds of one append-only log per game. New behaviour starts as a new event type whose visibility is declared beside its definition (`backend/src/mm/engine/events.py`).
-- **Perception has one door**: `perceived_by` in the engine. Everything shown to a Resident (bot view, prompt, inspector) goes through it, which is what makes information isolation testable.
+- **Perception has one door**: `perceived_by` in the engine. Everything shown to a Resident (bot view, prompt) and the server's mind endpoint go through it, which is what makes information isolation testable. The console's Mind inspector is a Spectator's view, folded from events Spectators already hold (`frontend/src/core/mind.ts` follows the rules of `remember` in `agents/memory.py`).
 - **Backend layers**, top to bottom: cli, api, persistence, orchestrator, agents, engine. A layer imports only from layers below it (`lint-imports` enforces this). The engine is pure: no I/O, clocks or async.
 - **Frontend layers**: `src/core` is pure TypeScript with no React, Phaser or network code (ESLint enforces this); `src/net` talks to the server; `src/ui` renders. Protocol types are generated from the backend, never written by hand.
 - **Determinism**: all randomness comes from the game's seeded `Random`. Decisions collected concurrently have their events appended in seat order, so the same seed and decisions always give the same log.
@@ -29,7 +29,7 @@ A social-deduction game where every Resident is played by an LLM Agent with its 
 - The frontend runs on Node 24, which pnpm downloads per project through `devEngines`; run Node tools through `pnpm`, not the system Node.
 - TypeScript stays on 6.0.x until typescript-eslint supports 7.
 - The Docker Compose Postgres listens on host port 5433, because a locally installed Postgres may own 5432.
-- Live Claude games run on the Host's subscription through the Claude Agent SDK and refuse to start if `ANTHROPIC_API_KEY` is set. Claude Code puts the Host's email into every Agent's context, so every answer is scrubbed before it becomes an event (`docs/agent-sdk-findings.md`).
+- Live Claude games run on the Host's subscription through the Claude Agent SDK and refuse to start if `ANTHROPIC_API_KEY` is set. Claude Code puts the Host's email into every Agent's context, so every answer is scrubbed before it becomes an event or a stored model call (`docs/agent-sdk-findings.md`).
 
 ## Agent skills
 

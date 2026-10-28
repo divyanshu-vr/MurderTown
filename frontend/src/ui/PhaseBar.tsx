@@ -9,7 +9,21 @@ const connectionLabel: Record<ConnectionStatus, string> = {
   ended: "Finished",
 };
 
-export function PhaseBar({ view, connection }: { view: GameView; connection: ConnectionStatus }) {
+/**
+ * The Day, the Phase, Open-floor progress and the outcome, plus the mystery-mode switch.
+ * Without `onMysteryChange` the switch is locked, as it is for a public-scope page.
+ */
+export function PhaseBar({
+  view,
+  connection,
+  mystery,
+  onMysteryChange,
+}: {
+  view: GameView;
+  connection: ConnectionStatus;
+  mystery: boolean;
+  onMysteryChange?: ((on: boolean) => void) | undefined;
+}) {
   return (
     <header className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-stone-800 px-6 py-4">
       <h1 className="font-serif text-2xl text-amber-200">MurderTown</h1>
@@ -27,9 +41,21 @@ export function PhaseBar({ view, connection }: { view: GameView; connection: Con
           <strong>{victoryLabel[view.outcome.winner]}.</strong> {view.outcome.reason}
         </p>
       )}
-      <span className="ml-auto rounded-full border border-stone-700 px-3 py-1 text-sm text-stone-300">
-        {connectionLabel[connection]}
-      </span>
+      <div className="ml-auto flex items-center gap-3">
+        <button
+          type="button"
+          aria-pressed={mystery}
+          disabled={!onMysteryChange}
+          title="Show only what the whole town saw"
+          onClick={() => onMysteryChange?.(!mystery)}
+          className="rounded-full border border-stone-700 px-3 py-1 text-sm text-stone-300 enabled:hover:border-amber-300 aria-pressed:bg-stone-800 aria-pressed:text-amber-200 disabled:opacity-70"
+        >
+          Mystery mode
+        </button>
+        <span className="rounded-full border border-stone-700 px-3 py-1 text-sm text-stone-300">
+          {connectionLabel[connection]}
+        </span>
+      </div>
     </header>
   );
 }

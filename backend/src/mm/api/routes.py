@@ -3,14 +3,16 @@
 from collections.abc import AsyncGenerator
 from contextlib import aclosing
 from dataclasses import dataclass
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, WebSocket
 from pydantic import BaseModel
 
+from mm.agents import ModelCall
+from mm.agents.memory import Mind, mind_of
 from mm.api.live_games import LiveGames
 from mm.engine import GameConfig, Side
-from mm.engine.events import Event, GameEnded
+from mm.engine.events import DecisionFellBack, Event, GameEnded
 from mm.persistence import Bus, GameStatus, GameStore
 
 router = APIRouter()
@@ -45,6 +47,34 @@ class GameSummary(BaseModel):
 
 class EventPage(BaseModel):
     events: list[Event]
+
+
+class Explanation(BaseModel):
+    """The decision behind an event: every model attempt at it, and the fallback if one was used.
+
+    A decision made by a scripted bot has no attempts, because no model was asked.
+    """
+
+    event: Event
+    attempts: list[ModelCall]
+    fallback_reason: str | None
+
+
+Scope = Literal["public", "full"]
+"""How much of a game a request may see: only what the whole town saw, or everything."""
+
+
+def full_scope(scope: Scope = "full") -> None:
+    """Refuse a request for something only full scope may see.
+
+    The one place that decides who may have full scope; an admin token will be
+    required here once the Host has one.
+    """
+    if scope != "full":
+        raise HTTPException(status_code=403, detail="Only full scope may see this")
+
+
+FullScope = Depends(full_scope)
 
 
 @router.get("/healthz")
@@ -85,6 +115,35 @@ async def get_events(
     limit: Annotated[int | None, Query(ge=1, le=5000)] = None,
 ) -> EventPage:
     return EventPage(events=await services.store.events(game_id, after=after, limit=limit))
+
+
+@router.get("/games/{game_id}/residents/{name}/mind", dependencies=[FullScope])
+async def get_mind(
+    game_id: str, name: str, services: ServicesDep, at: Annotated[int | None, Query(ge=1)] = None
+) -> Mind:
+    """One Resident's mind as of sequence number `at` (or now), built as their prompts are.
+
+    Sequence numbers run from 1 without gaps, so the first `at` events are the ones up to `at`.
+    """
+    mind = mind_of(await services.store.events(game_id, limit=at), name)
+    if mind is None:
+        raise HTTPException(status_code=404, detail=f"No Resident called {name} at that moment")
+    return mind
+
+
+@router.get("/games/{game_id}/events/{seq}/explain", dependencies=[FullScope])
+async def explain(game_id: str, seq: int, services: ServicesDep) -> Explanation:
+    store = services.store
+    event = await store.event(game_id, seq)
+    if event is None or event.decision_id is None:
+        raise HTTPException(status_code=404, detail=f"Event {seq} was not caused by a decision")
+    caused = await store.caused_by(game_id, event.decision_id)
+    fallbacks = [e.payload.reason for e in caused if isinstance(e.payload, DecisionFellBack)]
+    return Explanation(
+        event=event,
+        attempts=await store.calls(game_id, event.decision_id),
+        fallback_reason=fallbacks[0] if fallbacks else None,
+    )
 
 
 @router.websocket("/ws/games/{game_id}")

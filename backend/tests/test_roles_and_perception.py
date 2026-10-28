@@ -9,7 +9,7 @@ from mm.engine.decisions import Answer, DecisionRequest
 from mm.engine.events import Event, RoleAssigned
 from mm.engine.perception import perceived_by
 from mm.orchestrator import play_game
-from tests.support import payloads, wrapped
+from tests.support import may_perceive, payloads, wrapped
 
 
 async def test_the_roles_dealt_match_the_configuration() -> None:
@@ -46,12 +46,6 @@ async def test_murderers_learn_their_teammates_and_nobody_else_learns_any() -> N
             assert set(assignment.teammates) == murderers - {assignment.resident}
         else:
             assert assignment.teammates == ()
-
-
-def may_perceive(event: Event, resident: str) -> bool:
-    """The visibility rule, restated independently of the code under test."""
-    scope = event.visibility.scope
-    return scope == "everyone" or (scope == "residents" and resident in event.visibility.residents)
 
 
 async def test_a_decision_source_is_only_ever_shown_what_its_resident_may_perceive() -> None:

@@ -24,6 +24,7 @@ from mm.engine.events import (
     ResidentDied,
     RoleAssigned,
     SheriffFired,
+    SheriffHeldFire,
     StatementMade,
     VoteResolved,
 )
@@ -68,7 +69,7 @@ class GameState:
                 self.winner, self.phase = winner, Phase.ENDED
             case (
                 BidPlaced() | StatementMade() | BallotCast() | VoteResolved() | LastWordsSpoken()
-                | ReflectionWritten() | DecisionFellBack()
+                | SheriffHeldFire() | ReflectionWritten() | DecisionFellBack()
             ):  # fmt: skip
                 pass  # recorded in the log, but they change nothing the state tracks
             case unknown:

@@ -6,6 +6,13 @@
  */
 export type DecisionKind = "statement" | "bid" | "showdown" | "ballot" | "last_words" | "reflection";
 /**
+ * How hard the model thinks before answering: more effort, slower and dearer answers.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Effort".
+ */
+export type Effort = "low" | "medium" | "high" | "max";
+/**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "Phase".
  */
@@ -78,6 +85,7 @@ export interface Event {
     | BidPlaced
     | StatementMade
     | SheriffFired
+    | SheriffHeldFire
     | BallotCast
     | VoteResolved
     | LastWordsSpoken
@@ -193,6 +201,19 @@ export interface SheriffFired {
   hit_a_murderer: boolean;
 }
 /**
+ * The Sheriff chose not to fire this time and keeps the bullet.
+ *
+ * It is recorded so every decision leaves a mark in the log. Only Spectators
+ * perceive it: the town learns nothing, and the Sheriff already knows.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "SheriffHeldFire".
+ */
+export interface SheriffHeldFire {
+  type: "sheriff_held_fire";
+  sheriff: string;
+}
+/**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "VoteResolved".
  */
@@ -278,6 +299,47 @@ export interface EventPage {
   events: Event[];
 }
 /**
+ * The decision behind an event: every model attempt at it, and the fallback if one was used.
+ *
+ * A decision made by a scripted bot has no attempts, because no model was asked.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Explanation".
+ */
+export interface Explanation {
+  event: Event;
+  attempts: ModelCall[];
+  fallback_reason: string | null;
+}
+/**
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "ModelCall".
+ */
+export interface ModelCall {
+  decision_id: string;
+  resident: string;
+  kind: DecisionKind;
+  attempt: number;
+  provider: string;
+  model: string;
+  effort: Effort;
+  prompt_version: string;
+  system: string;
+  prompt: string;
+  outcome: ("ok" | "refusal" | "timeout" | "error") | "invalid";
+  problem: string | null;
+  raw_text: string;
+  answer: {
+    [k: string]: unknown;
+  } | null;
+  input_tokens: number;
+  output_tokens: number;
+  cache_read_tokens: number;
+  cache_write_tokens: number;
+  cost_usd: number | null;
+  latency_ms: number;
+}
+/**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "GameConfig-Input".
  */
@@ -310,4 +372,38 @@ export interface GameSummary {
   config: GameConfig;
   winner: Side | null;
   last_seq: number;
+}
+/**
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "JournalEntry".
+ */
+export interface JournalEntry {
+  day: number;
+  phase: Phase;
+  text: string;
+}
+/**
+ * What a Resident carries in mind from one decision to the next.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Memory".
+ */
+export interface Memory {
+  notebook: string;
+  journal: JournalEntry[];
+  dossier: Suspicion[];
+}
+/**
+ * One Resident's mind at one moment: who they are, what they remember, what they perceived.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Mind".
+ */
+export interface Mind {
+  resident: string;
+  role: Role;
+  persona: Persona;
+  teammates: string[];
+  memory: Memory;
+  perceived: Event[];
 }

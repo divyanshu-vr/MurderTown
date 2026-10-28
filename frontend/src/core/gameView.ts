@@ -39,6 +39,11 @@ export function foldEvents(events: readonly Event[]): GameView {
   return events.reduce(applyEvent, emptyView);
 }
 
+/** Whether the whole town perceived an event. Mystery mode shows only these. */
+export function isPublic(event: Event): boolean {
+  return event.visibility.scope === "everyone";
+}
+
 export function applyEvent(view: GameView, event: Event): GameView {
   const payload = event.payload;
   switch (payload.type) {
@@ -77,6 +82,7 @@ export function applyEvent(view: GameView, event: Event): GameView {
     case "game_ended":
       return { ...view, phase: "ended", outcome: { winner: payload.winner, reason: payload.reason } };
     case "sheriff_fired": // the deaths that follow change the roster
+    case "sheriff_held_fire":
     case "last_words_spoken":
     case "ballot_cast":
     case "vote_resolved":

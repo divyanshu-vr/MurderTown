@@ -9,6 +9,9 @@ import type { Event } from "../protocol";
 
 export type ConnectionStatus = "connecting" | "live" | "reconnecting" | "ended";
 
+/** How much of a game a page may see: only what the whole town saw, or everything. */
+export type Scope = "public" | "full";
+
 export interface GameFollower {
   onEvent(event: Event): void;
   onStatus(status: ConnectionStatus): void;

@@ -90,16 +90,17 @@ def read_answer(
 
 
 def scrub(decision: Decision) -> Decision:
-    return type(decision).model_validate(_scrub(decision.model_dump()))
+    return type(decision).model_validate(scrubbed(decision.model_dump()))
 
 
-def _scrub(value: Any) -> Any:
+def scrubbed(value: Any) -> Any:
+    """Text, or JSON-like data, with anything from outside the game world hidden."""
     if isinstance(value, str):
         return OUTSIDE_WORLD.sub("[hidden]", value)
     if isinstance(value, dict):
-        return {key: _scrub(item) for key, item in value.items()}
+        return {key: scrubbed(item) for key, item in value.items()}
     if isinstance(value, list):
-        return [_scrub(item) for item in value]
+        return [scrubbed(item) for item in value]
     return value
 
 

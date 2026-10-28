@@ -19,6 +19,8 @@ export function describeEvent(event: Event): string | null {
       return `${payload.speaker}: "${payload.text}"`;
     case "sheriff_fired":
       return `${payload.sheriff}, the Sheriff, fires at ${payload.target}!`;
+    case "sheriff_held_fire":
+      return `${payload.sheriff}, the Sheriff, holds fire.`;
     case "last_words_spoken":
       return `${payload.resident}'s last words: "${payload.text}"`;
     case "ballot_cast":

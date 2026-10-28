@@ -1,7 +1,16 @@
 import type { ResidentView } from "../core/gameView";
 import { fateLabel, roleLabel } from "./labels";
 
-export function Roster({ residents }: { residents: readonly ResidentView[] }) {
+/** Every Resident, alive or dead. With `onInspect`, each name opens their Mind inspector. */
+export function Roster({
+  residents,
+  inspected = null,
+  onInspect,
+}: {
+  residents: readonly ResidentView[];
+  inspected?: string | null;
+  onInspect?: ((name: string) => void) | undefined;
+}) {
   return (
     <aside className="border-l border-stone-800 px-6 py-4">
       <h2 className="mb-3 text-sm uppercase tracking-wider text-stone-400">Residents</h2>
@@ -13,7 +22,7 @@ export function Roster({ residents }: { residents: readonly ResidentView[] }) {
             className={`flex items-baseline justify-between gap-3 ${resident.fate ? "text-stone-500" : ""}`}
           >
             <span>
-              <span className={resident.fate ? "line-through" : "font-medium"}>{resident.name}</span>
+              <Name resident={resident} inspected={inspected === resident.name} onInspect={onInspect} />
               <span className="ml-2 text-xs text-stone-500">{resident.occupation}</span>
             </span>
             <span className="text-sm">
@@ -29,5 +38,29 @@ export function Roster({ residents }: { residents: readonly ResidentView[] }) {
         ))}
       </ul>
     </aside>
+  );
+}
+
+function Name({
+  resident,
+  inspected,
+  onInspect,
+}: {
+  resident: ResidentView;
+  inspected: boolean;
+  onInspect?: ((name: string) => void) | undefined;
+}) {
+  const style = resident.fate ? "line-through" : "font-medium";
+  if (!onInspect) return <span className={style}>{resident.name}</span>;
+  return (
+    <button
+      type="button"
+      aria-pressed={inspected}
+      title={`Inspect ${resident.name}'s mind`}
+      onClick={() => onInspect(resident.name)}
+      className={`${style} underline decoration-stone-600 underline-offset-4 hover:text-amber-200 ${inspected ? "text-amber-200" : ""}`}
+    >
+      {resident.name}
+    </button>
   );
 }

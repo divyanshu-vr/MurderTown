@@ -6,8 +6,8 @@ Owns how Spectators and the Host reach games over the network.
 
 **Entry points**
 - `app.py`: `create_app(settings, brains_for)` wires the store, the bus and live games together and runs migrations at startup.
-- `routes.py`: create a game, read its summary, page its events, and `/ws/games/{id}?after=N`, which sends the backlog after `N` and then every new event until the game ends. Health (`/healthz`) and readiness (`/readyz`) checks.
-- `live_games.py`: `LiveGames` runs each game as a background task, storing every event before publishing it.
+- `routes.py`: create a game, read its summary, page its events, and `/ws/games/{id}?after=N`, which sends the backlog after `N` and then every new event until the game ends. For the Mind inspector, `/games/{id}/residents/{name}/mind?at=N` (one Resident's mind as of event `N`) and `/games/{id}/events/{seq}/explain` (the model attempts behind the decision that caused an event). Both need full scope, which `full_scope` alone decides. Health (`/healthz`) and readiness (`/readyz`) checks.
+- `live_games.py`: `LiveGames` runs each game as a background task, storing every event before publishing it and every model call before the event its decision causes. `BrainsFor(config, record)` chooses the decision sources and hands Agents the recorder.
 - `protocol.py`: the protocol as one JSON Schema document, from which the frontend's types are generated.
 - `settings.py`: `MM_*` environment settings.
 

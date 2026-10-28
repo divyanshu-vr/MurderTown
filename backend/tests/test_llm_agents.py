@@ -4,7 +4,7 @@ Each test scripts how the model answers and asserts on what reaches the event
 log and the record of model calls.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from mm.agents import AgentSettings, ModelCall, llm_agents
 from mm.agents.prompting import prompt_version
@@ -256,3 +256,21 @@ async def test_last_words_the_model_refuses_fall_back_to_saying_nothing() -> Non
     (fallback,) = payloads(played.result.events, DecisionFellBack)
     assert words.text == "(says nothing)"
     assert (fallback.kind, fallback.resident) == (DecisionKind.LAST_WORDS, words.resident)
+
+
+async def test_details_from_outside_the_game_never_reach_a_call_record_or_a_fallback() -> None:
+    def respond(request: ModelRequest) -> ModelReply:
+        if answer_kind(request) is DecisionKind.BALLOT:
+            reply = model_answer({"choice": "host@example.com"})
+            return replace(reply, text=reply.text + " see /home/host/notes.txt")
+        return sensible_answer(request)
+
+    played = await play_with(FakeModel(respond))
+
+    records = "\n".join(call.model_dump_json() for call in played.calls)
+    log = "\n".join(event.model_dump_json() for event in played.result.events)
+    assert payloads(played.result.events, DecisionFellBack)
+    for text in (records, log):
+        assert "host@example.com" not in text
+        assert "notes.txt" not in text
+        assert "[hidden]" in text
