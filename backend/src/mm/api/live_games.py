@@ -8,10 +8,14 @@ A game the server left running (it crashed, or was stopped) resumes at the next
 start: it replays from its seed over what it had stored, answering recorded model
 calls from their records, and then goes on. On shutdown, games stop before their
 next decision; decisions already asked finish first, so their calls are recorded.
+
+The Host may pause a game before its next batch of decisions, step it one batch at a
+time, and resume it. A paused game's status says so, so it is still paused after a restart.
 """
 
 import asyncio
 from collections.abc import Callable, Mapping, Sequence
+from enum import StrEnum
 
 import structlog
 
@@ -21,7 +25,7 @@ from mm.agents.lineup import lineup_brains
 from mm.engine import GameConfig
 from mm.engine.events import Event
 from mm.llm import ModelProvider
-from mm.orchestrator import GameHaltedError, play_game
+from mm.orchestrator import GameControls, GameHaltedError, play_game
 from mm.persistence import Bus, GameStatus, GameStore
 
 logger = structlog.get_logger(__name__)
@@ -29,6 +33,19 @@ logger = structlog.get_logger(__name__)
 BrainsFor = Callable[[GameConfig, CallRecorder, Sequence[ModelCall]], BrainFactory]
 """Chooses the decision source for every Resident of a game. Agents record their calls, and
 a resumed game's Agents answer again from the calls it had recorded (empty for a new game)."""
+
+
+class Control(StrEnum):
+    """What the Host may do to a game being played: hold it before its next batch of
+    decisions, let one more batch through a held game, or let it run on."""
+
+    PAUSE = "pause"
+    STEP = "step"
+    RESUME = "resume"
+
+
+class ControlRefusedError(Exception):
+    """The Host asked a game for something it cannot do now."""
 
 
 def lineup_on(providers: Mapping[str, ModelProvider]) -> BrainsFor:
@@ -46,8 +63,12 @@ class LiveGames:
     def __init__(self, store: GameStore, bus: Bus, brains_for: BrainsFor) -> None:
         self.store, self.bus, self.brains_for = store, bus, brains_for
         self._tasks: set[asyncio.Task[None]] = set()
-        self._halt = asyncio.Event()
-        """Set on shutdown: every game stops before its next decision."""
+        self._controls: dict[str, GameControls] = {}
+        """The Host's controls over each game being played, by game."""
+        self._halting = False
+        """Set on shutdown: every game stops before its next decision, even one started later."""
+        self._controlling = asyncio.Lock()
+        """One control at a time, so a game's stored status follows the order they came in."""
 
     async def start(self, config: GameConfig) -> str:
         """Store and start a game. A lineup that cannot be played (a provider not available,
@@ -62,16 +83,59 @@ class LiveGames:
         """Resume every game the server left running, or, when told not to, list them."""
         for game in await self.store.unfinished():
             if resume:
-                self._run(game.id, game.config, resuming=True)
+                self._run(game.id, game.config, resuming=True, paused=game.status == "paused")
             else:
                 logger.warning("game left running, not resumed", game=game.id)
 
-    def _run(self, game_id: str, config: GameConfig, resuming: bool = False) -> None:
-        task = asyncio.create_task(self._play(game_id, config, resuming), name=f"game-{game_id}")
+    def offered(self, game_id: str) -> list[Control]:
+        """What the Host may do to a game now: pause it while it runs; step or resume it while
+        it is paused; nothing once it is over, or if it is not being played here."""
+        controls = self._controls.get(game_id)
+        if controls is None:
+            return []
+        return [Control.STEP, Control.RESUME] if controls.paused else [Control.PAUSE]
+
+    async def control(self, game_id: str, control: Control) -> None:
+        """Pause a game before its next batch of decisions, step a paused one by one batch,
+        or resume it, if the game allows it now."""
+        async with self._controlling:
+            controls = self._controls.get(game_id)
+            if control not in self.offered(game_id) or controls is None:
+                raise ControlRefusedError(f"That game cannot {control} now")
+            match control:
+                case Control.PAUSE:
+                    controls.pause()
+                    await self.store.set_paused(game_id, paused=True)
+                case Control.RESUME:
+                    controls.resume()
+                    await self.store.set_paused(game_id, paused=False)
+                case Control.STEP:
+                    controls.step()
+
+    def _run(
+        self, game_id: str, config: GameConfig, resuming: bool = False, paused: bool = False
+    ) -> None:
+        controls = GameControls(paused=paused)
+        if self._halting:
+            controls.halt()
+        self._controls[game_id] = controls
+        play = self._play(game_id, config, resuming, controls)
+        task = asyncio.create_task(play, name=f"game-{game_id}")
         self._tasks.add(task)
         task.add_done_callback(self._tasks.discard)
 
-    async def _play(self, game_id: str, config: GameConfig, resuming: bool) -> None:
+    async def _play(
+        self, game_id: str, config: GameConfig, resuming: bool, controls: GameControls
+    ) -> None:
+        """Play a game to its end, then let its controls go."""
+        try:
+            await self._play_and_record_the_end(game_id, config, resuming, controls)
+        finally:
+            del self._controls[game_id]
+
+    async def _play_and_record_the_end(
+        self, game_id: str, config: GameConfig, resuming: bool, controls: GameControls
+    ) -> None:
         async def store(event: Event) -> None:
             await self.store.append_event(game_id, event)
 
@@ -92,7 +156,7 @@ class LiveGames:
                 observers=[store, publish],
                 game_id=game_id,
                 replay=replay,
-                halt=self._halt,
+                controls=controls,
             )
         except GameHaltedError:
             logger.info("game halted", game=game_id)  # still running: it resumes next time
@@ -107,10 +171,14 @@ class LiveGames:
     async def shutdown(self, grace_s: float) -> None:
         """Stop every game before its next decision, give the decisions already asked up to
         `grace_s` seconds to finish and be recorded, then cancel whatever is left."""
-        self._halt.set()
-        if not self._tasks:
-            return
-        _, unfinished = await asyncio.wait(self._tasks, timeout=grace_s)
+        self._halting = True
+        for controls in self._controls.values():
+            controls.halt()
+        loop = asyncio.get_running_loop()
+        deadline = loop.time() + grace_s
+        while self._tasks and (left := deadline - loop.time()) > 0:
+            await asyncio.wait(set(self._tasks), timeout=left)  # games started meanwhile too
+        unfinished = set(self._tasks)
         for task in unfinished:
             task.cancel()
         await asyncio.gather(*unfinished, return_exceptions=True)

@@ -9,7 +9,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mm.engine.config import GameConfig
+from mm.engine.config import GameConfig, Rules
 from mm.engine.decisions import DecisionKind, DuskActivity, StatementPart, Suspicion
 from mm.engine.personas import Persona
 from mm.engine.phases import Phase
@@ -21,7 +21,8 @@ PROTOCOL = ConfigDict(frozen=True, json_schema_serialization_defaults_required=T
 
 
 class Visibility(BaseModel):
-    """Who may perceive an event: everyone, a named set of Residents, or Spectators only."""
+    """Who may perceive an event: everyone, a named set of Residents, or no Resident at all
+    (`spectators`). Public scope shows only what everyone perceives; full scope shows it all."""
 
     model_config = PROTOCOL
 
@@ -43,6 +44,11 @@ class Visibility(BaseModel):
     def allows(self, resident: str) -> bool:
         return self.scope == "everyone" or resident in self.residents
 
+    @property
+    def public(self) -> bool:
+        """Whether the whole town perceives it: all that public scope is sent."""
+        return self.scope == "everyone"
+
 
 class Payload(BaseModel):
     """Base for every event payload. Each subclass must say who may perceive it."""
@@ -53,9 +59,22 @@ class Payload(BaseModel):
         raise NotImplementedError(f"{type(self).__name__} must declare its visibility")
 
 
-class GameStarted(Payload):
-    type: Literal["game_started"] = "game_started"
+class GameConfigured(Payload):
+    """Everything the Host chose, seed and lineup included. No Resident perceives it, so only
+    full scope shows it: casting follows from the seed, so knowing it would tell every role."""
+
+    type: Literal["game_configured"] = "game_configured"
     config: GameConfig
+
+    def visibility(self) -> Visibility:
+        return Visibility.spectators()
+
+
+class GameStarted(Payload):
+    """Who lives in the town, and the rules everyone plays by."""
+
+    type: Literal["game_started"] = "game_started"
+    rules: Rules
     residents: tuple[Resident, ...]
 
     def visibility(self) -> Visibility:
@@ -349,25 +368,35 @@ class GameEnded(Payload):
         return Visibility.everyone()
 
 
-class GameAborted(Payload):
-    """The game stopped before either side won: the model gave no answer to a decision, or
-    the game itself failed. A crash names no decision.
+class DecisionUnanswered(Payload):
+    """The model gave no answer at all to a decision, so the game is aborted right after. No
+    Resident perceives it, so only full scope shows it: whose decision it was, and of what
+    kind, could reveal a Night role."""
 
-    `reason` is only the problem, such as a timeout, never the decision itself: a
-    Spectator in mystery mode sees it, and the decision could reveal a Night role.
-    """
-
-    type: Literal["game_aborted"] = "game_aborted"
-    resident: str | None = None
-    kind: DecisionKind | None = None
+    type: Literal["decision_unanswered"] = "decision_unanswered"
+    resident: str
+    kind: DecisionKind
     reason: str
 
     def visibility(self) -> Visibility:
         return Visibility.spectators()
 
 
+class GameAborted(Payload):
+    """The game stopped before either side won: a decision got no answer, or the game itself
+    failed. `reason` is only the problem, such as a timeout, never the decision itself, so the
+    whole town may see the game stop."""
+
+    type: Literal["game_aborted"] = "game_aborted"
+    reason: str
+
+    def visibility(self) -> Visibility:
+        return Visibility.everyone()
+
+
 EventPayload = Annotated[
-    GameStarted
+    GameConfigured
+    | GameStarted
     | RoleAssigned
     | PhaseStarted
     | BidPlaced
@@ -392,6 +421,7 @@ EventPayload = Annotated[
     | ReflectionWritten
     | DecisionFellBack
     | GameEnded
+    | DecisionUnanswered
     | GameAborted,
     Field(discriminator="type"),
 ]

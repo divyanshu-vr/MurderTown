@@ -24,19 +24,21 @@ from mm.engine.events import (
     ConversationMessagePosted,
     ConversationStarted,
     DecisionFellBack,
+    DecisionUnanswered,
     Event,
     GameAborted,
     KillVoteCast,
     PhaseStarted,
     ResidentProtected,
     VictimChosen,
+    Visibility,
 )
 from mm.engine.phases import Phase
 from mm.engine.state import GameState
 from mm.llm import Effort, ModelReply, ModelRequest
 from mm.llm import claude_agent_sdk as sdk
 from mm.orchestrator import play_game
-from tests.conftest import serving, start_game, wait_until_finished
+from tests.conftest import following, serving, start_game, wait_until_finished
 from tests.support import (
     FakeModel,
     agents_on,
@@ -99,6 +101,13 @@ def ballots(request: DecisionRequest) -> bool:
     return request.kind is DecisionKind.BALLOT
 
 
+def unanswered(events: Sequence[Event]) -> tuple[Event, DecisionUnanswered]:
+    """The decision that got no answer, which comes right before the abort."""
+    before_last = events[-2]
+    assert isinstance(before_last.payload, DecisionUnanswered), before_last.payload.type
+    return before_last, before_last.payload
+
+
 def aborted(events: Sequence[Event]) -> tuple[Event, GameAborted]:
     """The game's last event, which must say it was aborted."""
     last = events[-1]
@@ -115,16 +124,20 @@ async def names_at(*seats: int) -> list[str]:
 # Seam 1: decision sources that fail
 
 
-async def test_a_failed_decision_aborts_the_game_naming_who_failed_to_decide_what() -> None:
+async def test_a_failed_decision_aborts_the_game_and_only_spectators_learn_whose_it_was() -> None:
     (voter,) = await names_at(2)
 
     result = await play_game(
         CONFIG, failing(lambda r: r.kind is DecisionKind.BALLOT and r.resident == voter)
     )
 
+    named, failed = unanswered(result.events)
+    assert (failed.resident, failed.kind, failed.reason) == (voter, DecisionKind.BALLOT, NO_ANSWER)
+    assert named.decision_id is not None
+    assert named.visibility == Visibility.spectators()  # whose decision it was could reveal a role
     event, abort = aborted(result.events)
-    assert (abort.resident, abort.kind, abort.reason) == (voter, DecisionKind.BALLOT, NO_ANSWER)
-    assert event.decision_id is not None
+    assert abort.reason == NO_ANSWER
+    assert event.visibility == Visibility.everyone()  # the whole town sees the game stop
     assert payloads(result.events, BallotCast) == []
     assert result.state.phase is Phase.ENDED
     assert result.state.winner is None
@@ -141,8 +154,8 @@ async def test_a_game_that_crashes_still_ends_its_log_with_an_abort_that_names_n
         await play_game(CONFIG, failing(ballots, error=crash), observers=[keep])
 
     _, abort = aborted(logged)
-    assert (abort.resident, abort.kind) == (None, None)
     assert abort.reason == "the game stopped on an internal error"
+    assert payloads(logged, DecisionUnanswered) == []
 
 
 async def test_when_several_decisions_fail_at_once_the_first_asked_is_the_one_reported() -> None:
@@ -155,7 +168,7 @@ async def test_when_several_decisions_fail_at_once_the_first_asked_is_the_one_re
     for _ in range(2):
         brains = failing(ballot_of_either, waits={earlier: 50, later: 0})  # the later fails first
         result = await play_game(CONFIG, brains)
-        assert aborted(result.events)[1].resident == earlier
+        assert unanswered(result.events)[1].resident == earlier
         logs.append([event.model_dump(mode="json") for event in result.events])
     assert logs[0] == logs[1]
 
@@ -163,8 +176,8 @@ async def test_when_several_decisions_fail_at_once_the_first_asked_is_the_one_re
 async def test_a_failure_at_night_leaves_that_night_empty_and_is_never_perceived() -> None:
     result = await play_game(CONFIG, failing(lambda r: r.kind is DecisionKind.PROTECT))
 
-    event, abort = aborted(result.events)
-    assert abort.kind is DecisionKind.PROTECT
+    event, failed = unanswered(result.events)
+    assert failed.kind is DecisionKind.PROTECT
     nightfall = next(
         e.seq
         for e in result.events
@@ -187,7 +200,7 @@ async def test_an_abort_mid_conversation_drops_what_that_wave_said() -> None:
 
     assert payloads(result.events, ConversationStarted)
     assert payloads(result.events, ConversationMessagePosted) == []
-    assert aborted(result.events)[1].kind is DecisionKind.CONVERSATION_MESSAGE
+    assert unanswered(result.events)[1].kind is DecisionKind.CONVERSATION_MESSAGE
 
 
 # Seam 2: a fake model
@@ -231,10 +244,11 @@ async def test_a_model_that_times_out_or_fails_aborts_the_game_at_once(
 ) -> None:
     events, calls = await play_with(respond)
 
-    event, abort = aborted(events)
+    event, named = unanswered(events)
     (failed,) = [call for call in calls if call.decision_id == event.decision_id]
     assert (failed.outcome, failed.attempt, failed.problem) == (outcome, 1, reason)
-    assert (abort.resident, abort.kind, abort.reason) == (failed.resident, failed.kind, reason)
+    assert (named.resident, named.kind, named.reason) == (failed.resident, failed.kind, reason)
+    assert aborted(events)[1].reason == reason
     assert payloads(events, DecisionFellBack) == []
 
 
@@ -248,19 +262,19 @@ async def test_a_retry_that_times_out_aborts_the_game_after_both_attempts_are_re
 
     events, calls = await play_with(respond)
 
-    event, abort = aborted(events)
+    event, named = unanswered(events)
     ballot = [call for call in calls if call.decision_id == event.decision_id]
     assert [call.outcome for call in ballot] == ["invalid", "timeout"]
-    assert abort.kind is DecisionKind.BALLOT
+    assert named.kind is DecisionKind.BALLOT
 
 
 async def test_details_from_outside_the_game_never_reach_an_abort_or_its_record() -> None:
     leaky = r"could not reach host@example.com from C:\Users\host\x.txt"
     events, calls = await play_with(raises(RuntimeError(leaky)))
 
-    event, abort = aborted(events)
+    event, named = unanswered(events)
     (failed,) = [call for call in calls if call.decision_id == event.decision_id]
-    for text in (abort.reason, failed.problem or ""):
+    for text in (named.reason, aborted(events)[1].reason, failed.problem or ""):
         assert "host@example.com" not in text
         assert "C:\\Users" not in text
         assert "[hidden]" in text
@@ -367,18 +381,18 @@ def crashing(
     return failing(ballots, error=crash)
 
 
-def stream_until_aborted(client: TestClient, game_id: str) -> dict[str, Any]:
+def stream_until_aborted(client: TestClient, game_id: str) -> list[dict[str, Any]]:
     """Follow a finished game's stream to its abort, which must also be its end."""
-    with client.websocket_connect(f"/ws/games/{game_id}") as socket:
+    with following(client, game_id) as socket:
         received = [socket.receive_json()]
         while received[-1]["payload"]["type"] != "game_aborted":
             received.append(socket.receive_json())
         with pytest.raises(WebSocketDisconnect):
             socket.receive_json()
-    return received[-1]
+    return received
 
 
-def test_an_aborted_games_stream_ends_with_the_abort_which_explains_the_failed_call(
+def test_an_aborted_games_stream_ends_with_the_abort_after_the_decision_that_explains_it(
     database_url: str,
 ) -> None:
     with serving(database_url, agents_on(FakeModel(statements_get(TIMEOUT)))) as client:
@@ -386,10 +400,10 @@ def test_an_aborted_games_stream_ends_with_the_abort_which_explains_the_failed_c
         wait_until_finished(client, game_id)
 
         assert client.get(f"/games/{game_id}").json()["status"] == "aborted"
-        abort = stream_until_aborted(client, game_id)
-        explained = client.get(f"/games/{game_id}/events/{abort['seq']}/explain").json()
+        *_, named, _ = stream_until_aborted(client, game_id)
+        explained = client.get(f"/games/{game_id}/events/{named['seq']}/explain").json()
 
-    assert abort["visibility"]["scope"] == "spectators"
+    assert named["payload"]["type"] == "decision_unanswered"
     assert [attempt["outcome"] for attempt in explained["attempts"]] == ["timeout"]
     assert explained["fallback_reason"] is None
 
@@ -400,6 +414,6 @@ def test_a_crashed_games_stream_ends_too_and_the_game_is_marked_failed(database_
         wait_until_finished(client, game_id)
 
         assert client.get(f"/games/{game_id}").json()["status"] == "failed"
-        abort = stream_until_aborted(client, game_id)
+        *_, abort = stream_until_aborted(client, game_id)
 
     assert abort["payload"]["reason"] == "the game stopped on an internal error"

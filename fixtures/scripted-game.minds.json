@@ -1,6 +1,6 @@
 [
  {
-  "seq": 150,
+  "seq": 151,
   "mind": {
    "resident": "Elsie",
    "role": "doctor",
@@ -31,7 +31,7 @@
   }
  },
  {
-  "seq": 151,
+  "seq": 152,
   "mind": {
    "resident": "Silas",
    "role": "detective",
@@ -62,7 +62,7 @@
   }
  },
  {
-  "seq": 152,
+  "seq": 153,
   "mind": {
    "resident": "Cyrus",
    "role": "civilian",
@@ -93,7 +93,7 @@
   }
  },
  {
-  "seq": 153,
+  "seq": 154,
   "mind": {
    "resident": "Zane",
    "role": "civilian",
@@ -118,7 +118,7 @@
   }
  },
  {
-  "seq": 154,
+  "seq": 155,
   "mind": {
    "resident": "Yara",
    "role": "sheriff",
@@ -149,7 +149,7 @@
   }
  },
  {
-  "seq": 155,
+  "seq": 156,
   "mind": {
    "resident": "Cora",
    "role": "civilian",
@@ -174,7 +174,7 @@
   }
  },
  {
-  "seq": 156,
+  "seq": 157,
   "mind": {
    "resident": "Iris",
    "role": "civilian",
@@ -205,7 +205,7 @@
   }
  },
  {
-  "seq": 157,
+  "seq": 158,
   "mind": {
    "resident": "Dax",
    "role": "civilian",
@@ -230,7 +230,7 @@
   }
  },
  {
-  "seq": 158,
+  "seq": 159,
   "mind": {
    "resident": "Pia",
    "role": "murderer",
@@ -263,7 +263,7 @@
   }
  },
  {
-  "seq": 159,
+  "seq": 160,
   "mind": {
    "resident": "Otto",
    "role": "civilian",
@@ -288,7 +288,7 @@
   }
  },
  {
-  "seq": 160,
+  "seq": 161,
   "mind": {
    "resident": "Vera",
    "role": "murderer",
@@ -315,7 +315,7 @@
   }
  },
  {
-  "seq": 161,
+  "seq": 162,
   "mind": {
    "resident": "Milo",
    "role": "civilian",
@@ -351,7 +351,7 @@
   }
  },
  {
-  "seq": 193,
+  "seq": 194,
   "mind": {
    "resident": "Elsie",
    "role": "doctor",
@@ -387,7 +387,7 @@
   }
  },
  {
-  "seq": 194,
+  "seq": 195,
   "mind": {
    "resident": "Silas",
    "role": "detective",
@@ -423,7 +423,7 @@
   }
  },
  {
-  "seq": 195,
+  "seq": 196,
   "mind": {
    "resident": "Cyrus",
    "role": "civilian",
@@ -459,7 +459,7 @@
   }
  },
  {
-  "seq": 196,
+  "seq": 197,
   "mind": {
    "resident": "Zane",
    "role": "civilian",
@@ -489,7 +489,7 @@
   }
  },
  {
-  "seq": 197,
+  "seq": 198,
   "mind": {
    "resident": "Yara",
    "role": "sheriff",
@@ -525,7 +525,7 @@
   }
  },
  {
-  "seq": 198,
+  "seq": 199,
   "mind": {
    "resident": "Cora",
    "role": "civilian",
@@ -555,7 +555,7 @@
   }
  },
  {
-  "seq": 199,
+  "seq": 200,
   "mind": {
    "resident": "Dax",
    "role": "civilian",
@@ -585,7 +585,7 @@
   }
  },
  {
-  "seq": 200,
+  "seq": 201,
   "mind": {
    "resident": "Pia",
    "role": "murderer",
@@ -623,7 +623,7 @@
   }
  },
  {
-  "seq": 201,
+  "seq": 202,
   "mind": {
    "resident": "Otto",
    "role": "civilian",
@@ -653,7 +653,7 @@
   }
  },
  {
-  "seq": 202,
+  "seq": 203,
   "mind": {
    "resident": "Vera",
    "role": "murderer",
@@ -685,7 +685,7 @@
   }
  },
  {
-  "seq": 203,
+  "seq": 204,
   "mind": {
    "resident": "Milo",
    "role": "civilian",
@@ -726,7 +726,7 @@
   }
  },
  {
-  "seq": 333,
+  "seq": 334,
   "mind": {
    "resident": "Elsie",
    "role": "doctor",
@@ -767,7 +767,7 @@
   }
  },
  {
-  "seq": 334,
+  "seq": 335,
   "mind": {
    "resident": "Silas",
    "role": "detective",
@@ -808,7 +808,7 @@
   }
  },
  {
-  "seq": 335,
+  "seq": 336,
   "mind": {
    "resident": "Cyrus",
    "role": "civilian",
@@ -849,7 +849,7 @@
   }
  },
  {
-  "seq": 336,
+  "seq": 337,
   "mind": {
    "resident": "Zane",
    "role": "civilian",
@@ -879,7 +879,7 @@
   }
  },
  {
-  "seq": 338,
+  "seq": 339,
   "mind": {
    "resident": "Yara",
    "role": "sheriff",
@@ -935,7 +935,7 @@
   }
  },
  {
-  "seq": 339,
+  "seq": 340,
   "mind": {
    "resident": "Cora",
    "role": "civilian",
@@ -970,7 +970,7 @@
   }
  },
  {
-  "seq": 340,
+  "seq": 341,
   "mind": {
    "resident": "Pia",
    "role": "murderer",
@@ -1018,7 +1018,7 @@
   }
  },
  {
-  "seq": 341,
+  "seq": 342,
   "mind": {
    "resident": "Otto",
    "role": "civilian",
@@ -1059,7 +1059,7 @@
   }
  },
  {
-  "seq": 342,
+  "seq": 343,
   "mind": {
    "resident": "Vera",
    "role": "murderer",
@@ -1096,7 +1096,7 @@
   }
  },
  {
-  "seq": 343,
+  "seq": 344,
   "mind": {
    "resident": "Milo",
    "role": "civilian",
@@ -1142,7 +1142,7 @@
   }
  },
  {
-  "seq": 392,
+  "seq": 393,
   "mind": {
    "resident": "Elsie",
    "role": "doctor",
@@ -1188,7 +1188,7 @@
   }
  },
  {
-  "seq": 393,
+  "seq": 394,
   "mind": {
    "resident": "Silas",
    "role": "detective",
@@ -1234,7 +1234,7 @@
   }
  },
  {
-  "seq": 394,
+  "seq": 395,
   "mind": {
    "resident": "Cyrus",
    "role": "civilian",
@@ -1280,7 +1280,7 @@
   }
  },
  {
-  "seq": 395,
+  "seq": 396,
   "mind": {
    "resident": "Zane",
    "role": "civilian",
@@ -1321,7 +1321,7 @@
   }
  },
  {
-  "seq": 396,
+  "seq": 397,
   "mind": {
    "resident": "Yara",
    "role": "sheriff",
@@ -1382,7 +1382,7 @@
   }
  },
  {
-  "seq": 397,
+  "seq": 398,
   "mind": {
    "resident": "Cora",
    "role": "civilian",
@@ -1422,7 +1422,7 @@
   }
  },
  {
-  "seq": 398,
+  "seq": 399,
   "mind": {
    "resident": "Pia",
    "role": "murderer",
@@ -1470,7 +1470,7 @@
   }
  },
  {
-  "seq": 400,
+  "seq": 401,
   "mind": {
    "resident": "Otto",
    "role": "civilian",
@@ -1516,7 +1516,7 @@
   }
  },
  {
-  "seq": 401,
+  "seq": 402,
   "mind": {
    "resident": "Vera",
    "role": "murderer",
@@ -1558,7 +1558,7 @@
   }
  },
  {
-  "seq": 402,
+  "seq": 403,
   "mind": {
    "resident": "Milo",
    "role": "civilian",
@@ -1609,7 +1609,7 @@
   }
  },
  {
-  "seq": 517,
+  "seq": 518,
   "mind": {
    "resident": "Elsie",
    "role": "doctor",
@@ -1660,7 +1660,7 @@
   }
  },
  {
-  "seq": 518,
+  "seq": 519,
   "mind": {
    "resident": "Silas",
    "role": "detective",
@@ -1711,7 +1711,7 @@
   }
  },
  {
-  "seq": 519,
+  "seq": 520,
   "mind": {
    "resident": "Cyrus",
    "role": "civilian",
@@ -1767,7 +1767,7 @@
   }
  },
  {
-  "seq": 520,
+  "seq": 521,
   "mind": {
    "resident": "Zane",
    "role": "civilian",
@@ -1818,7 +1818,7 @@
   }
  },
  {
-  "seq": 521,
+  "seq": 522,
   "mind": {
    "resident": "Yara",
    "role": "sheriff",
@@ -1884,7 +1884,7 @@
   }
  },
  {
-  "seq": 522,
+  "seq": 523,
   "mind": {
    "resident": "Cora",
    "role": "civilian",
@@ -1935,7 +1935,7 @@
   }
  },
  {
-  "seq": 523,
+  "seq": 524,
   "mind": {
    "resident": "Pia",
    "role": "murderer",
@@ -1988,7 +1988,7 @@
   }
  },
  {
-  "seq": 524,
+  "seq": 525,
   "mind": {
    "resident": "Otto",
    "role": "civilian",
@@ -2049,7 +2049,7 @@
   }
  },
  {
-  "seq": 525,
+  "seq": 526,
   "mind": {
    "resident": "Vera",
    "role": "murderer",
@@ -2107,7 +2107,7 @@
   }
  },
  {
-  "seq": 526,
+  "seq": 527,
   "mind": {
    "resident": "Milo",
    "role": "civilian",
@@ -2168,7 +2168,7 @@
   }
  },
  {
-  "seq": 562,
+  "seq": 563,
   "mind": {
    "resident": "Elsie",
    "role": "doctor",
@@ -2224,7 +2224,7 @@
   }
  },
  {
-  "seq": 563,
+  "seq": 564,
   "mind": {
    "resident": "Silas",
    "role": "detective",
@@ -2280,7 +2280,7 @@
   }
  },
  {
-  "seq": 564,
+  "seq": 565,
   "mind": {
    "resident": "Cyrus",
    "role": "civilian",
@@ -2341,7 +2341,7 @@
   }
  },
  {
-  "seq": 565,
+  "seq": 566,
   "mind": {
    "resident": "Zane",
    "role": "civilian",
@@ -2397,7 +2397,7 @@
   }
  },
  {
-  "seq": 566,
+  "seq": 567,
   "mind": {
    "resident": "Yara",
    "role": "sheriff",
@@ -2463,7 +2463,7 @@
   }
  },
  {
-  "seq": 568,
+  "seq": 569,
   "mind": {
    "resident": "Cora",
    "role": "civilian",
@@ -2519,7 +2519,7 @@
   }
  },
  {
-  "seq": 569,
+  "seq": 570,
   "mind": {
    "resident": "Pia",
    "role": "murderer",
@@ -2572,7 +2572,7 @@
   }
  },
  {
-  "seq": 571,
+  "seq": 572,
   "mind": {
    "resident": "Otto",
    "role": "civilian",
@@ -2638,7 +2638,7 @@
   }
  },
  {
-  "seq": 572,
+  "seq": 573,
   "mind": {
    "resident": "Vera",
    "role": "murderer",
@@ -2701,7 +2701,7 @@
   }
  },
  {
-  "seq": 679,
+  "seq": 680,
   "mind": {
    "resident": "Elsie",
    "role": "doctor",
@@ -2762,7 +2762,7 @@
   }
  },
  {
-  "seq": 680,
+  "seq": 681,
   "mind": {
    "resident": "Silas",
    "role": "detective",
@@ -2828,7 +2828,7 @@
   }
  },
  {
-  "seq": 681,
+  "seq": 682,
   "mind": {
    "resident": "Cyrus",
    "role": "civilian",
@@ -2894,7 +2894,7 @@
   }
  },
  {
-  "seq": 682,
+  "seq": 683,
   "mind": {
    "resident": "Zane",
    "role": "civilian",
@@ -2955,7 +2955,7 @@
   }
  },
  {
-  "seq": 683,
+  "seq": 684,
   "mind": {
    "resident": "Cora",
    "role": "civilian",
@@ -3021,7 +3021,7 @@
   }
  },
  {
-  "seq": 684,
+  "seq": 685,
   "mind": {
    "resident": "Pia",
    "role": "murderer",
@@ -3079,7 +3079,7 @@
   }
  },
  {
-  "seq": 685,
+  "seq": 686,
   "mind": {
    "resident": "Vera",
    "role": "murderer",
@@ -3152,7 +3152,7 @@
   }
  },
  {
-  "seq": 716,
+  "seq": 717,
   "mind": {
    "resident": "Silas",
    "role": "detective",
@@ -3223,7 +3223,7 @@
   }
  },
  {
-  "seq": 717,
+  "seq": 718,
   "mind": {
    "resident": "Cyrus",
    "role": "civilian",
@@ -3294,7 +3294,7 @@
   }
  },
  {
-  "seq": 718,
+  "seq": 719,
   "mind": {
    "resident": "Zane",
    "role": "civilian",
@@ -3360,7 +3360,7 @@
   }
  },
  {
-  "seq": 719,
+  "seq": 720,
   "mind": {
    "resident": "Cora",
    "role": "civilian",
@@ -3431,7 +3431,7 @@
   }
  },
  {
-  "seq": 720,
+  "seq": 721,
   "mind": {
    "resident": "Pia",
    "role": "murderer",
@@ -3494,7 +3494,7 @@
   }
  },
  {
-  "seq": 721,
+  "seq": 722,
   "mind": {
    "resident": "Vera",
    "role": "murderer",
@@ -3572,7 +3572,7 @@
   }
  },
  {
-  "seq": 796,
+  "seq": 797,
   "mind": {
    "resident": "Cyrus",
    "role": "civilian",
@@ -3658,7 +3658,7 @@
   }
  },
  {
-  "seq": 797,
+  "seq": 798,
   "mind": {
    "resident": "Zane",
    "role": "civilian",
@@ -3729,7 +3729,7 @@
   }
  },
  {
-  "seq": 798,
+  "seq": 799,
   "mind": {
    "resident": "Cora",
    "role": "civilian",
@@ -3810,7 +3810,7 @@
   }
  },
  {
-  "seq": 799,
+  "seq": 800,
   "mind": {
    "resident": "Pia",
    "role": "murderer",
@@ -3878,7 +3878,7 @@
   }
  },
  {
-  "seq": 800,
+  "seq": 801,
   "mind": {
    "resident": "Vera",
    "role": "murderer",

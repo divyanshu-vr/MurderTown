@@ -143,14 +143,11 @@ def test_the_cost_report_adds_up_every_recorded_model_call(
         assert cost == summed([call for call in calls if call.resident == name])
 
 
-def test_only_full_scope_may_see_what_a_game_cost(
+def test_there_is_no_cost_for_a_game_that_does_not_exist(
     recorded: tuple[TestClient, list[ModelCall]],
 ) -> None:
     client, _ = recorded
-    game_id = start_game(client, {"residents": 6, "murderers": 1, "max_days": 1, "seed": 4})
-    wait_until_finished(client, game_id)
 
-    assert client.get(f"/games/{game_id}/cost?scope=public").status_code == 403
     assert client.get("/games/no-such-game/cost").status_code == 404
 
 

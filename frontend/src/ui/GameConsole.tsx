@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 
 import { foldEvents, isPublic } from "../core/gameView";
 import { mindOf } from "../core/mind";
@@ -18,9 +18,9 @@ import { Roster } from "./Roster";
  * whatever events have arrived.
  *
  * Mystery mode shows only what the whole town saw and has no inspector; a public-scope
- * page is always in mystery mode. The phase bar always reads every event, so its
+ * page is always in mystery mode. The phase bar reads every event the page has, so its
  * Open-floor progress does not depend on private bids being shown. The cost meter
- * needs a `cost` source, which only a full-scope page has.
+ * needs a `cost` source, and the Host's `controls` come from the page: only the Host's has them.
  */
 export function GameConsole({
   events,
@@ -28,12 +28,16 @@ export function GameConsole({
   explain,
   cost,
   scope = "full",
+  paused = false,
+  controls,
 }: {
   events: readonly Event[];
   connection: ConnectionStatus;
   explain?: Explain | undefined;
   cost?: CostSource | undefined;
   scope?: Scope;
+  paused?: boolean;
+  controls?: ReactNode;
 }) {
   const [mysteryChosen, setMysteryChosen] = useState(false);
   const [inspected, setInspected] = useState<string | null>(null);
@@ -57,6 +61,8 @@ export function GameConsole({
         connection={connection}
         mystery={mystery}
         onMysteryChange={scope === "full" ? chooseMystery : undefined}
+        paused={paused}
+        controls={controls}
       />
       <main
         className={`grid min-h-0 flex-1 grid-cols-1 ${mind ? "lg:grid-cols-[1fr_18rem_28rem]" : "md:grid-cols-[1fr_20rem]"}`}

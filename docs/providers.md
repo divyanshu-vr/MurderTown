@@ -13,7 +13,7 @@ A game's configuration includes its **lineup**: who plays each Resident. Each en
 ```
 
 - `mm play --provider claude --model claude-haiku-5-5 --effort low` puts the same Agent in every seat; `mm play --lineup lineup.json` takes a whole lineup.
-- `POST /games` takes it as the config's `lineup`. A lineup naming a provider the server cannot reach, or a model with no price, is refused with a 422 before anything is stored.
+- `POST /games` (as the Host, with the Host token) takes it as the config's `lineup`; the setup form builds one. A lineup naming a provider the server cannot reach, or a model with no price, is refused with a 422 before anything is stored.
 
 ## Providers
 

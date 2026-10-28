@@ -94,7 +94,7 @@ def verdict(state: GameState) -> Verdict | None:
 
 def verdict_at_end_of_day(state: GameState) -> Verdict | None:
     """Checked when a Day is over: the game ends after the last allowed Day."""
-    assert state.config is not None
-    if state.day >= state.config.max_days:
+    assert state.rules is not None
+    if state.day >= state.rules.max_days:
         return Verdict(Side.MURDERERS, "The town ran out of days.")
     return None

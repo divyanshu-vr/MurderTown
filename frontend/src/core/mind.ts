@@ -90,7 +90,7 @@ export function decider(payload: Payload): string | null {
     case "last_words_spoken":
     case "reflection_written":
     case "decision_fell_back":
-    case "game_aborted": // the decision that got no answer
+    case "decision_unanswered":
       return payload.resident;
     case "statement_made":
       return payload.speaker;
@@ -110,6 +110,7 @@ export function decider(payload: Payload): string | null {
       return payload.speaker;
     case "ballot_cast":
       return payload.voter;
+    case "game_configured":
     case "game_started":
     case "role_assigned":
     case "phase_started":
@@ -121,6 +122,7 @@ export function decider(payload: Payload): string | null {
     case "open_floor_timed_out":
     case "recap_narrated": // the narrator is not a Resident
     case "game_ended":
+    case "game_aborted":
       return null;
   }
 }

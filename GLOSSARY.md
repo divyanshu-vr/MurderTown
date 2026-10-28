@@ -19,12 +19,16 @@ A rule-based stand-in that plays a Resident without a language model.
 _Avoid_: dummy agent, mock player
 
 **Spectator**:
-A human watching a game.
+A human watching a game: the Host in full scope, everyone else in public scope.
 _Avoid_: viewer, audience, user
 
 **Host**:
 The human who sets up, runs and controls games.
 _Avoid_: owner, admin, operator
+
+**Host token**:
+The secret that proves a request comes from the Host: only it may start, pause, step and resume games, or see a game's full scope.
+_Avoid_: admin token, password, API key
 
 ### Roles and sides
 
@@ -186,10 +190,32 @@ _Avoid_: default answer, error
 A game stopped before either side won, because the model gave no answer at all to a decision (it timed out or failed), or because the game itself failed.
 _Avoid_: crashed game, cancelled game
 
+### Setting up and running games
+
+**Rules**:
+What everyone in town knows about a game: how many Residents and Murderers there are, which roles are in play, how many Days and Statements are allowed, and how often the Detective is right.
+_Avoid_: settings, options
+
+**Seed**:
+The number a game's chance follows, from casting to every tie-break: the same seed and the same decisions make the same game. Knowing it tells every role, so only full scope sees it.
+_Avoid_: random state
+
+**Checkpoint**:
+The moment before a batch of decisions is asked, where a Pause takes hold.
+_Avoid_: breakpoint
+
+**Pause**:
+The Host holding a game at its next Checkpoint: a paused game asks nobody anything until it is stepped or resumed.
+_Avoid_: freeze, suspend
+
+**Step**:
+Letting one batch of decisions through a paused game.
+_Avoid_: tick, advance
+
 ### Watching
 
 **Mind inspector**:
-A Spectator's view into one Resident's mind as of the moment being watched: their role, Persona, Notebook, Journal, Dossier and every decision they made.
+In full scope, a Spectator's view into one Resident's mind as of the moment being watched: their role, Persona, Notebook, Journal, Dossier and every decision they made.
 _Avoid_: debugger, agent view
 
 **Mystery mode**:
@@ -197,7 +223,7 @@ A way of watching that shows a Spectator only what the whole town saw, with no M
 _Avoid_: hidden mode, fog of war
 
 **Scope**:
-How much of a game a request may see: public scope is only what the whole town saw, full scope is everything.
+How much of a game a request may see: public scope is only what the whole town saw, full scope is everything. Only the Host has full scope.
 _Avoid_: access level, permission
 
 **Equivalent cost**:
@@ -209,5 +235,5 @@ Who plays each Resident: a scripted bot, or an Agent on a given provider, model 
 _Avoid_: roster (the list of Residents), cast, players
 
 **Cost meter**:
-A Spectator's view of a game's Equivalent cost, model calls, tokens and how much of each prompt was read from the cache, in all and for each Resident.
+In full scope, a Spectator's view of a game's Equivalent cost, model calls, tokens and how much of each prompt was read from the cache, in all and for each Resident.
 _Avoid_: budget, spending panel

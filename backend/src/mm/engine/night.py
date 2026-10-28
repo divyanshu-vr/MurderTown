@@ -51,11 +51,11 @@ def investigation_finding(is_murderer: bool, accuracy: float, rng: Random) -> bo
 
 def dawn_news(state: GameState) -> list[EventPayload]:
     """What Dawn announces about the Night before: the murder, or a thwarted attack."""
-    assert state.config is not None
+    assert state.rules is not None
     night = state.day - 1
     victim = state.victims.get(night)
     if victim is None:
         return []
     if state.protections.get(night) == victim:
-        return [AttackThwarted(saved=victim if state.config.dawn_names_the_saved else None)]
+        return [AttackThwarted(saved=victim if state.rules.dawn_names_the_saved else None)]
     return [ResidentDied(resident=victim, cause="murdered", role=state.roles[victim])]

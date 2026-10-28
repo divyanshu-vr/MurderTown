@@ -26,6 +26,8 @@ def describe(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per 
     Every event type has a case, so a new one cannot be forgotten.
     """
     match event.payload:
+        case events.GameConfigured():
+            return None  # the opening line names the Residents; the roles follow
         case events.GameStarted(residents=residents):
             names = ", ".join(f"{r.name} the {r.occupation}" for r in residents)
             return f"{len(residents)} Residents move into town: {names}."
@@ -84,8 +86,8 @@ def describe(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per 
             return f"  [fallback] {resident}'s {kind} used a safe default: {reason}"
         case events.GameEnded(winner=winner, reason=reason):
             return f"\n*** {VICTORY[winner]} {reason} ***"
-        case events.GameAborted(resident=str(resident), kind=kind, reason=reason):
-            return f"\n*** The game is aborted: {resident}'s {kind} got no answer: {reason} ***"
+        case events.DecisionUnanswered(resident=resident, kind=kind, reason=reason):
+            return f"  [no answer] {resident}'s {kind} got no answer: {reason}"
         case events.GameAborted(reason=reason):
             return f"\n*** The game is aborted: {reason} ***"
         case unknown:

@@ -32,10 +32,12 @@ from mm.engine.events import (
     ConversationMessagePosted,
     ConversationStarted,
     DecisionFellBack,
+    DecisionUnanswered,
     DenMessagePosted,
     DuskIntentChosen,
     Event,
     GameAborted,
+    GameConfigured,
     GameEnded,
     GameStarted,
     KillVoteCast,
@@ -165,7 +167,7 @@ def retry_task(prompt: Prompt, problem: str) -> str:
 
 
 def _system(known: GameState, assigned: RoleAssigned) -> str:
-    assert known.config is not None
+    assert known.rules is not None
     if assigned.role is Role.MURDERER:
         mates = ", ".join(assigned.teammates)
         teammates = f"Your fellow Murderers are {mates}." if mates else "You are the only Murderer."
@@ -173,9 +175,9 @@ def _system(known: GameState, assigned: RoleAssigned) -> str:
     else:
         article = "a" if assigned.role is Role.CIVILIAN else "the"
         role = render("roles/town.md", role=f"{article} {assigned.role.capitalize()}")
-    accuracy = _how_often(known.config.detective_accuracy)
+    accuracy = _how_often(known.rules.detective_accuracy)
     if power := POWERS.get(assigned.role):
-        when = SHERIFF_FIRES[known.config.sheriff_shoots_at]
+        when = SHERIFF_FIRES[known.rules.sheriff_shoots_at]
         role += "\n\n" + render(power, when=when, accuracy=accuracy)
     persona = assigned.persona
     return render(
@@ -183,7 +185,7 @@ def _system(known: GameState, assigned: RoleAssigned) -> str:
         name=assigned.resident,
         occupation=persona.occupation,
         residents=len(known.residents),
-        max_days=known.config.max_days,
+        max_days=known.rules.max_days,
         accuracy=accuracy,
         role=role,
         temperament=persona.temperament,
@@ -331,7 +333,7 @@ def _line(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per eve
             return None  # shown in the briefing or the Resident's own memory instead
         case (
             BidPlaced() | SheriffHeldFire() | GameEnded() | GameAborted() | DecisionFellBack()
-            | RecapNarrated() | OpenFloorTimedOut()
+            | RecapNarrated() | OpenFloorTimedOut() | GameConfigured() | DecisionUnanswered()
         ):  # fmt: skip
             return None  # not needed for a decision (Residents saw what a recap tells), or unseen
         case unknown:

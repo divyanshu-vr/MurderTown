@@ -4,11 +4,16 @@
  * The server replays everything after the last sequence number we hold, then
  * streams new events. Reconnecting with that number, and dropping anything
  * already seen, means the caller never gets a gap or a duplicate.
+ *
+ * With the Host token the socket asks for full scope, sending the token as its first
+ * message (a browser cannot put a header on a socket); without it, public scope.
  */
 import { endsTheGame } from "../core/gameView";
 import type { Event } from "../protocol";
+import { API_URL } from "./fetchJson";
 
-export type ConnectionStatus = "connecting" | "live" | "reconnecting" | "ended";
+/** `refused`: the server did not accept the Host token, so following stopped. */
+export type ConnectionStatus = "connecting" | "live" | "reconnecting" | "ended" | "refused";
 
 /** How much of a game a page may see: only what the whole town saw, or everything. */
 export type Scope = "public" | "full";
@@ -18,12 +23,22 @@ export interface GameFollower {
   onStatus(status: ConnectionStatus): void;
 }
 
-export const API_URL: string = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
-
 const MAX_BACKOFF_MS = 5000;
 
+/** How the server closes a socket that did not send the Host token (its `NOT_THE_HOST`). */
+const NOT_THE_HOST = 4401;
+
+interface Following {
+  apiUrl?: string;
+  hostToken?: string | null;
+}
+
 /** Start following a game. Returns a function that stops following it. */
-export function followGame(gameId: string, follower: GameFollower, apiUrl = API_URL): () => void {
+export function followGame(
+  gameId: string,
+  follower: GameFollower,
+  { apiUrl = API_URL, hostToken = null }: Following = {},
+): () => void {
   let lastSeq = 0;
   let attempt = 0;
   let stopped = false;
@@ -31,13 +46,15 @@ export function followGame(gameId: string, follower: GameFollower, apiUrl = API_
   let retry: ReturnType<typeof setTimeout> | undefined;
 
   const connect = () => {
-    const url = `${apiUrl.replace(/^http/, "ws")}/ws/games/${gameId}?after=${lastSeq}`;
-    socket = new WebSocket(url);
-    socket.onopen = () => {
+    const scope = hostToken ? "&scope=full" : "";
+    const opening = new WebSocket(`${apiUrl.replace(/^http/, "ws")}/ws/games/${gameId}?after=${lastSeq}${scope}`);
+    socket = opening;
+    opening.onopen = () => {
+      if (hostToken) opening.send(hostToken);
       attempt = 0;
       follower.onStatus("live");
     };
-    socket.onmessage = (message: MessageEvent<string>) => {
+    opening.onmessage = (message: MessageEvent<string>) => {
       const event = JSON.parse(message.data) as Event;
       if (event.seq <= lastSeq) return;
       lastSeq = event.seq;
@@ -47,8 +64,13 @@ export function followGame(gameId: string, follower: GameFollower, apiUrl = API_
         follower.onStatus("ended");
       }
     };
-    socket.onclose = () => {
+    opening.onclose = (closed: { code: number }) => {
       if (stopped) return;
+      if (closed.code === NOT_THE_HOST) {
+        stopped = true;
+        follower.onStatus("refused");
+        return;
+      }
       follower.onStatus("reconnecting");
       retry = setTimeout(connect, Math.min(500 * 2 ** attempt++, MAX_BACKOFF_MS));
     };

@@ -6,19 +6,17 @@ duplicates, even when it disconnects and reconnects while the game is running.
 """
 
 import asyncio
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
 
-from mm.agents import Brain, BrainFactory, CallRecorder, ModelCall, scripted_bots
+from mm.agents import scripted_bots
 from mm.engine import GameConfig
-from mm.engine.decisions import Answer, DecisionRequest
-from mm.engine.events import Event
 from mm.orchestrator import play_game
-from tests.conftest import serving, start_game, wait_until_finished
-from tests.support import wrapped
+from tests.conftest import following, serving, start_game, wait_until_finished
+from tests.support import unhurried_bots
 
 CONFIG = {"residents": 8, "murderers": 2, "max_days": 4, "seed": 4}
 
@@ -27,23 +25,6 @@ def expected_log() -> list[dict[str, Any]]:
     config = GameConfig(**CONFIG)
     result = asyncio.run(play_game(config, scripted_bots(config.seed)))
     return [event.model_dump(mode="json") for event in result.events]
-
-
-class Unhurried:
-    """A scripted bot that takes a moment to think, so the game is still live while we watch."""
-
-    def __init__(self, inner: Brain) -> None:
-        self.inner = inner
-
-    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
-        await asyncio.sleep(0.005)
-        return await self.inner.decide(request, view)
-
-
-def unhurried_bots(
-    config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
-) -> BrainFactory:
-    return wrapped(scripted_bots(config.seed), Unhurried)
 
 
 @pytest.fixture
@@ -76,13 +57,11 @@ def test_a_reconnecting_websocket_client_receives_the_log_without_gaps_or_duplic
     game_id = start_game(slow_client, CONFIG)
     received: list[dict[str, Any]] = []
 
-    with slow_client.websocket_connect(f"/ws/games/{game_id}?after=0") as socket:
+    with following(slow_client, game_id) as socket:
         received += [socket.receive_json() for _ in range(25)]
     assert slow_client.get(f"/games/{game_id}").json()["status"] == "running"
 
-    with slow_client.websocket_connect(
-        f"/ws/games/{game_id}?after={received[-1]['seq']}"
-    ) as socket:
+    with following(slow_client, game_id, after=received[-1]["seq"]) as socket:
         while not received or received[-1]["payload"]["type"] != "game_ended":
             received.append(socket.receive_json())
 

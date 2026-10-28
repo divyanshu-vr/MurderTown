@@ -1,7 +1,7 @@
 """Database tables.
 
 Events and model calls are stored exactly as they were written and never changed. The only
-row that is ever updated is a game's status once it finishes.
+rows ever updated are games', as they are paused, resumed and finished.
 """
 
 from datetime import datetime

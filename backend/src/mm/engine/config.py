@@ -2,6 +2,9 @@
 
 A game is fully determined by its configuration (including the seed) and the
 decisions its Residents make. That is what makes every game replayable.
+
+Everyone in town knows the rules; only full scope may show the seed and the lineup.
+Casting follows from the seed, so knowing it would tell every role.
 """
 
 from enum import StrEnum
@@ -62,7 +65,9 @@ class Lineup(BaseModel):
         return self.seats.get(seat) or by_side or self.everyone
 
 
-class GameConfig(BaseModel):
+class Rules(BaseModel):
+    """The rules of one game, which everyone in town knows."""
+
     model_config = SETUP
 
     residents: int = Field(default=12, ge=6, le=15)
@@ -82,17 +87,6 @@ class GameConfig(BaseModel):
     """How often the Detective's finding is right. A Detective who is never wrong is too strong."""
     dawn_names_the_saved: bool = True
     """Whether Dawn says who the Doctor saved, or only that someone was saved."""
-    seed: int = 0
-    lineup: Lineup = Lineup()
-    """Who plays each Resident: scripted bots unless the Host chooses Agents."""
-
-    @model_validator(mode="after")
-    def _the_lineup_names_only_seats_the_game_has(self) -> Self:
-        if strangers := sorted(seat for seat in self.lineup.seats if seat >= self.residents):
-            raise ValueError(
-                f"the lineup names seat {strangers[0]}, but seats run 0 to {self.residents - 1}"
-            )
-        return self
 
     @model_validator(mode="after")
     def _murderers_are_at_most_a_quarter_of_the_town(self) -> Self:
@@ -115,3 +109,24 @@ class GameConfig(BaseModel):
         ]
         deck = [Role.MURDERER] * self.murderers + specials
         return deck + [Role.CIVILIAN] * (self.residents - len(deck))
+
+
+class GameConfig(Rules):
+    """Everything the Host chooses before a game starts: its rules, its seed and who plays."""
+
+    seed: int = 0
+    lineup: Lineup = Lineup()
+    """Who plays each Resident: scripted bots unless the Host chooses Agents."""
+
+    @model_validator(mode="after")
+    def _the_lineup_names_only_seats_the_game_has(self) -> Self:
+        if strangers := sorted(seat for seat in self.lineup.seats if seat >= self.residents):
+            raise ValueError(
+                f"the lineup names seat {strangers[0]}, but seats run 0 to {self.residents - 1}"
+            )
+        return self
+
+    @property
+    def rules(self) -> Rules:
+        """The rules alone, made afresh: this whole configuration would carry its seed along."""
+        return Rules.model_validate(self.model_dump(include=set(Rules.model_fields)))

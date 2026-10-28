@@ -1,6 +1,14 @@
 /* Generated from protocol/murdertown.schema.json by 'pnpm gen:types'. Do not edit. */
 
 /**
+ * What the Host may do to a game being played: hold it before its next batch of
+ * decisions, let one more batch through a held game, or let it run on.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Control".
+ */
+export type Control = "pause" | "step" | "resume";
+/**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "DecisionKind".
  */
@@ -161,6 +169,20 @@ export interface DecisionFellBack {
   reason: string;
 }
 /**
+ * The model gave no answer at all to a decision, so the game is aborted right after. No
+ * Resident perceives it, so only full scope shows it: whose decision it was, and of what
+ * kind, could reveal a Night role.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "DecisionUnanswered".
+ */
+export interface DecisionUnanswered {
+  type: "decision_unanswered";
+  resident: string;
+  kind: DecisionKind;
+  reason: string;
+}
+/**
  * One Murderer's message to the others, perhaps proposing tonight's Victim.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
@@ -199,6 +221,7 @@ export interface Event {
   visibility: Visibility;
   decision_id: string | null;
   payload:
+    | GameConfigured
     | GameStarted
     | RoleAssigned
     | PhaseStarted
@@ -224,10 +247,12 @@ export interface Event {
     | ReflectionWritten
     | DecisionFellBack
     | GameEnded
+    | DecisionUnanswered
     | GameAborted;
 }
 /**
- * Who may perceive an event: everyone, a named set of Residents, or Spectators only.
+ * Who may perceive an event: everyone, a named set of Residents, or no Resident at all
+ * (`spectators`). Public scope shows only what everyone perceives; full scope shows it all.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "Visibility".
@@ -237,15 +262,19 @@ export interface Visibility {
   residents: string[];
 }
 /**
+ * Everything the Host chose, seed and lineup included. No Resident perceives it, so only
+ * full scope shows it: casting follows from the seed, so knowing it would tell every role.
+ *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
- * via the `definition` "GameStarted".
+ * via the `definition` "GameConfigured".
  */
-export interface GameStarted {
-  type: "game_started";
+export interface GameConfigured {
+  type: "game_configured";
   config: GameConfig;
-  residents: Resident[];
 }
 /**
+ * Everything the Host chooses before a game starts: its rules, its seed and who plays.
+ *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "GameConfig-Output".
  */
@@ -296,6 +325,36 @@ export interface PlayedBy1 {
   provider: string;
   model: string;
   effort: Effort1;
+}
+/**
+ * Who lives in the town, and the rules everyone plays by.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "GameStarted".
+ */
+export interface GameStarted {
+  type: "game_started";
+  rules: Rules;
+  residents: Resident[];
+}
+/**
+ * The rules of one game, which everyone in town knows.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Rules".
+ */
+export interface Rules {
+  residents: number;
+  murderers: number;
+  doctor: boolean;
+  detective: boolean;
+  sheriff: boolean;
+  max_days: number;
+  open_floor_statements: number;
+  open_floor_seconds: number | null;
+  sheriff_shoots_at: "showdown" | "night";
+  detective_accuracy: number;
+  dawn_names_the_saved: boolean;
 }
 /**
  * A character in the town. The seat fixes their house and their place in every ordering.
@@ -527,19 +586,15 @@ export interface GameEnded {
   reason: string;
 }
 /**
- * The game stopped before either side won: the model gave no answer to a decision, or
- * the game itself failed. A crash names no decision.
- *
- * `reason` is only the problem, such as a timeout, never the decision itself: a
- * Spectator in mystery mode sees it, and the decision could reveal a Night role.
+ * The game stopped before either side won: a decision got no answer, or the game itself
+ * failed. `reason` is only the problem, such as a timeout, never the decision itself, so the
+ * whole town may see the game stop.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "GameAborted".
  */
 export interface GameAborted {
   type: "game_aborted";
-  resident: string | null;
-  kind: DecisionKind | null;
   reason: string;
 }
 /**
@@ -593,6 +648,8 @@ export interface ModelCall {
   trace_id: string | null;
 }
 /**
+ * Everything the Host chooses before a game starts: its rules, its seed and who plays.
+ *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "GameConfig-Input".
  */
@@ -608,6 +665,9 @@ export interface GameConfigInput {
   sheriff_shoots_at?: "showdown" | "night";
   detective_accuracy?: number;
   dawn_names_the_saved?: boolean;
+  /**
+   * Left out, the server draws one at random.
+   */
   seed?: number;
   lineup?: LineupInput;
 }
@@ -653,14 +713,28 @@ export interface GameCreated {
 }
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "GameList".
+ */
+export interface GameList {
+  games: GameSummary[];
+}
+/**
+ * A game at a glance. Its configuration is left out, since its seed would tell every role;
+ * full scope reads it from the game's first event.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "GameSummary".
  */
 export interface GameSummary {
   id: string;
-  status: "running" | "finished" | "aborted" | "failed";
-  config: GameConfig;
+  status: "running" | "paused" | "finished" | "aborted" | "failed";
   winner: Side | null;
+  created_at: string;
   last_seq: number;
+  day: number;
+  phase: Phase;
+  cost_usd: number | null;
+  controls: Control[];
 }
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
@@ -725,4 +799,15 @@ export interface Mind {
   teammates: string[];
   memory: Memory;
   perceived: Event[];
+}
+/**
+ * What the setup form may offer: every provider, and every model with a price. A provider
+ * with no API key here is refused when a game is started, saying which key it needs.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "SetupChoices".
+ */
+export interface SetupChoices {
+  providers: string[];
+  models: string[];
 }

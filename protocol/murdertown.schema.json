@@ -86,6 +86,16 @@
       "title": "BidPlaced",
       "type": "object"
     },
+    "Control": {
+      "description": "What the Host may do to a game being played: hold it before its next batch of\ndecisions, let one more batch through a held game, or let it run on.",
+      "enum": [
+        "pause",
+        "step",
+        "resume"
+      ],
+      "title": "Control",
+      "type": "string"
+    },
     "ConversationMessagePosted": {
       "additionalProperties": false,
       "description": "One message in a Conversation, heard only by the two Residents in it.",
@@ -276,6 +286,34 @@
       "title": "DecisionKind",
       "type": "string"
     },
+    "DecisionUnanswered": {
+      "additionalProperties": false,
+      "description": "The model gave no answer at all to a decision, so the game is aborted right after. No\nResident perceives it, so only full scope shows it: whose decision it was, and of what\nkind, could reveal a Night role.",
+      "properties": {
+        "type": {
+          "const": "decision_unanswered",
+          "default": "decision_unanswered",
+          "type": "string"
+        },
+        "resident": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/DecisionKind"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "resident",
+        "kind",
+        "reason"
+      ],
+      "title": "DecisionUnanswered",
+      "type": "object"
+    },
     "DenMessagePosted": {
       "additionalProperties": false,
       "description": "One Murderer's message to the others, perhaps proposing tonight's Victim.",
@@ -404,9 +442,11 @@
               "conversation_message_posted": "#/$defs/ConversationMessagePosted",
               "conversation_started": "#/$defs/ConversationStarted",
               "decision_fell_back": "#/$defs/DecisionFellBack",
+              "decision_unanswered": "#/$defs/DecisionUnanswered",
               "den_message_posted": "#/$defs/DenMessagePosted",
               "dusk_intent_chosen": "#/$defs/DuskIntentChosen",
               "game_aborted": "#/$defs/GameAborted",
+              "game_configured": "#/$defs/GameConfigured",
               "game_ended": "#/$defs/GameEnded",
               "game_started": "#/$defs/GameStarted",
               "kill_vote_cast": "#/$defs/KillVoteCast",
@@ -428,6 +468,9 @@
             "propertyName": "type"
           },
           "oneOf": [
+            {
+              "$ref": "#/$defs/GameConfigured"
+            },
             {
               "$ref": "#/$defs/GameStarted"
             },
@@ -504,6 +547,9 @@
               "$ref": "#/$defs/GameEnded"
             },
             {
+              "$ref": "#/$defs/DecisionUnanswered"
+            },
+            {
               "$ref": "#/$defs/GameAborted"
             }
           ]
@@ -568,34 +614,12 @@
     },
     "GameAborted": {
       "additionalProperties": false,
-      "description": "The game stopped before either side won: the model gave no answer to a decision, or\nthe game itself failed. A crash names no decision.\n\n`reason` is only the problem, such as a timeout, never the decision itself: a\nSpectator in mystery mode sees it, and the decision could reveal a Night role.",
+      "description": "The game stopped before either side won: a decision got no answer, or the game itself\nfailed. `reason` is only the problem, such as a timeout, never the decision itself, so the\nwhole town may see the game stop.",
       "properties": {
         "type": {
           "const": "game_aborted",
           "default": "game_aborted",
           "type": "string"
-        },
-        "resident": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "kind": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/DecisionKind"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         },
         "reason": {
           "type": "string"
@@ -603,8 +627,6 @@
       },
       "required": [
         "type",
-        "resident",
-        "kind",
         "reason"
       ],
       "title": "GameAborted",
@@ -612,6 +634,7 @@
     },
     "GameConfig-Input": {
       "additionalProperties": false,
+      "description": "Everything the Host chooses before a game starts: its rules, its seed and who plays.",
       "properties": {
         "residents": {
           "default": 12,
@@ -681,8 +704,8 @@
           "type": "boolean"
         },
         "seed": {
-          "default": 0,
-          "type": "integer"
+          "type": "integer",
+          "description": "Left out, the server draws one at random."
         },
         "lineup": {
           "$ref": "#/$defs/Lineup-Input",
@@ -703,6 +726,7 @@
     },
     "GameConfig-Output": {
       "additionalProperties": false,
+      "description": "Everything the Host chooses before a game starts: its rules, its seed and who plays.",
       "properties": {
         "residents": {
           "default": 12,
@@ -807,6 +831,26 @@
       "title": "GameConfig",
       "type": "object"
     },
+    "GameConfigured": {
+      "additionalProperties": false,
+      "description": "Everything the Host chose, seed and lineup included. No Resident perceives it, so only\nfull scope shows it: casting follows from the seed, so knowing it would tell every role.",
+      "properties": {
+        "type": {
+          "const": "game_configured",
+          "default": "game_configured",
+          "type": "string"
+        },
+        "config": {
+          "$ref": "#/$defs/GameConfig-Output"
+        }
+      },
+      "required": [
+        "type",
+        "config"
+      ],
+      "title": "GameConfigured",
+      "type": "object"
+    },
     "GameCreated": {
       "properties": {
         "id": {
@@ -842,16 +886,32 @@
       "title": "GameEnded",
       "type": "object"
     },
+    "GameList": {
+      "properties": {
+        "games": {
+          "items": {
+            "$ref": "#/$defs/GameSummary"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "games"
+      ],
+      "title": "GameList",
+      "type": "object"
+    },
     "GameStarted": {
       "additionalProperties": false,
+      "description": "Who lives in the town, and the rules everyone plays by.",
       "properties": {
         "type": {
           "const": "game_started",
           "default": "game_started",
           "type": "string"
         },
-        "config": {
-          "$ref": "#/$defs/GameConfig-Output"
+        "rules": {
+          "$ref": "#/$defs/Rules"
         },
         "residents": {
           "items": {
@@ -862,13 +922,14 @@
       },
       "required": [
         "type",
-        "config",
+        "rules",
         "residents"
       ],
       "title": "GameStarted",
       "type": "object"
     },
     "GameSummary": {
+      "description": "A game at a glance. Its configuration is left out, since its seed would tell every role;\nfull scope reads it from the game's first event.",
       "properties": {
         "id": {
           "type": "string"
@@ -876,14 +937,12 @@
         "status": {
           "enum": [
             "running",
+            "paused",
             "finished",
             "aborted",
             "failed"
           ],
           "type": "string"
-        },
-        "config": {
-          "$ref": "#/$defs/GameConfig-Output"
         },
         "winner": {
           "anyOf": [
@@ -895,16 +954,46 @@
             }
           ]
         },
+        "created_at": {
+          "format": "date-time",
+          "type": "string"
+        },
         "last_seq": {
           "type": "integer"
+        },
+        "day": {
+          "type": "integer"
+        },
+        "phase": {
+          "$ref": "#/$defs/Phase"
+        },
+        "cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "controls": {
+          "items": {
+            "$ref": "#/$defs/Control"
+          },
+          "type": "array"
         }
       },
       "required": [
         "id",
         "status",
-        "config",
         "winner",
-        "last_seq"
+        "created_at",
+        "last_seq",
+        "day",
+        "phase",
+        "cost_usd",
+        "controls"
       ],
       "title": "GameSummary",
       "type": "object"
@@ -1609,6 +1698,117 @@
       "title": "RoleAssigned",
       "type": "object"
     },
+    "Rules": {
+      "additionalProperties": false,
+      "description": "The rules of one game, which everyone in town knows.",
+      "properties": {
+        "residents": {
+          "default": 12,
+          "maximum": 15,
+          "minimum": 6,
+          "type": "integer"
+        },
+        "murderers": {
+          "default": 2,
+          "maximum": 3,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "doctor": {
+          "default": true,
+          "type": "boolean"
+        },
+        "detective": {
+          "default": true,
+          "type": "boolean"
+        },
+        "sheriff": {
+          "default": true,
+          "type": "boolean"
+        },
+        "max_days": {
+          "default": 10,
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "open_floor_statements": {
+          "default": 8,
+          "maximum": 20,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "open_floor_seconds": {
+          "anyOf": [
+            {
+              "maximum": 3600,
+              "minimum": 10,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 300
+        },
+        "sheriff_shoots_at": {
+          "default": "showdown",
+          "enum": [
+            "showdown",
+            "night"
+          ],
+          "type": "string"
+        },
+        "detective_accuracy": {
+          "default": 0.8,
+          "maximum": 1.0,
+          "minimum": 0.5,
+          "type": "number"
+        },
+        "dawn_names_the_saved": {
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "residents",
+        "murderers",
+        "doctor",
+        "detective",
+        "sheriff",
+        "max_days",
+        "open_floor_statements",
+        "open_floor_seconds",
+        "sheriff_shoots_at",
+        "detective_accuracy",
+        "dawn_names_the_saved"
+      ],
+      "title": "Rules",
+      "type": "object"
+    },
+    "SetupChoices": {
+      "description": "What the setup form may offer: every provider, and every model with a price. A provider\nwith no API key here is refused when a game is started, saying which key it needs.",
+      "properties": {
+        "providers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "models": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "providers",
+        "models"
+      ],
+      "title": "SetupChoices",
+      "type": "object"
+    },
     "SheriffFired": {
       "additionalProperties": false,
       "description": "The Sheriff spends the single bullet. Whoever is hit, and perhaps the Sheriff, dies next.",
@@ -1787,7 +1987,7 @@
       "type": "object"
     },
     "Visibility": {
-      "description": "Who may perceive an event: everyone, a named set of Residents, or Spectators only.",
+      "description": "Who may perceive an event: everyone, a named set of Residents, or no Resident at all\n(`spectators`). Public scope shows only what everyone perceives; full scope shows it all.",
       "properties": {
         "scope": {
           "enum": [

@@ -3,7 +3,7 @@
 from random import Random
 
 from mm.engine.config import GameConfig
-from mm.engine.events import EventPayload, GameStarted, RoleAssigned
+from mm.engine.events import EventPayload, GameConfigured, GameStarted, RoleAssigned
 from mm.engine.personas import PERSONAS
 from mm.engine.residents import NAME_POOL, Resident
 from mm.engine.roles import Role
@@ -23,7 +23,8 @@ def seated_roles(config: GameConfig) -> dict[int, Role]:
 
 
 def cast(config: GameConfig, rng: Random) -> list[EventPayload]:
-    """The opening events of a game: who lives in the town, then each Resident's secret role."""
+    """The opening events of a game: the Host's configuration (for Spectators), who lives in the
+    town and the rules they play by, then each Resident's secret role."""
     names = rng.sample(NAME_POOL, config.residents)
     personas = rng.sample(PERSONAS, config.residents)
     residents = tuple(
@@ -43,4 +44,8 @@ def cast(config: GameConfig, rng: Random) -> list[EventPayload]:
         )
         for name, role, persona in zip(names, deck, personas, strict=True)
     ]
-    return [GameStarted(config=config, residents=residents), *assignments]
+    return [
+        GameConfigured(config=config),
+        GameStarted(rules=config.rules, residents=residents),
+        *assignments,
+    ]

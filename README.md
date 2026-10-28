@@ -9,17 +9,18 @@ Work in progress. The plan is [issue #1](https://github.com/divyanshu-vr/MurderT
 You need [uv](https://docs.astral.sh/uv/) and [pnpm](https://pnpm.io/) (pnpm fetches the Node version the frontend needs).
 
 ```
-cd backend && uv sync && uv run mm serve        # terminal 1: the API
+cd backend && uv sync && uv run mm serve        # terminal 1: the API, which prints the Host's link
 cd frontend && pnpm install && pnpm dev          # terminal 2: the web console
-cd backend && uv run mm new-game                 # terminal 3: start a game, open the printed link
 ```
+
+Open the link `mm serve` prints. It hands your browser the Host token, so you can set up games, pause, step and resume them, and watch them in full. Anyone else who opens the console watches in public scope: only what the whole town saw. `uv run mm new-game` starts a game from the terminal instead.
 
 Or play a game straight in the terminal: `cd backend && uv run mm play`.
 
 ## Layout
 
 - `backend/`: game engine, decision sources, orchestration, storage and API ([details](backend/README.md))
-- `frontend/`: the Spectator's web console
+- `frontend/`: the web console: the game list, the Host's setup form and controls, and every Spectator's view of a game
 - `protocol/`: the backend-frontend protocol as JSON Schema; frontend types are generated from it
 - `fixtures/`: a recorded game shared by backend and frontend tests
 - `GLOSSARY.md`: the game's vocabulary

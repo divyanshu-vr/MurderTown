@@ -22,7 +22,7 @@ from mm.agents.lineup import lineup_brains
 from mm.cli.recording import calls_beside, read_ndjson
 from mm.engine import GameConfig, PlayedBy
 from mm.engine.decisions import DecisionKind
-from mm.engine.events import Event, GameAborted, GameEnded, GameStarted
+from mm.engine.events import Event, GameAborted, GameConfigured, GameEnded
 from mm.llm import Effort, ModelProvider, ModelReply, ModelRequest
 from mm.llm import providers as providers_module
 from mm.llm.anthropic_api import AnthropicAPIProvider
@@ -367,13 +367,12 @@ async def test_a_request_the_cassette_does_not_hold_fails_loudly_saying_how_to_r
 async def test_the_recorded_live_game_replays_exactly_with_no_network() -> None:
     events = read_ndjson(LIVE_GAME, Event)
     calls = read_ndjson(calls_beside(LIVE_GAME), ModelCall)
-    started = events[0].payload
-    assert isinstance(started, GameStarted)
+    configured = events[0].payload
+    assert isinstance(configured, GameConfigured)
     assert isinstance(events[-1].payload, GameEnded), "re-record the live game: it did not end"
+    config = configured.config
 
-    replayed = await play_game(
-        started.config, lineup_brains(started.config, Cassette.serving(calls), unrecorded)
-    )
+    replayed = await play_game(config, lineup_brains(config, Cassette.serving(calls), unrecorded))
 
     last = replayed.events[-1].payload
     assert not isinstance(last, GameAborted), last.reason  # a cassette miss says to re-record

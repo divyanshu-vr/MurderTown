@@ -7,7 +7,7 @@ from mm.engine.decisions import DecisionRequest, Statement
 from mm.engine.events import BidPlaced, Event, GameEnded, OpenFloorTimedOut, StatementMade
 from mm.engine.perception import perceived_by
 from mm.engine.state import GameState
-from mm.orchestrator import play_game
+from mm.orchestrator import GameControls, play_game
 from tests.support import (
     BidRule,
     StatementRule,
@@ -120,7 +120,7 @@ async def test_a_tie_nobody_was_addressed_in_is_an_even_draw() -> None:
 async def test_the_open_floor_stops_when_its_time_is_up_and_everyone_hears_so() -> None:
     config = CONFIG.model_copy(update={"open_floor_seconds": 300})
 
-    result = await play_game(config, puppets(bids=keen), clock=ticking(200))
+    result = await play_game(config, puppets(bids=keen), controls=GameControls(clock=ticking(200)))
 
     assert len(open_floor(result.events)) == 1
     timed_out = next(e for e in result.events if isinstance(e.payload, OpenFloorTimedOut))

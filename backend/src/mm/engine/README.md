@@ -16,7 +16,7 @@ Owns everything that decides what is true in a game: the configuration and its b
 - `dusk.py`: who talks to whom at Dusk, in which wave, and who speaks next in a Conversation, with every limit.
 - `tally.py`: the top choice with a tie drawn by the game's seed, shared by the Open floor and the kill vote.
 - `casting.py`: names, seats, personas and roles, all drawn from the game's seeded random source; `seated_roles(config)` tells the role at each seat before the game starts.
-- `config.py`: `GameConfig`, everything the Host chooses, with its bounds, including the `Lineup` of who plays each Resident (`PlayedBy`: a provider, a model and an `Effort`).
+- `config.py`: `GameConfig`, everything the Host chooses, with its bounds: the `Rules` everyone in town knows, plus the seed and the `Lineup` of who plays each Resident (`PlayedBy`: a provider, a model and an `Effort`). Casting follows from the seed, so no Resident may know it and only full scope shows it: a game's log opens with `GameConfigured`, which no Resident perceives, then `GameStarted`, which carries only the rules.
 - `personas.py`: who each Resident is as a person. The occupation is public; the rest is private.
 
 **Why it is shaped this way:** keeping the rules free of I/O and randomness-from-nowhere makes a game a pure function of its configuration and decisions, which is what makes replay, resume and the isolation tests possible.

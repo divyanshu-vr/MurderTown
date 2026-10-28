@@ -23,7 +23,7 @@ from mm.engine.events import (
 )
 from mm.llm import ModelReply, ModelRequest
 from mm.orchestrator.narrator import NARRATOR
-from tests.conftest import serving, start_game, wait_until_finished
+from tests.conftest import played_to_the_end, serving
 from tests.support import (
     FakeModel,
     agents_on,
@@ -37,8 +37,7 @@ CONFIG = {"residents": 8, "murderers": 2, "max_days": 2, "seed": 4}
 
 
 def finished_game(client: TestClient, config: dict[str, Any] = CONFIG) -> tuple[str, list[Event]]:
-    game_id = start_game(client, config)
-    wait_until_finished(client, game_id)
+    game_id = played_to_the_end(client, config)
     events = client.get(f"/games/{game_id}/events").json()["events"]
     return game_id, [Event.model_validate(event) for event in events]
 
@@ -92,21 +91,6 @@ def test_there_is_no_mind_for_a_stranger_or_before_roles_are_given(
     response = client.get(f"/games/{game_id}/residents/{name}/mind", params=moment)
 
     assert response.status_code == 404
-
-
-@pytest.mark.parametrize(("scope", "status"), [("public", 403), ("pubic", 422)])
-def test_only_full_scope_may_see_a_mind_or_an_explanation(
-    client: TestClient, scope: str, status: int
-) -> None:
-    game_id, events = finished_game(client)
-    _, assigned = first(events, RoleAssigned)
-    caused, _ = first(events, BallotCast)
-
-    for url in (
-        f"/games/{game_id}/residents/{assigned.resident}/mind",
-        f"/games/{game_id}/events/{caused.seq}/explain",
-    ):
-        assert client.get(url, params={"scope": scope}).status_code == status
 
 
 def test_a_scripted_decision_is_explained_with_no_model_attempts(client: TestClient) -> None:

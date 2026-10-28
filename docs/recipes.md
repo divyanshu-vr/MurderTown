@@ -37,7 +37,7 @@ pnpm gen:types
 ## Add a role
 
 1. Add it to `Role` (`engine/roles.py`). Its side follows from `Role.side`.
-2. Add a toggle to `GameConfig` and include it in `role_deck` (`engine/config.py`).
+2. Add a toggle to `Rules` and include it in `role_deck` (`engine/config.py`), and offer it among the setup form's role toggles (`frontend/src/ui/SetupForm.tsx`).
 3. Its powers are decision kinds (see above), asked for by the Phase where they act.
 4. Add its label to `roleLabel` (`frontend/src/ui/labels.ts`). The `Record` type will not compile until you do.
 
@@ -47,4 +47,4 @@ pnpm gen:types
 2. Render it from a component in `frontend/src/ui` and mount it in `GameConsole`.
 3. Write a seam-3 test: render from the recorded fixture and assert what a Spectator sees, by role and accessible name.
 
-A panel that shows what the events do not hold, such as the cost meter (from the stored model calls), asks the server through a source function in `frontend/src/net` (`costSource`, like `explainer`) that `App` passes to `GameConsole` only for full scope. Its seam-3 test passes a stub source instead.
+A panel that shows what the events do not hold, such as the cost meter (from the stored model calls), asks the server through a source function in `frontend/src/net` (`costSource`, like `explainer`) that `LiveGamePage` passes to `GameConsole` only on the Host's page, since only the Host may ask. Its seam-3 test passes a stub source instead.

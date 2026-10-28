@@ -33,9 +33,9 @@ from mm.engine.events import (
     StatementMade,
 )
 from mm.llm import ModelReply, ModelRequest
-from mm.orchestrator import EventObserver, GameHaltedError, play_game
+from mm.orchestrator import EventObserver, GameControls, GameHaltedError, play_game
 from mm.orchestrator.log import ReplayDivergedError
-from tests.conftest import serving, start_game, wait_until, wait_until_finished
+from tests.conftest import following, serving, start_game, wait_until, wait_until_finished
 from tests.support import (
     FakeModel,
     agents_on,
@@ -139,16 +139,16 @@ async def test_a_game_that_crashed_mid_phase_resumes_to_the_log_it_would_have_ha
 async def test_a_game_halted_mid_batch_stops_cleanly_and_resumes_to_the_same_log() -> None:
     brains = SOURCES["scripted bots"]
     uninterrupted = (await play_game(CONFIG, brains())).events
-    halt = asyncio.Event()
+    controls = GameControls()
     before = Process()
 
     async def halt_at_first_ballot(event: Event) -> None:
         if isinstance(event.payload, BallotCast):
-            halt.set()  # the rest of the ballots are already asked: they finish
+            controls.halt()  # the rest of the ballots are already asked: they finish
 
     with pytest.raises(GameHaltedError):
         observers = [before.store(), halt_at_first_ballot]
-        await play_game(CONFIG, brains(), observers=observers, halt=halt)
+        await play_game(CONFIG, brains(), observers=observers, controls=controls)
     resumed = await play_game(CONFIG, brains(), replay=before.events)
 
     assert not any(isinstance(e.payload, GameAborted) for e in before.events)
@@ -178,24 +178,30 @@ KEEN = GameConfig(residents=6, murderers=1, max_days=1, seed=4, open_floor_secon
 
 
 async def test_an_open_floor_that_ran_out_of_time_does_so_again_when_resumed() -> None:
-    timed = await play_game(KEEN, puppets(bids=keen), clock=ticking(200))
+    timed = await play_game(KEEN, puppets(bids=keen), controls=GameControls(clock=ticking(200)))
     timed_out = first_seq_of("open_floor_timed_out", timed.events)
     process = Process()
     with pytest.raises(Crashed):
         observers = [process.store(timed_out)]
-        await play_game(KEEN, puppets(bids=keen), observers=observers, clock=ticking(200))
+        await play_game(
+            KEEN, puppets(bids=keen), observers=observers, controls=GameControls(clock=ticking(200))
+        )
 
-    frozen = await play_game(KEEN, puppets(bids=keen), clock=ticking(0), replay=process.events)
+    frozen = await play_game(
+        KEEN, puppets(bids=keen), controls=GameControls(clock=ticking(0)), replay=process.events
+    )
 
     assert logged(frozen.events) == logged(timed.events)
 
 
 async def test_an_open_floor_that_had_time_left_keeps_going_when_resumed_on_a_fast_clock() -> None:
-    patient = await play_game(KEEN, puppets(bids=keen), clock=ticking(0))
+    patient = await play_game(KEEN, puppets(bids=keen), controls=GameControls(clock=ticking(0)))
     first_bid = first_seq_of("bid_placed", patient.events)
     stored = (await crashed_after(first_bid, puppets(bids=keen), KEEN)).events
 
-    hasty = await play_game(KEEN, puppets(bids=keen), clock=ticking(10_000), replay=stored)
+    hasty = await play_game(
+        KEEN, puppets(bids=keen), controls=GameControls(clock=ticking(10_000)), replay=stored
+    )
 
     assert isinstance(stored[-1].payload, BidPlaced)  # the stored Turn did not time out, so ...
     assert logged(hasty.events[: len(stored)]) == logged(stored)  # ... the replay did not either
@@ -344,7 +350,7 @@ def stopped_mid_game(database_url: str, model: FakeModel) -> tuple[str, list[obj
 
 
 def streamed(client: TestClient, game_id: str, last: str) -> list[object]:
-    with client.websocket_connect(f"/ws/games/{game_id}?after=0") as socket:
+    with following(client, game_id) as socket:
         received = [socket.receive_json()]
         while received[-1]["payload"]["type"] != last:
             received.append(socket.receive_json())

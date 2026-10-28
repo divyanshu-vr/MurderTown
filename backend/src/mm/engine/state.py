@@ -9,7 +9,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import assert_never
 
-from mm.engine.config import GameConfig
+from mm.engine.config import Rules
 from mm.engine.events import (
     AttackThwarted,
     BallotCast,
@@ -17,11 +17,13 @@ from mm.engine.events import (
     ConversationMessagePosted,
     ConversationStarted,
     DecisionFellBack,
+    DecisionUnanswered,
     DenMessagePosted,
     DuskIntentChosen,
     Event,
     EventPayload,
     GameAborted,
+    GameConfigured,
     GameEnded,
     GameStarted,
     KillVoteCast,
@@ -47,7 +49,7 @@ from mm.engine.roles import Role, Side
 
 @dataclass
 class GameState:
-    config: GameConfig | None = None
+    rules: Rules | None = None
     residents: tuple[Resident, ...] = ()
     roles: dict[str, Role] = field(default_factory=dict)
     dead: set[str] = field(default_factory=set)
@@ -71,8 +73,8 @@ class GameState:
 
     def apply(self, payload: EventPayload) -> None:  # noqa: C901 - one case per event type
         match payload:
-            case GameStarted(config=config, residents=residents):
-                self.config, self.residents = config, residents
+            case GameStarted(rules=rules, residents=residents):
+                self.rules, self.residents = rules, residents
             case RoleAssigned(resident=resident, role=role, teammates=teammates):
                 self.roles[resident] = role
                 self.roles.update(dict.fromkeys(teammates, Role.MURDERER))
@@ -98,6 +100,7 @@ class GameState:
                 | SheriffHeldFire() | ReflectionWritten() | DecisionFellBack() | DenMessagePosted()
                 | KillVoteCast() | AttackThwarted() | RecapNarrated() | DuskIntentChosen()
                 | ConversationStarted() | ConversationMessagePosted() | OpenFloorTimedOut()
+                | GameConfigured() | DecisionUnanswered()
             ):  # fmt: skip
                 pass  # recorded in the log, but they change nothing the state tracks
             case unknown:

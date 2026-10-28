@@ -3,6 +3,8 @@
 import asyncio
 import json
 import logging
+import os
+import secrets
 import urllib.request
 from collections.abc import Mapping
 from pathlib import Path
@@ -16,11 +18,12 @@ from mm.agents.cassette import Cassette
 from mm.agents.lineup import lineup_brains
 from mm.agents.memory import mind_of
 from mm.api.protocol import protocol_schema
+from mm.api.routes import HOST_TOKEN_HEADER
 from mm.api.settings import Settings
 from mm.cli.recording import CallTally, NdjsonFile, calls_beside, read_ndjson
 from mm.cli.transcript import describe
 from mm.engine import SCRIPTED, GameConfig, Lineup, PlayedBy
-from mm.engine.events import DecisionFellBack, Event, GameStarted, ReflectionWritten
+from mm.engine.events import DecisionFellBack, Event, GameConfigured, ReflectionWritten
 from mm.llm import Effort, ModelProvider
 from mm.llm.providers import NAMES
 from mm.observability import observed
@@ -41,6 +44,23 @@ Provider = Annotated[
 
 LIVE_GAME = Path("../fixtures/live-game.ndjson")
 """The live game CI replays from its recorded model calls."""
+
+HOST_TOKEN_FILE = Path("runs/host-token")
+"""Where the Host token is kept when MM_HOST_TOKEN is not set, so it stays the same between runs."""
+
+WEB = "http://localhost:5173"
+"""Where the frontend's dev server runs."""
+
+
+def _host_token() -> str:
+    """The Host token: MM_HOST_TOKEN if it is set (in the environment or .env), or else the one
+    kept in runs/host-token, made the first time it is needed."""
+    if (token := Settings().host_token) is not None:
+        return token.get_secret_value()
+    if not HOST_TOKEN_FILE.exists():
+        HOST_TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
+        HOST_TOKEN_FILE.write_text(secrets.token_urlsafe(24), encoding="utf-8")
+    return HOST_TOKEN_FILE.read_text(encoding="utf-8").strip()
 
 
 def _everyone(provider: str, model: str, effort: Effort) -> Lineup:
@@ -144,12 +164,12 @@ def play(
 
 def _recorded(events: Path) -> tuple[GameConfig, Mapping[str, ModelProvider]]:
     """A saved game's configuration, and its recorded model calls standing in for every model."""
-    started = read_ndjson(events, Event)[0].payload
-    if not isinstance(started, GameStarted):
+    configured = read_ndjson(events, Event)[0].payload
+    if not isinstance(configured, GameConfigured):
         raise typer.BadParameter(f"{events} does not start with a game")
     calls_file = calls_beside(events)
     calls = read_ndjson(calls_file, ModelCall) if calls_file.exists() else []
-    return started.config, Cassette.serving(calls)
+    return configured.config, Cassette.serving(calls)
 
 
 async def _print_event(event: Event) -> None:
@@ -158,14 +178,19 @@ async def _print_event(event: Event) -> None:
 
 
 @app.command()
-def serve(host: str = "127.0.0.1", port: int = 8000, reload: bool = False) -> None:
+def serve(host: str = "127.0.0.1", port: int = 8000, reload: bool = False, web: str = WEB) -> None:
     """Run the API server. Settings come from MM_* environment variables or .env.
+
+    Only the Host may start and control games: open the link it prints, which hands your
+    browser the Host token (MM_HOST_TOKEN, or one kept in runs/host-token).
 
     Logs are JSON lines on stderr; traces go wherever the MM_LANGFUSE_* or
     MM_OTLP_ENDPOINT settings say (see backend/.env.example). Stop it with Ctrl+C (or
     SIGTERM on Linux): games stop before their next decision and resume at the next start.
     A second Ctrl+C stops at once; games still resume, repeating only unrecorded calls.
     """
+    os.environ["MM_HOST_TOKEN"] = token = _host_token()  # read by the server, reloads included
+    typer.echo(f"Host: open {web}/#host-token={token} to start and control games.")
     uvicorn.run(
         "mm.api.app:observed_app",
         factory=True,
@@ -189,27 +214,36 @@ def rerecord(out: Path = LIVE_GAME) -> None:
 def new_game(
     *,
     api: str = "http://127.0.0.1:8000",
-    web: str = "http://localhost:5173",
+    web: str = WEB,
     residents: int = 12,
     murderers: int = 2,
-    seed: int = 7,
+    seed: Annotated[
+        int | None, typer.Option(help="Leave it out for a random one: a known seed tells roles.")
+    ] = None,
     max_days: int = 10,
     provider: Provider = SCRIPTED.provider,
     model: str = AGENT.model,
     effort: Effort = AGENT.effort,
+    host_token: Annotated[
+        str | None, typer.Option(help="The server's Host token, if not MM_HOST_TOKEN's.")
+    ] = None,
 ) -> None:
-    """Start a game on a running server and print where to watch it."""
+    """Start a game on a running server, as the Host, and print where to watch it."""
+    chosen = {"seed": seed} if seed is not None else {}
     config = GameConfig(
         residents=residents,
         murderers=murderers,
-        seed=seed,
         max_days=max_days,
         lineup=_everyone(provider, model, effort),
-    ).model_dump(mode="json")
+        **chosen,
+    ).model_dump(mode="json", exclude_unset=True)
     request = urllib.request.Request(
         f"{api}/games",
         data=json.dumps(config).encode(),
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            HOST_TOKEN_HEADER: host_token or _host_token(),
+        },
         method="POST",
     )
     with urllib.request.urlopen(request) as response:

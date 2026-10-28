@@ -9,7 +9,7 @@ from itertools import count
 from random import Random
 from typing import Any
 
-from mm.agents import Brain, BrainFactory, CallRecorder, ModelCall, llm_agents
+from mm.agents import Brain, BrainFactory, CallRecorder, ModelCall, llm_agents, scripted_bots
 from mm.agents.scripted import ScriptedBot
 from mm.api.live_games import BrainsFor
 from mm.engine import GameConfig, PlayedBy, Resident, Role
@@ -196,6 +196,23 @@ def wrapped(factory: BrainFactory, wrap: Callable[[Brain], Brain]) -> BrainFacto
         return wrap(factory(resident))
 
     return make
+
+
+class Unhurried:
+    """A scripted bot that takes a moment to think, so the game is still live while we watch."""
+
+    def __init__(self, inner: Brain) -> None:
+        self.inner = inner
+
+    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
+        await asyncio.sleep(0.005)
+        return await self.inner.decide(request, view)
+
+
+def unhurried_bots(
+    config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
+) -> BrainFactory:
+    return wrapped(scripted_bots(config.seed), Unhurried)
 
 
 def puppets(

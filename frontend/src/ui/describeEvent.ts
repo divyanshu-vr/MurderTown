@@ -5,6 +5,8 @@ import { activityLabel, deathLabel, decisionLabel, phaseLabel, roleLabel, victor
 export function describeEvent(event: Event): string {
   const payload = event.payload;
   switch (payload.type) {
+    case "game_configured":
+      return `The Host sets up a game of ${payload.config.residents} Residents with seed ${payload.config.seed}.`;
     case "game_started":
       return `${payload.residents.length} Residents move into town.`;
     case "role_assigned":
@@ -65,20 +67,21 @@ export function describeEvent(event: Event): string {
       return `${payload.resident}'s ${decisionLabel[payload.kind]} ${fellBack(payload.reason)}`;
     case "game_ended":
       return `${victoryLabel[payload.winner]}. ${payload.reason}`;
+    case "decision_unanswered":
+      return `${payload.resident}'s ${decisionLabel[payload.kind]} got no answer: ${payload.reason}`;
     case "game_aborted":
-      return payload.resident && payload.kind
-        ? `The game is aborted: ${payload.resident}'s ${decisionLabel[payload.kind]} got no answer: ${payload.reason}`
-        : `The game is aborted: ${payload.reason}`;
+      return `The game is aborted: ${payload.reason}`;
   }
 }
 
 /**
- * Whether the town feed shows an event. It leaves out role assignments (the roster
- * shows roles), private reflections (the Mind inspector shows them) and bids to listen.
+ * Whether the town feed shows an event. It leaves out the Host's setup, role assignments
+ * (the roster shows roles), private reflections (the Mind inspector shows them) and bids to listen.
  */
 export function inFeed(event: Event): boolean {
   const payload = event.payload;
   return !(
+    payload.type === "game_configured" ||
     payload.type === "role_assigned" ||
     payload.type === "reflection_written" ||
     (payload.type === "bid_placed" && payload.urgency === 0)

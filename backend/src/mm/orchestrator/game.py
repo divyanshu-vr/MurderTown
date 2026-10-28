@@ -1,7 +1,6 @@
 """The game runner: plays a whole game from casting to the final verdict."""
 
 import asyncio
-import time
 from collections.abc import Awaitable, Callable, Sequence
 from contextlib import nullcontext
 from dataclasses import dataclass, replace
@@ -17,6 +16,7 @@ from mm.engine.casting import cast
 from mm.engine.decisions import Decision, DecisionRequest
 from mm.engine.events import (
     DecisionFellBack,
+    DecisionUnanswered,
     Event,
     EventPayload,
     GameAborted,
@@ -28,6 +28,7 @@ from mm.engine.perception import perceived_by
 from mm.engine.rules import Verdict, verdict, verdict_at_end_of_day, why_illegal
 from mm.engine.state import GameState
 from mm.observability import tracing
+from mm.orchestrator.controls import GameControls, GameHaltedError
 from mm.orchestrator.log import EventLog, EventObserver, ReplayDivergedError
 from mm.orchestrator.narrator import NARRATOR
 from mm.orchestrator.phases.dawn import run_dawn
@@ -60,10 +61,6 @@ DIVERGED = "resuming the game did not reproduce its log"
 """What Spectators are told when a resumed game makes an event different from the stored one."""
 
 
-class GameHaltedError(Exception):
-    """The game was asked to stop before its next decision, so it can resume later."""
-
-
 class IllegalDecisionError(Exception):
     """A decision source answered with something the rules do not allow."""
 
@@ -92,13 +89,12 @@ class Game:
         brain_for: BrainFactory,
         log: EventLog,
         *,
-        clock: Callable[[], float],
+        controls: GameControls,
         game_id: str,
-        halt: asyncio.Event,
     ) -> None:
         self.config = config
-        self.clock = clock
-        self.halt = halt
+        self.controls = controls
+        self.clock = controls.now
         self.game_id = game_id
         self.rng = Random(config.seed)
         self.log = log
@@ -126,14 +122,10 @@ class Game:
             except GameHaltedError:
                 raise  # the game stopped where it can resume: nothing more to log
             except ModelFailureError as failed:
-                request = failed.request
-                aborted = GameAborted(
-                    resident=request.resident, kind=request.kind, reason=failed.problem
-                )
-                await self.abort(aborted, decision_id=request.id)
+                await self.abort(failed.problem, unanswered=failed.request)
             except Exception as error:
                 diverged = isinstance(error, ReplayDivergedError)
-                await self.abort(GameAborted(reason=DIVERGED if diverged else INTERNAL_ERROR))
+                await self.abort(DIVERGED if diverged else INTERNAL_ERROR)
                 raise
 
     async def _play(self) -> None:
@@ -153,18 +145,30 @@ class Game:
         await self.append(GameEnded(winner=outcome.winner, reason=outcome.reason))
         logger.info("game ended", winner=outcome.winner, reason=outcome.reason)
 
-    async def abort(self, aborted: GameAborted, decision_id: str | None = None) -> None:
-        """End the log with an abort, so Spectators see the game stop and why. An abort for a
-        decision names it, so the Mind inspector can explain it.
+    async def abort(self, reason: str, unanswered: DecisionRequest | None = None) -> None:
+        """End the log with an abort, so everyone sees the game stop and why. A decision that
+        got no answer comes first, in full scope only (whose it was could reveal a Night
+        role), linked to the decision so the Mind inspector can explain it.
 
         A resumed game replaying up to an abort it had stored makes that same abort again.
         If its stored log went on instead, the log goes back to it and the abort follows.
         """
+        ending: list[tuple[EventPayload, str | None]] = [(GameAborted(reason=reason), None)]
+        if unanswered:
+            told = DecisionUnanswered(
+                resident=unanswered.resident, kind=unanswered.kind, reason=reason
+            )
+            ending.insert(0, (told, unanswered.id))
         try:
-            await self.log.append(aborted, decision_id=decision_id)
+            await self._append_all(ending)
         except ReplayDivergedError:
-            await self.log.append(aborted, decision_id=decision_id)
-        logger.warning("game aborted", resident=aborted.resident, reason=aborted.reason)
+            await self._append_all(ending)
+        resident = unanswered.resident if unanswered else None
+        logger.warning("game aborted", resident=resident, reason=reason)
+
+    async def _append_all(self, payloads: Sequence[tuple[EventPayload, str | None]]) -> None:
+        for payload, decision_id in payloads:
+            await self.log.append(payload, decision_id=decision_id)
 
     async def append(self, payload: EventPayload, cause: Decided[Decision] | None = None) -> Event:
         """Append an event; if a decision caused it, link them and report a fallback once."""
@@ -195,6 +199,7 @@ class Game:
 
     async def decide[D: Decision](self, request: DecisionRequest, answer: type[D]) -> Decided[D]:
         """Ask one Resident's decision source, showing it only what that Resident perceives."""
+        await self.controls.checkpoint(replaying=self.log.replaying)
         return await self._ask(self._stamp(request), answer)
 
     async def decide_all[D: Decision](
@@ -208,8 +213,12 @@ class Game:
         If any decision fails, every ask still finishes, and the first failure in the order
         asked is raised, so the same failures always stop the game the same way.
         `pending` is what has been said but not appended yet; each Resident still
-        perceives only the part of it their visibility allows.
+        perceives only the part of it their visibility allows. Asking nobody is no batch,
+        so it is no checkpoint either.
         """
+        if not requests:
+            return []
+        await self.controls.checkpoint(replaying=self.log.replaying)
         stamped = [self._stamp(request) for request in requests]
         heard = [self.log.unlogged(payload) for payload in pending]
         asked = (self._ask(request, answer, heard) for request in stamped)
@@ -249,8 +258,6 @@ class Game:
     async def _ask[D: Decision](
         self, request: DecisionRequest, answer: type[D], heard: Sequence[Event] = ()
     ) -> Decided[D]:
-        if self.halt.is_set():
-            raise GameHaltedError
         view = perceived_by([*self.log.events, *heard], request.resident)
         traced = (  # a replayed decision was traced the first time
             nullcontext()
@@ -276,21 +283,21 @@ async def play_game(
     brain_for: BrainFactory,
     *,
     observers: Sequence[EventObserver] = (),
-    clock: Callable[[], float] = time.monotonic,
     game_id: str = "",
     replay: Sequence[Event] = (),
-    halt: asyncio.Event | None = None,
+    controls: GameControls | None = None,
 ) -> GameResult:
     """Play one whole game. Observers hear every event as it is appended.
 
     `game_id` names the game in logs and traces; a fresh one is made if none is given.
     To resume a game that stopped, pass the events it had stored as `replay`: the game
     plays again from the start, checks it makes those same events, and goes on from there.
-    Setting `halt` stops the game before its next decision, raising `GameHaltedError`;
-    decisions already asked finish first, so it can be resumed later.
+    `controls` pause, step or halt the game before its next batch of decisions, and keep
+    its clock; halting raises `GameHaltedError` once the decisions already asked finish,
+    so the game can be resumed later.
     """
     log = EventLog(observers, replay)
     game_id = game_id or uuid4().hex
-    game = Game(config, brain_for, log, clock=clock, game_id=game_id, halt=halt or asyncio.Event())
+    game = Game(config, brain_for, log, controls=controls or GameControls(), game_id=game_id)
     await game.play()
     return GameResult(events=game.log.events, state=game.state)

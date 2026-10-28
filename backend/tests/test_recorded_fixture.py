@@ -23,4 +23,8 @@ def test_the_recorded_game_contains_every_event_type() -> None:
     lines = FIXTURE.read_text(encoding="utf-8").splitlines()
     recorded = {Event.model_validate_json(line).payload.type for line in lines}
 
-    assert recorded == every_event_type() - {"game_aborted", "open_floor_timed_out"}
+    assert recorded == every_event_type() - {
+        "decision_unanswered",
+        "game_aborted",
+        "open_floor_timed_out",
+    }

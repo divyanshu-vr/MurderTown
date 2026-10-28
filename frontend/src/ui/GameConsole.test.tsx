@@ -151,15 +151,22 @@ describe("an aborted game", () => {
   const vote = events[firstKillVote];
   if (!lastKept || vote?.payload.type !== "kill_vote_cast") throw new Error("The recorded game has no kill vote");
   const murderer = vote.payload.murderer;
-  const abort: Event = {
+  const unanswered: Event = {
     seq: lastKept.seq + 1,
     day: lastKept.day,
     phase: lastKept.phase,
     visibility: { scope: "spectators", residents: [] },
     decision_id: "d999",
-    payload: { type: "game_aborted", resident: murderer, kind: "kill_vote", reason: "no answer within 90 seconds" },
+    payload: { type: "decision_unanswered", resident: murderer, kind: "kill_vote", reason: "no answer within 90 seconds" },
   };
-  const aborted = [...before, abort];
+  const abort: Event = {
+    ...unanswered,
+    seq: unanswered.seq + 1,
+    visibility: { scope: "everyone", residents: [] },
+    decision_id: null,
+    payload: { type: "game_aborted", reason: "no answer within 90 seconds" },
+  };
+  const aborted = [...before, unanswered, abort];
 
   it("says the game was aborted and why, as an alert", () => {
     render(<GameConsole events={aborted} connection="ended" />);
@@ -170,7 +177,7 @@ describe("an aborted game", () => {
   it("tells in the feed whose decision got no answer", () => {
     render(<GameConsole events={aborted} connection="ended" />);
 
-    const [line] = feedItems("game_aborted");
+    const [line] = feedItems("decision_unanswered");
     expect(line).toHaveTextContent(`${murderer}'s kill vote got no answer: no answer within 90 seconds`);
   });
 
@@ -183,7 +190,10 @@ describe("an aborted game", () => {
     expect(alert).toHaveTextContent("Game aborted: no answer within 90 seconds");
     expect(alert).not.toHaveTextContent(murderer);
     expect(alert.textContent?.toLowerCase()).not.toContain("kill");
-    expect(within(feed()).queryAllByRole("listitem").filter(isKind("game_aborted"))).toHaveLength(0);
+    expect(within(feed()).queryAllByRole("listitem").filter(isKind("decision_unanswered"))).toHaveLength(0);
+    const [line] = feedItems("game_aborted");
+    expect(line).toHaveTextContent("The game is aborted: no answer within 90 seconds");
+    expect(line).not.toHaveTextContent(murderer);
   });
 
   it("lists the decision that got no answer in that Resident's mind, ready to explain", () => {
@@ -193,8 +203,16 @@ describe("an aborted game", () => {
     fireEvent.click(within(roster).getByRole("button", { name: murderer }));
     const mind = screen.getByRole("complementary", { name: `Mind of ${murderer}` });
     const decisions = within(mind).getByRole("list", { name: "Decisions" });
-    const item = within(decisions).getByRole("listitem", { name: `Decision at event ${abort.seq}` });
+    const item = within(decisions).getByRole("listitem", { name: `Decision at event ${unanswered.seq}` });
     expect(within(item).getByRole("button", { name: "why?" })).toBeInTheDocument();
+  });
+});
+
+describe("a paused game", () => {
+  it("says so in the phase bar, to everyone watching", () => {
+    render(<GameConsole events={events} connection="live" scope="public" paused />);
+
+    expect(screen.getByRole("banner")).toHaveTextContent("Paused");
   });
 });
 

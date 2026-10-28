@@ -4,7 +4,7 @@
  * Pure TypeScript: no React, no Phaser, no I/O. The same fold serves live games
  * and replays, so both always show the same thing for the same events.
  */
-import type { Event, GameConfig, Phase, PayloadOf, Role, Side } from "../protocol";
+import type { Event, Phase, PayloadOf, Role, Rules, Side } from "../protocol";
 
 export interface ResidentView {
   name: string;
@@ -17,7 +17,7 @@ export interface ResidentView {
 }
 
 export interface GameView {
-  config: GameConfig | null;
+  rules: Rules | null;
   residents: ResidentView[];
   day: number;
   phase: Phase;
@@ -30,7 +30,7 @@ export interface GameView {
 export type Outcome = { ended: "won"; winner: Side; reason: string } | { ended: "aborted"; reason: string };
 
 export const emptyView: GameView = {
-  config: null,
+  rules: null,
   residents: [],
   day: 0,
   phase: "setup",
@@ -58,7 +58,7 @@ export function applyEvent(view: GameView, event: Event): GameView {
     case "game_started":
       return {
         ...view,
-        config: payload.config,
+        rules: payload.rules,
         residents: payload.residents.map(({ name, seat, occupation }) => ({
           name,
           seat,
@@ -89,7 +89,7 @@ export function applyEvent(view: GameView, event: Event): GameView {
       };
     case "game_ended":
       return { ...view, phase: "ended", outcome: { ended: "won", winner: payload.winner, reason: payload.reason } };
-    case "game_aborted": // only the problem: whose decision failed could reveal a Night role
+    case "game_aborted":
       return { ...view, phase: "ended", outcome: { ended: "aborted", reason: payload.reason } };
     case "open_floor_timed_out": // the next Phase ends the Open floor
     case "sheriff_fired": // the deaths that follow change the roster
@@ -109,6 +109,8 @@ export function applyEvent(view: GameView, event: Event): GameView {
     case "vote_resolved":
     case "reflection_written":
     case "decision_fell_back":
+    case "decision_unanswered":
+    case "game_configured":
       return view; // these only appear in the feed or, later, the Mind inspector
   }
 }

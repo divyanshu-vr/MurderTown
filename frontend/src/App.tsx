@@ -1,37 +1,39 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 
-import { costSource } from "./net/cost";
-import { explainer } from "./net/explain";
-import type { Scope } from "./net/followGame";
-import { useFollowedGame } from "./net/useFollowedGame";
-import { GameConsole } from "./ui/GameConsole";
+import { forgetHostToken, heldHostToken, keepHostToken, takeHostTokenFromLink } from "./net/hostToken";
+import { HomePage } from "./ui/HomePage";
+import { LiveGamePage } from "./ui/LiveGamePage";
+import { SetupPage } from "./ui/SetupPage";
 
 const GAME_PATH = /^\/games\/([0-9a-f]+)\/?$/;
 
+/** The Host token, kept from a link that just handed it over or from before. */
+function handedOver(): string | null {
+  takeHostTokenFromLink();
+  return heldHostToken();
+}
+
+/** Pages by path: a game's console, the setup form, or the game list. */
 export function App() {
-  const gameId = GAME_PATH.exec(window.location.pathname)?.[1];
-  return gameId ? <LiveGame key={gameId} gameId={gameId} /> : <Welcome />;
-}
+  const [token, setToken] = useState(handedOver);
+  useEffect(() => {
+    // the Host's link opened in a tab already showing the console changes only the address's hash
+    const onHashChange = () => setToken(handedOver());
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+  const signIn = (handed: string) => {
+    keepHostToken(handed);
+    setToken(handed);
+  };
+  const signOut = () => {
+    forgetHostToken();
+    setToken(null);
+  };
 
-function LiveGame({ gameId }: { gameId: string }) {
-  const { events, connection } = useFollowedGame(gameId);
-  const scope: Scope = new URLSearchParams(window.location.search).get("scope") === "public" ? "public" : "full";
-  // only full scope may ask the server for explanations and costs
-  const asks = useMemo(
-    () => (scope === "full" ? { explain: explainer(gameId), cost: costSource(gameId) } : {}),
-    [gameId, scope],
-  );
-  return <GameConsole events={events} connection={connection} {...asks} scope={scope} />;
-}
-
-function Welcome() {
-  return (
-    <main className="mx-auto flex h-dvh max-w-xl flex-col justify-center gap-4 bg-stone-950 px-6 text-stone-200">
-      <h1 className="font-serif text-4xl text-amber-200">MurderTown</h1>
-      <p>A town where every Resident is played by an Agent. Start a game, then watch it here:</p>
-      <pre className="rounded bg-stone-900 p-4 text-sm text-stone-300">
-        {"cd backend\nuv run mm serve\nuv run mm new-game"}
-      </pre>
-    </main>
-  );
+  const path = window.location.pathname;
+  const gameId = GAME_PATH.exec(path)?.[1];
+  if (gameId) return <LiveGamePage key={gameId} gameId={gameId} hostToken={token} />;
+  if (path === "/setup") return <SetupPage hostToken={token} />;
+  return <HomePage hostToken={token} onSignIn={signIn} onSignOut={signOut} />;
 }

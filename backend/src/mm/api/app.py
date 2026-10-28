@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from mm.api.live_games import BrainsFor, LiveGames, lineup_on
+from mm.api.rate_limit import RateLimit
 from mm.api.routes import Services, router
 from mm.api.settings import Settings
 from mm.llm import ModelProvider
@@ -25,6 +26,9 @@ def create_app(
     `observe`, the server process sends logs and traces where the environment says; tests
     leave it off, so they never send spans anywhere."""
     settings = settings or Settings()
+    if settings.host_token is None or not settings.host_token.get_secret_value():
+        raise ValueError("Set MM_HOST_TOKEN: only the Host may start and control games")
+    host_token = settings.host_token.get_secret_value()
     brains_for = brains_for or lineup_on(
         providers if providers is not None else settings.providers()
     )
@@ -41,7 +45,13 @@ def create_app(
         await upgrade(engine)
         store, bus = GameStore(engine), InProcessBus()
         games = LiveGames(store, bus, brains_for)
-        app.state.services = Services(store=store, bus=bus, games=games)
+        app.state.services = Services(
+            store=store,
+            bus=bus,
+            games=games,
+            host_token=host_token,
+            new_games=RateLimit(settings.new_games_per_hour, per_seconds=3600),
+        )
         await games.unfinished_at_start(resume=settings.resume_on_boot)
         yield
         await games.shutdown(settings.shutdown_grace_seconds)

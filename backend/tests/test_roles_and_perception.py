@@ -4,9 +4,9 @@ from collections import Counter
 from collections.abc import Sequence
 
 from mm.agents import Brain, scripted_bots
-from mm.engine import GameConfig, Role
+from mm.engine import SCRIPTED, GameConfig, Lineup, Role
 from mm.engine.decisions import Answer, DecisionRequest
-from mm.engine.events import Event, RoleAssigned
+from mm.engine.events import Event, GameConfigured, GameStarted, RoleAssigned, Visibility
 from mm.engine.perception import perceived_by
 from mm.orchestrator import play_game
 from tests.support import may_perceive, payloads, wrapped
@@ -46,6 +46,21 @@ async def test_murderers_learn_their_teammates_and_nobody_else_learns_any() -> N
             assert set(assignment.teammates) == murderers - {assignment.resident}
         else:
             assert assignment.teammates == ()
+
+
+async def test_no_resident_learns_the_seed_or_the_lineup_since_the_seed_tells_every_role() -> None:
+    config = GameConfig(seed=11, max_days=1, lineup=Lineup(murderers=SCRIPTED))
+    result = await play_game(config, scripted_bots(seed=11))
+
+    (configured,) = [e for e in result.events if isinstance(e.payload, GameConfigured)]
+    assert configured.payload.config == config
+    assert configured.visibility == Visibility.spectators()
+    for resident in result.state.residents:
+        perceived = perceived_by(result.events, resident.name)
+        assert payloads(perceived, GameConfigured) == []
+        (started,) = payloads(perceived, GameStarted)
+        assert not hasattr(started.rules, "seed")
+        assert not hasattr(started.rules, "lineup")
 
 
 async def test_a_decision_source_is_only_ever_shown_what_its_resident_may_perceive() -> None:

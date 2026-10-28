@@ -1,5 +1,17 @@
 /** Every name the interface shows for a domain value, in one place. Vocabulary follows GLOSSARY.md. */
-import type { DecisionKind, ModelCall, PayloadOf, Phase, Role, Side } from "../protocol";
+import type { NumberField } from "../core/setup";
+import type {
+  Control,
+  DecisionKind,
+  Effort,
+  GameConfigInput,
+  GameSummary,
+  ModelCall,
+  PayloadOf,
+  Phase,
+  Role,
+  Side,
+} from "../protocol";
 
 export const phaseLabel: Record<Phase, string> = {
   setup: "Setting up",
@@ -71,6 +83,44 @@ export const attemptLabel: Record<ModelCall["outcome"], string> = {
 /** When something happened, as the Mind inspector dates journal entries and decisions. */
 export function whenLabel(day: number, phase: Phase): string {
   return `Day ${day}, ${phaseLabel[phase]}`;
+}
+
+export const statusLabel: Record<GameSummary["status"], string> = {
+  running: "Playing",
+  paused: "Paused",
+  finished: "Finished",
+  aborted: "Aborted",
+  failed: "Failed",
+};
+
+export const controlLabel: Record<Control, string> = { pause: "Pause", step: "Step", resume: "Resume" };
+
+export const sideLabel: Record<Side, string> = { town: "Town", murderers: "Murderers" };
+
+export const numberLabel: Record<NumberField, string> = {
+  residents: "Residents",
+  murderers: "Murderers",
+  max_days: "Days at most",
+  open_floor_statements: "Open-floor Statements",
+  open_floor_seconds: "Open-floor time limit (seconds)",
+  detective_accuracy: "Detective accuracy",
+};
+
+export const effortLabel: Record<Effort, string> = {
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+  max: "Max",
+};
+
+export const sheriffFiresLabel: Record<NonNullable<GameConfigInput["sheriff_shoots_at"]>, string> = {
+  showdown: "In each Day's Showdown",
+  night: "At Night",
+};
+
+/** An Equivalent cost, to the hundredth of a cent. */
+export function dollars(amount: number): string {
+  return `$${amount.toFixed(4)}`;
 }
 
 /** How a Dusk activity reads after "means to". */

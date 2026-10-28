@@ -6,8 +6,8 @@ Python 3.12, managed with [uv](https://docs.astral.sh/uv/).
 uv sync                  # install
 uv run mm play           # play a scripted game in the terminal
 uv run mm play --provider claude --residents 6 --max-days 1   # a short live game on your Claude subscription
-uv run mm serve          # run the API on http://127.0.0.1:8000
-uv run mm new-game       # start a game on the running API and print where to watch it
+uv run mm serve          # run the API on http://127.0.0.1:8000 and print the Host's link
+uv run mm new-game       # start a game on the running API, as the Host, and print where to watch it
 uv run pytest            # tests
 ```
 

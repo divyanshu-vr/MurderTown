@@ -57,6 +57,11 @@ def _configured() -> dict[str, Price]:
     return {**PRICES, **ModelPrices().model_prices}
 
 
+def priced_models() -> list[str]:
+    """Every model with a price, so every model a lineup may name."""
+    return sorted(_configured())
+
+
 def price_of(model: str) -> Price:
     """The model's price, or a `ValueError` saying where to add it."""
     prices = _configured()

@@ -1,8 +1,8 @@
 import { type CostRow, costRows } from "../core/cost";
 import type { ResidentView } from "../core/gameView";
 import type { Cost, CostReport } from "../protocol";
+import { dollars } from "./labels";
 
-const dollars = (amount: number) => `$${amount.toFixed(4)}`;
 const tokens = (count: number) => count.toLocaleString("en-US");
 const share = (rate: number | null) => (rate === null ? "-" : `${Math.round(rate * 100)}%`);
 

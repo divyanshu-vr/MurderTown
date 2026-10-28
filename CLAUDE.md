@@ -5,7 +5,7 @@ A social-deduction game where every Resident is played by an LLM Agent with its 
 ## How the code is shaped
 
 - **The event log is the single source of truth.** True state, each Agent's knowledge, the Spectator view and replays are all folds of one append-only log per game. New behaviour starts as a new event type whose visibility is declared beside its definition (`backend/src/mm/engine/events.py`).
-- **Perception has one door**: `perceived_by` in the engine. Everything shown to a Resident (bot view, prompt) and the server's mind endpoint go through it, which is what makes information isolation testable. The console's Mind inspector is a Spectator's view, folded from events Spectators already hold (`frontend/src/core/mind.ts` follows the rules of `remember` in `agents/memory.py`).
+- **Perception has one door**: `perceived_by` in the engine. Everything shown to a Resident (bot view, prompt) and the server's mind endpoint go through it, which is what makes information isolation testable. The console's Mind inspector is a full-scope view, folded from events a full-scope page already holds (`frontend/src/core/mind.ts` follows the rules of `remember` in `agents/memory.py`).
 - **Backend layers**, top to bottom: cli, api, persistence, orchestrator, agents, llm, observability, engine. A layer imports only from layers below it (`lint-imports` enforces this). The engine is pure: no I/O, clocks or async.
 - **Frontend layers**: `src/core` is pure TypeScript with no React, Phaser or network code (ESLint enforces this); `src/net` talks to the server; `src/ui` renders. Protocol types are generated from the backend, never written by hand.
 - **Determinism**: all randomness comes from the game's seeded `Random`. Decisions collected concurrently have their events appended in a fixed order (seat order; at Night, kill votes, then the protection, then the investigation; at Dusk, each wave's messages Conversation by Conversation), so the same seed and decisions always give the same log.
@@ -24,6 +24,7 @@ A social-deduction game where every Resident is played by an LLM Agent with its 
 
 ## Gotchas
 
+- The API refuses to start without a Host token (`MM_HOST_TOKEN`); `mm serve` keeps one in `backend/runs/host-token`. Tests act as the Host by default (`tests/conftest.py`); `spectating(client)` drops the token.
 - Logs and traces are configured only in `mm.observability`; see `docs/observability.md` for sending traces to Langfuse or a local Jaeger.
 
 - On Windows, write multi-line source files with the file tools; long shell heredocs fail to parse.
