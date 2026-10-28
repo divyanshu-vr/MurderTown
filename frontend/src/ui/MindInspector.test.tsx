@@ -182,6 +182,7 @@ describe("the why? drawer", () => {
       cache_write_tokens: 0,
       cost_usd: null,
       latency_ms: 900,
+      trace_id: "0af7651916cd43dd8448eb211c80319c",
     };
   }
 
@@ -218,6 +219,19 @@ describe("the why? drawer", () => {
     expect(drawer).toHaveTextContent("'Nobody' is not one of the options");
     expect(drawer).toHaveTextContent(raw);
     expect(drawer.querySelector("b")).toBeNull();
+  });
+
+  it("links each attempt to its trace when the Host set a trace address", async () => {
+    vi.stubEnv("VITE_TRACE_URL", "https://traces.example/project/p1/traces/{traceId}");
+    const { item } = openDrawer({ event: ballot, attempts: [attempt(1, "ok", "{}")], fallback_reason: null });
+
+    const drawer = await within(item).findByRole("region", { name: "Why?" });
+
+    expect(within(drawer).getByRole("link", { name: "trace" })).toHaveAttribute(
+      "href",
+      "https://traces.example/project/p1/traces/0af7651916cd43dd8448eb211c80319c",
+    );
+    vi.unstubAllEnvs();
   });
 
   it("says when a scripted bot made the decision, and why it fell back", async () => {

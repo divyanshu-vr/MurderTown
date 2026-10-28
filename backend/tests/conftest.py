@@ -1,5 +1,7 @@
-"""Fixtures and helpers shared by the transport tests, which drive the API like a browser would."""
+"""Fixtures and helpers shared by the tests: quiet logs, and the API driven like a browser would."""
 
+import io
+import logging
 import os
 import time
 from collections.abc import Iterator
@@ -10,6 +12,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from mm.api import Settings, create_app
+from mm.observability.logs import configure_logging
+
+
+@pytest.fixture(autouse=True, scope="session")
+def quiet_logs() -> None:
+    """Tests keep logs out of their output; a test that reads logs sends them elsewhere."""
+    configure_logging(io.StringIO(), level=logging.CRITICAL)
 
 
 @pytest.fixture

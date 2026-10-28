@@ -986,6 +986,16 @@
         },
         "latency_ms": {
           "type": "integer"
+        },
+        "trace_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -1008,7 +1018,8 @@
         "cache_read_tokens",
         "cache_write_tokens",
         "cost_usd",
-        "latency_ms"
+        "latency_ms",
+        "trace_id"
       ],
       "title": "ModelCall",
       "type": "object"

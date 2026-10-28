@@ -49,7 +49,7 @@ class LiveGames:
 
         try:
             brains = self.brains_for(config, record)
-            result = await play_game(config, brains, observers=[store, publish])
+            result = await play_game(config, brains, observers=[store, publish], game_id=game_id)
         except Exception:
             logger.exception("game %s failed", game_id)
             await self.store.set_status(game_id, "failed")

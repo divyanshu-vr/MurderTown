@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import type { Explain } from "../net/explain";
+import { traceUrl } from "../net/traces";
 import type { Explanation, ModelCall } from "../protocol";
 import { describeEvent } from "./describeEvent";
 import { FallbackNote } from "./FallbackNote";
@@ -80,6 +81,7 @@ function Attempt({ attempt }: { attempt: ModelCall }) {
       {attempt.problem && <p className="text-amber-300">{attempt.problem}</p>}
       <p className="text-xs text-stone-500">
         {attempt.model}, {attempt.effort} effort · {attempt.input_tokens} tokens in, {attempt.output_tokens} out
+        <TraceLink traceId={attempt.trace_id} />
       </p>
       <details>
         <summary className="cursor-pointer text-stone-400">System prompt</summary>
@@ -92,5 +94,18 @@ function Attempt({ attempt }: { attempt: ModelCall }) {
       <p className="text-stone-400">Raw response</p>
       <pre className="whitespace-pre-wrap text-xs text-stone-200">{attempt.raw_text || "(none)"}</pre>
     </article>
+  );
+}
+
+function TraceLink({ traceId }: { traceId: string | null }) {
+  const url = traceUrl(traceId);
+  if (!url) return null;
+  return (
+    <>
+      {" · "}
+      <a href={url} target="_blank" rel="noreferrer" className="text-amber-300 hover:underline">
+        trace
+      </a>
+    </>
   );
 }

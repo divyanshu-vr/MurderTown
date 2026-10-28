@@ -482,6 +482,7 @@ export interface ModelCall {
   cache_write_tokens: number;
   cost_usd: number | null;
   latency_ms: number;
+  trace_id: string | null;
 }
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema

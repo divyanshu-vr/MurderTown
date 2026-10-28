@@ -68,3 +68,4 @@ class ModelCallRow(Base):
     cache_write_tokens: Mapped[int] = mapped_column(Integer)
     cost_usd: Mapped[float | None] = mapped_column(Float)
     latency_ms: Mapped[int] = mapped_column(Integer)
+    trace_id: Mapped[str | None] = mapped_column(String(32))

@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import logging
 import urllib.request
 from enum import StrEnum
 from pathlib import Path
@@ -19,6 +20,8 @@ from mm.engine import GameConfig
 from mm.engine.events import DecisionFellBack, Event, ReflectionWritten
 from mm.llm import Effort
 from mm.llm.claude_agent_sdk import ClaudeAgentSDKProvider, SubscriptionError
+from mm.observability.logs import configure_logging
+from mm.observability.tracing import TracingSettings, configure_tracing, shutdown_tracing
 from mm.orchestrator import EventObserver, play_game
 
 app = typer.Typer(help="MurderTown: a town where every Resident is played by an Agent.")
@@ -91,7 +94,12 @@ def play(
         typer.echo(f"Cannot start a live game: {error}", err=True)
         raise typer.Exit(code=1) from error
 
-    result = asyncio.run(play_game(config, brain_for, observers))
+    configure_logging(level=logging.WARNING)  # the transcript is on stdout; only problems here
+    configure_tracing(TracingSettings())
+    try:
+        result = asyncio.run(play_game(config, brain_for, observers))
+    finally:
+        shutdown_tracing()
     fallbacks = sum(isinstance(event.payload, DecisionFellBack) for event in result.events)
     if brains is Brains.CLAUDE:
         typer.echo(f"\n{tally.summary()} Fallbacks: {fallbacks}.")
@@ -129,8 +137,17 @@ async def _print_event(event: Event) -> None:
 
 @app.command()
 def serve(host: str = "127.0.0.1", port: int = 8000, reload: bool = False) -> None:
-    """Run the API server. Settings come from MM_* environment variables or .env."""
-    uvicorn.run("mm.api:create_app", factory=True, host=host, port=port, reload=reload)
+    """Run the API server. Settings come from MM_* environment variables or .env.
+
+    Logs are JSON lines on stderr; traces go wherever the MM_LANGFUSE_* or
+    MM_OTLP_ENDPOINT settings say (see backend/.env.example).
+    """
+    configure_logging()
+    configure_tracing(TracingSettings())
+    try:
+        uvicorn.run("mm.api:create_app", factory=True, host=host, port=port, reload=reload)
+    finally:
+        shutdown_tracing()
 
 
 @app.command()

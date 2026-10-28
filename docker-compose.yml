@@ -1,4 +1,5 @@
 # Local development services. Start with: docker compose up -d
+# (add --profile tracing to also run Jaeger)
 services:
   postgres:
     image: postgres:17-alpine
@@ -15,6 +16,15 @@ services:
       interval: 2s
       timeout: 3s
       retries: 30
+
+  jaeger:
+    # Optional: see traces locally. Start with: docker compose --profile tracing up -d
+    # then set MM_OTLP_ENDPOINT=http://localhost:4318/v1/traces and open http://localhost:16686
+    image: jaegertracing/jaeger:2.22.0
+    profiles: ["tracing"]
+    ports:
+      - "16686:16686"  # the Jaeger UI
+      - "4318:4318"    # OTLP over HTTP
 
 volumes:
   postgres-data:

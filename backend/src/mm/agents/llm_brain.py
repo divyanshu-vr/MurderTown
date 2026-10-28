@@ -12,15 +12,20 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from random import Random
 
+import structlog
+
 from mm.agents.answers import ANSWERS, answer_schema, read_answer, scrubbed
 from mm.agents.brain import Brain, BrainFactory
-from mm.agents.calls import CallOutcome, CallRecorder, ModelCall
+from mm.agents.calls import CallOutcome, CallRecorder, ModelCall, describe
 from mm.agents.prompting import build_prompt, prompt_version, retry_task
 from mm.engine import Resident, Role
 from mm.engine.decisions import Answer, Decision, DecisionRequest
 from mm.engine.events import Event
 from mm.engine.perception import assignment
 from mm.llm import Effort, ModelProvider, ModelReply, ModelRequest
+from mm.observability import tracing
+
+logger = structlog.get_logger(__name__)
 
 ATTEMPTS = 2
 
@@ -40,23 +45,26 @@ class LLMBrain:
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         prompt = build_prompt(request, view, self.rng)
         schema = answer_schema(request.kind)
+        phase = view[-1].phase if view else ""
         assigned = assignment(view, request.resident)  # the narrator has no role
         own_role = assigned.role if assigned else None
         problem: str | None = None
         for attempt in range(1, ATTEMPTS + 1):
             message = prompt.user_message(retry_task(prompt, problem) if problem else None)
-            reply = await self.provider.complete(
-                ModelRequest(
-                    system=prompt.system,
-                    prompt=message,
-                    schema=schema,
-                    model=self.settings.model,
-                    effort=self.settings.effort,
+            with tracing.tracer().start_as_current_span(
+                f"{request.kind} attempt {attempt}"
+            ) as span:
+                reply = await self.provider.complete(
+                    ModelRequest(
+                        system=prompt.system,
+                        prompt=message,
+                        schema=schema,
+                        model=self.settings.model,
+                        effort=self.settings.effort,
+                    )
                 )
-            )
-            decision, problem, outcome = _interpret(request, reply, own_role)
-            await self.record(
-                self._call(
+                decision, problem, outcome = _interpret(request, reply, own_role)
+                call = self._call(
                     request=request,
                     attempt=attempt,
                     system=prompt.system,
@@ -64,8 +72,20 @@ class LLMBrain:
                     reply=reply,
                     outcome=outcome,
                     problem=problem,
+                    trace_id=tracing.trace_id_of(span),
                 )
+                describe(span, call, phase)
+            logger.info(
+                "model call",
+                kind=request.kind,
+                attempt=attempt,
+                outcome=outcome,
+                input_tokens=reply.usage.input_tokens,
+                output_tokens=reply.usage.output_tokens,
+                cache_read_tokens=reply.usage.cache_read_tokens,
+                latency_ms=reply.latency_ms,
             )
+            await self.record(call)
             if decision is not None:
                 return Answer(decision)
             if outcome != "invalid":
@@ -82,6 +102,7 @@ class LLMBrain:
         reply: ModelReply,
         outcome: CallOutcome,
         problem: str | None,
+        trace_id: str | None,
     ) -> ModelCall:
         return ModelCall(
             decision_id=request.id,
@@ -104,6 +125,7 @@ class LLMBrain:
             cache_write_tokens=reply.usage.cache_write_tokens,
             cost_usd=reply.cost_usd,
             latency_ms=reply.latency_ms,
+            trace_id=trace_id,
         )
 
 

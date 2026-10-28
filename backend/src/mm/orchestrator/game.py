@@ -5,6 +5,10 @@ import time
 from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass, replace
 from random import Random
+from uuid import uuid4
+
+import structlog
+from structlog.contextvars import bind_contextvars, bound_contextvars
 
 from mm.agents import Brain, BrainFactory
 from mm.engine import GameConfig, Phase
@@ -14,6 +18,7 @@ from mm.engine.events import DecisionFellBack, Event, EventPayload, GameEnded, P
 from mm.engine.perception import perceived_by
 from mm.engine.rules import Verdict, verdict, verdict_at_end_of_day, why_illegal
 from mm.engine.state import GameState
+from mm.observability import tracing
 from mm.orchestrator.log import EventLog, EventObserver
 from mm.orchestrator.narrator import NARRATOR
 from mm.orchestrator.phases.dawn import run_dawn
@@ -22,6 +27,8 @@ from mm.orchestrator.phases.dusk import run_dusk
 from mm.orchestrator.phases.night import run_night
 from mm.orchestrator.phases.showdown import run_showdown
 from mm.orchestrator.phases.vote import run_vote
+
+logger = structlog.get_logger(__name__)
 
 PhaseRunner = Callable[["Game"], Awaitable[None]]
 
@@ -63,9 +70,11 @@ class Game:
         brain_for: BrainFactory,
         observers: Sequence[EventObserver] = (),
         clock: Callable[[], float] = time.monotonic,
+        game_id: str = "",
     ) -> None:
         self.config = config
         self.clock = clock
+        self.game_id = game_id or uuid4().hex
         self.rng = Random(config.seed)
         self.log = EventLog(observers)
         self.brain_for = brain_for
@@ -83,6 +92,13 @@ class Game:
         return verdict(self.state) is not None
 
     async def play(self) -> None:
+        with (
+            bound_contextvars(game=self.game_id, day=0, phase=Phase.SETUP),
+            tracing.in_game(self.game_id, self.config.seed),
+        ):
+            await self._play()
+
+    async def _play(self) -> None:
         for payload in cast(self.config, self.rng):
             await self.append(payload)
         everyone = (*self.state.residents, NARRATOR)
@@ -97,6 +113,7 @@ class Game:
 
     async def end(self, outcome: Verdict) -> None:
         await self.append(GameEnded(winner=outcome.winner, reason=outcome.reason))
+        logger.info("game ended", winner=outcome.winner, reason=outcome.reason)
 
     async def append(self, payload: EventPayload, cause: Decided[Decision] | None = None) -> Event:
         """Append an event; if a decision caused it, link them and report a fallback once."""
@@ -111,11 +128,19 @@ class Game:
                 reason=cause.fallback_reason,
             )
             await self.log.append(fell_back, decision_id=cause.request.id)
+            logger.info(
+                "decision fell back",
+                resident=cause.request.resident,
+                kind=cause.request.kind,
+                reason=cause.fallback_reason,
+            )
         return event
 
     async def start_phase(self, phase: Phase) -> None:
         day = self.state.day + 1 if phase is Phase.DAWN else self.state.day
+        bind_contextvars(day=day, phase=phase)
         await self.append(PhaseStarted(day=day, phase=phase))
+        logger.info("phase started")
 
     async def decide[D: Decision](self, request: DecisionRequest, answer: type[D]) -> Decided[D]:
         """Ask one Resident's decision source, showing it only what that Resident perceives."""
@@ -137,6 +162,20 @@ class Game:
         asked = (self._ask(request, answer, heard) for request in stamped)
         return list(await asyncio.gather(*asked))
 
+    def _trace_attributes(self, request: DecisionRequest) -> dict[str, str | list[str]]:
+        """What a decision's trace says about it: who decided what, when, in which role."""
+        role = self.state.roles.get(request.resident)
+        phase = self.state.phase
+        return {
+            tracing.TRACE_NAME: request.kind,
+            tracing.USER: request.resident,
+            tracing.TAGS: [phase, request.kind],
+            tracing.METADATA + "decision": request.id,
+            tracing.METADATA + "day": str(self.state.day),
+            tracing.METADATA + "phase": phase,
+            tracing.METADATA + "role": role or "narrator",
+        }
+
     def _stamp(self, request: DecisionRequest) -> DecisionRequest:
         self._decisions_asked += 1
         return replace(request, id=f"d{self._decisions_asked}")
@@ -145,7 +184,11 @@ class Game:
         self, request: DecisionRequest, answer: type[D], heard: Sequence[Event] = ()
     ) -> Decided[D]:
         view = perceived_by([*self.log.events, *heard], request.resident)
-        reply = await self.brains[request.resident].decide(request, view)
+        with (
+            bound_contextvars(resident=request.resident, decision=request.id),
+            tracing.new_trace(f"decision.{request.kind}", self._trace_attributes(request)),
+        ):
+            reply = await self.brains[request.resident].decide(request, view)
         decision = reply.decision
         if not isinstance(decision, answer):
             raise IllegalDecisionError(f"{request} was answered with {decision!r}")
@@ -159,8 +202,12 @@ async def play_game(
     brain_for: BrainFactory,
     observers: Sequence[EventObserver] = (),
     clock: Callable[[], float] = time.monotonic,
+    game_id: str = "",
 ) -> GameResult:
-    """Play one whole game. Observers hear every event as it is appended."""
-    game = Game(config, brain_for, observers, clock)
+    """Play one whole game. Observers hear every event as it is appended.
+
+    `game_id` names the game in logs and traces; a fresh one is made if none is given.
+    """
+    game = Game(config, brain_for, observers, clock, game_id)
     await game.play()
     return GameResult(events=game.log.events, state=game.state)
