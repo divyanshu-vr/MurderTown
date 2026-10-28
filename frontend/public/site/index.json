@@ -1,0 +1,22 @@
+[
+  {
+    "file": "games/never-wrong.ndjson",
+    "title": "A Detective who is never wrong",
+    "blurb": "Eight Residents, two Murderers, and a Detective whose every Finding is true. Being right is one thing; being believed is another."
+  },
+  {
+    "file": "games/four-times-in-five.ndjson",
+    "title": "Right four times in five",
+    "blurb": "Eight Residents, two Murderers, and a Detective whose Findings are right four times in five. Nobody, the Detective included, knows which time is the fifth."
+  },
+  {
+    "file": "games/bell-glances.ndjson",
+    "title": "Bell glances and pet names",
+    "blurb": "Eight Residents, two Murderers, among them a mayor with a motion for everything and a retired sailor with a nickname for everyone."
+  },
+  {
+    "file": "games/the-tailors-eye.ndjson",
+    "title": "The tailor's eye",
+    "blurb": "Eight Residents, two Murderers, and a tailor who notices what everyone is wearing. The shortest game here, and a good first watch."
+  }
+]

@@ -5,7 +5,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig(
-  { ignores: ["dist", "src/protocol/murdertown.gen.ts"] },
+  { ignores: ["dist", "dist-site", "src/protocol/murdertown.gen.ts"] },
   js.configs.recommended,
   tseslint.configs.strict,
   reactHooks.configs.flat.recommended,

@@ -28,6 +28,18 @@ function feedItems(kind: Kind) {
 }
 
 describe("the game console", () => {
+  it("can start in mystery mode, which the Spectator can still leave", () => {
+    render(<GameConsole events={events} connection="live" startsInMystery />);
+
+    const mystery = screen.getByRole("button", { name: "Mystery mode" });
+    expect(mystery).toHaveAttribute("aria-pressed", "true");
+    expect(within(feed()).queryAllByRole("listitem").filter(isKind("resident_investigated"))).toHaveLength(0);
+
+    fireEvent.click(mystery);
+
+    expect(feedItems("resident_investigated").length).toBeGreaterThan(0);
+  });
+
   it("shows the Day and Phase of the latest event in the phase bar", () => {
     const firstDayTwoVote = events.findIndex(
       (e) => e.payload.type === "phase_started" && e.payload.day === 2 && e.payload.phase === "vote",

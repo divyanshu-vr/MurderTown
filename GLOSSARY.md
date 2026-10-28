@@ -254,6 +254,10 @@ _Avoid_: pause and step (the Host's)
 Watching a game that has ended from its start, through the same console as a live one.
 _Avoid_: recording, playback (how a Spectator moves through it)
 
+**Replay site**:
+The public website that plays recorded games in the Town view, in full scope or in Mystery mode, from the game files it holds, with no server behind it.
+_Avoid_: showcase, demo site
+
 **Game file**:
 A game's whole log in one file, which the console replays with no server.
 _Avoid_: dump, save file

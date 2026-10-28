@@ -66,9 +66,18 @@ export function GamePage({ gameId, hostToken, replay }: { gameId: string; hostTo
 }
 
 /** A game file replayed with no server: everything the events hold, and the review beside it. */
-export function GameFilePage({ file }: { file: string }) {
+export function GameFilePage({ file, mystery }: { file: string; mystery: boolean }) {
   const source = useMemo(() => fileSource(file), [file]);
   const reviews = useMemo(() => fileReviewSource(file), [file]);
   const { events, connection, playback, review, townView } = useWatched(source, false, reviews);
-  return <GameConsole events={events} connection={connection} playback={playback} review={review} townView={townView} />;
+  return (
+    <GameConsole
+      events={events}
+      connection={connection}
+      playback={playback}
+      review={review}
+      townView={townView}
+      startsInMystery={mystery}
+    />
+  );
 }

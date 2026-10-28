@@ -14,11 +14,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:site": "tsc --noEmit && vite build --mode site",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
     "check:assets": "node scripts/check-assets.ts",
+    "capture:readme": "node scripts/capture-readme.ts",
     "e2e": "playwright test",
     "e2e:linux": "node scripts/e2e-linux.ts",
     "gen:types": "json2ts --input ../protocol/murdertown.schema.json --output src/protocol/murdertown.gen.ts --unreachableDefinitions --no-additionalProperties --bannerComment \"/* Generated from protocol/murdertown.schema.json by 'pnpm gen:types'. Do not edit. */\""

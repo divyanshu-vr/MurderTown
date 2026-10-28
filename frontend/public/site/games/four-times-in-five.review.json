@@ -1,0 +1,459 @@
+{
+  "turning_points": [
+    {
+      "kind": "event",
+      "seq": 106
+    },
+    {
+      "kind": "event",
+      "seq": 161
+    },
+    {
+      "kind": "event",
+      "seq": 290
+    },
+    {
+      "kind": "event",
+      "seq": 361
+    },
+    {
+      "kind": "swing",
+      "seq": 399,
+      "resident": "Cyrus",
+      "suspect": "Bea",
+      "before": 65,
+      "after": 25
+    },
+    {
+      "kind": "event",
+      "seq": 457
+    }
+  ],
+  "lies": [
+    {
+      "kind": "defended_suspected",
+      "seq": 15,
+      "speaker": "Ezra",
+      "said": "Good morning, all. Ezra here, innkeeper. I keep a ledger of every rumour that passes through my doors, so I'll be listening closely. Vera, your questions are fair, but Cyrus has the watch and deserves a chance to answer in his own time. Bram, you've been quiet. What has the sea told you? I'd rather judge folk by who helps the town than by who interrogates it loudest.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 19,
+      "speaker": "Cyrus",
+      "said": "Cyrus, night watchman. I walk the lanes after dark and see what moves. Last night nothing crossed my lantern but Bram's cat and Finn's late lamp. Vera, you want a watchman's report in order; you'll have it when I'm asked properly, not hounded. Ezra gave me fair words, and I'll return them. Luna, your bread talk is all crust and no flour.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 19,
+      "speaker": "Cyrus",
+      "said": "Cyrus, night watchman. I walk the lanes after dark and see what moves. Last night nothing crossed my lantern but Bram's cat and Finn's late lamp. Vera, you want a watchman's report in order; you'll have it when I'm asked properly, not hounded. Ezra gave me fair words, and I'll return them. Luna, your bread talk is all crust and no flour.",
+      "belief": {
+        "resident": "Ezra",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 29,
+      "speaker": "Ezra",
+      "said": "Ezra again. Finn, you boast that nothing escapes your sorting table, yet you've named no letters or senders. Bea, you'd have Cyrus report before we weigh crumbs, but a mayor should weigh everyone alike. Let's hear Finn's correspondence before we judge bread. My ledger keeps count, and I'm noting who dodges questions.",
+      "belief": {
+        "resident": "Finn",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 47,
+      "speaker": "Ezra",
+      "said": "Ezra again, and my ledger has a fresh line. Bram, you turned my ledger against me, yet you slept badly and heard only gulls. Convenient for a sailor. Cyrus, give us your watch report plainly and we'll weigh it fairly. Finn, your letters are still unread, so keep the post honest. I claim no role. I just keep the inn and count the debts.",
+      "belief": {
+        "resident": "Bram",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 47,
+      "speaker": "Ezra",
+      "said": "Ezra again, and my ledger has a fresh line. Bram, you turned my ledger against me, yet you slept badly and heard only gulls. Convenient for a sailor. Cyrus, give us your watch report plainly and we'll weigh it fairly. Finn, your letters are still unread, so keep the post honest. I claim no role. I just keep the inn and count the debts.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "false_role",
+      "seq": 56,
+      "speaker": "Cyrus",
+      "said": "Cyrus, watchman, plain report as asked. Lanes were quiet. Only Bram's cat and Finn's late lamp crossed my light, and I saw no one at the Den's door. Finn, you boast of every letter yet name no sender. That smells of hiding. Ezra's ledger is fair, I'll give him that. Vera, you asked properly, so you have your answer.",
+      "claimed_role": "civilian",
+      "true_role": "murderer"
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 56,
+      "speaker": "Cyrus",
+      "said": "Cyrus, watchman, plain report as asked. Lanes were quiet. Only Bram's cat and Finn's late lamp crossed my light, and I saw no one at the Den's door. Finn, you boast of every letter yet name no sender. That smells of hiding. Ezra's ledger is fair, I'll give him that. Vera, you asked properly, so you have your answer.",
+      "belief": {
+        "resident": "Finn",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 56,
+      "speaker": "Cyrus",
+      "said": "Cyrus, watchman, plain report as asked. Lanes were quiet. Only Bram's cat and Finn's late lamp crossed my light, and I saw no one at the Den's door. Finn, you boast of every letter yet name no sender. That smells of hiding. Ezra's ledger is fair, I'll give him that. Vera, you asked properly, so you have your answer.",
+      "belief": {
+        "resident": "Ezra",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 83,
+      "speaker": "Cyrus",
+      "said": "Cyrus, watchman. My report stands: lanes quiet, nothing at the Den's door. Finn, you boast of every letter yet name no sender. That's the thinnest story here. Bram, your sleepless sailor tale is too neat. Ezra counts debts fairly, I'll give him that. I suspect Finn most, and I'll watch who follows her.",
+      "belief": {
+        "resident": "Finn",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 83,
+      "speaker": "Cyrus",
+      "said": "Cyrus, watchman. My report stands: lanes quiet, nothing at the Den's door. Finn, you boast of every letter yet name no sender. That's the thinnest story here. Bram, your sleepless sailor tale is too neat. Ezra counts debts fairly, I'll give him that. I suspect Finn most, and I'll watch who follows her.",
+      "belief": {
+        "resident": "Bram",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 83,
+      "speaker": "Cyrus",
+      "said": "Cyrus, watchman. My report stands: lanes quiet, nothing at the Den's door. Finn, you boast of every letter yet name no sender. That's the thinnest story here. Bram, your sleepless sailor tale is too neat. Ezra counts debts fairly, I'll give him that. I suspect Finn most, and I'll watch who follows her.",
+      "belief": {
+        "resident": "Ezra",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 170,
+      "speaker": "Cyrus",
+      "said": "Cyrus, night watchman. Report unchanged: lanes quiet past midnight. Bram's cat was out, unusual. Finn's lamp burned late the night before his banishment. I see everything after dark. Vera, you press accounts hard. Where were you after dusk?",
+      "belief": {
+        "resident": "Vera",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 172,
+      "speaker": "Ezra",
+      "said": "Bea, fair question. I pressed Bram because he dodged every question I put to him, and I pointed at Vera because her private talk with Bram before he died is still unexplained. Vera, what did he say to you? Cyrus's watch matches what I saw: quiet lanes after midnight. I was at the inn until close, and I'm glad to be asked.",
+      "belief": {
+        "resident": "Vera",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 172,
+      "speaker": "Ezra",
+      "said": "Bea, fair question. I pressed Bram because he dodged every question I put to him, and I pointed at Vera because her private talk with Bram before he died is still unexplained. Vera, what did he say to you? Cyrus's watch matches what I saw: quiet lanes after midnight. I was at the inn until close, and I'm glad to be asked.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 182,
+      "speaker": "Cyrus",
+      "said": "Cyrus, night watchman. Report unchanged: lanes quiet past midnight, Bram's cat out, Finn's lamp burned late. Vera, you ask me for senders, yet you backed Finn's banishment on their word. Bram spoke to me only of his cat. Bea, hours after Dusk prove nothing, but Ezra kept the inn until close and I trust him. Vera's questions sting. Watch her.",
+      "belief": {
+        "resident": "Vera",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 182,
+      "speaker": "Cyrus",
+      "said": "Cyrus, night watchman. Report unchanged: lanes quiet past midnight, Bram's cat out, Finn's lamp burned late. Vera, you ask me for senders, yet you backed Finn's banishment on their word. Bram spoke to me only of his cat. Bea, hours after Dusk prove nothing, but Ezra kept the inn until close and I trust him. Vera's questions sting. Watch her.",
+      "belief": {
+        "resident": "Ezra",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 196,
+      "speaker": "Ezra",
+      "said": "Ezra, innkeeper. Vera, you keep asking where everyone was, yet you were the last to speak with Bram, and you still haven't told us what he said. Bea, a motion built on hours is a verdict looking for a reason. Cyrus's watch matches what I saw at the inn. Let's stop chasing hours and name what we actually know.",
+      "belief": {
+        "resident": "Vera",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 196,
+      "speaker": "Ezra",
+      "said": "Ezra, innkeeper. Vera, you keep asking where everyone was, yet you were the last to speak with Bram, and you still haven't told us what he said. Bea, a motion built on hours is a verdict looking for a reason. Cyrus's watch matches what I saw at the inn. Let's stop chasing hours and name what we actually know.",
+      "belief": {
+        "resident": "Bea",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 196,
+      "speaker": "Ezra",
+      "said": "Ezra, innkeeper. Vera, you keep asking where everyone was, yet you were the last to speak with Bram, and you still haven't told us what he said. Bea, a motion built on hours is a verdict looking for a reason. Cyrus's watch matches what I saw at the inn. Let's stop chasing hours and name what we actually know.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 210,
+      "speaker": "Ezra",
+      "said": "Ezra, innkeeper. Vera, you keep asking where everyone was, yet the last private talk with Bram is still a secret. Bea, a motion built on hours and private words is a poor foundation. Cyrus's watch has held steady all day, and I'd trust it. Let's hear Vera answer what Bram said before we vote on anyone.",
+      "belief": {
+        "resident": "Vera",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 210,
+      "speaker": "Ezra",
+      "said": "Ezra, innkeeper. Vera, you keep asking where everyone was, yet the last private talk with Bram is still a secret. Bea, a motion built on hours and private words is a poor foundation. Cyrus's watch has held steady all day, and I'd trust it. Let's hear Vera answer what Bram said before we vote on anyone.",
+      "belief": {
+        "resident": "Bea",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 210,
+      "speaker": "Ezra",
+      "said": "Ezra, innkeeper. Vera, you keep asking where everyone was, yet the last private talk with Bram is still a secret. Bea, a motion built on hours and private words is a poor foundation. Cyrus's watch has held steady all day, and I'd trust it. Let's hear Vera answer what Bram said before we vote on anyone.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 231,
+      "speaker": "Ezra",
+      "said": "Ezra, innkeeper. Vera, you've asked where everyone was five times and still haven't said what Bram told you. That's the question I want answered. Bea, your motion wants Cyrus and me to repeat private words; I'll answer when Vera does. Cyrus's watch has held all day and I trust it. Let's vote on Vera's silence, not on hours.",
+      "belief": {
+        "resident": "Vera",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 231,
+      "speaker": "Ezra",
+      "said": "Ezra, innkeeper. Vera, you've asked where everyone was five times and still haven't said what Bram told you. That's the question I want answered. Bea, your motion wants Cyrus and me to repeat private words; I'll answer when Vera does. Cyrus's watch has held all day and I trust it. Let's vote on Vera's silence, not on hours.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 298,
+      "speaker": "Cyrus",
+      "said": "Cyrus. I keep the night watch. Lanes quiet past midnight. Bram's cat was out. Finn's lamp burned late. Five of us remain. Bea, you met Ezra at Dusk and push for motions. Explain that. Cora, Luna, weigh who presses hardest before you vote.",
+      "belief": {
+        "resident": "Bea",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 301,
+      "speaker": "Ezra",
+      "said": "Ezra, innkeeper, speaking plainly. Three of us are gone and every motion we've made has landed on whoever spoke last. Bea, you forced Finn's vote and now demand private words aired in public. That's pressure, not proof. Cora, you broke from Bea, and I respect that. Cyrus's watch has held steady all three days. Let's not hang anyone on rumour.",
+      "belief": {
+        "resident": "Bea",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 301,
+      "speaker": "Ezra",
+      "said": "Ezra, innkeeper, speaking plainly. Three of us are gone and every motion we've made has landed on whoever spoke last. Bea, you forced Finn's vote and now demand private words aired in public. That's pressure, not proof. Cora, you broke from Bea, and I respect that. Cyrus's watch has held steady all three days. Let's not hang anyone on rumour.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 320,
+      "speaker": "Ezra",
+      "said": "Ezra, speaking plainly. Cyrus's watch has held steady for three days, and I'd trust that over gulls and rumour. Bea holds the bullet and pushes every motion. Bea, spend it on evidence, not on whoever spoke last. Cora, Bram's private words were his to share, and I'll not invent them. Let's vote on facts.",
+      "belief": {
+        "resident": "Bea",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 320,
+      "speaker": "Ezra",
+      "said": "Ezra, speaking plainly. Cyrus's watch has held steady for three days, and I'd trust that over gulls and rumour. Bea holds the bullet and pushes every motion. Bea, spend it on evidence, not on whoever spoke last. Cora, Bram's private words were his to share, and I'll not invent them. Let's vote on facts.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 344,
+      "speaker": "Ezra",
+      "said": "Ezra, speaking plainly. Cyrus's watch has held steady three days running. Bea holds the bullet and pushes every motion, so Bea, spend it on evidence, not hunches. Cora, Bram's private words were his to share, and I won't invent them. Luna, weigh who's been pressing hardest. Let's vote on facts, not gulls.",
+      "belief": {
+        "resident": "Bea",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 344,
+      "speaker": "Ezra",
+      "said": "Ezra, speaking plainly. Cyrus's watch has held steady three days running. Bea holds the bullet and pushes every motion, so Bea, spend it on evidence, not hunches. Cora, Bram's private words were his to share, and I won't invent them. Luna, weigh who's been pressing hardest. Let's vote on facts, not gulls.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 407,
+      "speaker": "Cyrus",
+      "said": "Cyrus here. Night watch, as I've said. Report stands: lanes quiet past midnight, Bram's cat out, Finn's lamp late. I'll not name who sent me questions; private words stay private. Bea, you push disclosure hard, and you met Ezra at Dusk. Explain that before you ask me for mine. Luna, Cora, watch who sets the pace.",
+      "belief": {
+        "resident": "Bea",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 417,
+      "speaker": "Cyrus",
+      "said": "Cyrus here. Report stands word for word: lanes quiet past midnight, Bram's cat out, Finn's lamp late. Senders stay unnamed. I owe this town no list of private words. Bea, you met Ezra at Dusk and now push disclosure. Explain that first. Cora, Luna, watch who sets the pace.",
+      "belief": {
+        "resident": "Bea",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 427,
+      "speaker": "Cyrus",
+      "said": "Cyrus here. Report stands word for word: lanes quiet past midnight, Bram's cat out, Finn's lamp late. Senders stay unnamed. Bea, you met Ezra at Dusk and still push disclosure. Explain that first. Cora, Luna, watch who sets the pace, and who keeps asking for names.",
+      "belief": {
+        "resident": "Bea",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 437,
+      "speaker": "Cyrus",
+      "said": "Cyrus here. Report stands word for word: lanes quiet past midnight, Bram's cat out, Finn's lamp late. Senders stay private. Bea, you met Ezra at Dusk and still push disclosure. Explain that first. Cora, Luna, you both pressed me hard. Ask who gains from my name being spoken.",
+      "belief": {
+        "resident": "Bea",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    }
+  ],
+  "influence": [
+    {
+      "resident": "Cora",
+      "followed": 10,
+      "ballots": 14
+    },
+    {
+      "resident": "Luna",
+      "followed": 10,
+      "ballots": 14
+    },
+    {
+      "resident": "Ezra",
+      "followed": 10,
+      "ballots": 16
+    },
+    {
+      "resident": "Bea",
+      "followed": 11,
+      "ballots": 19
+    },
+    {
+      "resident": "Cyrus",
+      "followed": 9,
+      "ballots": 19
+    },
+    {
+      "resident": "Vera",
+      "followed": 2,
+      "ballots": 5
+    }
+  ]
+}

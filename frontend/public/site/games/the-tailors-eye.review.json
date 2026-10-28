@@ -1,0 +1,186 @@
+{
+  "turning_points": [
+    {
+      "kind": "event",
+      "seq": 106
+    },
+    {
+      "kind": "event",
+      "seq": 162
+    },
+    {
+      "kind": "event",
+      "seq": 244
+    }
+  ],
+  "lies": [
+    {
+      "kind": "accused_trusted",
+      "seq": 18,
+      "speaker": "Silas",
+      "said": "Silas, watchman. Walked these lanes all night and saw everything after dark, and nothing moved that I'd call wrong. Pia, gulls are noise. Rosa, bread talk tells me nothing. Umar, all that canvas talk hides more than it shows. Tess, quiet is no crime, but I'll be watching who speaks plainly.",
+      "belief": {
+        "resident": "Umar",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 38,
+      "speaker": "Silas",
+      "said": "Silas, watchman. Tess, you pinned me as a 'starched' hasty tongue, then called your own pointing admiration. Pressure makes a tailor snip fast. Umar, your canvas talk still says nothing plain. I walked these lanes all night and saw no movement worth naming. Watch who pushes hardest, Tess first.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "false_role",
+      "seq": 65,
+      "speaker": "Silas",
+      "said": "Silas, watchman. Tess, you've pushed me three times now, and that's loud for a tailor with nothing to hide. Umar, your canvas talk still says nothing plain. I walked the lanes and saw no movement worth naming. Pia and Hugo, speak plainly next. Tess, the thread you're pulling is yours.",
+      "claimed_role": "civilian",
+      "true_role": "murderer"
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 65,
+      "speaker": "Silas",
+      "said": "Silas, watchman. Tess, you've pushed me three times now, and that's loud for a tailor with nothing to hide. Umar, your canvas talk still says nothing plain. I walked the lanes and saw no movement worth naming. Pia and Hugo, speak plainly next. Tess, the thread you're pulling is yours.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 65,
+      "speaker": "Silas",
+      "said": "Silas, watchman. Tess, you've pushed me three times now, and that's loud for a tailor with nothing to hide. Umar, your canvas talk still says nothing plain. I walked the lanes and saw no movement worth naming. Pia and Hugo, speak plainly next. Tess, the thread you're pulling is yours.",
+      "belief": {
+        "resident": "Umar",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 74,
+      "speaker": "Hugo",
+      "said": "Hugo, schoolteacher. Let's be orderly. Tess has pushed Silas three times, and Umar's canvas talk avoids every plain question put to him. Umar, name one fact, not one more colour. Elsie's Brutus line was fair, and I defend her patience. Tess, a tailor who cuts this fast should measure twice. I claim no role.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 74,
+      "speaker": "Hugo",
+      "said": "Hugo, schoolteacher. Let's be orderly. Tess has pushed Silas three times, and Umar's canvas talk avoids every plain question put to him. Umar, name one fact, not one more colour. Elsie's Brutus line was fair, and I defend her patience. Tess, a tailor who cuts this fast should measure twice. I claim no role.",
+      "belief": {
+        "resident": "Umar",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 172,
+      "speaker": "Rosa",
+      "said": "Mornin' to you too, Pia. Poor Umar deserved better than a cold oven. Tess called Silas true, and my bread test says she's honest, butter first. But Hugo, you met Umar and Tess privately, then voted Tess. That's a crust I can't quite swallow. Explain yourself, friend.",
+      "belief": {
+        "resident": "Hugo",
+        "suspicion": 30,
+        "note": "Met Umar, Tess, Elsie privately; voted Tess; Umar died after talking with him"
+      }
+    },
+    {
+      "kind": "false_role",
+      "seq": 175,
+      "speaker": "Hugo",
+      "said": "Let me answer plainly, as a schoolteacher should. I spoke privately with Umar and Tess, as several of you did. I voted Tess because her answers about Umar's canvas talk went unexplained, not because I am certain. I grieve Umar, who was a Civilian. Rosa, Luna, judge by evidence, not omens. I am a Civilian, and I want the Town to weigh facts, not smoke.",
+      "claimed_role": "civilian",
+      "true_role": "murderer"
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 183,
+      "speaker": "Hugo",
+      "said": "Elsie, fair question. Tess's answer about Umar was vague, all measures and no names, and that troubled me, not omens. Rosa, I spoke with Umar about the canvas fund. His words were kind, and I have nothing to hide. I suspect no one yet. Let us weigh facts and not chase shadows.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 211,
+      "speaker": "Rosa",
+      "said": "Hugo, you still haven't named those exact words about Tess, and your Dusk talk with Umar smells scorched to me. Tess's bread passes my butter-first test, so I'll keep her in the oven a while longer. Pia, Elsie, Luna, who here will give us a plain fact before Dusk? I'm watching who runs.",
+      "belief": {
+        "resident": "Hugo",
+        "suspicion": 30,
+        "note": "Met Umar, Tess, Elsie privately; voted Tess; Umar died after talking with him"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 225,
+      "speaker": "Rosa",
+      "said": "Hugo, your vote on Tess rests on words you still can't name, and you met Umar before he died. That's my top worry today. Tess passed my butter-first test, so I'll keep her in the oven a while. Pia, Elsie, Luna, who saw Umar last at Dusk? Say it plainly, please, and I'll be watching who runs.",
+      "belief": {
+        "resident": "Hugo",
+        "suspicion": 30,
+        "note": "Met Umar, Tess, Elsie privately; voted Tess; Umar died after talking with him"
+      }
+    }
+  ],
+  "influence": [
+    {
+      "resident": "Umar",
+      "followed": 7,
+      "ballots": 7
+    },
+    {
+      "resident": "Elsie",
+      "followed": 8,
+      "ballots": 12
+    },
+    {
+      "resident": "Tess",
+      "followed": 8,
+      "ballots": 12
+    },
+    {
+      "resident": "Luna",
+      "followed": 3,
+      "ballots": 5
+    },
+    {
+      "resident": "Rosa",
+      "followed": 3,
+      "ballots": 5
+    },
+    {
+      "resident": "Hugo",
+      "followed": 2,
+      "ballots": 12
+    },
+    {
+      "resident": "Silas",
+      "followed": 1,
+      "ballots": 7
+    },
+    {
+      "resident": "Pia",
+      "followed": 0,
+      "ballots": 5
+    }
+  ]
+}

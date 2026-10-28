@@ -65,7 +65,7 @@ Beside the leaderboard are the Town's win rate for each pairing of sides (a Cont
 
 ## Batches and the subscription's quota
 
-Games are played one at a time. A batch stops after `games_per_batch` games, or at the first game that aborts, as every game does once the subscription's quota runs out; run the same command again to go on where it stopped. A game that aborted is played again, a finished one never is. A run goes on only with the matrix it began with (its caps may change); a changed matrix needs a folder of its own (`--out`).
+Games are played one at a time. A batch stops after `games_per_batch` games, or at the first game that aborts, as every game does once the subscription's quota runs out; run the same command again to go on where it stopped. A game that aborted is played again, a finished one never is. A run goes on only with the matrix it began with (its caps may change); a changed matrix needs a folder of its own (`--out`). One batch plays a run at a time, holding `run.lock` in its folder while it plays; a batch stopped before it finished (its process killed) leaves the lock behind, and the next batch says to delete it.
 
 ## The run folder
 

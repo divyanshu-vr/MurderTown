@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 320" width="560" height="320" role="img" aria-label="Town win rate by Detective accuracy">
+<style>
+svg { --surface: #fcfcfb; --text: #0b0b0b; --secondary: #52514e; --muted: #898781;
+      --grid: #e1e0d9; --axis: #c3c2b7; --series: #2a78d6; }
+@media (prefers-color-scheme: dark) {
+  svg { --surface: #1a1a19; --text: #f0efec; --secondary: #c3c2b7; --muted: #898781;
+        --grid: #2c2c2a; --axis: #383835; --series: #3987e5; }
+}
+text { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--secondary); }
+.title { font-size: 14px; font-weight: 600; fill: var(--text); }
+.muted { fill: var(--muted); }
+.grid { stroke: var(--grid); stroke-width: 1; }
+.axis { stroke: var(--axis); stroke-width: 1; }
+.interval { stroke: var(--series); stroke-width: 2; stroke-linecap: round; }
+.point { fill: var(--series); stroke: var(--surface); stroke-width: 2; }
+</style>
+<rect width="560" height="320" fill="var(--surface)"/>
+<text class="title" x="56" y="24">Town win rate by Detective accuracy</text>
+<line class="axis" x1="56" x2="536" y1="248" y2="248"/>
+<text class="muted" x="48" y="252" text-anchor="end">0%</text>
+<line class="grid" x1="56" x2="536" y1="198.0" y2="198.0"/>
+<text class="muted" x="48" y="202.0" text-anchor="end">25%</text>
+<line class="grid" x1="56" x2="536" y1="148.0" y2="148.0"/>
+<text class="muted" x="48" y="152.0" text-anchor="end">50%</text>
+<line class="grid" x1="56" x2="536" y1="98.0" y2="98.0"/>
+<text class="muted" x="48" y="102.0" text-anchor="end">75%</text>
+<line class="grid" x1="56" x2="536" y1="48" y2="48"/>
+<text class="muted" x="48" y="52" text-anchor="end">100%</text>
+<g><title>Detective accuracy 0.8: 4 of 5 (80%; 95% interval 38% to 96%)</title><line class="interval" x1="176.0" x2="176.0" y1="172.89307459400098" y2="55.244821645126144"/><line class="interval" x1="170.0" x2="182.0" y1="172.89307459400098" y2="172.89307459400098"/><line class="interval" x1="170.0" x2="182.0" y1="55.244821645126144" y2="55.244821645126144"/><circle class="point" cx="176.0" cy="88.0" r="5"/></g><text x="176.0" y="268" text-anchor="middle">0.8</text><text class="muted" x="176.0" y="286" text-anchor="middle">5 games</text>
+<g><title>Detective accuracy 1.0: 2 of 5 (40%; 95% interval 12% to 77%)</title><line class="interval" x1="416.0" x2="416.0" y1="224.47584537180057" y2="94.14485588182373"/><line class="interval" x1="410.0" x2="422.0" y1="224.47584537180057" y2="224.47584537180057"/><line class="interval" x1="410.0" x2="422.0" y1="94.14485588182373" y2="94.14485588182373"/><circle class="point" cx="416.0" cy="168.0" r="5"/></g><text x="416.0" y="268" text-anchor="middle">1.0</text><text class="muted" x="416.0" y="286" text-anchor="middle">5 games</text>
+<text x="296.0" y="312" text-anchor="middle">Detective accuracy</text>
+</svg>

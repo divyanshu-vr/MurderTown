@@ -1,0 +1,434 @@
+{
+  "turning_points": [
+    {
+      "kind": "event",
+      "seq": 106
+    },
+    {
+      "kind": "swing",
+      "seq": 168,
+      "resident": "Luna",
+      "suspect": "Umar",
+      "before": 45,
+      "after": 0
+    },
+    {
+      "kind": "event",
+      "seq": 255
+    },
+    {
+      "kind": "event",
+      "seq": 306
+    },
+    {
+      "kind": "swing",
+      "seq": 311,
+      "resident": "Luna",
+      "suspect": "Pia",
+      "before": 45,
+      "after": 0
+    },
+    {
+      "kind": "swing",
+      "seq": 311,
+      "resident": "Luna",
+      "suspect": "Rosa",
+      "before": 18,
+      "after": 60
+    },
+    {
+      "kind": "swing",
+      "seq": 421,
+      "resident": "Luna",
+      "suspect": "Rosa",
+      "before": 60,
+      "after": 10
+    },
+    {
+      "kind": "event",
+      "seq": 487
+    }
+  ],
+  "lies": [
+    {
+      "kind": "accused_trusted",
+      "seq": 14,
+      "speaker": "Hugo",
+      "said": "Good morning, all. Pia, you say you have no accusations, yet you've already called the fog a bad omen for \"somebody.\" That's a pointed remark for someone with open ears. I'm not accusing you yet. I'll just keep a careful record of who asks questions and who only points. I have no role to claim today. Rosa, Elsie, I'd like to hear your first thoughts.",
+      "belief": {
+        "resident": "Pia",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 18,
+      "speaker": "Silas",
+      "said": "Silas, night watch. I see what walks the lanes after dark, and last night they were empty. No lamps out, no strangers, nothing to report yet. Luna, you pinned two folk in one breath with a ledger in hand. Keep it honest. Tess, you've been quiet. What did you hear down at the harbor?",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 38,
+      "speaker": "Hugo",
+      "said": "Point by point, then. One: Pia's omen came before anything happened, and I still want that answered. Two: Umar and Luna both pinned her on gut and ledger alone, with no evidence. Luna, you say Pia and Umar owe the square proof, yet you offered none either. Umar, 'shawl pulled too tight' is a pretty image, not a fact. Elsie asked the right question. I'll wait for real answers before I judge.",
+      "belief": {
+        "resident": "Umar",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 38,
+      "speaker": "Hugo",
+      "said": "Point by point, then. One: Pia's omen came before anything happened, and I still want that answered. Two: Umar and Luna both pinned her on gut and ledger alone, with no evidence. Luna, you say Pia and Umar owe the square proof, yet you offered none either. Umar, 'shawl pulled too tight' is a pretty image, not a fact. Elsie asked the right question. I'll wait for real answers before I judge.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "false_role",
+      "seq": 175,
+      "speaker": "Silas",
+      "said": "Silas, watchman. I walked the lanes last night and saw nothing: no lamp, no stranger, no door left open. Elsie, glad you lived. Luna, you asked Pia for facts, so give us yours too: what does your ledger show about her night? Umar, your gut pin on Pia still needs a fact behind it. Let's hold stones until we have sight.",
+      "claimed_role": "civilian",
+      "true_role": "murderer"
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 177,
+      "speaker": "Hugo",
+      "said": "Hugo, schoolteacher. Let us lay the facts out plainly. Elsie survived, so someone guarded her, and that is worth remembering. Umar and Pia, you have traded accusations for two days with little proof. Give us one checkable fact each, and I will weigh you both equally. I would rather have sight than stones.",
+      "belief": {
+        "resident": "Umar",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 177,
+      "speaker": "Hugo",
+      "said": "Hugo, schoolteacher. Let us lay the facts out plainly. Elsie survived, so someone guarded her, and that is worth remembering. Umar and Pia, you have traded accusations for two days with little proof. Give us one checkable fact each, and I will weigh you both equally. I would rather have sight than stones.",
+      "belief": {
+        "resident": "Pia",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 226,
+      "speaker": "Umar",
+      "said": "Umar, painter. Fair hits, Luna and Elsie: my colour on Pia is only a feeling, and I won't dress it up as fact. Pia still dodges, though, so my eye stays on her. But my first impression keeps drifting to Silas, Hugo and Rosa and their whispers at dawn. Silas, what passed between you three?",
+      "belief": {
+        "resident": "Silas",
+        "suspicion": 20,
+        "note": "Steady, but privately met Hugo and Rosa"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 226,
+      "speaker": "Umar",
+      "said": "Umar, painter. Fair hits, Luna and Elsie: my colour on Pia is only a feeling, and I won't dress it up as fact. Pia still dodges, though, so my eye stays on her. But my first impression keeps drifting to Silas, Hugo and Rosa and their whispers at dawn. Silas, what passed between you three?",
+      "belief": {
+        "resident": "Hugo",
+        "suspicion": 25,
+        "note": "Precise questions; Tess named him but gave no real evidence"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 226,
+      "speaker": "Umar",
+      "said": "Umar, painter. Fair hits, Luna and Elsie: my colour on Pia is only a feeling, and I won't dress it up as fact. Pia still dodges, though, so my eye stays on her. But my first impression keeps drifting to Silas, Hugo and Rosa and their whispers at dawn. Silas, what passed between you three?",
+      "belief": {
+        "resident": "Rosa",
+        "suspicion": 25,
+        "note": "Quiet, little evidence either way"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 234,
+      "speaker": "Silas",
+      "said": "Silas, watchman. Umar, you asked about our whispers. Hugo asked what I saw in the lanes, and I told him nothing, same as I told you. Luna, your ledger pins fast and never shows a page. Umar, your colours have now landed on three neighbours. Give us one fact, or put the brush down.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 234,
+      "speaker": "Silas",
+      "said": "Silas, watchman. Umar, you asked about our whispers. Hugo asked what I saw in the lanes, and I told him nothing, same as I told you. Luna, your ledger pins fast and never shows a page. Umar, your colours have now landed on three neighbours. Give us one fact, or put the brush down.",
+      "belief": {
+        "resident": "Umar",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 234,
+      "speaker": "Silas",
+      "said": "Silas, watchman. Umar, you asked about our whispers. Hugo asked what I saw in the lanes, and I told him nothing, same as I told you. Luna, your ledger pins fast and never shows a page. Umar, your colours have now landed on three neighbours. Give us one fact, or put the brush down.",
+      "belief": {
+        "resident": "Hugo",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 318,
+      "speaker": "Silas",
+      "said": "Silas here. I walk the square at night and saw nothing worth a pin. Rosa, Luna and I talked lamp hours at Dusk, that's all. Elsie's loss is a warning: keep watch. Luna's ledger pinned Tess and Pia fast; I want facts from her before we vote. Pia, answer Hugo plainly too.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 330,
+      "speaker": "Silas",
+      "said": "Silas, watchman. I walk the square after dark and saw no lamp worth a pin. Luna keeps asking me for hours, yet her ledger pins fast with no facts. Elsie wanted facts, and Luna still has none. Pia's ballots aimed at Umar, not reasoning. Vote on facts, not tides.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 330,
+      "speaker": "Silas",
+      "said": "Silas, watchman. I walk the square after dark and saw no lamp worth a pin. Luna keeps asking me for hours, yet her ledger pins fast with no facts. Elsie wanted facts, and Luna still has none. Pia's ballots aimed at Umar, not reasoning. Vote on facts, not tides.",
+      "belief": {
+        "resident": "Pia",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 342,
+      "speaker": "Rosa",
+      "said": "Rosa here, flour on my hands. Pia, you met Elsie at Dusk, and she was gone by dawn. Tell us plainly what she said. Silas, you slipped off with Luna after pinning blame on her. What did you two agree? Hugo, your record-keeping is fair, so keep it going. I trust no one's words until they're baked through.",
+      "belief": {
+        "resident": "Silas",
+        "suspicion": 30,
+        "note": "Steered suspicion onto Luna and Pia, then went privately to Luna; still consistent so far."
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 348,
+      "speaker": "Silas",
+      "said": "Silas, watchman. I walk the square after dark and saw no lamp worth a pin. Rosa asked about Luna and me. We talked lamp hours, nothing more. Elsie wanted facts. Luna's ledger still has none. Pia, answer Hugo's question plainly. Vote on facts, not tides.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 354,
+      "speaker": "Hugo",
+      "said": "Hugo, keeping the record. Three points. First, Luna's Day 1 pin rests on a read, and she admits it. Second, Pia has dodged my question twice: what did she see on Day 2 to back her ballot against Umar? Third, Rosa keeps naming Luna without facts. Elsie asked for facts. Pia, answer plainly. Luna, quote Tess's exact words.",
+      "belief": {
+        "resident": "Pia",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 354,
+      "speaker": "Hugo",
+      "said": "Hugo, keeping the record. Three points. First, Luna's Day 1 pin rests on a read, and she admits it. Second, Pia has dodged my question twice: what did she see on Day 2 to back her ballot against Umar? Third, Rosa keeps naming Luna without facts. Elsie asked for facts. Pia, answer plainly. Luna, quote Tess's exact words.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 360,
+      "speaker": "Pia",
+      "said": "Pia, slow tide and grey sky. Luna, you still haven't named one thing Tess said. A read is no anchor. Silas, Rosa, you both met Elsie, yet neither of you gives an hour or a word. Hugo keeps honest records, and I'll trust them. Plain facts, or we sink.",
+      "belief": {
+        "resident": "Silas",
+        "suspicion": 25,
+        "note": "Steady and voted Umar; private talks with Hugo, Rosa and Luna"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 360,
+      "speaker": "Pia",
+      "said": "Pia, slow tide and grey sky. Luna, you still haven't named one thing Tess said. A read is no anchor. Silas, Rosa, you both met Elsie, yet neither of you gives an hour or a word. Hugo keeps honest records, and I'll trust them. Plain facts, or we sink.",
+      "belief": {
+        "resident": "Rosa",
+        "suspicion": 30,
+        "note": "Vague and friendly; named by Umar; private talks with Luna and Silas"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 426,
+      "speaker": "Hugo",
+      "said": "Hugo, schoolteacher, laying out facts point by point. One: Rosa lived, so the Doctor guarded her, and that is useful. Two: Pia has dodged plain questions for two days. Pia, answer me directly. Three: Luna pins eagerly, but she does answer when pressed. Rosa, keep asking, and I will judge on facts only.",
+      "belief": {
+        "resident": "Pia",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 446,
+      "speaker": "Silas",
+      "said": "Silas, watchman. Still no hours from me, and I won't invent any. Rosa, your bread talk is charming, but name the protection, not the crumbs. Luna's ledger has yet to show a catch. Pia's gulls are not evidence. You two feed this square noise. Vote on facts, or we vote on nothing.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 446,
+      "speaker": "Silas",
+      "said": "Silas, watchman. Still no hours from me, and I won't invent any. Rosa, your bread talk is charming, but name the protection, not the crumbs. Luna's ledger has yet to show a catch. Pia's gulls are not evidence. You two feed this square noise. Vote on facts, or we vote on nothing.",
+      "belief": {
+        "resident": "Pia",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 458,
+      "speaker": "Silas",
+      "said": "Silas, watchman, and a civilian. Luna claims detective and names me murderer. Convenient timing for a ledger that has caught nothing. A true detective gives the night and the method, not just a verdict. Luna, which night did you look, and who guarded whom? Pia's gulls are still noise. Vote facts, not pins.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 458,
+      "speaker": "Silas",
+      "said": "Silas, watchman, and a civilian. Luna claims detective and names me murderer. Convenient timing for a ledger that has caught nothing. A true detective gives the night and the method, not just a verdict. Luna, which night did you look, and who guarded whom? Pia's gulls are still noise. Vote facts, not pins.",
+      "belief": {
+        "resident": "Pia",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 470,
+      "speaker": "Hugo",
+      "said": "Hugo, schoolteacher, point by point. One: Luna claims detective, yet her verdict on Silas came without a night or method, which is exactly what Silas asked for. Two: Pia still hasn't said where she stood at Dusk. Three: I won't vote on one name alone. Luna, state your night plainly. Pia, answer Rosa's question. Then we vote, and it should be on facts.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 470,
+      "speaker": "Hugo",
+      "said": "Hugo, schoolteacher, point by point. One: Luna claims detective, yet her verdict on Silas came without a night or method, which is exactly what Silas asked for. Two: Pia still hasn't said where she stood at Dusk. Three: I won't vote on one name alone. Luna, state your night plainly. Pia, answer Rosa's question. Then we vote, and it should be on facts.",
+      "belief": {
+        "resident": "Pia",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 476,
+      "speaker": "Silas",
+      "said": "Silas, watchman. Luna, a detective who names me without a night or method is no detective. I've asked twice: vote facts, not pins. Pia still hasn't said where she stood at Dusk with Elsie. Rosa, press Pia there, not me. Luna, state the night and who guarded whom. If your ledger holds, it will hold under plain questions. Otherwise, vote her.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 476,
+      "speaker": "Silas",
+      "said": "Silas, watchman. Luna, a detective who names me without a night or method is no detective. I've asked twice: vote facts, not pins. Pia still hasn't said where she stood at Dusk with Elsie. Rosa, press Pia there, not me. Luna, state the night and who guarded whom. If your ledger holds, it will hold under plain questions. Otherwise, vote her.",
+      "belief": {
+        "resident": "Pia",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    }
+  ],
+  "influence": [
+    {
+      "resident": "Elsie",
+      "followed": 13,
+      "ballots": 13
+    },
+    {
+      "resident": "Hugo",
+      "followed": 15,
+      "ballots": 21
+    },
+    {
+      "resident": "Rosa",
+      "followed": 10,
+      "ballots": 14
+    },
+    {
+      "resident": "Pia",
+      "followed": 8,
+      "ballots": 14
+    },
+    {
+      "resident": "Silas",
+      "followed": 10,
+      "ballots": 21
+    },
+    {
+      "resident": "Luna",
+      "followed": 8,
+      "ballots": 21
+    },
+    {
+      "resident": "Tess",
+      "followed": 2,
+      "ballots": 7
+    },
+    {
+      "resident": "Umar",
+      "followed": 1,
+      "ballots": 13
+    }
+  ]
+}

@@ -74,7 +74,8 @@ test("a Spectator holds, moves an event at a time and speeds up a game as it str
 
   stream(seen.slice(6)); // the rest of the game at once: far more than a minute behind
   await page.clock.runFor(100);
-  await expect(page.getByRole("banner")).toContainText("Game over");
+  // the page reads a thousand events as they arrive, which a busy CI runner takes a while to do
+  await expect(page.getByRole("banner")).toContainText("Game over", { timeout: 15_000 });
 });
 
 test("a finished game replays from its start, steered from the keyboard, with a link to share it", async ({

@@ -63,6 +63,7 @@ export function GameConsole({
   replayUrl,
   review,
   townView = false,
+  startsInMystery = false,
 }: {
   events: readonly Event[];
   connection: ConnectionStatus;
@@ -77,8 +78,10 @@ export function GameConsole({
   review?: Review | null | undefined;
   /** Whether to draw the Town view: the page decides, as only a browser with WebGL can. */
   townView?: boolean;
+  /** Whether to open in mystery mode, which the Spectator can leave. */
+  startsInMystery?: boolean;
 }) {
-  const [mysteryChosen, setMysteryChosen] = useState(false);
+  const [mysteryChosen, setMysteryChosen] = useState(startsInMystery);
   const [inspected, setInspected] = useState<string | null>(null);
   const [chosenTab, setChosenTab] = useState<Tab | null>(null);
   const mystery = scope === "public" || mysteryChosen;

@@ -13,7 +13,14 @@ from typer.testing import CliRunner
 
 from mm.agents.prompting import prompt_version
 from mm.cli import app
-from mm.cli.evaluation import Batch, MatrixChangedError, RunFolder, code_version, play_batch
+from mm.cli.evaluation import (
+    Batch,
+    MatrixChangedError,
+    RunBusyError,
+    RunFolder,
+    code_version,
+    play_batch,
+)
 from mm.cli.matrix import Matrix
 from mm.cli.report import write_report
 from mm.cli.tables import percentile
@@ -164,6 +171,20 @@ async def test_an_aborted_game_stops_the_batch_and_is_played_again_when_the_run_
     assert "rate limited" in stopped.reason
     assert resumed == Batch(4, "complete")
     assert len(games_in(tmp_path)) == 4
+
+
+async def test_a_run_plays_one_batch_at_a_time(tmp_path: Path) -> None:
+    with (
+        RunFolder(tmp_path).playing(),  # another batch is playing this run
+        pytest.raises(RunBusyError, match="another batch"),
+    ):
+        await play_batch(tiny(), tmp_path, SCRIPTED_ONLY)
+
+    finished = await play_batch(tiny(), tmp_path, SCRIPTED_ONLY)
+    again = await play_batch(tiny(), tmp_path, SCRIPTED_ONLY)
+
+    assert finished == Batch(4, "complete")  # once it is done, the run is free again
+    assert again == Batch(0, "complete")  # and free once the batch that played it has ended
 
 
 async def test_a_run_goes_on_only_with_the_matrix_it_began_with(tmp_path: Path) -> None:

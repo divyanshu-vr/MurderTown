@@ -21,7 +21,7 @@ from mm.agents.memory import mind_of
 from mm.api.protocol import protocol_schema
 from mm.api.routes import HOST_TOKEN_HEADER
 from mm.api.settings import Settings
-from mm.cli.evaluation import MatrixChangedError, play_batch
+from mm.cli.evaluation import MatrixChangedError, RunBusyError, play_batch
 from mm.cli.matrix import Cell, Matrix
 from mm.cli.recording import (
     CallTally,
@@ -265,7 +265,7 @@ def evaluate(
     try:
         with observed(_level(log_level)):
             batch = asyncio.run(play_batch(matrix, folder, providers, on_game=_print_game))
-    except MatrixChangedError as error:
+    except (MatrixChangedError, RunBusyError) as error:
         typer.echo(f"Cannot evaluate: {error}", err=True)
         raise typer.Exit(code=1) from error
     report = write_report(folder)

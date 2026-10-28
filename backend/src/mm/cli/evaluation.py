@@ -8,15 +8,17 @@ A run folder holds:
   A line is written only once its game's files are complete, so a run that stopped goes on by
   skipping the games it lists.
 
-A batch stops after its cap of games, or at the first game that aborts: once the subscription's
-quota runs out, every game would abort at its first decision. An aborted game is not listed, so
-it is played again when the run goes on.
+One batch plays a run at a time: it holds `run.lock` while it plays, since two batches at once
+would write the same games. A batch stops after its cap of games, or at the first game that
+aborts: once the subscription's quota runs out, every game would abort at its first decision. An
+aborted game is not listed, so it is played again when the run goes on.
 """
 
 import asyncio
 import json
 import subprocess
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import Awaitable, Callable, Iterator, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -60,18 +62,39 @@ class MatrixChangedError(Exception):
     """A run goes on only with the matrix it began with, or its games would not compare."""
 
 
+class RunBusyError(Exception):
+    """Another batch is playing the run, and two at once would write the same games."""
+
+
 class RunFolder:
     def __init__(self, path: Path) -> None:
         self.path = path
         self._matrix = path / "run.json"
         self._ledger = path / "games.ndjson"
+        self._lock = path / "run.lock"
+
+    @contextmanager
+    def playing(self) -> Iterator[None]:
+        """Hold the run while a batch plays it, so that no other batch can."""
+        self.path.mkdir(parents=True, exist_ok=True)
+        try:
+            self._lock.open("x").close()
+        except FileExistsError as error:
+            raise RunBusyError(
+                f"another batch is playing {self.path}. If none is (one was stopped before it "
+                f"finished), delete {self._lock} and run again."
+            ) from error
+        try:
+            yield
+        finally:
+            self._lock.unlink()
 
     def begin(self, matrix: Matrix) -> None:
         """Keep the matrix a new run plays, or check that a run going on plays the same one."""
-        playing = matrix.model_dump(mode="json", exclude={"caps"})
+        games = matrix.model_dump(mode="json", exclude={"caps"})
         if not self._matrix.exists():
-            write_json(self._matrix, playing)
-        elif json.loads(self._matrix.read_text(encoding="utf-8")) != playing:
+            write_json(self._matrix, games)
+        elif json.loads(self._matrix.read_text(encoding="utf-8")) != games:
             raise MatrixChangedError(
                 f"{self.path} holds a run of another matrix: give this one a folder of its own"
             )
@@ -104,34 +127,35 @@ async def play_batch(
     """Play the matrix's games that the run in `folder` has not played yet, until the batch's
     cap, the first aborted game, or the end. `on_game` hears of each game once it is over."""
     run = RunFolder(folder)
-    run.begin(matrix)
-    done = {(game.cell, game.seed) for game in run.played()}
-    commit, uncommitted_changes = code_version()
-    played = 0
-    for cell, seed in matrix.games():
-        if (cell.index, seed) in done:
-            continue
-        if played == matrix.caps.games_per_batch:
-            return Batch(played, "capped")
-        if played:
-            await pause(matrix.caps.pause_seconds)
-        file = run.game_file(cell, seed)
-        result = await _play(cell.config(seed), file, providers)
-        on_game(cell, seed, result)
-        if aborted := [e.payload for e in result.events if isinstance(e.payload, GameAborted)]:
-            return Batch(played, "aborted", aborted[0].reason)
-        run.add(
-            Played(
-                cell=cell.index,
-                seed=seed,
-                file=file.relative_to(folder).as_posix(),
-                commit=commit,
-                uncommitted_changes=uncommitted_changes,
-                prompt_version=prompt_version(),
+    with run.playing():
+        run.begin(matrix)
+        done = {(game.cell, game.seed) for game in run.played()}
+        commit, uncommitted_changes = code_version()
+        played = 0
+        for cell, seed in matrix.games():
+            if (cell.index, seed) in done:
+                continue
+            if played == matrix.caps.games_per_batch:
+                return Batch(played, "capped")
+            if played:
+                await pause(matrix.caps.pause_seconds)
+            file = run.game_file(cell, seed)
+            result = await _play(cell.config(seed), file, providers)
+            on_game(cell, seed, result)
+            if aborted := [e.payload for e in result.events if isinstance(e.payload, GameAborted)]:
+                return Batch(played, "aborted", aborted[0].reason)
+            run.add(
+                Played(
+                    cell=cell.index,
+                    seed=seed,
+                    file=file.relative_to(folder).as_posix(),
+                    commit=commit,
+                    uncommitted_changes=uncommitted_changes,
+                    prompt_version=prompt_version(),
+                )
             )
-        )
-        played += 1
-    return Batch(played, "complete")
+            played += 1
+        return Batch(played, "complete")
 
 
 async def _play(

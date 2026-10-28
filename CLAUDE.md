@@ -30,6 +30,7 @@ A social-deduction game where every Resident is played by an LLM Agent with its 
 - On Windows, write multi-line source files with the file tools; long shell heredocs fail to parse.
 - If `import mm` fails after adding a package directory, run `uv sync --reinstall-package murdertown` in `backend/`.
 - Browser tests (`pnpm e2e`, Playwright, `frontend/e2e/`) run the built console against a mocked server; install their browser once with `pnpm exec playwright install chromium`. The Town view's screenshot compares only on Linux: `pnpm e2e:linux` runs them in Playwright's image as CI does (needs Docker).
+- The Replay site is the console built with `pnpm build:site` (Vite's `site` mode): it plays only the recorded games in `frontend/public/site` and never calls a server, since the subscription may not serve visitors (`docs/deploy.md`). Its browser tests run as their own Playwright project.
 - The frontend runs on Node 24, which pnpm downloads per project through `devEngines`; run Node tools through `pnpm`, not the system Node.
 - TypeScript stays on 6.0.x until typescript-eslint supports 7.
 - The Docker Compose Postgres listens on host port 5433, because a locally installed Postgres may own 5432.

@@ -1,0 +1,198 @@
+{
+  "turning_points": [
+    {
+      "kind": "event",
+      "seq": 106
+    },
+    {
+      "kind": "event",
+      "seq": 155
+    },
+    {
+      "kind": "swing",
+      "seq": 158,
+      "resident": "Iris",
+      "suspect": "Umar",
+      "before": 5,
+      "after": 100
+    },
+    {
+      "kind": "swing",
+      "seq": 161,
+      "resident": "Zane",
+      "suspect": "Xavi",
+      "before": 20,
+      "after": 60
+    },
+    {
+      "kind": "event",
+      "seq": 237
+    },
+    {
+      "kind": "swing",
+      "seq": 242,
+      "resident": "Umar",
+      "suspect": "Iris",
+      "before": 5,
+      "after": 100
+    },
+    {
+      "kind": "event",
+      "seq": 281
+    }
+  ],
+  "lies": [
+    {
+      "kind": "accused_trusted",
+      "seq": 16,
+      "speaker": "Umar",
+      "said": "Point by point, friends. Cyrus explained the harbor bell before anyone asked, then leaned on Tess with a pet name to shift our eyes. That's deflection, not proof. Iris chairing is her duty as mayor, so I won't hold it against her. Xavi, I'd like to hear more evidence before we settle on anyone, and Cyrus, I'd like your reason for the bell.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 16,
+      "speaker": "Umar",
+      "said": "Point by point, friends. Cyrus explained the harbor bell before anyone asked, then leaned on Tess with a pet name to shift our eyes. That's deflection, not proof. Iris chairing is her duty as mayor, so I won't hold it against her. Xavi, I'd like to hear more evidence before we settle on anyone, and Cyrus, I'd like your reason for the bell.",
+      "belief": {
+        "resident": "Iris",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 17,
+      "speaker": "Iris",
+      "said": "Order, friends! I propose a motion: every Resident states one fact they saw this morning, and we hold our vote only after all have spoken. Cyrus, your bell-glance is a fair question, and I'd like your answer plainly. Umar makes a sound point about deflection. I chair only because someone must, and I'm happy to be questioned.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 47,
+      "speaker": "Iris",
+      "said": "Order, friends! I move that Cyrus and Wren stop trading barbs and answer plainly. Cyrus has deflected three times now, and Wren has accused without showing a single board. Xavi has been measured, so let us hear more from Tess and Luna before any hammer falls. As mayor I ask for patience, not haste. Zane's omens are charming, but facts first.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 47,
+      "speaker": "Iris",
+      "said": "Order, friends! I move that Cyrus and Wren stop trading barbs and answer plainly. Cyrus has deflected three times now, and Wren has accused without showing a single board. Xavi has been measured, so let us hear more from Tess and Luna before any hammer falls. As mayor I ask for patience, not haste. Zane's omens are charming, but facts first.",
+      "belief": {
+        "resident": "Wren",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 167,
+      "speaker": "Umar",
+      "said": "Three points, plainly. First, Wren's death leaves the Town with no Detective, so we must be fair and careful. Second, Zane, your answers about Wren have been vague. Give us one concrete fact. Third, Luna's worry sounds sincere, and I defend her. Let us not rush a vote as we did with Cyrus.",
+      "belief": {
+        "resident": "Zane",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 168,
+      "speaker": "Iris",
+      "said": "Order, friends! I move that we hear Zane's plain account of Wren before any ballot is cast. Tess, your bread-judging is charming, but it is hardly evidence. I defend Xavi's measured tone; we need facts, not theatre. Let us not repeat the rushed verdict on Cyrus.",
+      "belief": {
+        "resident": "Zane",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 168,
+      "speaker": "Iris",
+      "said": "Order, friends! I move that we hear Zane's plain account of Wren before any ballot is cast. Tess, your bread-judging is charming, but it is hardly evidence. I defend Xavi's measured tone; we need facts, not theatre. Let us not repeat the rushed verdict on Cyrus.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 197,
+      "speaker": "Iris",
+      "said": "Order, friends! I move that Zane gives one plain fact about Wren before any ballot. Zane has repeated the same fog twice, and that deserves note. Tess, judging bread is theatre, not evidence. I defend Xavi's measured answers. No vote until we have facts.",
+      "belief": {
+        "resident": "Zane",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 197,
+      "speaker": "Iris",
+      "said": "Order, friends! I move that Zane gives one plain fact about Wren before any ballot. Zane has repeated the same fog twice, and that deserves note. Tess, judging bread is theatre, not evidence. I defend Xavi's measured answers. No vote until we have facts.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    }
+  ],
+  "influence": [
+    {
+      "resident": "Iris",
+      "followed": 11,
+      "ballots": 12
+    },
+    {
+      "resident": "Wren",
+      "followed": 6,
+      "ballots": 7
+    },
+    {
+      "resident": "Tess",
+      "followed": 10,
+      "ballots": 12
+    },
+    {
+      "resident": "Umar",
+      "followed": 10,
+      "ballots": 12
+    },
+    {
+      "resident": "Luna",
+      "followed": 4,
+      "ballots": 5
+    },
+    {
+      "resident": "Xavi",
+      "followed": 4,
+      "ballots": 5
+    },
+    {
+      "resident": "Zane",
+      "followed": 6,
+      "ballots": 12
+    },
+    {
+      "resident": "Cyrus",
+      "followed": 0,
+      "ballots": 7
+    }
+  ]
+}
