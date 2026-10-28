@@ -42,3 +42,5 @@ On 2026-10-28 a one-Day live game (6 Residents, `claude-haiku-5-5`) was played w
 - each trace's root span was its `decision.<kind>` (6 statements, 6 ballots, 1 last words), with the Resident as the user;
 - each trace held one generation with the model, prompt and answer, token usage (input, output, cache read, cache creation) and cost, and metadata for the attempt, outcome, role, Phase, Day, decision and log position;
 - all 13 stored model calls kept their trace ids.
+
+![The live game in Langfuse: one session of 13 traces costing $0.011 and 45k tokens in all, with Rosa's first statement and the prompt she answered](images/langfuse-session.png)
