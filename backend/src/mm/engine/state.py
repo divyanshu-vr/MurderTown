@@ -59,6 +59,7 @@ class GameState:
     """Whom the Doctor protected on each Night, by Day."""
     investigated: set[str] = field(default_factory=set)
     winner: Side | None = None
+    aborted: bool = False
 
     @classmethod
     def fold(cls, events: Iterable[Event]) -> "GameState":
@@ -90,7 +91,7 @@ class GameState:
             case GameEnded(winner=winner):
                 self.winner, self.phase = winner, Phase.ENDED
             case GameAborted():
-                self.phase = Phase.ENDED
+                self.aborted, self.phase = True, Phase.ENDED
             case (
                 BidPlaced() | StatementMade() | BallotCast() | VoteResolved() | LastWordsSpoken()
                 | SheriffHeldFire() | ReflectionWritten() | DecisionFellBack() | DenMessagePosted()

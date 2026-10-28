@@ -12,15 +12,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from mm.agents import AgentSettings, BrainFactory, CallRecorder, Cost, ModelCall, llm_agents
-from mm.api import Settings, create_app
 from mm.engine import GameConfig
 from mm.engine.decisions import DecisionKind
 from mm.llm import ModelReply, ModelRequest, Usage
 from mm.llm.prices import equivalent_cost
-from mm.orchestrator import play_game
 from mm.orchestrator.narrator import NARRATOR
-from tests.conftest import start_game, wait_until_finished
-from tests.support import FakeModel, answer_kind, sensible_answer
+from tests.conftest import serving, start_game, wait_until_finished
+from tests.support import FakeModel, answer_kind, played_by, sensible_answer
 
 CONFIG = GameConfig(residents=6, murderers=1, max_days=1, seed=13)
 
@@ -53,12 +51,7 @@ async def test_each_model_call_records_its_cost_from_the_price_table() -> None:
         reply = sensible_answer(request)
         return ModelReply(outcome="ok", data=reply.data, text=reply.text, usage=FIRST_LIVE_CALL)
 
-    calls: list[ModelCall] = []
-
-    async def record(call: ModelCall) -> None:
-        calls.append(call)
-
-    await play_game(CONFIG, llm_agents(FakeModel(live_sized), AgentSettings(), record, CONFIG.seed))
+    _, calls = await played_by(FakeModel(live_sized), CONFIG)
 
     assert calls
     assert all(call.cost_usd == pytest.approx(0.0007835) for call in calls)
@@ -105,7 +98,7 @@ def recorded(database_url: str) -> Iterator[tuple[TestClient, list[ModelCall]]]:
 
         return llm_agents(FakeModel(varied_usage), AgentSettings(), keep, config.seed)
 
-    with TestClient(create_app(Settings(database_url=database_url), brains_for=agents)) as client:
+    with serving(database_url, agents) as client:
         yield client, calls
 
 

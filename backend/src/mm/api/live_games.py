@@ -14,7 +14,7 @@ from mm.agents import BrainFactory, CallRecorder, ModelCall, scripted_bots
 from mm.engine import GameConfig
 from mm.engine.events import Event
 from mm.orchestrator import play_game
-from mm.persistence import Bus, GameStore
+from mm.persistence import Bus, GameStatus, GameStore
 
 logger = structlog.get_logger(__name__)
 
@@ -55,8 +55,8 @@ class LiveGames:
             logger.exception("game failed", game=game_id)
             await self.store.set_status(game_id, "failed")
             return
-        winner = result.state.winner
-        await self.store.set_status(game_id, "finished" if winner else "failed", winner=winner)
+        status: GameStatus = "aborted" if result.state.aborted else "finished"
+        await self.store.set_status(game_id, status, winner=result.state.winner)
 
     async def shutdown(self) -> None:
         for task in self._tasks:

@@ -96,7 +96,7 @@ def play(
             tally=tally,
             out=out,
         )
-    except SubscriptionError as error:
+    except (SubscriptionError, ValueError) as error:  # no login, or a model with no price
         typer.echo(f"Cannot start a live game: {error}", err=True)
         raise typer.Exit(code=1) from error
 
@@ -107,8 +107,8 @@ def play(
         typer.echo(f"\n{tally.summary()} Fallbacks: {fallbacks}.")
     if events_file:
         typer.echo(f"Saved {events_file.count} events to {out}")
-    if result.state.winner is None:
-        raise typer.Exit(code=1)  # the game was aborted; the transcript says why
+    if result.state.aborted:
+        raise typer.Exit(code=1)  # the transcript says why
 
 
 def _brains(

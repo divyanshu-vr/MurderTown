@@ -51,20 +51,28 @@ describe("the cost meter", () => {
     expect(totals).toHaveTextContent("Model calls12");
     expect(totals).toHaveTextContent("Prompt tokens1,600");
     expect(totals).toHaveTextContent("Tokens out240");
-    expect(totals).toHaveTextContent("Read from cache25%");
+    expect(totals).toHaveTextContent("From cache25%");
   });
 
   it("lists each Resident in seat order, then the Narrator, so the rows add up to the total", async () => {
     render(<GameConsole events={events} connection="ended" cost={() => Promise.resolve(report)} />);
 
-    const table = within(await shownMeter()).getByRole("table", { name: "Cost by Resident" });
+    const table = within(await shownMeter()).getByRole("table", { name: "Cost by caller" });
     const rows = within(table).getAllByRole("row").slice(1); // the first row is the header
     expect(rows.map((row) => within(row).getAllByRole("cell")[0]?.textContent)).toEqual([
       first.name,
       second.name,
       "Narrator",
     ]);
-    expect(rows[0]).toHaveTextContent("$0.0060");
+    expect(within(table).getAllByRole("columnheader").map((header) => header.textContent)).toEqual([
+      "Caller",
+      "Calls",
+      "Prompt tokens",
+      "Tokens out",
+      "From cache",
+      "Cost",
+    ]);
+    expect(rows[0]?.textContent).toBe(`${first.name}690012033%$0.0060`); // 300 of 900 prompt tokens from cache
   });
 
   it("hides each Resident's cost in mystery mode, where it would reveal who acts at Night", async () => {

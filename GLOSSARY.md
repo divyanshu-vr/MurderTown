@@ -183,7 +183,7 @@ The safe default used when a Resident's Agent refuses to answer or twice gives a
 _Avoid_: default answer, error
 
 **Aborted game**:
-A game stopped before either side won, because the model gave no answer at all to a decision: it timed out or failed.
+A game stopped before either side won, because the model gave no answer at all to a decision (it timed out or failed), or because the game itself failed.
 _Avoid_: crashed game, cancelled game
 
 ### Watching

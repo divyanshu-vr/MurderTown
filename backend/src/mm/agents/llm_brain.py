@@ -95,7 +95,7 @@ class LLMBrain:
         try:
             return await self.provider.complete(request)
         except Exception as error:  # whatever went wrong, the game reports it
-            return ModelReply(outcome="error", data=None, text="", error=str(error) or repr(error))
+            return ModelReply.failure(str(error) or repr(error))
 
     def _call(
         self,

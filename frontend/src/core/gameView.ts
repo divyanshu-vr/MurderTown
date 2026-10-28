@@ -23,9 +23,11 @@ export interface GameView {
   phase: Phase;
   /** Statements made so far on the Open floor, or null while it is not under way. */
   openFloorStatements: number | null;
-  /** How the game ended: a side won, or, with no winner, it was aborted for the reason given. */
-  outcome: { winner: Side | null; reason: string } | null;
+  /** How the game ended: a side won, or it was aborted. Null while it is still going. */
+  outcome: Outcome | null;
 }
+
+export type Outcome = { ended: "won"; winner: Side; reason: string } | { ended: "aborted"; reason: string };
 
 export const emptyView: GameView = {
   config: null,
@@ -86,9 +88,9 @@ export function applyEvent(view: GameView, event: Event): GameView {
         }),
       };
     case "game_ended":
-      return { ...view, phase: "ended", outcome: { winner: payload.winner, reason: payload.reason } };
+      return { ...view, phase: "ended", outcome: { ended: "won", winner: payload.winner, reason: payload.reason } };
     case "game_aborted": // only the problem: whose decision failed could reveal a Night role
-      return { ...view, phase: "ended", outcome: { winner: null, reason: payload.reason } };
+      return { ...view, phase: "ended", outcome: { ended: "aborted", reason: payload.reason } };
     case "sheriff_fired": // the deaths that follow change the roster
     case "sheriff_held_fire":
     case "den_message_posted":

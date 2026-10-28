@@ -6,7 +6,7 @@ transport tests watch an aborted game the way a Spectator's browser does.
 """
 
 import asyncio
-from collections.abc import AsyncIterator, Callable, Iterator, Mapping, Sequence
+from collections.abc import AsyncIterator, Callable, Mapping, Sequence
 from itertools import count
 from typing import Any
 
@@ -17,7 +17,6 @@ from starlette.websockets import WebSocketDisconnect
 
 from mm.agents import AgentSettings, Brain, BrainFactory, CallRecorder, ModelCall, llm_agents
 from mm.agents.brain import ModelFailureError
-from mm.api import Settings, create_app
 from mm.engine import GameConfig
 from mm.engine.decisions import Answer, DecisionKind, DecisionRequest
 from mm.engine.events import (
@@ -37,7 +36,7 @@ from mm.engine.state import GameState
 from mm.llm import Effort, ModelReply, ModelRequest
 from mm.llm import claude_agent_sdk as sdk
 from mm.orchestrator import play_game
-from tests.conftest import start_game, wait_until_finished
+from tests.conftest import serving, start_game, wait_until_finished
 from tests.support import (
     FakeModel,
     answer_kind,
@@ -45,6 +44,7 @@ from tests.support import (
     model_answer,
     name_at_seat,
     payloads,
+    played_by,
     puppets,
     sensible_answer,
     wrapped,
@@ -55,30 +55,47 @@ CONFIG = GameConfig(residents=6, murderers=1, max_days=2, seed=13)
 NO_ANSWER = "no answer within 90 seconds"
 
 
+def no_answer(request: DecisionRequest) -> Exception:
+    return ModelFailureError(request, NO_ANSWER)
+
+
+def crash(request: DecisionRequest) -> Exception:
+    return RuntimeError(f"the database is gone while {request.resident} decided")
+
+
 class Failing:
-    """A decision source that fails on chosen requests, as a model that never answered would,
-    after letting the event loop run as many times as `waits` says for that Resident."""
+    """A decision source that fails on chosen requests with `error`, by default as a model
+    that never answered would, after letting the event loop run as many times as `waits`
+    says for that Resident."""
 
     def __init__(
         self,
         inner: Brain,
         fails: Callable[[DecisionRequest], bool],
         waits: Mapping[str, int] | None = None,
+        error: Callable[[DecisionRequest], Exception] = no_answer,
     ) -> None:
-        self.inner, self.fails, self.waits = inner, fails, waits or {}
+        self.inner, self.fails, self.waits, self.error = inner, fails, waits or {}, error
 
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         if not self.fails(request):
             return await self.inner.decide(request, view)
         for _ in range(self.waits.get(request.resident, 0)):
             await asyncio.sleep(0)
-        raise ModelFailureError(request, NO_ANSWER)
+        raise self.error(request)
 
 
 def failing(
-    fails: Callable[[DecisionRequest], bool], waits: Mapping[str, int] | None = None, **script: Any
+    fails: Callable[[DecisionRequest], bool],
+    waits: Mapping[str, int] | None = None,
+    error: Callable[[DecisionRequest], Exception] = no_answer,
+    **script: Any,
 ) -> BrainFactory:
-    return wrapped(puppets(**script), lambda brain: Failing(brain, fails, waits))
+    return wrapped(puppets(**script), lambda brain: Failing(brain, fails, waits, error))
+
+
+def ballots(request: DecisionRequest) -> bool:
+    return request.kind is DecisionKind.BALLOT
 
 
 def aborted(events: Sequence[Event]) -> tuple[Event, GameAborted]:
@@ -110,6 +127,21 @@ async def test_a_failed_decision_aborts_the_game_naming_who_failed_to_decide_wha
     assert payloads(result.events, BallotCast) == []
     assert result.state.phase is Phase.ENDED
     assert result.state.winner is None
+    assert result.state.aborted
+
+
+async def test_a_game_that_crashes_still_ends_its_log_with_an_abort_that_names_no_one() -> None:
+    logged: list[Event] = []
+
+    async def keep(event: Event) -> None:
+        logged.append(event)
+
+    with pytest.raises(RuntimeError, match="database is gone"):
+        await play_game(CONFIG, failing(ballots, error=crash), observers=[keep])
+
+    _, abort = aborted(logged)
+    assert (abort.resident, abort.kind) == (None, None)
+    assert abort.reason == "the game stopped on an internal error"
 
 
 async def test_when_several_decisions_fail_at_once_the_first_asked_is_the_one_reported() -> None:
@@ -163,13 +195,7 @@ async def test_an_abort_mid_conversation_drops_what_that_wave_said() -> None:
 async def play_with(
     respond: Callable[[ModelRequest], ModelReply],
 ) -> tuple[list[Event], list[ModelCall]]:
-    calls: list[ModelCall] = []
-
-    async def record(call: ModelCall) -> None:
-        calls.append(call)
-
-    agents = llm_agents(FakeModel(respond), AgentSettings(), record, CONFIG.seed)
-    return (await play_game(CONFIG, agents)).events, calls
+    return await played_by(FakeModel(respond), CONFIG)
 
 
 def statements_get(reply: ModelReply) -> Callable[[ModelRequest], ModelReply]:
@@ -299,6 +325,26 @@ async def test_the_claude_provider_reports_an_sdk_error_before_any_result(
     assert (reply.outcome, reply.error) == ("error", "Claude Code exited")
 
 
+@pytest.mark.parametrize("subtype", ["error_max_structured_output_retries", "error_max_turns"])
+async def test_the_claude_provider_passes_on_an_answer_that_broke_the_rules_to_be_retried(
+    monkeypatch: pytest.MonkeyPatch, subtype: str
+) -> None:
+    result = ResultMessage(
+        subtype=subtype,
+        duration_ms=5,
+        duration_api_ms=5,
+        is_error=True,
+        num_turns=3,
+        session_id="s",
+        result="no attempt produced a valid output",
+    )
+    provider = provider_with(monkeypatch, INIT, result, then=ResultError("exit 1", data={}))
+
+    reply = await provider.complete(REQUEST)
+
+    assert (reply.outcome, reply.data) == ("ok", None)  # the pipeline finds no usable answer
+
+
 async def test_the_claude_provider_reports_a_failed_isolation_check_as_an_error_reply(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -314,30 +360,47 @@ async def test_the_claude_provider_reports_a_failed_isolation_check_as_an_error_
 # Transport: an aborted game, as a Spectator's browser sees it
 
 
-@pytest.fixture
-def failing_client(database_url: str) -> Iterator[TestClient]:
-    def agents(config: GameConfig, record: CallRecorder) -> BrainFactory:
-        return llm_agents(FakeModel(statements_get(TIMEOUT)), AgentSettings(), record, config.seed)
-
-    with TestClient(create_app(Settings(database_url=database_url), brains_for=agents)) as client:
-        yield client
+def timing_out(config: GameConfig, record: CallRecorder) -> BrainFactory:
+    return llm_agents(FakeModel(statements_get(TIMEOUT)), AgentSettings(), record, config.seed)
 
 
-def test_an_aborted_games_stream_ends_with_the_abort_which_explains_the_failed_call(
-    failing_client: TestClient,
-) -> None:
-    game_id = start_game(failing_client, CONFIG.model_dump(mode="json"))
-    wait_until_finished(failing_client, game_id)
+def crashing(config: GameConfig, record: CallRecorder) -> BrainFactory:
+    return failing(ballots, error=crash)
 
-    assert failing_client.get(f"/games/{game_id}").json()["status"] == "failed"
-    with failing_client.websocket_connect(f"/ws/games/{game_id}") as socket:
+
+def stream_until_aborted(client: TestClient, game_id: str) -> dict[str, Any]:
+    """Follow a finished game's stream to its abort, which must also be its end."""
+    with client.websocket_connect(f"/ws/games/{game_id}") as socket:
         received = [socket.receive_json()]
         while received[-1]["payload"]["type"] != "game_aborted":
             received.append(socket.receive_json())
         with pytest.raises(WebSocketDisconnect):
             socket.receive_json()
-    abort = received[-1]
+    return received[-1]
+
+
+def test_an_aborted_games_stream_ends_with_the_abort_which_explains_the_failed_call(
+    database_url: str,
+) -> None:
+    with serving(database_url, timing_out) as client:
+        game_id = start_game(client, CONFIG.model_dump(mode="json"))
+        wait_until_finished(client, game_id)
+
+        assert client.get(f"/games/{game_id}").json()["status"] == "aborted"
+        abort = stream_until_aborted(client, game_id)
+        explained = client.get(f"/games/{game_id}/events/{abort['seq']}/explain").json()
+
     assert abort["visibility"]["scope"] == "spectators"
-    explained = failing_client.get(f"/games/{game_id}/events/{abort['seq']}/explain").json()
     assert [attempt["outcome"] for attempt in explained["attempts"]] == ["timeout"]
     assert explained["fallback_reason"] is None
+
+
+def test_a_crashed_games_stream_ends_too_and_the_game_is_marked_failed(database_url: str) -> None:
+    with serving(database_url, crashing) as client:
+        game_id = start_game(client, CONFIG.model_dump(mode="json"))
+        wait_until_finished(client, game_id)
+
+        assert client.get(f"/games/{game_id}").json()["status"] == "failed"
+        abort = stream_until_aborted(client, game_id)
+
+    assert abort["payload"]["reason"] == "the game stopped on an internal error"

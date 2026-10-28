@@ -37,12 +37,12 @@ export function PhaseBar({
           Open floor: {view.openFloorStatements} of {view.config.open_floor_statements} Statements
         </p>
       )}
-      {view.outcome?.winner && (
+      {view.outcome?.ended === "won" && (
         <p className="text-amber-300">
           <strong>{victoryLabel[view.outcome.winner]}.</strong> {view.outcome.reason}
         </p>
       )}
-      {view.outcome && !view.outcome.winner && (
+      {view.outcome?.ended === "aborted" && (
         <p role="alert" className="text-rose-300">
           <strong>Game aborted:</strong> {view.outcome.reason}
         </p>

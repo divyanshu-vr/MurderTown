@@ -11,7 +11,6 @@ import pytest
 from fastapi.testclient import TestClient
 
 from mm.agents import AgentSettings, BrainFactory, CallRecorder, llm_agents
-from mm.api import Settings, create_app
 from mm.engine import GameConfig
 from mm.engine.decisions import DecisionKind, Suspicion
 from mm.engine.events import (
@@ -26,7 +25,7 @@ from mm.engine.events import (
 )
 from mm.llm import ModelReply, ModelRequest
 from mm.orchestrator.narrator import NARRATOR
-from tests.conftest import start_game, wait_until_finished
+from tests.conftest import serving, start_game, wait_until_finished
 from tests.support import FakeModel, answer_kind, may_perceive, model_answer, sensible_answer
 
 CONFIG = {"residents": 8, "murderers": 2, "max_days": 2, "seed": 4}
@@ -139,8 +138,7 @@ def fake_agents(config: GameConfig, record: CallRecorder) -> BrainFactory:
 
 @pytest.fixture
 def agents_client(database_url: str) -> Iterator[TestClient]:
-    app = create_app(Settings(database_url=database_url), brains_for=fake_agents)
-    with TestClient(app) as test_client:
+    with serving(database_url, fake_agents) as test_client:
         yield test_client
 
 

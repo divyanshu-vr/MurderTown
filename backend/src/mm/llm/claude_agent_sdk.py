@@ -52,6 +52,10 @@ ALLOWED_TOOLS = {"StructuredOutput"}
 
 API_CREDENTIALS = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN")
 
+UNUSABLE_ANSWER = {"error_max_structured_output_retries", "error_max_turns"}
+"""Results Claude Code reports as errors, though the model did answer: its answer broke the
+schema, or kept trying until out of turns. The pipeline retries these, then falls back."""
+
 
 class SubscriptionError(RuntimeError):
     """Live games would not run on the Host's subscription, so they must not run at all."""
@@ -120,12 +124,8 @@ class ClaudeAgentSDKProvider:
                 async with asyncio.timeout(self.timeout_s):
                     reply = await self._ask(request)
             except TimeoutError:
-                reply = ModelReply(
-                    outcome="timeout",
-                    data=None,
-                    text="",
-                    error=f"no answer within {self.timeout_s:.0f} seconds",
-                )
+                no_answer = f"no answer within {self.timeout_s:.0f} seconds"
+                reply = ModelReply.failure(no_answer, outcome="timeout")
             return replace(reply, latency_ms=int((time.monotonic() - started) * 1000))
 
     def _options(self, request: ModelRequest) -> ClaudeAgentOptions:
@@ -162,7 +162,7 @@ class ClaudeAgentSDKProvider:
                     if isinstance(message, SystemMessage) and message.subtype == "init":
                         self.last_session = _session_facts(message.data)
                         if isolation := _isolation_problem(self.last_session):
-                            return ModelReply(outcome="error", data=None, text="", error=isolation)
+                            return ModelReply.failure(isolation)
                     elif isinstance(message, AssistantMessage) and message.error:
                         problem = f"the model call failed: {message.error}"
                     elif isinstance(message, ResultMessage):
@@ -170,7 +170,7 @@ class ClaudeAgentSDKProvider:
         except ClaudeSDKError as error:  # the SDK raises after an error result, too
             problem = problem or str(error)
         if result is None:
-            return ModelReply(outcome="error", data=None, text="", error=problem or "no result")
+            return ModelReply.failure(problem or "no result")
         return _reply_from(result, problem)
 
 
@@ -211,6 +211,8 @@ def _usage(result: ResultMessage) -> Usage:
 def _reply_from(result: ResultMessage, problem: str | None) -> ModelReply:
     text = result.result or ""
     reply = ModelReply(outcome="ok", data=_structured(result), text=text, usage=_usage(result))
+    if result.subtype in UNUSABLE_ANSWER:
+        return replace(reply, data=None)  # the pipeline finds no usable answer in it
     if result.stop_reason == "refusal":
         return replace(reply, outcome="refusal", data=None, error="the model declined to answer")
     if result.is_error or result.subtype != "success":

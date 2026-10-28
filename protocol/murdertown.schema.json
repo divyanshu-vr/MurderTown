@@ -564,7 +564,7 @@
     },
     "GameAborted": {
       "additionalProperties": false,
-      "description": "The game stopped before either side won, because the model gave no answer to a decision.\n\n`reason` is only the problem, such as a timeout, never the decision itself: a\nSpectator in mystery mode sees it, and the decision could reveal a Night role.",
+      "description": "The game stopped before either side won: the model gave no answer to a decision, or\nthe game itself failed. A crash names no decision.\n\n`reason` is only the problem, such as a timeout, never the decision itself: a\nSpectator in mystery mode sees it, and the decision could reveal a Night role.",
       "properties": {
         "type": {
           "const": "game_aborted",
@@ -572,10 +572,26 @@
           "type": "string"
         },
         "resident": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "kind": {
-          "$ref": "#/$defs/DecisionKind"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DecisionKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "reason": {
           "type": "string"
@@ -830,6 +846,7 @@
           "enum": [
             "running",
             "finished",
+            "aborted",
             "failed"
           ],
           "type": "string"

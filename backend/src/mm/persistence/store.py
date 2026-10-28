@@ -9,12 +9,12 @@ from sqlalchemy import Select, func, select, text, update
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
 from mm.agents import Cost, ModelCall
-from mm.agents.calls import SUMMED
 from mm.engine import GameConfig, Side
 from mm.engine.events import Event
 from mm.persistence.tables import EventRow, GameRow, ModelCallRow
 
-GameStatus = Literal["running", "finished", "failed"]
+GameStatus = Literal["running", "finished", "aborted", "failed"]
+"""A game is aborted when the model gave no answer; it failed when the game itself crashed."""
 
 
 @dataclass(frozen=True)
@@ -124,17 +124,17 @@ class GameStore:
 
     async def cost(self, game_id: str) -> dict[str, Cost]:
         """What each caller's model calls cost in one game: each Resident's, and the narrator's."""
-        call = ModelCallRow
+        sums = (func.sum(getattr(ModelCallRow, figure)) for figure in Cost.SUMMED)
         query = (
-            select(call.resident, func.count(), *(func.sum(getattr(call, name)) for name in SUMMED))
-            .where(call.game_id == game_id)
-            .group_by(call.resident)
+            select(ModelCallRow.resident, func.count(), *sums)
+            .where(ModelCallRow.game_id == game_id)
+            .group_by(ModelCallRow.resident)
         )
         async with self._sessions() as session:
             rows = (await session.execute(query)).all()
         return {
-            caller: Cost(calls=calls, **dict(zip(SUMMED, sums, strict=True)))
-            for caller, calls, *sums in rows
+            caller: Cost(calls=calls, **dict(zip(Cost.SUMMED, summed, strict=True)))
+            for caller, calls, *summed in rows
         }
 
     async def _events(self, query: Select[EventRow]) -> list[Event]:

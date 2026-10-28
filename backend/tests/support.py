@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from random import Random
 from typing import Any
 
-from mm.agents import Brain, BrainFactory
+from mm.agents import AgentSettings, Brain, BrainFactory, ModelCall, llm_agents
 from mm.agents.scripted import ScriptedBot
 from mm.engine import GameConfig, Resident, Role
 from mm.engine.decisions import (
@@ -318,6 +318,17 @@ def sensible_answer(request: ModelRequest) -> ModelReply:  # noqa: C901 - one an
             replying = "(to " in request.prompt
             return model_answer({"text": "Let us keep an eye on each other.",
                                  "end_conversation": replying})  # fmt: skip
+
+
+async def played_by(model: "FakeModel", config: GameConfig) -> tuple[list[Event], list[ModelCall]]:
+    """A whole game played by Agents on a fake model: its log and every model call recorded."""
+    calls: list[ModelCall] = []
+
+    async def record(call: ModelCall) -> None:
+        calls.append(call)
+
+    result = await play_game(config, llm_agents(model, AgentSettings(), record, config.seed))
+    return result.events, calls
 
 
 class FakeModel:

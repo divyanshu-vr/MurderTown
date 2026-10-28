@@ -1,4 +1,4 @@
-import { costRows } from "../core/cost";
+import { type CostRow, costRows } from "../core/cost";
 import type { ResidentView } from "../core/gameView";
 import type { Cost, CostReport } from "../protocol";
 
@@ -29,7 +29,7 @@ export function CostMeter({
       ) : (
         <>
           <Totals cost={report.total} />
-          {!mystery && <ByResident rows={costRows(report, residents)} />}
+          {!mystery && <ByCaller rows={costRows(report, residents)} />}
         </>
       )}
     </section>
@@ -42,7 +42,7 @@ function Totals({ cost }: { cost: Cost }) {
     ["Model calls", tokens(cost.calls)],
     ["Prompt tokens", tokens(cost.prompt_tokens)],
     ["Tokens out", tokens(cost.output_tokens)],
-    ["Read from cache", share(cost.cache_hit_rate)],
+    ["From cache", share(cost.cache_hit_rate)],
   ];
   return (
     <ul aria-label="Totals" className="space-y-1 text-sm">
@@ -56,15 +56,19 @@ function Totals({ cost }: { cost: Cost }) {
   );
 }
 
-function ByResident({ rows }: { rows: ReturnType<typeof costRows> }) {
+/** One row per Resident who called the model, then the Narrator, who is not a Resident. */
+function ByCaller({ rows }: { rows: CostRow[] }) {
+  const columns = ["Calls", "Prompt tokens", "Tokens out", "From cache", "Cost"];
   return (
-    <table aria-label="Cost by Resident" className="mt-4 w-full text-sm">
+    <table aria-label="Cost by caller" className="mt-4 w-full text-sm">
       <thead className="text-left text-xs text-stone-500">
         <tr>
-          <th className="font-normal">Resident</th>
-          <th className="text-right font-normal">Calls</th>
-          <th className="text-right font-normal">Tokens in</th>
-          <th className="text-right font-normal">Cost</th>
+          <th className="font-normal">Caller</th>
+          {columns.map((column) => (
+            <th key={column} className="text-right font-normal">
+              {column}
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>
@@ -73,6 +77,8 @@ function ByResident({ rows }: { rows: ReturnType<typeof costRows> }) {
             <td>{label}</td>
             <td className="text-right tabular-nums">{tokens(cost.calls)}</td>
             <td className="text-right tabular-nums">{tokens(cost.prompt_tokens)}</td>
+            <td className="text-right tabular-nums">{tokens(cost.output_tokens)}</td>
+            <td className="text-right tabular-nums">{share(cost.cache_hit_rate)}</td>
             <td className="text-right tabular-nums">{dollars(cost.cost_usd)}</td>
           </tr>
         ))}

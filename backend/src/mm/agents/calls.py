@@ -7,7 +7,7 @@ reaches the event log ever lacks the call behind it.
 
 import json
 from collections.abc import Awaitable, Callable, Iterable
-from typing import Any, Literal, Self
+from typing import Any, ClassVar, Literal, Self
 
 from opentelemetry.trace import Span
 from pydantic import BaseModel, ConfigDict, computed_field
@@ -49,10 +49,6 @@ class ModelCall(BaseModel):
     """The trace of the decision this attempt belongs to, when tracing is on."""
 
 
-SUMMED = ("input_tokens", "output_tokens", "cache_read_tokens", "cache_write_tokens", "cost_usd")
-"""The figures of a call that add up across calls."""
-
-
 class Cost(BaseModel):
     """What some model calls used and cost together: the cost meter's numbers.
 
@@ -61,6 +57,10 @@ class Cost(BaseModel):
     """
 
     model_config = ConfigDict(frozen=True, json_schema_serialization_defaults_required=True)
+
+    SUMMED: ClassVar = ("input_tokens", "output_tokens", "cache_read_tokens", "cache_write_tokens",
+                        "cost_usd")  # fmt: skip
+    """The figures of a call that add up across calls."""
 
     calls: int = 0
     input_tokens: int = 0
@@ -84,11 +84,11 @@ class Cost(BaseModel):
     def of(cls, calls: Iterable[ModelCall]) -> Self:
         total = cls()
         for call in calls:
-            total += cls(calls=1, **call.model_dump(include=set(SUMMED)))
+            total += cls(calls=1, **call.model_dump(include=set(cls.SUMMED)))
         return total
 
     def __add__(self, other: Self) -> Self:
-        counted = ("calls", *SUMMED)
+        counted = ("calls", *self.SUMMED)
         return type(self)(**{name: getattr(self, name) + getattr(other, name) for name in counted})
 
 

@@ -61,8 +61,16 @@ class ModelReply:
     latency_ms: int = 0
     error: str | None = None
 
+    @classmethod
+    def failure(cls, error: str, outcome: Outcome = "error") -> "ModelReply":
+        """A call that brought back no answer at all."""
+        return cls(outcome=outcome, data=None, text="", error=error)
+
 
 class ModelProvider(Protocol):
+    """Talks to one kind of model. A failed call is a reply (`ModelReply.failure`), not an
+    exception; the pipeline treats a provider that raises anyway as an error too."""
+
     name: str
 
     async def complete(self, request: ModelRequest) -> ModelReply: ...

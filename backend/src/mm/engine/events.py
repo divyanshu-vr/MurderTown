@@ -338,15 +338,16 @@ class GameEnded(Payload):
 
 
 class GameAborted(Payload):
-    """The game stopped before either side won, because the model gave no answer to a decision.
+    """The game stopped before either side won: the model gave no answer to a decision, or
+    the game itself failed. A crash names no decision.
 
     `reason` is only the problem, such as a timeout, never the decision itself: a
     Spectator in mystery mode sees it, and the decision could reveal a Night role.
     """
 
     type: Literal["game_aborted"] = "game_aborted"
-    resident: str
-    kind: DecisionKind
+    resident: str | None = None
+    kind: DecisionKind | None = None
     reason: str
 
     def visibility(self) -> Visibility:

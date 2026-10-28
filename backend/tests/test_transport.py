@@ -13,12 +13,11 @@ import pytest
 from fastapi.testclient import TestClient
 
 from mm.agents import Brain, BrainFactory, CallRecorder, scripted_bots
-from mm.api import Settings, create_app
 from mm.engine import GameConfig
 from mm.engine.decisions import Answer, DecisionRequest
 from mm.engine.events import Event
 from mm.orchestrator import play_game
-from tests.conftest import start_game, wait_until_finished
+from tests.conftest import serving, start_game, wait_until_finished
 from tests.support import wrapped
 
 CONFIG = {"residents": 8, "murderers": 2, "max_days": 4, "seed": 4}
@@ -47,8 +46,7 @@ def unhurried_bots(config: GameConfig, record: CallRecorder) -> BrainFactory:
 
 @pytest.fixture
 def slow_client(database_url: str) -> Iterator[TestClient]:
-    app = create_app(Settings(database_url=database_url), brains_for=unhurried_bots)
-    with TestClient(app) as test_client:
+    with serving(database_url, unhurried_bots) as test_client:
         yield test_client
 
 

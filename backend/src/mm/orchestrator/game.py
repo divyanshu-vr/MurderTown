@@ -51,6 +51,10 @@ DAY: tuple[PhaseRunner, ...] = (
 someone dies checks `Game.decided` itself, so nobody acts once the game is won."""
 
 
+INTERNAL_ERROR = "the game stopped on an internal error"
+"""What Spectators are told when the game crashes; the details stay in the server's logs."""
+
+
 class IllegalDecisionError(Exception):
     """A decision source answered with something the rules do not allow."""
 
@@ -106,7 +110,14 @@ class Game:
             try:
                 await self._play()
             except ModelFailureError as failed:
-                await self.abort(failed)
+                request = failed.request
+                aborted = GameAborted(
+                    resident=request.resident, kind=request.kind, reason=failed.problem
+                )
+                await self.abort(aborted, decision_id=request.id)
+            except Exception:
+                await self.abort(GameAborted(reason=INTERNAL_ERROR))
+                raise
 
     async def _play(self) -> None:
         for payload in cast(self.config, self.rng):
@@ -125,13 +136,11 @@ class Game:
         await self.append(GameEnded(winner=outcome.winner, reason=outcome.reason))
         logger.info("game ended", winner=outcome.winner, reason=outcome.reason)
 
-    async def abort(self, failed: ModelFailureError) -> None:
-        """Stop the game: the model gave no answer to a decision. The abort names that decision,
-        so the Mind inspector can explain it."""
-        request = failed.request
-        aborted = GameAborted(resident=request.resident, kind=request.kind, reason=failed.problem)
-        await self.log.append(aborted, decision_id=request.id)
-        logger.warning("game aborted", resident=request.resident, reason=failed.problem)
+    async def abort(self, aborted: GameAborted, decision_id: str | None = None) -> None:
+        """End the log with an abort, so Spectators see the game stop and why. An abort for a
+        decision names it, so the Mind inspector can explain it."""
+        await self.log.append(aborted, decision_id=decision_id)
+        logger.warning("game aborted", resident=aborted.resident, reason=aborted.reason)
 
     async def append(self, payload: EventPayload, cause: Decided[Decision] | None = None) -> Event:
         """Append an event; if a decision caused it, link them and report a fallback once."""

@@ -16,9 +16,12 @@ export function App() {
 function LiveGame({ gameId }: { gameId: string }) {
   const { events, connection } = useFollowedGame(gameId);
   const scope: Scope = new URLSearchParams(window.location.search).get("scope") === "public" ? "public" : "full";
-  const explain = useMemo(() => (scope === "full" ? explainer(gameId) : undefined), [gameId, scope]);
-  const cost = useMemo(() => (scope === "full" ? costSource(gameId) : undefined), [gameId, scope]);
-  return <GameConsole events={events} connection={connection} explain={explain} cost={cost} scope={scope} />;
+  // only full scope may ask the server for explanations and costs
+  const asks = useMemo(
+    () => (scope === "full" ? { explain: explainer(gameId), cost: costSource(gameId) } : {}),
+    [gameId, scope],
+  );
+  return <GameConsole events={events} connection={connection} {...asks} scope={scope} />;
 }
 
 function Welcome() {

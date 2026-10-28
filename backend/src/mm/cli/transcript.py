@@ -82,7 +82,9 @@ def describe(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per 
             return f"  [fallback] {resident}'s {kind} used a safe default: {reason}"
         case events.GameEnded(winner=winner, reason=reason):
             return f"\n*** {VICTORY[winner]} {reason} ***"
-        case events.GameAborted(resident=resident, kind=kind, reason=reason):
+        case events.GameAborted(resident=str(resident), kind=kind, reason=reason):
             return f"\n*** The game is aborted: {resident}'s {kind} got no answer: {reason} ***"
+        case events.GameAborted(reason=reason):
+            return f"\n*** The game is aborted: {reason} ***"
         case unknown:
             assert_never(unknown)

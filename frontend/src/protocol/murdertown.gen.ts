@@ -473,7 +473,8 @@ export interface GameEnded {
   reason: string;
 }
 /**
- * The game stopped before either side won, because the model gave no answer to a decision.
+ * The game stopped before either side won: the model gave no answer to a decision, or
+ * the game itself failed. A crash names no decision.
  *
  * `reason` is only the problem, such as a timeout, never the decision itself: a
  * Spectator in mystery mode sees it, and the decision could reveal a Night role.
@@ -483,8 +484,8 @@ export interface GameEnded {
  */
 export interface GameAborted {
   type: "game_aborted";
-  resident: string;
-  kind: DecisionKind;
+  resident: string | null;
+  kind: DecisionKind | null;
   reason: string;
 }
 /**
@@ -567,7 +568,7 @@ export interface GameCreated {
  */
 export interface GameSummary {
   id: string;
-  status: "running" | "finished" | "failed";
+  status: "running" | "finished" | "aborted" | "failed";
   config: GameConfig;
   winner: Side | null;
   last_seq: number;

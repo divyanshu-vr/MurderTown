@@ -5,6 +5,7 @@ import logging
 import os
 import time
 from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +13,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from mm.api import Settings, create_app
+from mm.api.live_games import BrainsFor, scripted_brains
 from mm.observability.logs import configure_logging
 
 
@@ -28,9 +30,17 @@ def database_url(tmp_path: Path) -> str:
     return os.environ.get("MM_TEST_DATABASE_URL", f"sqlite+aiosqlite:///{sqlite_file}")
 
 
+@contextmanager
+def serving(database_url: str, brains_for: BrainsFor = scripted_brains) -> Iterator[TestClient]:
+    """The API on its own database, with Residents played by `brains_for`."""
+    app = create_app(Settings(database_url=database_url), brains_for=brains_for)
+    with TestClient(app) as test_client:
+        yield test_client
+
+
 @pytest.fixture
 def client(database_url: str) -> Iterator[TestClient]:
-    with TestClient(create_app(Settings(database_url=database_url))) as test_client:
+    with serving(database_url) as test_client:
         yield test_client
 
 

@@ -1,6 +1,6 @@
 # mm.llm: language-model providers
 
-Owns talking to a language model. A provider takes a system prompt, a user prompt, an answer schema, a model and an effort level, and returns the structured answer with its raw text, token usage, latency and outcome (`ok`, `refusal`, `timeout` or `error`). A provider never raises for a failed call; the failure is the reply.
+Owns talking to a language model. A provider takes a system prompt, a user prompt, an answer schema, a model and an effort level, and returns the structured answer with its raw text, token usage, latency and outcome (`ok`, `refusal`, `timeout` or `error`). A failed call is a reply (`ModelReply.failure`), not an exception; the pipeline treats a provider that raises anyway as an error too.
 
 **May import:** nothing else from `mm`.
 
