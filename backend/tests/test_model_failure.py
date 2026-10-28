@@ -6,7 +6,7 @@ transport tests watch an aborted game the way a Spectator's browser does.
 """
 
 import asyncio
-from collections.abc import AsyncIterator, Callable, Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from itertools import count
 from typing import Any
 
@@ -35,9 +35,9 @@ from mm.engine.events import (
 )
 from mm.engine.phases import Phase
 from mm.engine.state import GameState
-from mm.llm import Effort, ModelReply, ModelRequest
-from mm.llm import claude_agent_sdk as sdk
+from mm.llm import ModelReply, ModelRequest
 from mm.orchestrator import play_game
+from tests.claude_sessions import INIT, REQUEST, provider_with
 from tests.conftest import following, serving, start_game, wait_until_finished
 from tests.support import (
     FakeModel,
@@ -281,32 +281,6 @@ async def test_details_from_outside_the_game_never_reach_an_abort_or_its_record(
 
 
 # Seam 2: the Claude provider over a stubbed SDK
-
-INIT = SystemMessage(
-    subtype="init",
-    data={"apiKeySource": "none", "tools": ["StructuredOutput"], "mcp_servers": [], "model": "m"},
-)
-
-REQUEST = ModelRequest(
-    system="s", memory="m", task="t", schema={}, model="claude-haiku-5-5", effort=Effort.LOW
-)
-
-
-def provider_with(
-    monkeypatch: pytest.MonkeyPatch, *messages: object, then: Exception | None = None
-) -> sdk.ClaudeAgentSDKProvider:
-    """A provider whose sessions yield `messages` and then raise `then`, with no Claude login."""
-
-    async def session(**_: object) -> AsyncIterator[object]:
-        for message in messages:
-            yield message
-        if then:
-            raise then
-
-    monkeypatch.setattr(sdk, "claude_cli", lambda: "claude")
-    monkeypatch.setattr(sdk, "require_subscription_login", lambda cli: None)
-    monkeypatch.setattr(sdk, "query", session)
-    return sdk.ClaudeAgentSDKProvider(concurrency=1)
 
 
 async def test_the_claude_provider_turns_an_sdk_error_into_an_error_reply_keeping_its_tokens(

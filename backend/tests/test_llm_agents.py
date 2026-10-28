@@ -9,6 +9,7 @@ from dataclasses import dataclass, replace
 import pytest
 
 from mm.agents import ModelCall, llm_agents
+from mm.agents.answers import answer_schema
 from mm.agents.prompting import prompt_version
 from mm.engine import GameConfig, PlayedBy, Role
 from mm.engine.decisions import DecisionKind
@@ -24,6 +25,7 @@ from mm.engine.events import (
     GameEnded,
     KillVoteCast,
     LastWordsSpoken,
+    RecapNarrated,
     SheriffFired,
     StatementMade,
 )
@@ -200,6 +202,32 @@ async def test_a_statement_that_gets_its_own_role_wrong_is_retried_with_the_true
     assert [call.outcome for call in statements[:2]] == ["invalid", "ok"]
     assert "your true role is" in statements[1].prompt
     assert payloads(played.result.events, DecisionFellBack) == []
+
+
+async def test_an_answer_nested_one_level_down_is_used_without_a_retry() -> None:
+    def respond(request: ModelRequest) -> ModelReply:
+        if answer_kind(request) is DecisionKind.BID:
+            return model_answer({"bid": {"urgency": 3, "reason": "I must speak"}})
+        if answer_kind(request) is DecisionKind.RECAP:
+            return model_answer({"text": {"text": "Another Day dawns."}})
+        return sensible_answer(request)
+
+    played = await play_with(FakeModel(respond), NIGHTS)
+
+    nested = played.calls_for(DecisionKind.BID) + played.calls_for(DecisionKind.RECAP)
+    assert nested and all(call.outcome == "ok" for call in nested)
+    assert {bid.urgency for bid in payloads(played.result.events, BidPlaced)} == {3}
+    recaps = payloads(played.result.events, RecapNarrated)
+    assert recaps and {recap.text for recap in recaps} == {"Another Day dawns."}
+
+
+@pytest.mark.parametrize("kind", list(DecisionKind))
+def test_no_answer_is_one_field_holding_an_object_so_a_nested_answer_is_never_mistaken(
+    kind: DecisionKind,
+) -> None:
+    fields = answer_schema(kind)["properties"]
+
+    assert len(fields) > 1 or next(iter(fields.values())).get("type") != "object"
 
 
 async def test_a_shot_at_someone_outside_the_options_falls_back_to_holding_fire() -> None:

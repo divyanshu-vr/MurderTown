@@ -9,6 +9,7 @@ from itertools import pairwise
 
 import pytest
 
+from mm.agents.prompting import ASKED_OF_EVERYONE, ASKED_OF_THE_ROLE
 from mm.engine import GameConfig, Role
 from mm.engine.decisions import DecisionKind
 from mm.engine.events import (
@@ -90,6 +91,44 @@ async def test_the_system_briefing_is_identical_for_a_resident_all_game() -> Non
     for seen in shown:
         briefings.setdefault(seen.resident, set()).add(seen.prompt.system)
     assert all(len(versions) == 1 for versions in briefings.values())
+
+
+async def test_the_briefing_shows_how_to_answer_each_decision_and_the_task_names_which() -> None:
+    shown, _ = await spy_on(GameConfig(residents=8, murderers=2, max_days=3, seed=31))
+
+    assert {s.request.kind for s in shown} >= {DecisionKind.BID, DecisionKind.KILL_VOTE}
+    for seen in shown:
+        assert f"- `{seen.request.kind}`: " in seen.prompt.system
+        assert seen.prompt.task.endswith(f"Answer in the `{seen.request.kind}` format.")
+
+
+ONLY_SOME_ARE_ASKED = ("showdown", "den_message", "kill_vote", "protect", "investigate", "recap")
+
+
+@pytest.mark.parametrize(
+    ("role", "murderers", "own"),
+    [
+        (Role.CIVILIAN, 2, set()),
+        (Role.SHERIFF, 2, {"showdown"}),
+        (Role.DOCTOR, 2, {"protect"}),
+        (Role.DETECTIVE, 2, {"investigate"}),
+        (Role.MURDERER, 2, {"den_message", "kill_vote"}),
+        (Role.MURDERER, 1, {"kill_vote"}),  # a lone Murderer has no Den to speak in
+    ],
+)
+async def test_a_resident_is_shown_how_to_answer_only_the_decisions_their_role_is_asked(
+    role: Role, murderers: int, own: set[str]
+) -> None:
+    shown, _ = await spy_on(GameConfig(residents=8, murderers=murderers, max_days=1, seed=31))
+
+    briefing = next(seen.prompt.system for seen in shown if seen.role is role)
+    assert {kind for kind in ONLY_SOME_ARE_ASKED if f"- `{kind}`: " in briefing} == own
+
+
+def test_every_kind_of_decision_is_someones_to_answer() -> None:
+    asked = {*ASKED_OF_EVERYONE, *(kind for own in ASKED_OF_THE_ROLE.values() for kind in own)}
+
+    assert asked | {DecisionKind.RECAP} == set(DecisionKind)  # the narrator answers the recap
 
 
 async def test_every_prompt_carries_the_game_masters_facts() -> None:

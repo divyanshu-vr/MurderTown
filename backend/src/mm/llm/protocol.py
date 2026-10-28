@@ -27,7 +27,9 @@ class ModelRequest:
     task: str
     """What to decide now."""
     schema: Mapping[str, Any]
-    """The JSON Schema the answer must match."""
+    """The JSON Schema the answer must match. The agents check every answer against it, so a
+    provider that cannot enforce it without changing its prompt's beginning (the Claude Agent
+    SDK) may leave it to them: the system briefing lists every format the Resident answers in."""
     model: str
     effort: Effort
 

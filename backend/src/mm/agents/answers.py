@@ -4,8 +4,9 @@ An answer is usable when it has the right shape, breaks no rule and, once
 scrubbed of anything from outside the game world, can be shown to everyone.
 """
 
+import json
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from random import Random
 from typing import Any, cast
@@ -96,6 +97,13 @@ OUTSIDE_WORLD = re.compile(
 """Things an Agent may have glimpsed in its environment that must never reach the town."""
 
 
+def answer_formats(kinds: Sequence[DecisionKind]) -> str:
+    """How to answer each of these kinds of decision, one line each: its name and JSON Schema."""
+    return "\n".join(
+        f"- `{kind}`: {json.dumps(answer_schema(kind), separators=(',', ':'))}" for kind in kinds
+    )
+
+
 def answer_schema(kind: DecisionKind) -> dict[str, Any]:
     """The JSON Schema for one kind of answer, flattened so any draft-07 validator accepts it."""
     schema = ANSWERS[kind].shape.model_json_schema()
@@ -115,7 +123,7 @@ def read_answer(
     if data is None:
         return "the answer was not in the requested structure"
     try:
-        decision = ANSWERS[request.kind].shape.model_validate(data)
+        decision = ANSWERS[request.kind].shape.model_validate(_unwrapped(data))
     except ValidationError as error:
         return "; ".join(
             f"{'.'.join(map(str, problem['loc'])) or 'answer'}: {problem['msg']}"
@@ -126,6 +134,14 @@ def read_answer(
     if isinstance(decision, StatementAnswer) and own_role and decision.my_role is not own_role:
         return f"your true role is {own_role.capitalize()}, not {decision.my_role.capitalize()}"
     return type(decision).model_validate(scrubbed(decision.model_dump()))
+
+
+def _unwrapped(data: dict[str, Any]) -> dict[str, Any]:
+    """An answer nested one level down, as {"ballot": {...}}, taken out. A model sometimes nests
+    its answer under its format's name or a field's, and no answer is one field holding an
+    object."""
+    inner = next(iter(data.values())) if len(data) == 1 else None
+    return cast(dict[str, Any], inner) if isinstance(inner, dict) else data
 
 
 def scrubbed[T](value: T) -> T:

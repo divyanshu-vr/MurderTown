@@ -3,9 +3,11 @@
 A prompt has three parts, ordered from most to least stable so the model's
 prompt cache is reused as much as possible:
 
-- system: the rules, the Resident's role and persona. Byte-identical for the whole game.
+- system: the rules, the Resident's role and persona, and the answer format of every decision
+  their role is asked. Byte-identical for the whole game.
 - memory: the Resident's own notebook, journal and suspicions. Changes when they reflect.
-- task: the game master's facts, what happened since the last reflection, and the decision.
+- task: the game master's facts, what happened since the last reflection, the decision, and
+  which format to answer it in.
 
 Other Residents' words are untrusted text: they are wrapped in <statement> tags
 and stripped of anything that could pass for markup.
@@ -14,13 +16,14 @@ and stripped of anything that could pass for markup.
 import hashlib
 import re
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import cache
 from pathlib import Path
 from random import Random
 from string import Template
 from typing import assert_never
 
+from mm.agents.answers import answer_formats
 from mm.agents.memory import Memory, remember
 from mm.engine import Role
 from mm.engine.decisions import DecisionKind, DecisionRequest, DuskActivity, StatementPart
@@ -89,6 +92,32 @@ POWERS = {
     Role.DETECTIVE: "powers/detective.md",
 }
 
+ASKED_OF_EVERYONE = (
+    DecisionKind.STATEMENT,
+    DecisionKind.BID,
+    DecisionKind.BALLOT,
+    DecisionKind.LAST_WORDS,
+    DecisionKind.REFLECTION,
+    DecisionKind.DUSK_INTENT,
+    DecisionKind.CONVERSATION_MESSAGE,
+)
+
+ASKED_OF_THE_ROLE: dict[Role, tuple[DecisionKind, ...]] = {
+    Role.MURDERER: (DecisionKind.DEN_MESSAGE, DecisionKind.KILL_VOTE),
+    Role.DOCTOR: (DecisionKind.PROTECT,),
+    Role.DETECTIVE: (DecisionKind.INVESTIGATE,),
+    Role.SHERIFF: (DecisionKind.SHOWDOWN,),
+}
+
+
+def decisions_of(assigned: RoleAssigned) -> list[DecisionKind]:
+    """Every kind of decision a Resident may be asked in a game: what everyone decides, and
+    their role's own. A lone Murderer has no Den to speak in."""
+    own = ASKED_OF_THE_ROLE.get(assigned.role, ())
+    den = DecisionKind.DEN_MESSAGE
+    return [*ASKED_OF_EVERYONE, *(kind for kind in own if assigned.teammates or kind is not den)]
+
+
 MOMENTS: dict[StatementPart | None, str] = {
     "opening_round": "the Opening round of Discussion, where every Resident speaks once",
     "open_floor": "the Open floor, and you have won the turn to speak",
@@ -154,12 +183,14 @@ def build_prompt(request: DecisionRequest, view: Sequence[Event], rng: Random) -
     """The prompt for one decision. `rng` only shuffles the listed options."""
     known = GameState.fold(view)
     if request.kind is DecisionKind.RECAP:
-        return _recap_prompt(view, known)
-    return Prompt(
-        system=_system(known, briefing(view, request.resident)),
-        memory=_memory(remember(view, request.resident), _private_knowledge(view)),
-        task=_task(request, view, known, rng),
-    )
+        prompt = _recap_prompt(view, known)
+    else:
+        prompt = Prompt(
+            system=_system(known, briefing(view, request.resident)),
+            memory=_memory(remember(view, request.resident), _private_knowledge(view)),
+            task=_task(request, view, known, rng),
+        )
+    return replace(prompt, task=f"{prompt.task}\n\n{render('answer.md', kind=request.kind)}")
 
 
 def retry_task(prompt: Prompt, problem: str) -> str:
@@ -191,6 +222,7 @@ def _system(known: GameState, assigned: RoleAssigned) -> str:
         temperament=persona.temperament,
         speaking_style=persona.speaking_style,
         quirk=persona.quirk,
+        formats=answer_formats(decisions_of(assigned)),
     )
 
 
@@ -238,7 +270,11 @@ def _recap_prompt(view: Sequence[Event], known: GameState) -> Prompt:
     since_yesterday = [event for event in view if event.day >= known.day - 1]
     recent = [line for event in since_yesterday if (line := _line(event))]
     return Prompt(
-        system=render("narrator.md", residents=len(known.residents)),
+        system=render(
+            "narrator.md",
+            residents=len(known.residents),
+            formats=answer_formats([DecisionKind.RECAP]),
+        ),
         memory="You keep no notes: each recap is written fresh from the facts and the Day.",
         task=render(
             DECISION_TEMPLATES[DecisionKind.RECAP],

@@ -7,6 +7,13 @@ delivered verbatim, so text another Resident wrote can never expand into a
 file read. Every call checks, from the session's own report, that it ran on
 the subscription and loaded nothing it should not have.
 
+Claude Code caches each session's prompt up to the end of its system prompt, which comes after
+the tool that carries the answer. So every session a Resident opens begins the same way: their
+briefing (which lists the answer format of every decision they may be asked) as the system
+prompt, and an answer tool that takes any object, whatever the decision; the agents check the
+answer against the request's own schema when it comes back. Why, and what it saves, is measured
+in docs/agent-sdk-findings.md.
+
 Anthropic's terms allow subscription use for the subscriber's own, ordinary
 use only, so this provider is for games the Host runs and watches themselves.
 """
@@ -45,6 +52,12 @@ ISOLATION_ENV = {
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
 }
 """Switches that keep the Host's own Claude Code setup out of every Agent's context."""
+
+CACHE_ENV = {"CLAUDE_CODE_PROMPT_CACHE_TTL": "5m"}
+"""Five-minute cache writes, the cheaper kind: a Resident's next decision comes well within five."""
+
+ANY_ANSWER = {"type": "object", "minProperties": 1, "additionalProperties": True}
+"""The answer tool's schema for every decision. Claude Code refuses an empty answer itself."""
 
 ALLOWED_TOOLS = {"StructuredOutput"}
 """The only tool a session may have: the SDK's own carrier for the structured answer."""
@@ -128,13 +141,13 @@ class ClaudeAgentSDKProvider:
             permission_mode="dontAsk",
             model=request.model,
             effort=request.effort.value,
-            output_format={"type": "json_schema", "schema": dict(request.schema)},
+            output_format={"type": "json_schema", "schema": ANY_ANSWER},
             max_turns=3,
             cwd=str(self.sandbox),
             cli_path=self.cli,
             verbatim_prompts=True,
             extra_args={"no-session-persistence": None},
-            env=ISOLATION_ENV,
+            env={**ISOLATION_ENV, **CACHE_ENV},
         )
 
     async def _ask(self, request: ModelRequest) -> ModelReply:

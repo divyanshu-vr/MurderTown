@@ -66,14 +66,6 @@ async def test_an_isolated_session_answers_on_the_subscription_and_caches_its_pr
         print(f"\n{name}: {reply.latency_ms} ms, {reply.usage}, ${cost:.6f}")
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Each decision is a fresh Claude Code session that caches its whole prompt, so an "
-        "Agent's next decision, with the same briefing but a new task, finds nothing to reuse. "
-        "Measured in docs/agent-sdk-findings.md; ticket #21 makes caching pay off."
-    ),
-)
 async def test_an_agents_next_decision_reads_its_briefing_from_the_cache() -> None:
     from mm.llm.claude_agent_sdk import ClaudeAgentSDKProvider
 
@@ -84,4 +76,6 @@ async def test_an_agents_next_decision_reads_its_briefing_from_the_cache() -> No
     next_decision = await provider.complete(request_for(ballot))
 
     assert next_decision.outcome == "ok", next_decision.error
-    assert next_decision.usage.cache_read_tokens > 0
+    usage = next_decision.usage
+    assert usage.cache_read_tokens > usage.cache_write_tokens  # the briefing outweighs the task
+    assert usage.cache_write_1h_tokens == 0  # five-minute writes, at the cheaper price
