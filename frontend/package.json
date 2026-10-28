@@ -18,6 +18,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
+    "e2e": "playwright test",
     "gen:types": "json2ts --input ../protocol/murdertown.schema.json --output src/protocol/murdertown.gen.ts --unreachableDefinitions --no-additionalProperties --bannerComment \"/* Generated from protocol/murdertown.schema.json by 'pnpm gen:types'. Do not edit. */\""
   },
   "dependencies": {
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

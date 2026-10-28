@@ -4,7 +4,7 @@
  * Pure TypeScript: no React, no Phaser, no I/O. The same fold serves live games
  * and replays, so both always show the same thing for the same events.
  */
-import type { Event, Phase, PayloadOf, Role, Rules, Side } from "../protocol";
+import type { Event, GameSummary, Phase, PayloadOf, Role, Rules, Side } from "../protocol";
 
 export interface ResidentView {
   name: string;
@@ -40,6 +40,11 @@ export const emptyView: GameView = {
 
 export function foldEvents(events: readonly Event[]): GameView {
   return events.reduce(applyEvent, emptyView);
+}
+
+/** Whether a game in this state has ended: it is neither running nor paused. */
+export function isOver(status: GameSummary["status"]): boolean {
+  return status !== "running" && status !== "paused";
 }
 
 /** Whether nothing can follow an event: a side won, or the game was aborted. */

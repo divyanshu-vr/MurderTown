@@ -36,7 +36,7 @@ function rows() {
 }
 
 describe("the game list", () => {
-  it("shows each game's status, Day, Phase and winner, linking to it", () => {
+  it("shows each game's status, Day, Phase and winner, linking to it and to the replay of one that is over", () => {
     render(<GameList games={games} />);
 
     const [paused, finished] = rows();
@@ -45,6 +45,10 @@ describe("the game list", () => {
     expect(paused).toHaveTextContent("Discussion");
     expect(finished).toHaveTextContent("The Town wins");
     expect(within(paused as HTMLElement).getByRole("link")).toHaveAttribute("href", "/games/a1");
+    expect(within(finished as HTMLElement).getByRole("link", { name: "Replay" })).toHaveAttribute(
+      "href",
+      "/games/b2/replay",
+    );
   });
 
   it("shows what each game cost, and has no cost column when the server leaves the costs out", () => {

@@ -21,7 +21,7 @@ pnpm gen:types
 2. If it changes state, handle it in `GameState.apply` (`engine/state.py`). If it only records something, leave the fold alone.
 3. Append it from the Phase that causes it (`orchestrator/phases/`), through `game.append`. If whether it happens depends on anything but the seed and the decisions (the clock, say), the event itself must be the record: a resumed game replays from the seed and reads such moments from its stored log, as `Game.open_floor_out_of_time` does for `OpenFloorTimedOut`.
 4. Decide how Agents read it: a line in `_line` or a fact in `_facts` (`agents/prompting.py`). `_line`, `GameState.apply` and the transcript's `describe` end in `assert_never`, so `mypy` fails until the new type has a case in each.
-5. Regenerate the shared contract. TypeScript's exhaustive `switch` statements then fail to compile at every place that needs a case: the feed line (`ui/describeEvent.ts`), the view fold (`core/gameView.ts`) and `decider` (`core/mind.ts`), which names the Resident whose decision the event records. Add the transcript line in `cli/transcript.py`.
+5. Regenerate the shared contract. TypeScript's exhaustive `switch` statements then fail to compile at every place that needs a case: the feed line (`ui/describeEvent.ts`), the view fold (`core/gameView.ts`), `decider` (`core/mind.ts`), which names the Resident whose decision the event records, and how long playback shows it (`core/presentation.ts`; a moment the town should watch play out also goes in `BLOCKING`). Add the transcript line in `cli/transcript.py`.
 6. Write a seam-1 test for when the event is appended and who perceives it, and a seam-3 test if Spectators see it.
 
 ## Add a decision kind
@@ -47,4 +47,4 @@ pnpm gen:types
 2. Render it from a component in `frontend/src/ui` and mount it in `GameConsole`.
 3. Write a seam-3 test: render from the recorded fixture and assert what a Spectator sees, by role and accessible name.
 
-A panel that shows what the events do not hold, such as the cost meter (from the stored model calls), asks the server through a source function in `frontend/src/net` (`costSource`, like `explainer`) that `LiveGamePage` passes to `GameConsole` only on the Host's page, since only the Host may ask. Its seam-3 test passes a stub source instead.
+A panel that shows what the events do not hold, such as the cost meter (from the stored model calls), asks the server through a source function in `frontend/src/net` (`costSource`, like `explainer`) that `GamePage` passes to `GameConsole` only on the Host's page, since only the Host may ask; a game file replayed with no server has none. Panels read what playback has reached (the `events` up to `playback.shown`), not everything received. Its seam-3 test passes a stub source instead.

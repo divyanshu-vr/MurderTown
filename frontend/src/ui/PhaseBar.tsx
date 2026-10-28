@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import type { GameView } from "../core/gameView";
-import type { ConnectionStatus } from "../net/followGame";
+import type { ConnectionStatus } from "../net/sources";
 import { phaseLabel, victoryLabel } from "./labels";
 
 const connectionLabel: Record<ConnectionStatus, string> = {
@@ -10,7 +10,15 @@ const connectionLabel: Record<ConnectionStatus, string> = {
   reconnecting: "Reconnecting",
   ended: "Finished",
   refused: "Host token refused",
+  unavailable: "Unavailable",
 };
+
+/** How the page is doing, as far as the view knows: everything may have arrived (the game is
+ * over) while playback is still behind, which must not give the ending away. */
+function statusLabel(connection: ConnectionStatus, view: GameView, live: boolean): string {
+  if (connection === "ended" && !view.outcome) return live ? "Live" : "Replay";
+  return connectionLabel[connection];
+}
 
 /**
  * The Day, the Phase, Open-floor progress, whether the Host has paused the game, and the
@@ -24,6 +32,7 @@ export function PhaseBar({
   onMysteryChange,
   paused = false,
   controls,
+  live = true,
 }: {
   view: GameView;
   connection: ConnectionStatus;
@@ -31,6 +40,8 @@ export function PhaseBar({
   onMysteryChange?: ((on: boolean) => void) | undefined;
   paused?: boolean;
   controls?: ReactNode;
+  /** Following live rather than replaying. */
+  live?: boolean;
 }) {
   return (
     <header className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-stone-800 px-6 py-4">
@@ -70,7 +81,7 @@ export function PhaseBar({
           Mystery mode
         </button>
         <span className="rounded-full border border-stone-700 px-3 py-1 text-sm text-stone-300">
-          {connectionLabel[connection]}
+          {statusLabel(connection, view, live)}
         </span>
       </div>
     </header>

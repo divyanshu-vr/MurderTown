@@ -3,9 +3,10 @@
 from mm.persistence.bus import Bus, InProcessBus
 from mm.persistence.database import open_database
 from mm.persistence.migrate import upgrade
-from mm.persistence.store import GameStatus, GameStore, StoredGame
+from mm.persistence.store import UNFINISHED, GameStatus, GameStore, StoredGame
 
 __all__ = [
+    "UNFINISHED",
     "Bus",
     "GameStatus",
     "GameStore",

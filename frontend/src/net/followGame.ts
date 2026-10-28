@@ -2,26 +2,17 @@
  * Follows one game over WebSocket, surviving disconnects.
  *
  * The server replays everything after the last sequence number we hold, then
- * streams new events. Reconnecting with that number, and dropping anything
- * already seen, means the caller never gets a gap or a duplicate.
+ * streams new events. Reconnecting with that number, dropping anything already
+ * seen, and reconnecting on a gap means the caller never gets a gap or a duplicate.
  *
  * With the Host token the socket asks for full scope, sending the token as its first
  * message (a browser cannot put a header on a socket); without it, public scope.
  */
+import { accept } from "../core/arrival";
 import { endsTheGame } from "../core/gameView";
 import type { Event } from "../protocol";
 import { API_URL } from "./fetchJson";
-
-/** `refused`: the server did not accept the Host token, so following stopped. */
-export type ConnectionStatus = "connecting" | "live" | "reconnecting" | "ended" | "refused";
-
-/** How much of a game a page may see: only what the whole town saw, or everything. */
-export type Scope = "public" | "full";
-
-export interface GameFollower {
-  onEvent(event: Event): void;
-  onStatus(status: ConnectionStatus): void;
-}
+import type { Sink } from "./sources";
 
 const MAX_BACKOFF_MS = 5000;
 
@@ -36,9 +27,10 @@ interface Following {
 /** Start following a game. Returns a function that stops following it. */
 export function followGame(
   gameId: string,
-  follower: GameFollower,
+  sink: Sink,
   { apiUrl = API_URL, hostToken = null }: Following = {},
 ): () => void {
+  const full = Boolean(hostToken); // full scope sends every event, so a skipped one is a gap
   let lastSeq = 0;
   let attempt = 0;
   let stopped = false;
@@ -46,37 +38,42 @@ export function followGame(
   let retry: ReturnType<typeof setTimeout> | undefined;
 
   const connect = () => {
-    const scope = hostToken ? "&scope=full" : "";
+    const scope = full ? "&scope=full" : "";
     const opening = new WebSocket(`${apiUrl.replace(/^http/, "ws")}/ws/games/${gameId}?after=${lastSeq}${scope}`);
     socket = opening;
     opening.onopen = () => {
-      if (hostToken) opening.send(hostToken);
+      if (full && hostToken) opening.send(hostToken);
       attempt = 0;
-      follower.onStatus("live");
+      sink.status("live");
     };
     opening.onmessage = (message: MessageEvent<string>) => {
       const event = JSON.parse(message.data) as Event;
-      if (event.seq <= lastSeq) return;
+      const arrival = accept(lastSeq, event.seq, full);
+      if (arrival === "duplicate") return;
+      if (arrival === "gap") {
+        opening.close(); // reconnecting asks again for everything after the last event held
+        return;
+      }
       lastSeq = event.seq;
-      follower.onEvent(event);
+      sink.receive([event]);
       if (endsTheGame(event)) {
         stopped = true;
-        follower.onStatus("ended");
+        sink.status("ended");
       }
     };
     opening.onclose = (closed: { code: number }) => {
       if (stopped) return;
       if (closed.code === NOT_THE_HOST) {
         stopped = true;
-        follower.onStatus("refused");
+        sink.status("refused");
         return;
       }
-      follower.onStatus("reconnecting");
+      sink.status("reconnecting");
       retry = setTimeout(connect, Math.min(500 * 2 ** attempt++, MAX_BACKOFF_MS));
     };
   };
 
-  follower.onStatus("connecting");
+  sink.status("connecting");
   connect();
   return () => {
     stopped = true;

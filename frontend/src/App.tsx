@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 
 import { forgetHostToken, heldHostToken, keepHostToken, takeHostTokenFromLink } from "./net/hostToken";
+import { GameFilePage, GamePage } from "./ui/GamePage";
 import { HomePage } from "./ui/HomePage";
-import { LiveGamePage } from "./ui/LiveGamePage";
+import { gameAt } from "./ui/paths";
 import { SetupPage } from "./ui/SetupPage";
-
-const GAME_PATH = /^\/games\/([0-9a-f]+)\/?$/;
 
 /** The Host token, kept from a link that just handed it over or from before. */
 function handedOver(): string | null {
@@ -13,7 +12,10 @@ function handedOver(): string | null {
   return heldHostToken();
 }
 
-/** Pages by path: a game's console, the setup form, or the game list. */
+/**
+ * Pages by path: a game followed live (`/games/<id>`) or replayed (`/games/<id>/replay`),
+ * a game file replayed with no server (`/replay?file=<url>`), the setup form, or the game list.
+ */
 export function App() {
   const [token, setToken] = useState(handedOver);
   useEffect(() => {
@@ -32,8 +34,10 @@ export function App() {
   };
 
   const path = window.location.pathname;
-  const gameId = GAME_PATH.exec(path)?.[1];
-  if (gameId) return <LiveGamePage key={gameId} gameId={gameId} hostToken={token} />;
+  const game = gameAt(path);
+  if (game) return <GamePage key={path} gameId={game.gameId} hostToken={token} replay={game.replay} />;
+  const file = new URLSearchParams(window.location.search).get("file");
+  if (path === "/replay" && file) return <GameFilePage file={file} />;
   if (path === "/setup") return <SetupPage hostToken={token} />;
   return <HomePage hostToken={token} onSignIn={signIn} onSignOut={signOut} />;
 }

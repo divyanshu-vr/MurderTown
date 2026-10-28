@@ -20,7 +20,7 @@ from mm.agents.memory import mind_of
 from mm.api.protocol import protocol_schema
 from mm.api.routes import HOST_TOKEN_HEADER
 from mm.api.settings import Settings
-from mm.cli.recording import CallTally, NdjsonFile, calls_beside, read_ndjson
+from mm.cli.recording import CallTally, NdjsonFile, calls_beside, read_ndjson, write_ndjson
 from mm.cli.transcript import describe
 from mm.engine import SCRIPTED, GameConfig, Lineup, PlayedBy
 from mm.engine.events import DecisionFellBack, Event, GameConfigured, ReflectionWritten
@@ -28,6 +28,7 @@ from mm.llm import Effort, ModelProvider
 from mm.llm.providers import NAMES
 from mm.observability import observed
 from mm.orchestrator import EventObserver, play_game
+from mm.persistence import UNFINISHED, GameStore, open_database
 
 app = typer.Typer(help="MurderTown: a town where every Resident is played by an Agent.")
 
@@ -208,6 +209,41 @@ def rerecord(out: Path = LIVE_GAME) -> None:
     Needed after any change to the prompts: the old recording no longer answers them.
     """
     play(provider="claude", residents=6, murderers=1, max_days=2, seed=3, quiet=True, out=out)
+
+
+@app.command()
+def export(
+    game_id: str,
+    out: Annotated[
+        Path | None, typer.Option(help="Where to write it: <game id>.ndjson if left out.")
+    ] = None,
+) -> None:
+    """Write a finished game's whole log to a game file, as the server stored it, and its model
+    calls beside it, as `play --out` does, so `play --replay` can play it again.
+
+    The console replays a game file with no server: serve it with the frontend and open
+    /replay?file=<its address>. The file holds every event, the seed and roles included.
+    """
+    out = out or Path(f"{game_id}.ndjson")
+    events, calls = asyncio.run(_finished_game(game_id))
+    write_ndjson(out, events)
+    if calls:
+        write_ndjson(calls_beside(out), calls)
+    typer.echo(f"Saved {len(events)} events and {len(calls)} model calls to {out}")
+
+
+async def _finished_game(game_id: str) -> tuple[list[Event], list[ModelCall]]:
+    engine = open_database(Settings().database_url)
+    try:
+        store = GameStore(engine)
+        game = await store.game(game_id)
+        if game is None:
+            raise typer.BadParameter(f"There is no game {game_id}")
+        if game.status in UNFINISHED:
+            raise typer.BadParameter(f"Game {game_id} has not ended: it is {game.status}")
+        return await store.events(game_id), await store.calls(game_id)
+    finally:
+        await engine.dispose()
 
 
 @app.command()

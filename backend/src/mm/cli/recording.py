@@ -1,6 +1,7 @@
 """Recording a headless game: event and model-call logs on disk, and a running tally of calls."""
 
 from collections import Counter
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -12,6 +13,16 @@ from mm.agents import Cost, ModelCall
 def calls_beside(events: Path) -> Path:
     """Where `mm play --out` keeps the model calls of the game it saved at `events`."""
     return events.with_suffix(".calls.ndjson")
+
+
+def ndjson_line(record: BaseModel) -> str:
+    return record.model_dump_json() + "\n"
+
+
+def write_ndjson(path: Path, records: Sequence[BaseModel]) -> None:
+    """Write every record at once, one JSON line each."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("".join(map(ndjson_line, records)), encoding="utf-8", newline="\n")
 
 
 def read_ndjson[R: BaseModel](path: Path, record: type[R]) -> list[R]:
@@ -31,7 +42,7 @@ class NdjsonFile:
 
     async def __call__(self, record: BaseModel) -> None:
         with self.path.open("a", encoding="utf-8", newline="\n") as file:
-            file.write(record.model_dump_json() + "\n")
+            file.write(ndjson_line(record))
         self.count += 1
 
 

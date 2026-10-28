@@ -15,6 +15,8 @@ cd frontend && pnpm install && pnpm dev          # terminal 2: the web console
 
 Open the link `mm serve` prints. It hands your browser the Host token, so you can set up games, pause, step and resume them, and watch them in full. Anyone else who opens the console watches in public scope: only what the whole town saw. `uv run mm new-game` starts a game from the terminal instead.
 
+Watch at any pace: hold, step, change speed or skip to live (Space, the arrow keys, `-` and `=`, `L`). Every finished game has a replay link. `uv run mm export <game id>` writes a finished game to a game file, which the console replays with no server at `/replay?file=<its address>`.
+
 Or play a game straight in the terminal: `cd backend && uv run mm play`.
 
 ## Layout

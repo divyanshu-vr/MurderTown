@@ -8,3 +8,11 @@ html,
 body {
   background-color: var(--color-stone-950);
 }
+
+/* A new line in the feed fades in; with reduced motion it simply appears (`motion-safe:`). */
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}

@@ -57,7 +57,11 @@ export function EventFeed({ events }: { events: readonly Event[] }) {
     >
       <ol className="space-y-1">
         {events.filter(inFeed).map((event) => (
-          <li key={event.seq} data-kind={event.payload.type} className={toneByKind[event.payload.type]}>
+          <li
+            key={event.seq}
+            data-kind={event.payload.type}
+            className={`motion-safe:animate-[appear_300ms_ease-out] ${toneByKind[event.payload.type] ?? ""}`}
+          >
             {describeEvent(event)}
           </li>
         ))}

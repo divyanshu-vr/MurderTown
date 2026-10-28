@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { isOver } from "../core/gameView";
 import type { GameSummary } from "../protocol";
 import { Refusal } from "./fetchJson";
 import { gameSummary } from "./games";
@@ -25,7 +26,7 @@ export function useGameSummary(
         if (error instanceof Refusal) setRefused(true); // otherwise the last summary stays
       });
   }, [gameId, hostToken]);
-  const playing = summary === null || summary.status === "running" || summary.status === "paused";
+  const playing = summary === null || !isOver(summary.status);
 
   useEffect(ask, [ask]);
   useEffect(() => {

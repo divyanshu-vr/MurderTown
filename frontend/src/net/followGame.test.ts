@@ -2,7 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Event } from "../protocol";
-import { type ConnectionStatus, followGame } from "./followGame";
+import { followGame } from "./followGame";
+import type { ConnectionStatus } from "./sources";
 
 class FakeSocket {
   static opened: FakeSocket[] = [];
@@ -40,7 +41,7 @@ function follow(hostToken: string | null = null) {
   const statuses: ConnectionStatus[] = [];
   followGame(
     "abc",
-    { onEvent: () => undefined, onStatus: (status) => statuses.push(status) },
+    { receive: () => undefined, status: (status) => statuses.push(status) },
     { apiUrl: "http://api", hostToken },
   );
   return statuses;
@@ -84,6 +85,26 @@ describe("following a game", () => {
 
     expect(opened().url).toBe("ws://api/ws/games/abc?after=0&scope=full");
     expect(opened().sent).toEqual(["s3cret"]);
+  });
+
+  it("asks again from the last event it holds when full scope skips one, keeping each event once", () => {
+    const received: number[] = [];
+    const event = (seq: number) => ({ seq, payload: { type: "open_floor_timed_out" as const } });
+    followGame(
+      "abc",
+      { receive: (arrived) => received.push(...arrived.map((event) => event.seq)), status: () => undefined },
+      { apiUrl: "http://api", hostToken: "s3cret" },
+    );
+    opened().onopen?.();
+
+    opened().receive(event(1));
+    opened().receive(event(3)); // event 2 went missing
+    vi.runAllTimers();
+    expect(opened(1).url).toBe("ws://api/ws/games/abc?after=1&scope=full");
+    opened(1).onopen?.();
+    [1, 2, 3].forEach((seq) => opened(1).receive(event(seq)));
+
+    expect(received).toEqual([1, 2, 3]);
   });
 
   it("gives up when the server refuses the Host token", () => {

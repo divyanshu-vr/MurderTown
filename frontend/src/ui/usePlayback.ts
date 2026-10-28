@@ -1,0 +1,72 @@
+import { useEffect, useReducer, useState } from "react";
+
+import { Playback, type Speed } from "../core/playback";
+import type { Event } from "../protocol";
+
+/** Where playback stands, and what the Spectator can do with it. */
+export interface PlaybackView {
+  /** How many of the events received are shown. */
+  shown: number;
+  behind: number;
+  speed: Speed;
+  held: boolean;
+  /** Following a game live, rather than replaying it. */
+  live: boolean;
+  play(): void;
+  hold(): void;
+  next(): void;
+  previous(): void;
+  seek(count: number): void;
+  setSpeed(speed: Speed): void;
+  skipToLive(): void;
+}
+
+/**
+ * Plays back the events received, one animation frame at a time. A live game follows live;
+ * a replay starts at the beginning. Nothing animates blocking moments yet, so they do not
+ * wait for an animation (the town will, except with reduced motion).
+ */
+export function usePlayback(events: readonly Event[], live: boolean): PlaybackView {
+  const [playback] = useState(() => new Playback({ live, waitForAnimations: false }));
+  const [, rerender] = useReducer((renders: number) => renders + 1, 0);
+
+  useEffect(() => {
+    playback.receive(events);
+    rerender();
+  }, [playback, events]);
+
+  useEffect(() => {
+    let frame = 0;
+    let last = performance.now();
+    const onFrame = (time: number) => {
+      const shown = playback.shown;
+      playback.frame(time - last);
+      last = time;
+      if (playback.shown !== shown) rerender();
+      frame = requestAnimationFrame(onFrame);
+    };
+    frame = requestAnimationFrame(onFrame);
+    return () => cancelAnimationFrame(frame);
+  }, [playback]);
+
+  const act =
+    <A extends unknown[]>(change: (...args: A) => void) =>
+    (...args: A) => {
+      change(...args);
+      rerender();
+    };
+  return {
+    shown: playback.shown,
+    behind: playback.behind,
+    speed: playback.speed,
+    held: playback.held,
+    live,
+    play: act(() => playback.play()),
+    hold: act(() => playback.hold()),
+    next: act(() => playback.next()),
+    previous: act(() => playback.previous()),
+    seek: act((count: number) => playback.seek(count)),
+    setSpeed: act((speed: Speed) => playback.setSpeed(speed)),
+    skipToLive: act(() => playback.skipToLive()),
+  };
+}

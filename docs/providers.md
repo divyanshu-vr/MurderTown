@@ -49,4 +49,4 @@ cd backend
 uv run mm rerecord
 ```
 
-A recording whose game was aborted cannot be used: run it again. Only games played with `mm play --out` can be replayed this way; ticket #13's export brings server games to the same files.
+A recording whose game was aborted cannot be used: run it again. Games played with `mm play --out` can be replayed this way, and so can a server's games once `mm export` has written them out, model calls and all.

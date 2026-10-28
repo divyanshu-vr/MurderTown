@@ -222,6 +222,18 @@ _Avoid_: debugger, agent view
 A way of watching that shows a Spectator only what the whole town saw, with no Mind inspector.
 _Avoid_: hidden mode, fog of war
 
+**Playback**:
+How a Spectator moves through what has happened: following live, or at their own pace, held, moved an event at a time, sped up or slowed down. It never changes the game itself; the Host's Pause does.
+_Avoid_: pause and step (the Host's)
+
+**Replay**:
+Watching a game that has ended from its start, through the same console as a live one.
+_Avoid_: recording, playback (how a Spectator moves through it)
+
+**Game file**:
+A game's whole log in one file, which the console replays with no server.
+_Avoid_: dump, save file
+
 **Scope**:
 How much of a game a request may see: public scope is only what the whole town saw, full scope is everything. Only the Host has full scope.
 _Avoid_: access level, permission

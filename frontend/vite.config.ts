@@ -8,6 +8,7 @@ export default defineConfig({
   server: { fs: { allow: [".", "../protocol"] } },
   test: {
     environment: "jsdom",
+    include: ["src/**/*.test.{ts,tsx}"],
     setupFiles: ["test/setup.ts"],
   },
 });

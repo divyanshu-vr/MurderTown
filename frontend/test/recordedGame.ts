@@ -1,15 +1,12 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
+import { eventsInGameFile } from "../src/core/gameFile";
 import type { Event, Mind, PayloadOf } from "../src/protocol";
 
 /** The scripted game the backend records with `mm play --seed 1 --out ../fixtures/scripted-game.ndjson`, chosen because it shows every kind of event. */
 export function recordedGame(): Event[] {
-  const file = resolve(process.cwd(), "../fixtures/scripted-game.ndjson");
-  return readFileSync(file, "utf-8")
-    .split("\n")
-    .filter((line) => line.trim() !== "")
-    .map((line) => JSON.parse(line) as Event);
+  return eventsInGameFile(readFileSync(resolve(process.cwd(), "../fixtures/scripted-game.ndjson"), "utf-8"));
 }
 
 export function payloadsOf<T extends Event["payload"]["type"]>(events: readonly Event[], type: T) {
