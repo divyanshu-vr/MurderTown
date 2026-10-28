@@ -39,7 +39,7 @@ jobs:
       - name: Build
         run: uv build
       - name: Transport tests (Postgres)
-        run: uv run pytest tests/test_transport.py tests/test_mind_and_explain.py
+        run: uv run pytest tests/test_transport.py tests/test_mind_and_explain.py tests/test_cost.py tests/test_model_failure.py tests/test_resume.py
         env:
           MM_TEST_DATABASE_URL: postgresql+asyncpg://murdertown:murdertown@localhost:5432/murdertown
       - name: Protocol schema and shared fixture are up to date

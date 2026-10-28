@@ -112,6 +112,18 @@ class StatementMade(Payload):
         return Visibility.everyone()
 
 
+class OpenFloorTimedOut(Payload):
+    """The Open floor's time limit ended it, before its Statement cap or two quiet Turns.
+
+    Recorded because it depends on the clock: a resumed game replays the record.
+    """
+
+    type: Literal["open_floor_timed_out"] = "open_floor_timed_out"
+
+    def visibility(self) -> Visibility:
+        return Visibility.everyone()
+
+
 class SheriffFired(Payload):
     """The Sheriff spends the single bullet. Whoever is hit, and perhaps the Sheriff, dies next."""
 
@@ -360,6 +372,7 @@ EventPayload = Annotated[
     | PhaseStarted
     | BidPlaced
     | StatementMade
+    | OpenFloorTimedOut
     | SheriffFired
     | SheriffHeldFire
     | BallotCast

@@ -88,6 +88,14 @@ class GameStore:
             last_seq=last_seq or 0,
         )
 
+    async def unfinished(self) -> list[StoredGame]:
+        """Games still running: the server stopped before they ended."""
+        async with self._sessions() as session:
+            ids = (
+                await session.scalars(select(GameRow.id).where(GameRow.status == "running"))
+            ).all()
+        return [game for game_id in ids if (game := await self.game(game_id))]
+
     async def events(self, game_id: str, after: int = 0, limit: int | None = None) -> list[Event]:
         """A game's events with a sequence number above `after`, oldest first."""
         query = select(EventRow).where(EventRow.game_id == game_id, EventRow.seq > after)
@@ -113,11 +121,11 @@ class GameStore:
         async with self._sessions.begin() as session:
             session.add(ModelCallRow(game_id=game_id, **call.model_dump(mode="json")))
 
-    async def calls(self, game_id: str, decision_id: str) -> list[ModelCall]:
-        """Every model attempt at one decision, in order."""
-        query = select(ModelCallRow).where(
-            ModelCallRow.game_id == game_id, ModelCallRow.decision_id == decision_id
-        )
+    async def calls(self, game_id: str, decision_id: str | None = None) -> list[ModelCall]:
+        """Every model attempt at one decision, in order; or, with no decision, the game's."""
+        query = select(ModelCallRow).where(ModelCallRow.game_id == game_id)
+        if decision_id is not None:
+            query = query.where(ModelCallRow.decision_id == decision_id)
         async with self._sessions() as session:
             rows = (await session.scalars(query.order_by(ModelCallRow.attempt))).all()
         return [ModelCall.model_validate(row, from_attributes=True) for row in rows]

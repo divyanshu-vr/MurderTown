@@ -51,7 +51,7 @@ class ModelCallRow(Base):
     decision_id: Mapped[str] = mapped_column(String(32), primary_key=True)
     attempt: Mapped[int] = mapped_column(Integer, primary_key=True)
     resident: Mapped[str] = mapped_column(String(32))
-    kind: Mapped[str] = mapped_column(String(16))
+    kind: Mapped[str] = mapped_column(String(32))
     provider: Mapped[str] = mapped_column(String(32))
     model: Mapped[str] = mapped_column(String(64))
     effort: Mapped[str] = mapped_column(String(16))

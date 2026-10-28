@@ -4,13 +4,13 @@ The mind endpoint shows one Resident's mind as of a moment in the game; the
 explain endpoint shows the model attempts behind the decision that caused an event.
 """
 
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
 
-from mm.agents import AgentSettings, BrainFactory, CallRecorder, llm_agents
+from mm.agents import AgentSettings, BrainFactory, CallRecorder, ModelCall, llm_agents
 from mm.engine import GameConfig
 from mm.engine.decisions import DecisionKind, Suspicion
 from mm.engine.events import (
@@ -132,8 +132,11 @@ def leaky_first_ballots(request: ModelRequest) -> ModelReply:
             return sensible_answer(request)
 
 
-def fake_agents(config: GameConfig, record: CallRecorder) -> BrainFactory:
-    return llm_agents(FakeModel(leaky_first_ballots), AgentSettings(), record, config.seed)
+def fake_agents(
+    config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
+) -> BrainFactory:
+    model = FakeModel(leaky_first_ballots)
+    return llm_agents(model, AgentSettings(), record, config.seed, replay=replay)
 
 
 @pytest.fixture

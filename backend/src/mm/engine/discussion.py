@@ -28,12 +28,10 @@ QUIET_TURNS_TO_END = 2
 
 
 def open_floor_over(
-    config: GameConfig, statements_made: int, quiet_turns: int, seconds_elapsed: float
+    config: GameConfig, statements_made: int, quiet_turns: int, out_of_time: bool = False
 ) -> bool:
-    """Whether the Open floor has reached any of its three limits."""
-    out_of_time = (
-        config.open_floor_seconds is not None and seconds_elapsed >= config.open_floor_seconds
-    )
+    """Whether the Open floor has reached any of its three limits. Whether its time is up
+    is for the caller to say: the engine reads no clock."""
     return (
         statements_made >= config.open_floor_statements
         or quiet_turns >= QUIET_TURNS_TO_END

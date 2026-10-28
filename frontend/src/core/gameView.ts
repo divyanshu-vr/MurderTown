@@ -91,6 +91,7 @@ export function applyEvent(view: GameView, event: Event): GameView {
       return { ...view, phase: "ended", outcome: { ended: "won", winner: payload.winner, reason: payload.reason } };
     case "game_aborted": // only the problem: whose decision failed could reveal a Night role
       return { ...view, phase: "ended", outcome: { ended: "aborted", reason: payload.reason } };
+    case "open_floor_timed_out": // the next Phase ends the Open floor
     case "sheriff_fired": // the deaths that follow change the roster
     case "sheriff_held_fire":
     case "den_message_posted":

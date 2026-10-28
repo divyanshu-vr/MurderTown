@@ -360,11 +360,13 @@ async def test_the_claude_provider_reports_a_failed_isolation_check_as_an_error_
 # Transport: an aborted game, as a Spectator's browser sees it
 
 
-def timing_out(config: GameConfig, record: CallRecorder) -> BrainFactory:
+def timing_out(
+    config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
+) -> BrainFactory:
     return llm_agents(FakeModel(statements_get(TIMEOUT)), AgentSettings(), record, config.seed)
 
 
-def crashing(config: GameConfig, record: CallRecorder) -> BrainFactory:
+def crashing(config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]) -> BrainFactory:
     return failing(ballots, error=crash)
 
 

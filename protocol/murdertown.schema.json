@@ -411,6 +411,7 @@
               "game_started": "#/$defs/GameStarted",
               "kill_vote_cast": "#/$defs/KillVoteCast",
               "last_words_spoken": "#/$defs/LastWordsSpoken",
+              "open_floor_timed_out": "#/$defs/OpenFloorTimedOut",
               "phase_started": "#/$defs/PhaseStarted",
               "recap_narrated": "#/$defs/RecapNarrated",
               "reflection_written": "#/$defs/ReflectionWritten",
@@ -441,6 +442,9 @@
             },
             {
               "$ref": "#/$defs/StatementMade"
+            },
+            {
+              "$ref": "#/$defs/OpenFloorTimedOut"
             },
             {
               "$ref": "#/$defs/SheriffFired"
@@ -1145,6 +1149,22 @@
         "trace_id"
       ],
       "title": "ModelCall",
+      "type": "object"
+    },
+    "OpenFloorTimedOut": {
+      "additionalProperties": false,
+      "description": "The Open floor's time limit ended it, before its Statement cap or two quiet Turns.\n\nRecorded because it depends on the clock: a resumed game replays the record.",
+      "properties": {
+        "type": {
+          "const": "open_floor_timed_out",
+          "default": "open_floor_timed_out",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "OpenFloorTimedOut",
       "type": "object"
     },
     "Persona": {

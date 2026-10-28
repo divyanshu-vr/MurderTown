@@ -196,6 +196,7 @@ export interface Event {
     | PhaseStarted
     | BidPlaced
     | StatementMade
+    | OpenFloorTimedOut
     | SheriffFired
     | SheriffHeldFire
     | BallotCast
@@ -312,6 +313,17 @@ export interface StatementMade {
   accused: string[];
   defended: string[];
   claimed_role: Role | null;
+}
+/**
+ * The Open floor's time limit ended it, before its Statement cap or two quiet Turns.
+ *
+ * Recorded because it depends on the clock: a resumed game replays the record.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "OpenFloorTimedOut".
+ */
+export interface OpenFloorTimedOut {
+  type: "open_floor_timed_out";
 }
 /**
  * The Sheriff spends the single bullet. Whoever is hit, and perhaps the Sheriff, dies next.

@@ -3,6 +3,7 @@
 import asyncio
 import time
 from collections.abc import Awaitable, Callable, Sequence
+from contextlib import nullcontext
 from dataclasses import dataclass, replace
 from random import Random
 from uuid import uuid4
@@ -20,13 +21,14 @@ from mm.engine.events import (
     EventPayload,
     GameAborted,
     GameEnded,
+    OpenFloorTimedOut,
     PhaseStarted,
 )
 from mm.engine.perception import perceived_by
 from mm.engine.rules import Verdict, verdict, verdict_at_end_of_day, why_illegal
 from mm.engine.state import GameState
 from mm.observability import tracing
-from mm.orchestrator.log import EventLog, EventObserver
+from mm.orchestrator.log import EventLog, EventObserver, ReplayDivergedError
 from mm.orchestrator.narrator import NARRATOR
 from mm.orchestrator.phases.dawn import run_dawn
 from mm.orchestrator.phases.discussion import run_discussion
@@ -54,6 +56,12 @@ someone dies checks `Game.decided` itself, so nobody acts once the game is won."
 INTERNAL_ERROR = "the game stopped on an internal error"
 """What Spectators are told when the game crashes; the details stay in the server's logs."""
 
+DIVERGED = "resuming the game did not reproduce its log"
+
+
+class GameHaltedError(Exception):
+    """The game was asked to stop before its next decision, so it can resume later."""
+
 
 class IllegalDecisionError(Exception):
     """A decision source answered with something the rules do not allow."""
@@ -75,19 +83,24 @@ class GameResult:
 
 
 class Game:
+    """One game being played. `play_game` makes one and plays it to the end."""
+
     def __init__(
         self,
         config: GameConfig,
         brain_for: BrainFactory,
-        observers: Sequence[EventObserver] = (),
-        clock: Callable[[], float] = time.monotonic,
-        game_id: str = "",
+        log: EventLog,
+        *,
+        clock: Callable[[], float],
+        game_id: str,
+        halt: asyncio.Event,
     ) -> None:
         self.config = config
         self.clock = clock
-        self.game_id = game_id or uuid4().hex
+        self.halt = halt
+        self.game_id = game_id
         self.rng = Random(config.seed)
-        self.log = EventLog(observers)
+        self.log = log
         self.brain_for = brain_for
         self.brains: dict[str, Brain] = {}
         self._decisions_asked = 0
@@ -109,14 +122,17 @@ class Game:
         ):
             try:
                 await self._play()
+            except GameHaltedError:
+                raise  # the game stopped where it can resume: nothing more to log
             except ModelFailureError as failed:
                 request = failed.request
                 aborted = GameAborted(
                     resident=request.resident, kind=request.kind, reason=failed.problem
                 )
                 await self.abort(aborted, decision_id=request.id)
-            except Exception:
-                await self.abort(GameAborted(reason=INTERNAL_ERROR))
+            except Exception as error:
+                diverged = isinstance(error, ReplayDivergedError)
+                await self.abort(GameAborted(reason=DIVERGED if diverged else INTERNAL_ERROR))
                 raise
 
     async def _play(self) -> None:
@@ -138,7 +154,9 @@ class Game:
 
     async def abort(self, aborted: GameAborted, decision_id: str | None = None) -> None:
         """End the log with an abort, so Spectators see the game stop and why. An abort for a
-        decision names it, so the Mind inspector can explain it."""
+        decision names it, so the Mind inspector can explain it. A resumed game that stops
+        while still replaying puts the abort right after the log it had stored."""
+        self.log.stop_replaying()
         await self.log.append(aborted, decision_id=decision_id)
         logger.warning("game aborted", resident=aborted.resident, reason=aborted.reason)
 
@@ -212,18 +230,31 @@ class Game:
         self._decisions_asked += 1
         return replace(request, id=f"d{self._decisions_asked}")
 
+    def out_of_time(self, started: float, limit: int | None) -> bool:
+        """Whether `limit` seconds have passed since `started`. A replay follows what the
+        game recorded instead, since its clock reads differently."""
+        if limit is None:
+            return False
+        if self.log.replaying and (upcoming := self.log.upcoming()):
+            return isinstance(upcoming.payload, OpenFloorTimedOut)
+        return self.clock() - started >= limit
+
     async def _ask[D: Decision](
         self, request: DecisionRequest, answer: type[D], heard: Sequence[Event] = ()
     ) -> Decided[D]:
+        if self.halt.is_set():
+            raise GameHaltedError
         view = perceived_by([*self.log.events, *heard], request.resident)
-        with (
-            bound_contextvars(resident=request.resident, decision=request.id),
-            tracing.new_trace(
+        traced = (  # a replayed decision was traced the first time
+            nullcontext()
+            if self.log.replaying
+            else tracing.new_trace(
                 f"decision.{request.kind}",
                 self._trace_labels(request),
                 tags=[self.state.phase, request.kind],
-            ),
-        ):
+            )
+        )
+        with bound_contextvars(resident=request.resident, decision=request.id), traced:
             reply = await self.brains[request.resident].decide(request, view)
         decision = reply.decision
         if not isinstance(decision, answer):
@@ -236,14 +267,23 @@ class Game:
 async def play_game(
     config: GameConfig,
     brain_for: BrainFactory,
+    *,
     observers: Sequence[EventObserver] = (),
     clock: Callable[[], float] = time.monotonic,
     game_id: str = "",
+    replay: Sequence[Event] = (),
+    halt: asyncio.Event | None = None,
 ) -> GameResult:
     """Play one whole game. Observers hear every event as it is appended.
 
     `game_id` names the game in logs and traces; a fresh one is made if none is given.
+    To resume a game that stopped, pass the events it had stored as `replay`: the game
+    plays again from the start, checks it makes those same events, and goes on from there.
+    Setting `halt` stops the game before its next decision, raising `GameHaltedError`;
+    decisions already asked finish first, so it can be resumed later.
     """
-    game = Game(config, brain_for, observers, clock, game_id)
+    log = EventLog(observers, replay)
+    game_id = game_id or uuid4().hex
+    game = Game(config, brain_for, log, clock=clock, game_id=game_id, halt=halt or asyncio.Event())
     await game.play()
     return GameResult(events=game.log.events, state=game.state)

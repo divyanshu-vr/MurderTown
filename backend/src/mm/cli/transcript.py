@@ -38,6 +38,8 @@ def describe(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per 
             return f"  ({resident} bids {urgency}: {reason})" if urgency else None
         case events.StatementMade(speaker=speaker, text=text):
             return f'{speaker}: "{text}"'
+        case events.OpenFloorTimedOut():
+            return "  (Time is up on the Open floor.)"
         case events.SheriffFired(sheriff=sheriff, target=target):
             return f"BANG! {sheriff}, the Sheriff, fires at {target}."
         case events.SheriffHeldFire(sheriff=sheriff):

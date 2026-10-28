@@ -25,6 +25,9 @@ from mm.orchestrator import EventObserver, play_game
 
 app = typer.Typer(help="MurderTown: a town where every Resident is played by an Agent.")
 
+GRACEFUL_SECONDS = 5
+"""How long the server waits for open connections before shutting games down."""
+
 
 class Brains(StrEnum):
     SCRIPTED = "scripted"
@@ -101,7 +104,7 @@ def play(
         raise typer.Exit(code=1) from error
 
     with observed(logging.getLevelNamesMapping()[log_level.upper()]):
-        result = asyncio.run(play_game(config, brain_for, observers))
+        result = asyncio.run(play_game(config, brain_for, observers=observers))
     fallbacks = sum(isinstance(event.payload, DecisionFellBack) for event in result.events)
     if brains is Brains.CLAUDE:
         typer.echo(f"\n{tally.summary()} Fallbacks: {fallbacks}.")
@@ -144,9 +147,18 @@ def serve(host: str = "127.0.0.1", port: int = 8000, reload: bool = False) -> No
     """Run the API server. Settings come from MM_* environment variables or .env.
 
     Logs are JSON lines on stderr; traces go wherever the MM_LANGFUSE_* or
-    MM_OTLP_ENDPOINT settings say (see backend/.env.example).
+    MM_OTLP_ENDPOINT settings say (see backend/.env.example). Stop it with Ctrl+C (or
+    SIGTERM on Linux): games stop before their next decision and resume at the next start.
+    A second Ctrl+C stops at once; games still resume, repeating only unrecorded calls.
     """
-    uvicorn.run("mm.api.app:observed_app", factory=True, host=host, port=port, reload=reload)
+    uvicorn.run(
+        "mm.api.app:observed_app",
+        factory=True,
+        host=host,
+        port=port,
+        reload=reload,
+        timeout_graceful_shutdown=GRACEFUL_SECONDS,  # Spectators' sockets never close by themselves
+    )
 
 
 @app.command()

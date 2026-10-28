@@ -197,3 +197,18 @@ describe("an aborted game", () => {
     expect(within(item).getByRole("button", { name: "why?" })).toBeInTheDocument();
   });
 });
+
+describe("an Open floor that ran out of time", () => {
+  it("says so in the feed, before the next Phase starts", () => {
+    const lastOpenFloor = events.findLastIndex(
+      (event) => event.payload.type === "statement_made" && event.payload.part === "open_floor",
+    );
+    const said = events[lastOpenFloor];
+    if (!said) throw new Error("The recorded game has no Open floor");
+    const timedOut: Event = { ...said, seq: said.seq + 1, decision_id: null, payload: { type: "open_floor_timed_out" } };
+    render(<GameConsole events={[...events.slice(0, lastOpenFloor + 1), timedOut]} connection="live" />);
+
+    const [line] = feedItems("open_floor_timed_out");
+    expect(line).toHaveTextContent("Time is up on the Open floor.");
+  });
+});

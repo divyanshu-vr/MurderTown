@@ -6,7 +6,7 @@ Code's own `total_cost_usd` for those calls (measured 2026-10-28).
 """
 
 import json
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 
 import pytest
 from fastapi.testclient import TestClient
@@ -91,7 +91,9 @@ def recorded(database_url: str) -> Iterator[tuple[TestClient, list[ModelCall]]]:
     """An API whose games are played by Agents, plus every model call they recorded."""
     calls: list[ModelCall] = []
 
-    def agents(config: GameConfig, record: CallRecorder) -> BrainFactory:
+    def agents(
+        config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
+    ) -> BrainFactory:
         async def keep(call: ModelCall) -> None:
             calls.append(call)
             await record(call)

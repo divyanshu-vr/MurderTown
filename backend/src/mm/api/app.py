@@ -35,8 +35,10 @@ def create_app(
         store, bus = GameStore(engine), InProcessBus()
         games = LiveGames(store, bus, brains_for)
         app.state.services = Services(store=store, bus=bus, games=games)
+        if settings.resume_on_boot:
+            await games.resume_unfinished()
         yield
-        await games.shutdown()
+        await games.shutdown(settings.shutdown_grace_seconds)
         await engine.dispose()
 
     app = FastAPI(title="MurderTown", lifespan=lifespan)

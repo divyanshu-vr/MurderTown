@@ -1,20 +1,23 @@
 """Fixtures and helpers shared by the tests: quiet logs, and the API driven like a browser would."""
 
+import asyncio
 import io
 import logging
 import os
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import text
 
 from mm.api import Settings, create_app
 from mm.api.live_games import BrainsFor, scripted_brains
 from mm.observability.logs import configure_logging
+from mm.persistence import open_database
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -25,15 +28,30 @@ def quiet_logs() -> None:
 
 @pytest.fixture
 def database_url(tmp_path: Path) -> str:
-    """A fresh SQLite file, or the database named by MM_TEST_DATABASE_URL (e.g. Docker Postgres)."""
-    sqlite_file = (tmp_path / "murdertown.sqlite3").as_posix()
-    return os.environ.get("MM_TEST_DATABASE_URL", f"sqlite+aiosqlite:///{sqlite_file}")
+    """A fresh SQLite file, or the database named by MM_TEST_DATABASE_URL (e.g. Docker Postgres),
+    emptied first: a game an earlier test left running would otherwise resume in this one."""
+    shared = os.environ.get("MM_TEST_DATABASE_URL")
+    if shared is None:
+        return f"sqlite+aiosqlite:///{(tmp_path / 'murdertown.sqlite3').as_posix()}"
+    asyncio.run(emptied(shared))
+    return shared
+
+
+async def emptied(url: str) -> None:
+    engine = open_database(url)
+    async with engine.begin() as connection:
+        if await connection.scalar(text("SELECT to_regclass('games')")) is not None:
+            await connection.execute(text("TRUNCATE model_calls, events, games"))
+    await engine.dispose()
 
 
 @contextmanager
-def serving(database_url: str, brains_for: BrainsFor = scripted_brains) -> Iterator[TestClient]:
-    """The API on its own database, with Residents played by `brains_for`."""
-    app = create_app(Settings(database_url=database_url), brains_for=brains_for)
+def serving(
+    database_url: str, brains_for: BrainsFor = scripted_brains, **settings: Any
+) -> Iterator[TestClient]:
+    """The API on its own database, with Residents played by `brains_for`. Leaving the
+    block shuts the server down, as stopping `mm serve` would."""
+    app = create_app(Settings(database_url=database_url, **settings), brains_for=brains_for)
     with TestClient(app) as test_client:
         yield test_client
 
@@ -51,8 +69,12 @@ def start_game(client: TestClient, config: dict[str, Any]) -> str:
     return game_id
 
 
-def wait_until_finished(client: TestClient, game_id: str) -> None:
-    deadline = time.monotonic() + 20
-    while client.get(f"/games/{game_id}").json()["status"] == "running":
-        assert time.monotonic() < deadline, "the game never finished"
+def wait_until(condition: Callable[[], bool], what: str, seconds: float = 20) -> None:
+    deadline = time.monotonic() + seconds
+    while not condition():
+        assert time.monotonic() < deadline, f"never {what}"
         time.sleep(0.02)
+
+
+def wait_until_finished(client: TestClient, game_id: str) -> None:
+    wait_until(lambda: client.get(f"/games/{game_id}").json()["status"] != "running", "finished")

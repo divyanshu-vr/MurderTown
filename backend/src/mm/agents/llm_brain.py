@@ -9,7 +9,7 @@ Each attempt is recorded before the decision is returned or fails, with anything
 from outside the game world hidden, because records are shown to Spectators.
 """
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from random import Random
 
@@ -42,46 +42,36 @@ class AgentSettings:
     effort: Effort = Effort.LOW
 
 
+Recorded = Mapping[tuple[str, int], ModelCall]
+"""Model calls a resumed game had already made, by decision id and attempt."""
+
+
 class LLMBrain:
     def __init__(
-        self, provider: ModelProvider, settings: AgentSettings, record: CallRecorder, rng: Random
+        self,
+        provider: ModelProvider,
+        settings: AgentSettings,
+        record: CallRecorder,
+        rng: Random,
+        recorded: Recorded | None = None,
     ) -> None:
         self.provider, self.settings, self.record, self.rng = provider, settings, record, rng
+        self.recorded = recorded or {}
 
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         prompt = build_prompt(request, view, self.rng)
-        schema = answer_schema(request.kind)
         assigned = assignment(view, request.resident)  # the narrator has no role
         own_role = assigned.role if assigned else None
         problem: str | None = None
         for attempt in range(1, ATTEMPTS + 1):
             message = prompt.user_message(retry_task(prompt, problem) if problem else None)
-            with tracing.tracer().start_as_current_span(
-                f"{request.kind} attempt {attempt}"
-            ) as span:
-                reply = await self._complete(
-                    ModelRequest(
-                        system=prompt.system,
-                        prompt=message,
-                        schema=schema,
-                        model=self.settings.model,
-                        effort=self.settings.effort,
-                    )
-                )
+            if recorded := self.recorded.get((request.id, attempt)):
+                reply = recorded.as_reply()  # made before the game stopped: not asked again
                 decision, problem, outcome = _interpret(request, reply, own_role)
-                call = self._call(
-                    request=request,
-                    attempt=attempt,
-                    system=prompt.system,
-                    prompt=message,
-                    reply=reply,
-                    outcome=outcome,
-                    problem=problem,
-                    trace_id=tracing.trace_id_of(span),
+            else:
+                decision, problem, outcome = await self._attempt(
+                    request, attempt, prompt.system, message, own_role
                 )
-                label_generation(span, call)
-            logger.info("model call", **call.model_dump(include=LOGGED))
-            await self.record(call)
             if decision is not None:
                 return Answer(decision)
             if outcome in ("timeout", "error"):
@@ -89,6 +79,41 @@ class LLMBrain:
             if outcome == "refusal":
                 break  # a refusal is not worth a second try
         return Answer(ANSWERS[request.kind].fallback(request, self.rng), fallback_reason=problem)
+
+    async def _attempt(
+        self,
+        request: DecisionRequest,
+        attempt: int,
+        system: str,
+        message: str,
+        own_role: Role | None,
+    ) -> tuple[Decision | None, str | None, CallOutcome]:
+        """Ask the model once, and record and trace the call before reading its answer."""
+        with tracing.tracer().start_as_current_span(f"{request.kind} attempt {attempt}") as span:
+            reply = await self._complete(
+                ModelRequest(
+                    system=system,
+                    prompt=message,
+                    schema=answer_schema(request.kind),
+                    model=self.settings.model,
+                    effort=self.settings.effort,
+                )
+            )
+            decision, problem, outcome = _interpret(request, reply, own_role)
+            call = self._call(
+                request=request,
+                attempt=attempt,
+                system=system,
+                prompt=message,
+                reply=reply,
+                outcome=outcome,
+                problem=problem,
+                trace_id=tracing.trace_id_of(span),
+            )
+            label_generation(span, call)
+        logger.info("model call", **call.model_dump(include=LOGGED))
+        await self.record(call)
+        return decision, problem, outcome
 
     async def _complete(self, request: ModelRequest) -> ModelReply:
         """The provider's reply. A provider that raises instead of replying has failed."""
@@ -151,15 +176,22 @@ def _interpret(
 
 
 def llm_agents(
-    provider: ModelProvider, settings: AgentSettings, record: CallRecorder, seed: int
+    provider: ModelProvider,
+    settings: AgentSettings,
+    record: CallRecorder,
+    seed: int,
+    replay: Sequence[ModelCall] = (),
 ) -> BrainFactory:
     """A factory giving every Resident its own Agent, sharing one provider.
 
-    A model with no price is refused here, before the game starts.
+    A model with no price is refused here, before the game starts. A resumed game
+    passes the model calls it had recorded as `replay`: those answer again, so no
+    call is made twice.
     """
     price_of(settings.model)
+    recorded = {(call.decision_id, call.attempt): call for call in replay}
 
     def make(resident: Resident) -> Brain:
-        return LLMBrain(provider, settings, record, Random(f"{seed}:{resident.name}"))
+        return LLMBrain(provider, settings, record, Random(f"{seed}:{resident.name}"), recorded)
 
     return make

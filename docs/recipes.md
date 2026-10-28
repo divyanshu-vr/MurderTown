@@ -19,7 +19,7 @@ pnpm gen:types
 
 1. Define the payload in `backend/src/mm/engine/events.py`: a `type` literal and a `visibility()` saying who may perceive it. Add it to the `EventPayload` union.
 2. If it changes state, handle it in `GameState.apply` (`engine/state.py`). If it only records something, leave the fold alone.
-3. Append it from the Phase that causes it (`orchestrator/phases/`), through `game.append`.
+3. Append it from the Phase that causes it (`orchestrator/phases/`), through `game.append`. If whether it happens depends on anything but the seed and the decisions (the clock, say), the event itself must be the record: a resumed game replays from the seed and reads such moments from its stored log, as `Game.out_of_time` does for `OpenFloorTimedOut`.
 4. Decide how Agents read it: a line in `_line` or a fact in `_facts` (`agents/prompting.py`). `_line`, `GameState.apply` and the transcript's `describe` end in `assert_never`, so `mypy` fails until the new type has a case in each.
 5. Regenerate the shared contract. TypeScript's exhaustive `switch` statements then fail to compile at every place that needs a case: the feed line (`ui/describeEvent.ts`), the view fold (`core/gameView.ts`) and `decider` (`core/mind.ts`), which names the Resident whose decision the event records. Add the transcript line in `cli/transcript.py`.
 6. Write a seam-1 test for when the event is appended and who perceives it, and a seam-3 test if Spectators see it.

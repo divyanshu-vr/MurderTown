@@ -118,6 +118,7 @@ export function decider(payload: Payload): string | null {
     case "victim_chosen":
     case "attack_thwarted":
     case "conversation_started":
+    case "open_floor_timed_out":
     case "recap_narrated": // the narrator is not a Resident
     case "game_ended":
       return null;

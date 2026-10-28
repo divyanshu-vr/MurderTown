@@ -12,7 +12,7 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
-from mm.agents import Brain, BrainFactory, CallRecorder, scripted_bots
+from mm.agents import Brain, BrainFactory, CallRecorder, ModelCall, scripted_bots
 from mm.engine import GameConfig
 from mm.engine.decisions import Answer, DecisionRequest
 from mm.engine.events import Event
@@ -40,7 +40,9 @@ class Unhurried:
         return await self.inner.decide(request, view)
 
 
-def unhurried_bots(config: GameConfig, record: CallRecorder) -> BrainFactory:
+def unhurried_bots(
+    config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
+) -> BrainFactory:
     return wrapped(scripted_bots(config.seed), Unhurried)
 
 

@@ -40,6 +40,7 @@ from mm.engine.events import (
     GameStarted,
     KillVoteCast,
     LastWordsSpoken,
+    OpenFloorTimedOut,
     PhaseStarted,
     RecapNarrated,
     ReflectionWritten,
@@ -334,7 +335,7 @@ def _line(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per eve
             return None  # shown in the briefing or the Resident's own memory instead
         case (
             BidPlaced() | SheriffHeldFire() | GameEnded() | GameAborted() | DecisionFellBack()
-            | RecapNarrated()
+            | RecapNarrated() | OpenFloorTimedOut()
         ):  # fmt: skip
             return None  # not needed for a decision (Residents saw what a recap tells), or unseen
         case unknown:
