@@ -19,10 +19,12 @@ from mm.engine import Resident, Role
 from mm.engine.decisions import (
     Answer,
     Bid,
+    ConversationMessage,
     Decision,
     DecisionKind,
     DecisionRequest,
     DenMessage,
+    DuskIntent,
     LastWords,
     Recap,
     Reflection,
@@ -97,6 +99,24 @@ class ScriptedBot:
                 | DecisionKind.RECAP
             ):
                 return self._night_decision(request, view)
+            case DecisionKind.DUSK_INTENT | DecisionKind.CONVERSATION_MESSAGE:
+                return self._dusk_decision(request, view)
+
+    def _dusk_decision(self, request: DecisionRequest, view: Sequence[Event]) -> Decision:
+        """Half the bots seek out one to three others; Conversations end at random."""
+        if request.kind is DecisionKind.DUSK_INTENT:
+            if self.rng.random() < 0.5:
+                wanted = min(len(request.options), self.rng.randint(1, 3))
+                partners = self.rng.sample(request.options, wanted)
+                return DuskIntent(activity="talk", partners=partners, topic="whom to trust")
+            return DuskIntent(activity=self.rng.choice(["wander", "chore"]), partners=[], topic="")
+        doubted = self._someone_else(GameState.fold(view), request.resident)
+        ending = self.rng.randrange(3) == 0
+        return ConversationMessage(text=f"I don't trust {doubted}.", end_conversation=ending)
+
+    def _someone_else(self, known: GameState, me: str) -> str:
+        """A random living Resident other than this one."""
+        return self.rng.choice(known.others_living(me))
 
     def _night_decision(self, request: DecisionRequest, view: Sequence[Event]) -> Decision:
         match request.kind:
@@ -118,7 +138,7 @@ class ScriptedBot:
         me = request.resident
         if request.part == "opening_round":
             return Statement.plain(self.rng.choice(OPENING_LINES).format(me=me))
-        doubted = self.rng.choice([name for name in known.living if name != me])
+        doubted = self._someone_else(known, me)
         return Statement(
             text=f"I have my doubts about {doubted}.",
             addressed=[doubted],

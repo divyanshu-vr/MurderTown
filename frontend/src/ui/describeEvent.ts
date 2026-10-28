@@ -1,6 +1,6 @@
 /** One line for each event, in the words the feed and the Mind inspector use. */
 import type { Event } from "../protocol";
-import { deathLabel, decisionLabel, phaseLabel, roleLabel, victoryLabel } from "./labels";
+import { activityLabel, deathLabel, decisionLabel, phaseLabel, roleLabel, victoryLabel } from "./labels";
 
 export function describeEvent(event: Event): string {
   const payload = event.payload;
@@ -49,6 +49,14 @@ export function describeEvent(event: Event): string {
       return `${payload.saved ?? "Someone"} was attacked in the night, but the Doctor saved them.`;
     case "recap_narrated":
       return `Narrator: ${payload.text}`;
+    case "dusk_intent_chosen":
+      return payload.activity === "talk"
+        ? `${payload.resident} hopes to talk with ${payload.partners.join(", ")} about ${payload.topic}.`
+        : `${payload.resident} means to ${activityLabel[payload.activity]}.`;
+    case "conversation_started":
+      return `${payload.pair[0]} and ${payload.pair[1]} slip away to talk privately.`;
+    case "conversation_message_posted":
+      return `${payload.speaker} to ${payload.partner}: "${payload.text}"`;
     case "reflection_written":
       return `${payload.resident} writes a reflection.`;
     case "decision_fell_back":

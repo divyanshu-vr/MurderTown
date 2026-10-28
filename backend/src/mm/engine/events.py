@@ -240,6 +240,43 @@ class AttackThwarted(Payload):
         return Visibility.everyone()
 
 
+class DuskIntentChosen(Payload):
+    """What a Resident means to do at Dusk: talk, wander or do a chore. Only they know."""
+
+    type: Literal["dusk_intent_chosen"] = "dusk_intent_chosen"
+    resident: str
+    activity: Literal["talk", "wander", "chore"]
+    partners: tuple[str, ...]
+    topic: str
+
+    def visibility(self) -> Visibility:
+        return Visibility.only(self.resident)
+
+
+class ConversationStarted(Payload):
+    """Two Residents slip away to talk. Everyone sees that they met, but not who asked whom."""
+
+    type: Literal["conversation_started"] = "conversation_started"
+    pair: tuple[str, str]
+    """The two Residents, in seat order."""
+
+    def visibility(self) -> Visibility:
+        return Visibility.everyone()
+
+
+class ConversationMessagePosted(Payload):
+    """One message in a Conversation, heard only by the two Residents in it."""
+
+    type: Literal["conversation_message_posted"] = "conversation_message_posted"
+    speaker: str
+    partner: str
+    text: str
+    ends_conversation: bool
+
+    def visibility(self) -> Visibility:
+        return Visibility.only(self.speaker, self.partner)
+
+
 class RecapNarrated(Payload):
     """The narrator's short recap of the Day so far, told at Dawn."""
 
@@ -319,6 +356,9 @@ EventPayload = Annotated[
     | ResidentInvestigated
     | AttackThwarted
     | RecapNarrated
+    | DuskIntentChosen
+    | ConversationStarted
+    | ConversationMessagePosted
     | ReflectionWritten
     | DecisionFellBack
     | GameEnded,

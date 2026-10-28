@@ -14,8 +14,11 @@ from mm.engine.events import (
     AttackThwarted,
     BallotCast,
     BidPlaced,
+    ConversationMessagePosted,
+    ConversationStarted,
     DecisionFellBack,
     DenMessagePosted,
+    DuskIntentChosen,
     Event,
     EventPayload,
     GameEnded,
@@ -88,7 +91,8 @@ class GameState:
             case (
                 BidPlaced() | StatementMade() | BallotCast() | VoteResolved() | LastWordsSpoken()
                 | SheriffHeldFire() | ReflectionWritten() | DecisionFellBack() | DenMessagePosted()
-                | KillVoteCast() | AttackThwarted() | RecapNarrated()
+                | KillVoteCast() | AttackThwarted() | RecapNarrated() | DuskIntentChosen()
+                | ConversationStarted() | ConversationMessagePosted()
             ):  # fmt: skip
                 pass  # recorded in the log, but they change nothing the state tracks
             case unknown:

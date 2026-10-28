@@ -31,6 +31,8 @@ class DecisionKind(StrEnum):
     PROTECT = "protect"
     INVESTIGATE = "investigate"
     RECAP = "recap"
+    DUSK_INTENT = "dusk_intent"
+    CONVERSATION_MESSAGE = "conversation_message"
 
 
 @dataclass(frozen=True)
@@ -103,6 +105,21 @@ class DenMessage(Decision):
     proposed_victim: str | None = Field(
         description="Whom you propose to kill tonight, one of the listed options, or null."
     )
+
+
+class DuskIntent(Decision):
+    activity: Literal["talk", "wander", "chore"] = Field(
+        description="talk to someone privately, wander the town, or do a chore."
+    )
+    partners: list[str] = Field(
+        description="If you talk: up to three Residents to talk to, most wanted first."
+    )
+    topic: str = Field(description="If you talk: what you want to talk about, in a few words.")
+
+
+class ConversationMessage(Decision):
+    text: str = Field(description="What you say, in your own voice.")
+    end_conversation: bool = Field(description="True to end the Conversation after this message.")
 
 
 class Recap(Decision):

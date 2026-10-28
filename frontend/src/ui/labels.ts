@@ -55,6 +55,8 @@ export const decisionLabel: Record<DecisionKind, string> = {
   protect: "protection",
   investigate: "investigation",
   recap: "recap",
+  dusk_intent: "Dusk intent",
+  conversation_message: "Conversation message",
 };
 
 /** What came of one model attempt at a decision. */
@@ -70,3 +72,10 @@ export const attemptLabel: Record<ModelCall["outcome"], string> = {
 export function whenLabel(day: number, phase: Phase): string {
   return `Day ${day}, ${phaseLabel[phase]}`;
 }
+
+/** How a Dusk activity reads after "means to". */
+export const activityLabel: Record<PayloadOf<"dusk_intent_chosen">["activity"], string> = {
+  talk: "talk",
+  wander: "wander the town",
+  chore: "do a chore",
+};

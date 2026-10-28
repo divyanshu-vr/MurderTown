@@ -90,6 +90,9 @@ export function applyEvent(view: GameView, event: Event): GameView {
     case "resident_investigated":
     case "attack_thwarted":
     case "recap_narrated":
+    case "dusk_intent_chosen":
+    case "conversation_started":
+    case "conversation_message_posted":
     case "last_words_spoken":
     case "ballot_cast":
     case "vote_resolved":

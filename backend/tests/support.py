@@ -14,8 +14,10 @@ from mm.engine.decisions import (
     SKIP,
     Answer,
     Bid,
+    ConversationMessage,
     DecisionKind,
     DecisionRequest,
+    DuskIntent,
     Showdown,
     Statement,
     Target,
@@ -50,6 +52,12 @@ BidRule = Callable[[str, GameState], int]
 """How urgently a Resident bids, given their name and what they know."""
 
 StatementRule = Callable[[DecisionRequest, GameState], Statement]
+
+MessageRule = Callable[[DecisionRequest, GameState], ConversationMessage]
+"""What a Resident says in a Conversation, given the request and what they know."""
+
+Talks = Mapping[int, Mapping[int, Sequence[int]]]
+"""Who wants to talk at Dusk, by Day: each talker's seat, then their partners' seats."""
 """What a Resident says, given the request and what they know."""
 
 
@@ -61,9 +69,9 @@ def quiet(name: str, known: GameState) -> int:
 class Puppet:
     """A test decision source that does exactly what a test scripts.
 
-    By default it bids 0, holds fire and votes to skip. Unscripted Statements,
-    last words, reflections and Night choices come from a scripted bot that never
-    lapses, so unscripted Murderers still kill.
+    By default it bids 0, holds fire, votes to skip and wanders at Dusk. Unscripted
+    Statements, last words, reflections, Night choices and Conversation messages
+    come from a scripted bot that never lapses, so unscripted Murderers still kill.
     """
 
     ballots: Script = field(default_factory=dict)
@@ -77,6 +85,8 @@ class Puppet:
     """For the Doctor: the seat to protect on each Day's Night."""
     investigations: Mapping[int, int] = field(default_factory=dict)
     """For the Detective: the seat to investigate on each Day's Night."""
+    talks: Talks = field(default_factory=dict)
+    messages: MessageRule | None = None
 
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         known = GameState.fold(view)
@@ -96,6 +106,13 @@ class Puppet:
                 return Answer(Showdown(fire=True, target=target, reason="scripted"))
             case DecisionKind.STATEMENT if self.says:
                 return Answer(self.says(request, known))
+            case DecisionKind.DUSK_INTENT:
+                seats = self.talks.get(known.day, {}).get(seat_of(known)[me], ())
+                partners = [known.residents[seat].name for seat in seats]
+                activity = "talk" if partners else "wander"
+                return Answer(DuskIntent(activity=activity, partners=partners, topic="scripted"))
+            case DecisionKind.CONVERSATION_MESSAGE if self.messages:
+                return Answer(self.messages(request, known))
             case DecisionKind.KILL_VOTE | DecisionKind.PROTECT | DecisionKind.INVESTIGATE if (
                 seat := self._chosen_at_night(request.kind, known.day)
             ) is not None:
@@ -160,6 +177,8 @@ def puppets(
     kills: Mapping[int, int] | None = None,
     protects: Mapping[int, int] | None = None,
     investigations: Mapping[int, int] | None = None,
+    talks: Talks | None = None,
+    messages: MessageRule | None = None,
 ) -> BrainFactory:
     puppet = Puppet(
         ballots=ballots or {},
@@ -169,6 +188,8 @@ def puppets(
         kills=kills or {},
         protects=protects or {},
         investigations=investigations or {},
+        talks=talks or {},
+        messages=messages,
     )
 
     def make(resident: Resident) -> Brain:
@@ -204,6 +225,8 @@ KIND_BY_FIELD = {
     "fire": DecisionKind.SHOWDOWN,
     "journal_entry": DecisionKind.REFLECTION,
     "proposed_victim": DecisionKind.DEN_MESSAGE,
+    "activity": DecisionKind.DUSK_INTENT,
+    "end_conversation": DecisionKind.CONVERSATION_MESSAGE,
 }
 
 KIND_BY_WORDING = {
@@ -251,7 +274,7 @@ def statement_answer(text: str, request: ModelRequest, **fields: Any) -> dict[st
     return {**plain, "my_role": own_role(request), **fields}
 
 
-def sensible_answer(request: ModelRequest) -> ModelReply:
+def sensible_answer(request: ModelRequest) -> ModelReply:  # noqa: C901 - one answer per kind
     """A cooperative model: short Statements, quiet bids, held fire, SKIP, brief notes,
     and at Night the first option it is offered."""
     match answer_kind(request):
@@ -274,6 +297,13 @@ def sensible_answer(request: ModelRequest) -> ModelReply:
             return model_answer({"target": listed_options(request.prompt)[0], "reason": "a hunch"})
         case DecisionKind.RECAP:
             return model_answer({"text": "Another Day dawns over the town."})
+        case DecisionKind.DUSK_INTENT:
+            partner = listed_options(request.prompt)[0]
+            return model_answer({"activity": "talk", "partners": [partner], "topic": "the vote"})
+        case DecisionKind.CONVERSATION_MESSAGE:  # a reply ends it, so Conversations have two
+            replying = "(to " in request.prompt
+            return model_answer({"text": "Let us keep an eye on each other.",
+                                 "end_conversation": replying})  # fmt: skip
 
 
 class FakeModel:

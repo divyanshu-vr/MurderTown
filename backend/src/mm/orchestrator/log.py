@@ -22,15 +22,23 @@ class EventLog:
 
     async def append(self, payload: EventPayload, decision_id: str | None = None) -> Event:
         self.state.apply(payload)
-        event = Event(
-            seq=len(self.events) + 1,
+        event = self._stamped(payload, len(self.events) + 1, decision_id)
+        self.events.append(event)
+        for observer in self.observers:
+            await observer(event)
+        return event
+
+    def unlogged(self, payload: EventPayload) -> Event:
+        """Something already heard but not in the log yet, such as a Dusk message whose
+        wave has not finished. Its sequence number is 0 until it is appended."""
+        return self._stamped(payload, seq=0, decision_id=None)
+
+    def _stamped(self, payload: EventPayload, seq: int, decision_id: str | None) -> Event:
+        return Event(
+            seq=seq,
             day=self.state.day,
             phase=self.state.phase,
             visibility=payload.visibility(),
             decision_id=decision_id,
             payload=payload,
         )
-        self.events.append(event)
-        for observer in self.observers:
-            await observer(event)
-        return event

@@ -8,7 +8,7 @@ A social-deduction game where every Resident is played by an LLM Agent with its 
 - **Perception has one door**: `perceived_by` in the engine. Everything shown to a Resident (bot view, prompt) and the server's mind endpoint go through it, which is what makes information isolation testable. The console's Mind inspector is a Spectator's view, folded from events Spectators already hold (`frontend/src/core/mind.ts` follows the rules of `remember` in `agents/memory.py`).
 - **Backend layers**, top to bottom: cli, api, persistence, orchestrator, agents, engine. A layer imports only from layers below it (`lint-imports` enforces this). The engine is pure: no I/O, clocks or async.
 - **Frontend layers**: `src/core` is pure TypeScript with no React, Phaser or network code (ESLint enforces this); `src/net` talks to the server; `src/ui` renders. Protocol types are generated from the backend, never written by hand.
-- **Determinism**: all randomness comes from the game's seeded `Random`. Decisions collected concurrently have their events appended in a fixed order (seat order; at Night, kill votes, then the protection, then the investigation), so the same seed and decisions always give the same log.
+- **Determinism**: all randomness comes from the game's seeded `Random`. Decisions collected concurrently have their events appended in a fixed order (seat order; at Night, kill votes, then the protection, then the investigation; at Dusk, each wave's messages Conversation by Conversation), so the same seed and decisions always give the same log.
 - **Vocabulary** in code, tests and UI text follows `GLOSSARY.md`.
 
 ## Changing things

@@ -5,19 +5,24 @@ decision point (see tests/prompt_spy.py).
 """
 
 import re
+from collections import defaultdict
+from itertools import pairwise
 
 import pytest
 
 from mm.engine import GameConfig, Role
 from mm.engine.decisions import DecisionKind
 from mm.engine.events import (
+    ConversationMessagePosted,
+    ConversationStarted,
     DecisionFellBack,
     DenMessagePosted,
+    Event,
     ResidentInvestigated,
     RoleAssigned,
     SheriffFired,
 )
-from tests.prompt_spy import DEN_SENTINEL, FALLBACK_SENTINEL, spy_on
+from tests.prompt_spy import CONVERSATION_SENTINEL, DEN_SENTINEL, FALLBACK_SENTINEL, Shown, spy_on
 from tests.support import listed_options, payloads, puppets, seats_by_role
 
 
@@ -158,3 +163,43 @@ async def test_the_narrators_prompt_stays_one_day_long_however_long_the_game_run
     recaps = [len(seen.text()) for seen in shown if seen.request.kind is DecisionKind.RECAP]
     assert len(recaps) > 2
     assert max(recaps) < 2 * recaps[0] + 3000
+
+
+async def conversations_spied_on() -> tuple[list[Shown], list[Event], dict[str, set[str]]]:
+    """A spied game with Dusk Conversations, and each Resident's partners in them."""
+    shown, events = await spy_on(GameConfig(residents=10, murderers=2, max_days=3, seed=31))
+    partners: dict[str, set[str]] = defaultdict(set)
+    for start in payloads(events, ConversationStarted):
+        one, other = start.pair
+        partners[one].add(other)
+        partners[other].add(one)
+    return shown, events, partners
+
+
+async def test_conversation_words_reach_only_the_two_who_talked() -> None:
+    shown, events, partners = await conversations_spied_on()
+    speakers = {message.speaker for message in payloads(events, ConversationMessagePosted)}
+
+    for seen in shown:
+        for speaker in speakers - {seen.resident}:
+            if f"{CONVERSATION_SENTINEL}-{speaker}" in seen.text():
+                assert speaker in partners[seen.resident]  # the narrator has no partners
+    replies = [s for s in shown if s.request.kind is DecisionKind.CONVERSATION_MESSAGE]
+    assert any(f"{CONVERSATION_SENTINEL}-{s.request.options[0]}" in s.text() for s in replies)
+    kinds = [type(e.payload) for e in events]
+    assert any(a is b is ConversationStarted for a, b in pairwise(kinds))  # a wave of two or more
+
+
+async def test_a_conversation_stays_in_mind_until_the_next_reflection() -> None:
+    shown, events, _ = await conversations_spied_on()
+    first = payloads(events, ConversationStarted, day=1)[0]
+    one, other = first.pair
+    later = [s for s in shown if s.resident == one and "It is Day 2." in s.prompt.task]
+
+    reflecting = next(s for s in later if s.request.kind is DecisionKind.REFLECTION)
+    speaking = next(s for s in later if s.request.kind is DecisionKind.STATEMENT)
+    assert f"{CONVERSATION_SENTINEL}-{other}" in reflecting.text()
+    assert f"{CONVERSATION_SENTINEL}-{other}" not in speaking.text()
+    bystanders = [s for s in shown if s.role is not None and s.resident not in first.pair]
+    meeting = f"{one} and {other} slipped away to talk privately."
+    assert any(meeting in s.text() for s in bystanders)

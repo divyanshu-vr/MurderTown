@@ -113,8 +113,16 @@ The Sheriff's own death after shooting a Resident who is not a Murderer.
 _Avoid_: misfire, recoil
 
 **Conversation**:
-A private exchange between two Residents during Dusk.
+A private exchange of at most four messages between two Residents during Dusk. The one who asked speaks first; either may end it sooner. Everyone sees that the two met; only they hear what is said.
 _Avoid_: chat, DM, whisper
+
+**Dusk intent**:
+What a Resident means to do at Dusk: talk (naming up to three Residents, most wanted first), wander, or do a Chore.
+_Avoid_: plan, schedule
+
+**Chore**:
+A small errand a Resident does at Dusk instead of talking.
+_Avoid_: task, job
 
 **Den**:
 The Murderers' private Night meeting, where they choose the Victim.
@@ -171,7 +179,7 @@ A Resident's latest Suspicion about each other Resident they have formed an opin
 _Avoid_: suspicion list, belief state
 
 **Fallback**:
-The safe default used when a Resident gives no usable answer: silence, a Bid to listen, holding fire, a vote to skip, no Last words, no notes, or a random legal choice at Night.
+The safe default used when a Resident gives no usable answer: silence, a Bid to listen, holding fire, a vote to skip, no Last words, no notes, a random legal choice at Night, wandering at Dusk, or ending the Conversation.
 _Avoid_: default answer, error
 
 ### Watching

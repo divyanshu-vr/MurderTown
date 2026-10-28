@@ -117,7 +117,7 @@ describe("the game console", () => {
     expect(phaseBar).toHaveTextContent(ending?.reason ?? "");
   });
 
-  it("shows the Night in full, and in mystery mode only what Dawn tells the whole town", () => {
+  it("shows Dusk and the Night in full, and in mystery mode only what the whole town saw", () => {
     render(<GameConsole events={events} connection="ended" />);
     const secret: Kind[] = [
       "den_message_posted",
@@ -125,14 +125,18 @@ describe("the game console", () => {
       "victim_chosen",
       "resident_protected",
       "resident_investigated",
+      "dusk_intent_chosen",
+      "conversation_message_posted",
     ];
-    const told: Kind[] = ["attack_thwarted", "recap_narrated"];
+    const told: Kind[] = ["attack_thwarted", "recap_narrated", "conversation_started"];
     for (const kind of [...secret, ...told]) expect(feedItems(kind).length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole("button", { name: "Mystery mode" }));
 
     for (const kind of secret) expect(within(feed()).queryAllByRole("listitem").filter(isKind(kind))).toHaveLength(0);
     for (const kind of told) expect(feedItems(kind).length).toBeGreaterThan(0);
+    const words = payloadsOf(events, "conversation_message_posted").map((message) => message.text);
+    expect(feed().textContent).not.toContain(`"${words[0]}"`);
     const murdered = payloadsOf(events, "resident_died").filter((death) => death.cause === "murdered");
     expect(feedItems("resident_died").map((item) => item.textContent)).toEqual(
       expect.arrayContaining(murdered.map((death) => expect.stringContaining(`${death.resident} is found murdered`))),

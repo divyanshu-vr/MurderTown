@@ -10,9 +10,9 @@ from typing import TYPE_CHECKING
 
 from mm.engine import Phase
 from mm.engine.decisions import Bid, DecisionKind, DecisionRequest, Statement, StatementPart
-from mm.engine.discussion import named, open_floor_over, speaker_for
+from mm.engine.discussion import open_floor_over, speaker_for
 from mm.engine.events import BidPlaced, StatementMade
-from mm.engine.rules import trimmed
+from mm.engine.rules import named, trimmed
 
 if TYPE_CHECKING:
     from mm.orchestrator.game import Game
@@ -55,14 +55,15 @@ async def _open_floor(game: "Game", last: StatementMade | None) -> None:
 async def _statement(game: "Game", speaker: str, part: StatementPart) -> StatementMade:
     request = DecisionRequest(DecisionKind.STATEMENT, speaker, part=part)
     said = await game.decide(request, Statement)
-    statement, state = said.decision, game.state
+    statement = said.decision
+    others = [resident.name for resident in game.state.residents if resident.name != speaker]
     made = StatementMade(
         speaker=speaker,
         text=trimmed(statement.text),
         part=part,
-        addressed=named(statement.addressed, state, speaker),
-        accused=named(statement.accused, state, speaker),
-        defended=named(statement.defended, state, speaker),
+        addressed=named(statement.addressed, others),
+        accused=named(statement.accused, others),
+        defended=named(statement.defended, others),
         claimed_role=statement.claimed_role,
     )
     await game.append(made, cause=said)

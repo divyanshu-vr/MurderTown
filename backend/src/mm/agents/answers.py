@@ -16,10 +16,12 @@ from mm.engine import Role
 from mm.engine.decisions import (
     SKIP,
     Bid,
+    ConversationMessage,
     Decision,
     DecisionKind,
     DecisionRequest,
     DenMessage,
+    DuskIntent,
     LastWords,
     Recap,
     Reflection,
@@ -55,7 +57,8 @@ class AnswerSpec:
     shape: type[Decision]
     fallback: Fallback
     """Silence, a bid of 0, holding fire, a vote to skip, no last words, an empty
-    reflection that changes nothing, or a random legal Night choice."""
+    reflection that changes nothing, a random legal Night choice, wandering at
+    Dusk, or ending the Conversation."""
 
 
 ANSWERS: dict[DecisionKind, AnswerSpec] = {
@@ -76,6 +79,13 @@ ANSWERS: dict[DecisionKind, AnswerSpec] = {
     DecisionKind.PROTECT: AnswerSpec(Target, any_option),
     DecisionKind.INVESTIGATE: AnswerSpec(Target, any_option),
     DecisionKind.RECAP: AnswerSpec(Recap, always(Recap(text="Another Day dawns over the town."))),
+    DecisionKind.DUSK_INTENT: AnswerSpec(
+        DuskIntent, always(DuskIntent(activity="wander", partners=[], topic=""))
+    ),
+    DecisionKind.CONVERSATION_MESSAGE: AnswerSpec(
+        ConversationMessage,
+        always(ConversationMessage(text="(says nothing)", end_conversation=True)),
+    ),
 }
 
 OUTSIDE_WORLD = re.compile(

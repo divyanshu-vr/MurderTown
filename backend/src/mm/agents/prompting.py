@@ -28,8 +28,11 @@ from mm.engine.events import (
     AttackThwarted,
     BallotCast,
     BidPlaced,
+    ConversationMessagePosted,
+    ConversationStarted,
     DecisionFellBack,
     DenMessagePosted,
+    DuskIntentChosen,
     Event,
     GameEnded,
     GameStarted,
@@ -71,6 +74,8 @@ DECISION_TEMPLATES = {
     DecisionKind.PROTECT: "decisions/protect.md",
     DecisionKind.INVESTIGATE: "decisions/investigate.md",
     DecisionKind.RECAP: "decisions/recap.md",
+    DecisionKind.DUSK_INTENT: "decisions/dusk_intent.md",
+    DecisionKind.CONVERSATION_MESSAGE: "decisions/conversation_message.md",
 }
 
 POWERS = {
@@ -97,11 +102,15 @@ DEATHS: dict[str, str] = {
     "murdered": "{resident} was found murdered at Dawn on Day {day}. They were a {role}.",
 }
 
+ACTIVITIES = {"talk": "talk", "wander": "wander the town", "chore": "do a chore"}
+"""How a Dusk activity reads in a sentence: "chose to do a chore"."""
+
 WORDS_ASKED_FOR = {
     DecisionKind.STATEMENT: 60,
     DecisionKind.LAST_WORDS: 40,
     DecisionKind.DEN_MESSAGE: 40,
     DecisionKind.RECAP: 60,
+    DecisionKind.CONVERSATION_MESSAGE: 40,
 }
 """How long anything said should be. Well under the engine's WORD_LIMIT, so the
 engine only ever cuts a runaway answer."""
@@ -282,7 +291,7 @@ def _facts(view: Sequence[Event], known: GameState) -> list[str]:
     return facts
 
 
-def _line(event: Event) -> str | None:  # noqa: C901 - one case per event type
+def _line(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per event type
     """How one perceived event reads in an Agent's prompt; None for events it does not need."""
     match event.payload:
         case PhaseStarted(day=day, phase=phase):
@@ -300,6 +309,14 @@ def _line(event: Event) -> str | None:  # noqa: C901 - one case per event type
             return f"{murderer} voted to kill {target}."
         case VictimChosen(victim=victim):
             return f"The Den chose {victim} as tonight's Victim."
+        case DuskIntentChosen(activity=activity, partners=partners, topic=topic):
+            if activity == "talk":
+                return f"You hoped to talk with {', '.join(partners)} about: {topic}"
+            return f"You chose to {ACTIVITIES[activity]} at Dusk."
+        case ConversationStarted(pair=(one, other)):
+            return f"{one} and {other} slipped away to talk privately."
+        case ConversationMessagePosted(speaker=speaker, partner=partner, text=text):
+            return _quoted(speaker, text, f"to {partner}")
         case VoteResolved() | ResidentDied() | SheriffFired() | AttackThwarted():
             return None  # shown among the game master's facts instead
         case (

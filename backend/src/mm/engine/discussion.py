@@ -1,4 +1,4 @@
-"""Rules of Discussion: who speaks next on the Open floor, and whom a Statement names.
+"""Rules of Discussion: who speaks next on the Open floor, and when the Open floor is over.
 
 On the Open floor every living Resident bids how urgently they want to speak.
 The highest bid speaks. A tie is drawn at random, but a Resident addressed by
@@ -6,11 +6,10 @@ the previous Statement is three times as likely to win it, so being addressed
 tends to earn a reply. If every bid is 0, nobody speaks that Turn.
 """
 
-from collections.abc import Collection, Iterable, Mapping
+from collections.abc import Collection, Mapping
 from random import Random
 
 from mm.engine.config import GameConfig
-from mm.engine.state import GameState
 from mm.engine.tally import drawn_from_the_top
 
 ADDRESSED_WEIGHT = 3
@@ -22,12 +21,6 @@ def speaker_for(bids: Mapping[str, int], addressed: Collection[str], rng: Random
     if not bids or max(bids.values()) == 0:
         return None
     return drawn_from_the_top(bids, rng, lambda name: ADDRESSED_WEIGHT if name in addressed else 1)
-
-
-def named(names: Iterable[str], state: GameState, speaker: str) -> tuple[str, ...]:
-    """The real Residents a Statement names, each once, never the speaker themselves."""
-    residents = {resident.name for resident in state.residents} - {speaker}
-    return tuple(dict.fromkeys(name for name in names if name in residents))
 
 
 QUIET_TURNS_TO_END = 2

@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 import type { Event, Mind, PayloadOf } from "../src/protocol";
 
-/** The scripted game the backend records with `mm play --seed 18 --out ../fixtures/scripted-game.ndjson`, chosen because it shows every kind of event. */
+/** The scripted game the backend records with `mm play --seed 1 --out ../fixtures/scripted-game.ndjson`, chosen because it shows every kind of event. */
 export function recordedGame(): Event[] {
   const file = resolve(process.cwd(), "../fixtures/scripted-game.ndjson");
   return readFileSync(file, "utf-8")

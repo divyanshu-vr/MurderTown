@@ -103,6 +103,10 @@ export function decider(payload: Payload): string | null {
       return payload.doctor;
     case "resident_investigated":
       return payload.detective;
+    case "dusk_intent_chosen":
+      return payload.resident;
+    case "conversation_message_posted":
+      return payload.speaker;
     case "ballot_cast":
       return payload.voter;
     case "game_started":
@@ -112,6 +116,7 @@ export function decider(payload: Payload): string | null {
     case "resident_died":
     case "victim_chosen":
     case "attack_thwarted":
+    case "conversation_started":
     case "recap_narrated": // the narrator is not a Resident
     case "game_ended":
       return null;

@@ -13,8 +13,11 @@ from mm.engine.decisions import DecisionKind
 from mm.engine.events import (
     BallotCast,
     BidPlaced,
+    ConversationMessagePosted,
+    ConversationStarted,
     DecisionFellBack,
     DenMessagePosted,
+    DuskIntentChosen,
     Event,
     GameEnded,
     KillVoteCast,
@@ -323,3 +326,41 @@ async def test_a_den_proposal_of_someone_who_cannot_be_killed_is_dropped_not_ret
     assert messages
     assert {message.proposed_victim for message in messages} == {None}
     assert {call.outcome for call in played.calls_for(DecisionKind.DEN_MESSAGE)} == {"ok"}
+
+
+async def test_dusk_intents_and_conversation_messages_go_through_the_model() -> None:
+    played = await play_with(FakeModel())
+
+    kinds = {call.kind for call in played.calls}
+    assert {DecisionKind.DUSK_INTENT, DecisionKind.CONVERSATION_MESSAGE} <= kinds
+    assert payloads(played.result.events, ConversationMessagePosted)
+    assert payloads(played.result.events, DecisionFellBack) == []
+
+
+async def test_an_intent_the_model_refuses_falls_back_to_wandering() -> None:
+    def respond(request: ModelRequest) -> ModelReply:
+        if answer_kind(request) is DecisionKind.DUSK_INTENT:
+            return ModelReply(outcome="refusal", data=None, text="", error="the model declined")
+        return sensible_answer(request)
+
+    played = await play_with(FakeModel(respond))
+
+    intents = payloads(played.result.events, DuskIntentChosen)
+    assert intents
+    assert {intent.activity for intent in intents} == {"wander"}
+    assert payloads(played.result.events, ConversationStarted) == []
+
+
+async def test_a_message_the_model_refuses_falls_back_to_ending_the_conversation() -> None:
+    def respond(request: ModelRequest) -> ModelReply:
+        if answer_kind(request) is DecisionKind.CONVERSATION_MESSAGE:
+            return ModelReply(outcome="refusal", data=None, text="", error="the model declined")
+        return sensible_answer(request)
+
+    played = await play_with(FakeModel(respond))
+
+    started = payloads(played.result.events, ConversationStarted)
+    messages = payloads(played.result.events, ConversationMessagePosted)
+    assert started
+    assert len(messages) == len(started)
+    assert all(m.ends_conversation and m.text == "(says nothing)" for m in messages)

@@ -15,7 +15,9 @@ export type DecisionKind =
   | "kill_vote"
   | "protect"
   | "investigate"
-  | "recap";
+  | "recap"
+  | "dusk_intent"
+  | "conversation_message";
 /**
  * How hard the model thinks before answering: more effort, slower and dearer answers.
  *
@@ -76,6 +78,33 @@ export interface BidPlaced {
   reason: string;
 }
 /**
+ * One message in a Conversation, heard only by the two Residents in it.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "ConversationMessagePosted".
+ */
+export interface ConversationMessagePosted {
+  type: "conversation_message_posted";
+  speaker: string;
+  partner: string;
+  text: string;
+  ends_conversation: boolean;
+}
+/**
+ * Two Residents slip away to talk. Everyone sees that they met, but not who asked whom.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "ConversationStarted".
+ */
+export interface ConversationStarted {
+  type: "conversation_started";
+  /**
+   * @minItems 2
+   * @maxItems 2
+   */
+  pair: [unknown, unknown];
+}
+/**
  * A decision source could not give a usable answer, so a safe default was used instead.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
@@ -99,6 +128,19 @@ export interface DenMessagePosted {
   murderer: string;
   text: string;
   proposed_victim: string | null;
+}
+/**
+ * What a Resident means to do at Dusk: talk, wander or do a chore. Only they know.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "DuskIntentChosen".
+ */
+export interface DuskIntentChosen {
+  type: "dusk_intent_chosen";
+  resident: string;
+  activity: "talk" | "wander" | "chore";
+  partners: string[];
+  topic: string;
 }
 /**
  * One entry in a game's log: a payload stamped with its place in the game.
@@ -131,6 +173,9 @@ export interface Event {
     | ResidentInvestigated
     | AttackThwarted
     | RecapNarrated
+    | DuskIntentChosen
+    | ConversationStarted
+    | ConversationMessagePosted
     | ReflectionWritten
     | DecisionFellBack
     | GameEnded;

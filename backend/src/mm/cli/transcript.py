@@ -4,13 +4,19 @@ The console only needs plain ASCII, so the transcript avoids box-drawing
 characters that some Windows terminals cannot print.
 """
 
+from typing import assert_never
+
+from mm.agents.prompting import ACTIVITIES
 from mm.engine import Side
 from mm.engine.events import (
     AttackThwarted,
     BallotCast,
     BidPlaced,
+    ConversationMessagePosted,
+    ConversationStarted,
     DecisionFellBack,
     DenMessagePosted,
+    DuskIntentChosen,
     Event,
     GameEnded,
     GameStarted,
@@ -41,7 +47,10 @@ DEATHS = {
 
 
 def describe(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per event type
-    """One readable line per event, or None for events not worth printing (quiet bids)."""
+    """One readable line per event, or None for events not worth printing (quiet bids).
+
+    Every event type has a case, so a new one cannot be forgotten.
+    """
     match event.payload:
         case GameStarted(residents=residents):
             names = ", ".join(f"{r.name} the {r.occupation}" for r in residents)
@@ -85,9 +94,18 @@ def describe(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per 
             return f"{saved or 'Someone'} was attacked in the night, but the Doctor saved them."
         case RecapNarrated(text=text):
             return f"Narrator: {text}"
+        case DuskIntentChosen(resident=resident, activity=activity, partners=partners):
+            talking = f"hopes to talk with {', '.join(partners)}"
+            return f"  ({resident} {talking if partners else f'means to {ACTIVITIES[activity]}'}.)"
+        case ConversationStarted(pair=(one, other)):
+            return f"[Dusk] {one} and {other} slip away to talk."
+        case ConversationMessagePosted(speaker=speaker, partner=partner, text=text):
+            return f'  [Dusk] {speaker} to {partner}: "{text}"'
         case ReflectionWritten(resident=resident, journal_entry=entry):
             return f"  ({resident} writes privately: {entry})"
         case DecisionFellBack(resident=resident, kind=kind, reason=reason):
             return f"  [fallback] {resident}'s {kind} used a safe default: {reason}"
         case GameEnded(winner=winner, reason=reason):
             return f"\n*** {VICTORY[winner]} {reason} ***"
+        case unknown:
+            assert_never(unknown)

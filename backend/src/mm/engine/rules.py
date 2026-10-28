@@ -1,8 +1,10 @@
 """Rules that judge decisions, limit what a Resident may say, and decide when the game is over."""
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 from mm.engine.decisions import (
+    ConversationMessage,
     Decision,
     DecisionRequest,
     DenMessage,
@@ -21,7 +23,12 @@ def why_illegal(request: DecisionRequest, decision: Decision) -> str | None:
     match decision:
         case Target(target=target) if target not in request.options:
             return f"{target!r} is not one of the options {list(request.options)}"
-        case Statement(text=text) | DenMessage(text=text) | Recap(text=text) if not text.strip():
+        case (
+            Statement(text=text)
+            | DenMessage(text=text)
+            | Recap(text=text)
+            | ConversationMessage(text=text)
+        ) if not text.strip():
             return "the text cannot be empty"
         case Reflection(suspicions=suspicions):
             return _suspicions_problem([s.resident for s in suspicions], request.options)
@@ -45,6 +52,17 @@ def trimmed(text: str) -> str:
     if len(words) <= WORD_LIMIT:
         return text.strip()
     return " ".join(words[:WORD_LIMIT]) + "..."
+
+
+def named(names: Iterable[str], allowed: Iterable[str]) -> tuple[str, ...]:
+    """The allowed names among those given, each once, in the order given.
+
+    Names a Resident gives (whom a Statement addresses, whom they want to talk to)
+    are filtered rather than rejected: a stray name costs nothing, while a retry
+    would cost another model call.
+    """
+    permitted = set(allowed)
+    return tuple(dict.fromkeys(name for name in names if name in permitted))
 
 
 def _suspicions_problem(named: list[str], options: tuple[str, ...]) -> str | None:

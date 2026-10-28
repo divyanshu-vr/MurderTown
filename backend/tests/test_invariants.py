@@ -1,6 +1,7 @@
 """Seam 1: properties that hold for every game, whatever the configuration and seed."""
 
 import asyncio
+from collections import Counter
 from collections.abc import Sequence
 from itertools import pairwise
 
@@ -10,7 +11,14 @@ from hypothesis import strategies as st
 from mm.agents import Brain, scripted_bots
 from mm.engine import GameConfig
 from mm.engine.decisions import Answer, DecisionRequest
-from mm.engine.events import BallotCast, Event, GameEnded
+from mm.engine.dusk import MESSAGES_PER_CONVERSATION
+from mm.engine.events import (
+    BallotCast,
+    ConversationMessagePosted,
+    ConversationStarted,
+    Event,
+    GameEnded,
+)
 from mm.engine.state import GameState
 from mm.orchestrator import GameResult, play_game
 from tests.support import wrapped
@@ -70,3 +78,39 @@ def test_every_game_obeys_the_invariants(config: GameConfig) -> None:
     assert all(before >= after for before, after in pairwise(after_casting))
 
     assert asked_while_dead == []
+    assert_dusk_keeps_its_limits(events)
+
+
+def assert_dusk_keeps_its_limits(events: Sequence[Event]) -> None:
+    """Per Conversation: at most four messages, taking turns, and only the last ends it.
+    Per Day: each Resident starts at most one Conversation and is approached for at most
+    two. Conversations that start together have no Resident in common."""
+    started = [e for e in events if isinstance(e.payload, ConversationStarted)]
+    initiated: Counter[tuple[int, str]] = Counter()
+    joined: Counter[tuple[int, str]] = Counter()
+    for start in started:
+        assert isinstance(start.payload, ConversationStarted)
+        pair = set(start.payload.pair)
+        messages = [
+            e.payload
+            for e in events
+            if isinstance(e.payload, ConversationMessagePosted)
+            and e.day == start.day
+            and {e.payload.speaker, e.payload.partner} == pair
+        ]
+        assert 1 <= len(messages) <= MESSAGES_PER_CONVERSATION
+        assert all(a.speaker != b.speaker for a, b in pairwise(messages))
+        assert not any(m.ends_conversation for m in messages[:-1])
+        initiator, partner = messages[0].speaker, messages[0].partner
+        initiated[start.day, initiator] += 1
+        joined[start.day, partner] += 1
+    assert max(initiated.values(), default=0) <= 1
+    assert max(joined.values(), default=0) <= 2
+
+    wave: set[str] = set()
+    for event in events:
+        if isinstance(event.payload, ConversationStarted):
+            assert not wave & set(event.payload.pair)
+            wave |= set(event.payload.pair)
+        else:
+            wave = set()

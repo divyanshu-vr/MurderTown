@@ -1,6 +1,7 @@
 """A spy that builds the real Agent prompt at every decision point of a scripted game.
 
-Its reflections and Den messages carry a sentinel unique to its Resident, and
+Its reflections, Den messages and Conversation messages carry a sentinel unique
+to its Resident, and
 every ballot it casts is reported as a fallback with a sentinel reason, which
 only Spectators may perceive. A prompt that ever shows another Resident's
 reflection sentinel, a Den sentinel outside the Den, or any fallback sentinel,
@@ -16,6 +17,7 @@ from mm.agents.prompting import Prompt, build_prompt
 from mm.engine import GameConfig, Resident, Role
 from mm.engine.decisions import (
     Answer,
+    ConversationMessage,
     DecisionKind,
     DecisionRequest,
     DenMessage,
@@ -29,6 +31,7 @@ from mm.orchestrator import play_game
 
 FALLBACK_SENTINEL = "FALLBACK-SECRET"
 DEN_SENTINEL = "DEN-WHISPER"
+CONVERSATION_SENTINEL = "DUSK-MURMUR"
 
 
 @dataclass(frozen=True)
@@ -71,6 +74,9 @@ class Spy:
                 return Answer(Statement.plain(self.says))
             case DecisionKind.DEN_MESSAGE:
                 return Answer(DenMessage(text=f"{DEN_SENTINEL}-{me}", proposed_victim=None))
+            case DecisionKind.CONVERSATION_MESSAGE:
+                said = f"{CONVERSATION_SENTINEL}-{me}"
+                return Answer(ConversationMessage(text=said, end_conversation=False))
             case DecisionKind.BALLOT:
                 ballot = await self.inner.decide(request, view)
                 return Answer(ballot.decision, fallback_reason=f"{FALLBACK_SENTINEL}-{me}")

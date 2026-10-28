@@ -18,13 +18,21 @@ from mm.orchestrator.log import EventLog, EventObserver
 from mm.orchestrator.narrator import NARRATOR
 from mm.orchestrator.phases.dawn import run_dawn
 from mm.orchestrator.phases.discussion import run_discussion
+from mm.orchestrator.phases.dusk import run_dusk
 from mm.orchestrator.phases.night import run_night
 from mm.orchestrator.phases.showdown import run_showdown
 from mm.orchestrator.phases.vote import run_vote
 
 PhaseRunner = Callable[["Game"], Awaitable[None]]
 
-DAY: tuple[PhaseRunner, ...] = (run_dawn, run_discussion, run_showdown, run_vote, run_night)
+DAY: tuple[PhaseRunner, ...] = (
+    run_dawn,
+    run_discussion,
+    run_showdown,
+    run_vote,
+    run_dusk,
+    run_night,
+)
 """One Day, in order, with a check for a winner after each Phase. A Phase in which
 someone dies checks `Game.decided` itself, so nobody acts once the game is won."""
 
@@ -114,18 +122,29 @@ class Game:
         return await self._ask(self._stamp(request), answer)
 
     async def decide_all[D: Decision](
-        self, requests: Sequence[DecisionRequest], answer: type[D]
+        self,
+        requests: Sequence[DecisionRequest],
+        answer: type[D],
+        pending: Sequence[EventPayload] = (),
     ) -> list[Decided[D]]:
-        """Ask several Residents at once. Answers come back in the order they were asked."""
+        """Ask several Residents at once. Answers come back in the order they were asked.
+
+        `pending` is what has been said but not appended yet; each Resident still
+        perceives only the part of it their visibility allows.
+        """
         stamped = [self._stamp(request) for request in requests]
-        return list(await asyncio.gather(*(self._ask(request, answer) for request in stamped)))
+        heard = [self.log.unlogged(payload) for payload in pending]
+        asked = (self._ask(request, answer, heard) for request in stamped)
+        return list(await asyncio.gather(*asked))
 
     def _stamp(self, request: DecisionRequest) -> DecisionRequest:
         self._decisions_asked += 1
         return replace(request, id=f"d{self._decisions_asked}")
 
-    async def _ask[D: Decision](self, request: DecisionRequest, answer: type[D]) -> Decided[D]:
-        view = perceived_by(self.log.events, request.resident)
+    async def _ask[D: Decision](
+        self, request: DecisionRequest, answer: type[D], heard: Sequence[Event] = ()
+    ) -> Decided[D]:
+        view = perceived_by([*self.log.events, *heard], request.resident)
         reply = await self.brains[request.resident].decide(request, view)
         decision = reply.decision
         if not isinstance(decision, answer):

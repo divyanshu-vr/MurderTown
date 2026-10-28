@@ -86,6 +86,68 @@
       "title": "BidPlaced",
       "type": "object"
     },
+    "ConversationMessagePosted": {
+      "additionalProperties": false,
+      "description": "One message in a Conversation, heard only by the two Residents in it.",
+      "properties": {
+        "type": {
+          "const": "conversation_message_posted",
+          "default": "conversation_message_posted",
+          "type": "string"
+        },
+        "speaker": {
+          "type": "string"
+        },
+        "partner": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "ends_conversation": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "speaker",
+        "partner",
+        "text",
+        "ends_conversation"
+      ],
+      "title": "ConversationMessagePosted",
+      "type": "object"
+    },
+    "ConversationStarted": {
+      "additionalProperties": false,
+      "description": "Two Residents slip away to talk. Everyone sees that they met, but not who asked whom.",
+      "properties": {
+        "type": {
+          "const": "conversation_started",
+          "default": "conversation_started",
+          "type": "string"
+        },
+        "pair": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "pair"
+      ],
+      "title": "ConversationStarted",
+      "type": "object"
+    },
     "DecisionFellBack": {
       "additionalProperties": false,
       "description": "A decision source could not give a usable answer, so a safe default was used instead.",
@@ -126,7 +188,9 @@
         "kill_vote",
         "protect",
         "investigate",
-        "recap"
+        "recap",
+        "dusk_intent",
+        "conversation_message"
       ],
       "title": "DecisionKind",
       "type": "string"
@@ -173,6 +237,46 @@
       "title": "DenMessagePosted",
       "type": "object"
     },
+    "DuskIntentChosen": {
+      "additionalProperties": false,
+      "description": "What a Resident means to do at Dusk: talk, wander or do a chore. Only they know.",
+      "properties": {
+        "type": {
+          "const": "dusk_intent_chosen",
+          "default": "dusk_intent_chosen",
+          "type": "string"
+        },
+        "resident": {
+          "type": "string"
+        },
+        "activity": {
+          "enum": [
+            "talk",
+            "wander",
+            "chore"
+          ],
+          "type": "string"
+        },
+        "partners": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "topic": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "resident",
+        "activity",
+        "partners",
+        "topic"
+      ],
+      "title": "DuskIntentChosen",
+      "type": "object"
+    },
     "Effort": {
       "description": "How hard the model thinks before answering: more effort, slower and dearer answers.",
       "enum": [
@@ -216,8 +320,11 @@
               "attack_thwarted": "#/$defs/AttackThwarted",
               "ballot_cast": "#/$defs/BallotCast",
               "bid_placed": "#/$defs/BidPlaced",
+              "conversation_message_posted": "#/$defs/ConversationMessagePosted",
+              "conversation_started": "#/$defs/ConversationStarted",
               "decision_fell_back": "#/$defs/DecisionFellBack",
               "den_message_posted": "#/$defs/DenMessagePosted",
+              "dusk_intent_chosen": "#/$defs/DuskIntentChosen",
               "game_ended": "#/$defs/GameEnded",
               "game_started": "#/$defs/GameStarted",
               "kill_vote_cast": "#/$defs/KillVoteCast",
@@ -291,6 +398,15 @@
             },
             {
               "$ref": "#/$defs/RecapNarrated"
+            },
+            {
+              "$ref": "#/$defs/DuskIntentChosen"
+            },
+            {
+              "$ref": "#/$defs/ConversationStarted"
+            },
+            {
+              "$ref": "#/$defs/ConversationMessagePosted"
             },
             {
               "$ref": "#/$defs/ReflectionWritten"
