@@ -13,8 +13,8 @@ from opentelemetry.sdk.trace import ReadableSpan
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from opentelemetry.trace import NoOpTracerProvider
 
-from mm.agents import AgentSettings, ModelCall, llm_agents
-from mm.engine import GameConfig
+from mm.agents import ModelCall, llm_agents
+from mm.engine import GameConfig, PlayedBy
 from mm.engine.decisions import DecisionKind
 from mm.llm import ModelReply, ModelRequest
 from mm.observability import tracing
@@ -46,7 +46,7 @@ async def traced_game(exporter: InMemorySpanExporter, model: FakeModel) -> Trace
     async def record(call: ModelCall) -> None:
         calls.append(call)
 
-    agents = llm_agents(model, AgentSettings(), record, CONFIG.seed)
+    agents = llm_agents(model, PlayedBy(), record, CONFIG.seed)
     result = await play_game(CONFIG, agents, game_id="game-one")
     spans = list(exporter.get_finished_spans())
     decisions = [span for span in spans if span.name.startswith("decision.")]

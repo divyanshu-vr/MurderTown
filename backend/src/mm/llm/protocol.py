@@ -8,18 +8,9 @@ the tokens a call used; its cost comes from the one price table (`prices.py`).
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from enum import StrEnum
 from typing import Any, Literal, Protocol
 
-
-class Effort(StrEnum):
-    """How hard the model thinks before answering: more effort, slower and dearer answers."""
-
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    MAX = "max"
-
+from mm.engine import Effort
 
 Outcome = Literal["ok", "refusal", "timeout", "error"]
 
@@ -30,11 +21,19 @@ CALL_TIMEOUT_S = 90.0
 @dataclass(frozen=True)
 class ModelRequest:
     system: str
-    prompt: str
+    memory: str
+    """What the Resident remembers: stable within a Phase, so a provider may cache it."""
+    task: str
+    """What to decide now."""
     schema: Mapping[str, Any]
     """The JSON Schema the answer must match."""
     model: str
     effort: Effort
+
+    @property
+    def prompt(self) -> str:
+        """The memory and the task as one message, for providers that take a single one."""
+        return f"{self.memory}\n\n{self.task}"
 
 
 @dataclass(frozen=True)

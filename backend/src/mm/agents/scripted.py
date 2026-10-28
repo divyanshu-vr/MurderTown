@@ -14,7 +14,7 @@ from collections.abc import Sequence
 from random import Random
 
 from mm.agents.answers import ANSWERS
-from mm.agents.brain import Brain, BrainFactory
+from mm.agents.brain import Brain, BrainFactory, own_random
 from mm.engine import Resident, Role
 from mm.engine.decisions import (
     Answer,
@@ -220,6 +220,6 @@ def scripted_bots(seed: int) -> BrainFactory:
     """A factory giving every Resident its own deterministic bot."""
 
     def make(resident: Resident) -> Brain:
-        return ScriptedBot(Random(f"{seed}:{resident.name}"))
+        return ScriptedBot(own_random(seed, resident))
 
     return make

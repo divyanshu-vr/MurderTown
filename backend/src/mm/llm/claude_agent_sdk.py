@@ -11,13 +11,11 @@ Anthropic's terms allow subscription use for the subscriber's own, ordinary
 use only, so this provider is for games the Host runs and watches themselves.
 """
 
-import asyncio
 import json
 import os
 import shutil
 import subprocess
 import tempfile
-import time
 from collections.abc import AsyncGenerator
 from contextlib import aclosing
 from dataclasses import dataclass, replace
@@ -35,6 +33,7 @@ from claude_agent_sdk import (
     query,
 )
 
+from mm.llm.calling import CallLimits
 from mm.llm.protocol import CALL_TIMEOUT_S, ModelReply, ModelRequest, Usage
 
 ISOLATION_ENV = {
@@ -113,20 +112,11 @@ class ClaudeAgentSDKProvider:
         require_subscription_login(self.cli)
         self.sandbox = Path(tempfile.gettempdir()) / "murdertown-agent-sandbox"
         self.sandbox.mkdir(exist_ok=True)
-        self.timeout_s = timeout_s
-        self._slots = asyncio.Semaphore(concurrency)
+        self.limits = CallLimits(concurrency, timeout_s)
         self.last_session: SessionFacts | None = None
 
     async def complete(self, request: ModelRequest) -> ModelReply:
-        async with self._slots:
-            started = time.monotonic()
-            try:
-                async with asyncio.timeout(self.timeout_s):
-                    reply = await self._ask(request)
-            except TimeoutError:
-                no_answer = f"no answer within {self.timeout_s:.0f} seconds"
-                reply = ModelReply.failure(no_answer, outcome="timeout")
-            return replace(reply, latency_ms=int((time.monotonic() - started) * 1000))
+        return await self.limits.run(lambda: self._ask(request))
 
     def _options(self, request: ModelRequest) -> ClaudeAgentOptions:
         return ClaudeAgentOptions(

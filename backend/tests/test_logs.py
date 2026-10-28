@@ -8,8 +8,8 @@ from typing import Any
 
 import pytest
 
-from mm.agents import AgentSettings, ModelCall, llm_agents
-from mm.engine import GameConfig
+from mm.agents import ModelCall, llm_agents
+from mm.engine import GameConfig, PlayedBy
 from mm.observability.logs import configure_logging
 from mm.orchestrator import play_game
 from tests.support import FakeModel
@@ -31,7 +31,7 @@ async def test_every_line_says_which_game_day_phase_and_resident_it_is_about(
     async def record(call: ModelCall) -> None:
         pass
 
-    agents = llm_agents(FakeModel(), AgentSettings(), record, CONFIG.seed)
+    agents = llm_agents(FakeModel(), PlayedBy(), record, CONFIG.seed)
     await play_game(CONFIG, agents, game_id="game-one")
 
     lines: list[dict[str, Any]] = [json.loads(line) for line in logged.getvalue().splitlines()]

@@ -19,7 +19,7 @@ Tracing is off until you choose where traces go, so tests and quick local games 
 
 1. Create a project at https://cloud.langfuse.com and copy its public and secret API keys into `MM_LANGFUSE_PUBLIC_KEY` and `MM_LANGFUSE_SECRET_KEY` (set `MM_LANGFUSE_HOST` for the US region or a self-hosted Langfuse).
 2. To link the inspector to Langfuse, set `VITE_TRACE_URL=https://cloud.langfuse.com/project/<project id>/traces/{traceId}` in `frontend/.env.local`. The project id is in the project's URL.
-3. Play a live game: `uv run mm play --brains claude --max-days 1`. Traces arrive in real time (spans are sent with the `x-langfuse-ingestion-version: 4` header).
+3. Play a live game: `uv run mm play --provider claude --max-days 1`. Traces arrive in real time (spans are sent with the `x-langfuse-ingestion-version: 4` header).
 
 ### Jaeger, locally
 

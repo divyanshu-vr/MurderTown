@@ -55,7 +55,7 @@ def of_kind(asked: Requests, kind: DecisionKind) -> list[DecisionRequest]:
 
 async def six_seats() -> tuple[int, int, int, int, int, int]:
     """In the six-Resident game: the Murderer, Doctor, Detective, Sheriff and two Civilians."""
-    roles = await seats_by_role(SIX)
+    roles = seats_by_role(SIX)
     (murderer,), (doctor,), (detective,) = (
         roles[Role.MURDERER],
         roles[Role.DOCTOR],
@@ -69,7 +69,7 @@ async def six_seats() -> tuple[int, int, int, int, int, int]:
 
 
 async def test_murderers_speak_in_the_den_one_after_another_each_hearing_the_last() -> None:
-    murderers = (await seats_by_role(CONFIG))[Role.MURDERER]
+    murderers = (seats_by_role(CONFIG))[Role.MURDERER]
     asked, events = await requests_and_log(CONFIG, puppets())
 
     den = [(request, view) for request, view in asked if request.kind is DecisionKind.DEN_MESSAGE]
@@ -105,7 +105,7 @@ class SplitDen(Puppet):
 
 async def test_the_most_chosen_resident_becomes_the_victim() -> None:
     config = GameConfig(residents=12, murderers=3, max_days=1, seed=4, open_floor_seconds=None)
-    roles = await seats_by_role(config)
+    roles = seats_by_role(config)
     one, two, three = roles[Role.MURDERER]
     first, second = roles[Role.CIVILIAN][:2]
     split = SplitDen(kill_by_murderer={one: first, two: first, three: second})
@@ -120,7 +120,7 @@ async def test_a_tied_kill_vote_is_drawn_the_same_way_for_the_same_seed() -> Non
     winners: set[int] = set()
     for seed in range(40):
         config = CONFIG.model_copy(update={"seed": seed, "max_days": 1})
-        roles = await seats_by_role(config)
+        roles = seats_by_role(config)
         one, two = roles[Role.MURDERER]
         candidates = roles[Role.CIVILIAN][:2]
         split = SplitDen(kill_by_murderer={one: candidates[0], two: candidates[1]})
@@ -140,7 +140,7 @@ async def test_a_tied_kill_vote_is_drawn_the_same_way_for_the_same_seed() -> Non
 @pytest.mark.parametrize("names_the_saved", [True, False])
 async def test_a_protected_victim_survives_and_dawn_says_so(names_the_saved: bool) -> None:
     config = CONFIG.model_copy(update={"dawn_names_the_saved": names_the_saved})
-    civilian = (await seats_by_role(config))[Role.CIVILIAN][0]
+    civilian = (seats_by_role(config))[Role.CIVILIAN][0]
 
     result = await play_game(config, puppets(kills={1: civilian}, protects={1: civilian}))
 
@@ -152,7 +152,7 @@ async def test_a_protected_victim_survives_and_dawn_says_so(names_the_saved: boo
 
 async def test_the_doctor_never_protects_one_resident_twice_running_nor_themselves_twice() -> None:
     config = CONFIG.model_copy(update={"max_days": 3})
-    roles = await seats_by_role(config)
+    roles = seats_by_role(config)
     (doctor,), (detective,) = roles[Role.DOCTOR], roles[Role.DETECTIVE]
     civilians, (murderer, _) = roles[Role.CIVILIAN], roles[Role.MURDERER]
     nights = {"kills": {1: civilians[0], 2: civilians[1], 3: civilians[2]},
@@ -195,7 +195,7 @@ async def investigated_wrongly(config: GameConfig, target_role: Role, games: int
     wrong = 0
     for seed in range(games):
         seeded = config.model_copy(update={"seed": seed})
-        target = (await seats_by_role(seeded))[target_role][0]
+        target = (seats_by_role(seeded))[target_role][0]
         result = await play_game(seeded, puppets(investigations={1: target}))
         (found,) = payloads(result.events, ResidentInvestigated)
         wrong += found.found_murderer != (target_role is Role.MURDERER)
@@ -224,7 +224,7 @@ async def test_a_detective_with_perfect_accuracy_is_never_wrong() -> None:
 
 
 async def test_dawn_announces_the_news_then_the_recap_then_residents_reflect() -> None:
-    civilian = (await seats_by_role(CONFIG))[Role.CIVILIAN][0]
+    civilian = (seats_by_role(CONFIG))[Role.CIVILIAN][0]
 
     result = await play_game(CONFIG, puppets(kills={1: civilian}))
 

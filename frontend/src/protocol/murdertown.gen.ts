@@ -19,7 +19,7 @@ export type DecisionKind =
   | "dusk_intent"
   | "conversation_message";
 /**
- * How hard the model thinks before answering: more effort, slower and dearer answers.
+ * How hard a Resident's Agent thinks before answering: more effort, slower and dearer.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "Effort".
@@ -31,6 +31,10 @@ export type Effort = "low" | "medium" | "high" | "max";
  */
 export type Phase = "setup" | "dawn" | "discussion" | "showdown" | "vote" | "dusk" | "night" | "ended";
 /**
+ * How hard a Resident's Agent thinks before answering: more effort, slower and dearer.
+ */
+export type Effort1 = "low" | "medium" | "high" | "max";
+/**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "Role".
  */
@@ -40,6 +44,10 @@ export type Role = "murderer" | "doctor" | "detective" | "sheriff" | "civilian";
  * via the `definition` "Side".
  */
 export type Side = "town" | "murderers";
+/**
+ * How hard a Resident's Agent thinks before answering: more effort, slower and dearer.
+ */
+export type Effort2 = "low" | "medium" | "high" | "max";
 
 export interface MurderTownProtocol {
   [k: string]: unknown;
@@ -254,6 +262,40 @@ export interface GameConfig {
   detective_accuracy: number;
   dawn_names_the_saved: boolean;
   seed: number;
+  lineup: Lineup;
+}
+/**
+ * Who plays each Resident. A seat's own choice wins, then its side's, then everyone's;
+ * the narrator follows everyone's.
+ */
+export interface Lineup {
+  everyone: PlayedBy;
+  murderers: PlayedBy1 | null;
+  town: PlayedBy1 | null;
+  seats: {
+    [k: string]: PlayedBy1;
+  };
+}
+/**
+ * Who plays a Resident: an Agent on a provider's model, or (`"scripted"`) a scripted bot.
+ * The default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.
+ */
+export interface PlayedBy {
+  provider: string;
+  model: string;
+  effort: Effort1;
+}
+/**
+ * Who plays a Resident: an Agent on a provider's model, or (`"scripted"`) a scripted bot.
+ * The default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "PlayedBy-Output".
+ */
+export interface PlayedBy1 {
+  provider: string;
+  model: string;
+  effort: Effort1;
 }
 /**
  * A character in the town. The seat fixes their house and their place in every ordering.
@@ -545,6 +587,7 @@ export interface ModelCall {
   output_tokens: number;
   cache_read_tokens: number;
   cache_write_tokens: number;
+  cache_write_1h_tokens?: number;
   cost_usd: number;
   latency_ms: number;
   trace_id: string | null;
@@ -566,6 +609,40 @@ export interface GameConfigInput {
   detective_accuracy?: number;
   dawn_names_the_saved?: boolean;
   seed?: number;
+  lineup?: LineupInput;
+}
+/**
+ * Who plays each Resident. A seat's own choice wins, then its side's, then everyone's;
+ * the narrator follows everyone's.
+ */
+export interface LineupInput {
+  everyone?: PlayedByInput;
+  murderers?: PlayedByInput1 | null;
+  town?: PlayedByInput1 | null;
+  seats?: {
+    [k: string]: PlayedByInput1;
+  };
+}
+/**
+ * Who plays a Resident: an Agent on a provider's model, or (`"scripted"`) a scripted bot.
+ * The default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.
+ */
+export interface PlayedByInput {
+  provider?: string;
+  model?: string;
+  effort?: Effort2;
+}
+/**
+ * Who plays a Resident: an Agent on a provider's model, or (`"scripted"`) a scripted bot.
+ * The default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "PlayedBy-Input".
+ */
+export interface PlayedByInput1 {
+  provider?: string;
+  model?: string;
+  effort?: Effort2;
 }
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
@@ -593,6 +670,36 @@ export interface JournalEntry {
   day: number;
   phase: Phase;
   text: string;
+}
+/**
+ * Who plays each Resident. A seat's own choice wins, then its side's, then everyone's;
+ * the narrator follows everyone's.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Lineup-Input".
+ */
+export interface LineupInput1 {
+  everyone?: PlayedByInput;
+  murderers?: PlayedByInput1 | null;
+  town?: PlayedByInput1 | null;
+  seats?: {
+    [k: string]: PlayedByInput1;
+  };
+}
+/**
+ * Who plays each Resident. A seat's own choice wins, then its side's, then everyone's;
+ * the narrator follows everyone's.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Lineup-Output".
+ */
+export interface Lineup1 {
+  everyone: PlayedBy;
+  murderers: PlayedBy1 | null;
+  town: PlayedBy1 | null;
+  seats: {
+    [k: string]: PlayedBy1;
+  };
 }
 /**
  * What a Resident carries in mind from one decision to the next.

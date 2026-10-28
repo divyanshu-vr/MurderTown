@@ -1,8 +1,8 @@
 """Language-model providers behind one small interface."""
 
+from mm.engine import Effort
 from mm.llm.protocol import (
     CALL_TIMEOUT_S,
-    Effort,
     ModelProvider,
     ModelReply,
     ModelRequest,

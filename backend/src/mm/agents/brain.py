@@ -1,6 +1,7 @@
 """The decision-source interface: anything that can play a Resident."""
 
 from collections.abc import Callable, Sequence
+from random import Random
 from typing import Protocol
 
 from mm.engine import Resident
@@ -32,3 +33,8 @@ class ModelFailureError(Exception):
 
 
 BrainFactory = Callable[[Resident], Brain]
+
+
+def own_random(seed: int, resident: Resident) -> Random:
+    """A Resident's own draws, the same in every run of a game with this seed."""
+    return Random(f"{seed}:{resident.name}")

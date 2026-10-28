@@ -51,7 +51,7 @@ class Shown:
     """The Resident's own role; the narrator has none."""
 
     def text(self) -> str:
-        return self.prompt.system + "\n" + self.prompt.user_message()
+        return "\n".join((self.prompt.system, self.prompt.memory, self.prompt.task))
 
 
 class Spy:

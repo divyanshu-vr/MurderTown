@@ -100,7 +100,11 @@ async def readyz(services: ServicesDep) -> dict[str, str]:
 
 @router.post("/games", status_code=201)
 async def create_game(config: GameConfig, services: ServicesDep) -> GameCreated:
-    return GameCreated(id=await services.games.start(config))
+    """Start a game; one whose lineup cannot be played is refused, and nothing is stored."""
+    try:
+        return GameCreated(id=await services.games.start(config))
+    except ValueError as cannot_play:
+        raise HTTPException(status_code=422, detail=str(cannot_play)) from cannot_play
 
 
 @router.get("/games/{game_id}")

@@ -204,6 +204,10 @@ _Avoid_: access level, permission
 What a game's model calls would cost at the Claude API's list prices, whichever provider made them. On the Host's subscription the calls cost nothing extra, so this is how a game's use is measured.
 _Avoid_: price, bill, spend
 
+**Lineup**:
+Who plays each Resident: a scripted bot, or an Agent on a given provider, model and effort, chosen for everyone, for each side, or for a single seat.
+_Avoid_: roster (the list of Residents), cast, players
+
 **Cost meter**:
 A Spectator's view of a game's Equivalent cost, model calls, tokens and how much of each prompt was read from the cache, in all and for each Resident.
 _Avoid_: budget, spending panel

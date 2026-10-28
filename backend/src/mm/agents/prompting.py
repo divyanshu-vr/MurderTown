@@ -129,10 +129,6 @@ class Prompt:
     memory: str
     task: str
 
-    def user_message(self, task: str | None = None) -> str:
-        """The memory and the task, as one message. A retry passes an amended task."""
-        return f"{self.memory}\n\n{self.task if task is None else task}"
-
 
 @cache
 def template(path: str) -> Template:

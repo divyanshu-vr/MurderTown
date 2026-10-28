@@ -14,14 +14,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from mm.agents import (
-    AgentSettings,
     BrainFactory,
     CallRecorder,
     ModelCall,
     llm_agents,
     scripted_bots,
 )
-from mm.engine import GameConfig
+from mm.engine import GameConfig, PlayedBy
 from mm.engine.decisions import DecisionKind
 from mm.engine.events import (
     BallotCast,
@@ -215,7 +214,7 @@ def agents(
     crashes_after: Callable[[ModelCall], bool] = never,
 ) -> BrainFactory:
     record = process.record(crashes_after)
-    return llm_agents(model, AgentSettings(), record, CONFIG.seed, recorded=recorded)
+    return llm_agents(model, PlayedBy(), record, CONFIG.seed, recorded=recorded)
 
 
 async def crash_and_resume(

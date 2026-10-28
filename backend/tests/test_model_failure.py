@@ -274,7 +274,7 @@ INIT = SystemMessage(
 )
 
 REQUEST = ModelRequest(
-    system="s", prompt="p", schema={}, model="claude-haiku-5-5", effort=Effort.LOW
+    system="s", memory="m", task="t", schema={}, model="claude-haiku-5-5", effort=Effort.LOW
 )
 
 

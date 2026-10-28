@@ -5,7 +5,7 @@ import io
 import logging
 import os
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -15,7 +15,8 @@ from fastapi.testclient import TestClient
 from sqlalchemy import text
 
 from mm.api import Settings, create_app
-from mm.api.live_games import BrainsFor, scripted_brains
+from mm.api.live_games import BrainsFor
+from mm.llm import ModelProvider
 from mm.observability.logs import configure_logging
 from mm.persistence import open_database
 
@@ -47,11 +48,19 @@ async def emptied(url: str) -> None:
 
 @contextmanager
 def serving(
-    database_url: str, brains_for: BrainsFor = scripted_brains, **settings: Any
+    database_url: str,
+    brains_for: BrainsFor | None = None,
+    providers: Mapping[str, ModelProvider] | None = None,
+    **settings: Any,
 ) -> Iterator[TestClient]:
-    """The API on its own database, with Residents played by `brains_for`. Leaving the
-    block shuts the server down, as stopping `mm serve` would."""
-    app = create_app(Settings(database_url=database_url, **settings), brains_for=brains_for)
+    """The API on its own database, with Residents played by `brains_for`, or as each game's
+    lineup says on `providers` (no API keys: a game the lineup puts on a model is refused).
+    Leaving the block shuts the server down, as stopping `mm serve` would."""
+    app = create_app(
+        Settings(database_url=database_url, **settings),
+        brains_for=brains_for,
+        providers=providers if providers is not None else {},
+    )
     with TestClient(app) as test_client:
         yield test_client
 

@@ -7,9 +7,8 @@ import os
 
 import pytest
 
-from mm.agents import AgentSettings
 from mm.agents.answers import answer_schema, read_answer
-from mm.engine import GameConfig
+from mm.engine import GameConfig, PlayedBy
 from mm.engine.decisions import DecisionKind, Statement
 from mm.llm import ModelRequest
 from mm.llm.prices import equivalent_cost
@@ -34,10 +33,11 @@ async def first_two_decisions() -> tuple[Shown, Shown]:
 
 
 def request_for(seen: Shown) -> ModelRequest:
-    settings = AgentSettings()
+    settings = PlayedBy()
     return ModelRequest(
         system=seen.prompt.system,
-        prompt=seen.prompt.user_message(),
+        memory=seen.prompt.memory,
+        task=seen.prompt.task,
         schema=answer_schema(seen.request.kind),
         model=settings.model,
         effort=settings.effort,
@@ -62,7 +62,7 @@ async def test_an_isolated_session_answers_on_the_subscription_and_caches_its_pr
     assert session.mcp_servers == ()
     assert repeat.usage.cache_read_tokens > 0
     for name, reply in (("first", first), ("repeat", repeat)):
-        cost = equivalent_cost(AgentSettings.model, reply.usage)
+        cost = equivalent_cost(PlayedBy.model, reply.usage)
         print(f"\n{name}: {reply.latency_ms} ms, {reply.usage}, ${cost:.6f}")
 
 

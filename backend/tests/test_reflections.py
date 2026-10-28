@@ -86,7 +86,7 @@ async def test_every_event_a_decision_caused_names_that_decision() -> None:
 
 async def test_nobody_reflects_once_the_game_is_decided() -> None:
     six = GameConfig(residents=6, murderers=1, max_days=3, seed=2)
-    (murderer,) = (await seats_by_role(six))[Role.MURDERER]
+    (murderer,) = (seats_by_role(six))[Role.MURDERER]
     banish_the_murderer = {seat: murderer for seat in range(6) if seat != murderer}
 
     result = await play_game(six, puppets({1: banish_the_murderer}))

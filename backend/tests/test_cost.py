@@ -11,8 +11,8 @@ from collections.abc import Iterator, Sequence
 import pytest
 from fastapi.testclient import TestClient
 
-from mm.agents import AgentSettings, BrainFactory, CallRecorder, Cost, ModelCall, llm_agents
-from mm.engine import GameConfig
+from mm.agents import BrainFactory, CallRecorder, Cost, ModelCall, llm_agents
+from mm.engine import GameConfig, PlayedBy
 from mm.engine.decisions import DecisionKind
 from mm.llm import ModelReply, ModelRequest, Usage
 from mm.llm.prices import equivalent_cost
@@ -62,7 +62,7 @@ def test_agents_refuse_a_model_with_no_price_before_the_game_starts() -> None:
     async def record(call: ModelCall) -> None: ...
 
     with pytest.raises(ValueError, match="claude-imaginary-1"):
-        llm_agents(FakeModel(), AgentSettings(model="claude-imaginary-1"), record, seed=1)
+        llm_agents(FakeModel(), PlayedBy(model="claude-imaginary-1"), record, seed=1)
 
 
 def varied_usage(request: ModelRequest) -> ModelReply:
@@ -98,7 +98,7 @@ def recorded(database_url: str) -> Iterator[tuple[TestClient, list[ModelCall]]]:
             calls.append(call)
             await record(call)
 
-        return llm_agents(FakeModel(varied_usage), AgentSettings(), keep, config.seed)
+        return llm_agents(FakeModel(varied_usage), PlayedBy(), keep, config.seed)
 
     with serving(database_url, agents) as client:
         yield client, calls

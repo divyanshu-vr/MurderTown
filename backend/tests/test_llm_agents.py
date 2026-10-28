@@ -8,9 +8,9 @@ from dataclasses import dataclass, replace
 
 import pytest
 
-from mm.agents import AgentSettings, ModelCall, llm_agents
+from mm.agents import ModelCall, llm_agents
 from mm.agents.prompting import prompt_version
-from mm.engine import GameConfig, Role
+from mm.engine import GameConfig, PlayedBy, Role
 from mm.engine.decisions import DecisionKind
 from mm.engine.events import (
     BallotCast,
@@ -68,7 +68,7 @@ async def play_with(model: FakeModel, config: GameConfig = CONFIG) -> Played:
         if event.decision_id:
             timeline.append(f"event {event.decision_id}")
 
-    agents = llm_agents(model, AgentSettings(), record, seed=config.seed)
+    agents = llm_agents(model, PlayedBy(), record, seed=config.seed)
     result = await play_game(config, agents, observers=[observe])
     return Played(result, calls, timeline)
 

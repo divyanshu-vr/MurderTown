@@ -359,7 +359,7 @@
       "type": "object"
     },
     "Effort": {
-      "description": "How hard the model thinks before answering: more effort, slower and dearer answers.",
+      "description": "How hard a Resident's Agent thinks before answering: more effort, slower and dearer.",
       "enum": [
         "low",
         "medium",
@@ -683,6 +683,19 @@
         "seed": {
           "default": 0,
           "type": "integer"
+        },
+        "lineup": {
+          "$ref": "#/$defs/Lineup-Input",
+          "default": {
+            "everyone": {
+              "effort": "low",
+              "model": "claude-haiku-5-5",
+              "provider": "scripted"
+            },
+            "murderers": null,
+            "town": null,
+            "seats": {}
+          }
         }
       },
       "title": "GameConfigInput",
@@ -761,6 +774,19 @@
         "seed": {
           "default": 0,
           "type": "integer"
+        },
+        "lineup": {
+          "$ref": "#/$defs/Lineup-Output",
+          "default": {
+            "everyone": {
+              "effort": "low",
+              "model": "claude-haiku-5-5",
+              "provider": "scripted"
+            },
+            "murderers": null,
+            "town": null,
+            "seats": {}
+          }
         }
       },
       "required": [
@@ -775,7 +801,8 @@
         "sheriff_shoots_at",
         "detective_accuracy",
         "dawn_names_the_saved",
-        "seed"
+        "seed",
+        "lineup"
       ],
       "title": "GameConfig",
       "type": "object"
@@ -957,6 +984,102 @@
       "title": "LastWordsSpoken",
       "type": "object"
     },
+    "Lineup-Input": {
+      "additionalProperties": false,
+      "description": "Who plays each Resident. A seat's own choice wins, then its side's, then everyone's;\nthe narrator follows everyone's.",
+      "properties": {
+        "everyone": {
+          "$ref": "#/$defs/PlayedBy-Input",
+          "default": {
+            "provider": "scripted",
+            "model": "claude-haiku-5-5",
+            "effort": "low"
+          }
+        },
+        "murderers": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlayedBy-Input"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "town": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlayedBy-Input"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "seats": {
+          "additionalProperties": {
+            "$ref": "#/$defs/PlayedBy-Input"
+          },
+          "default": {},
+          "type": "object"
+        }
+      },
+      "title": "LineupInput",
+      "type": "object"
+    },
+    "Lineup-Output": {
+      "additionalProperties": false,
+      "description": "Who plays each Resident. A seat's own choice wins, then its side's, then everyone's;\nthe narrator follows everyone's.",
+      "properties": {
+        "everyone": {
+          "$ref": "#/$defs/PlayedBy-Output",
+          "default": {
+            "provider": "scripted",
+            "model": "claude-haiku-5-5",
+            "effort": "low"
+          }
+        },
+        "murderers": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlayedBy-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "town": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlayedBy-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "seats": {
+          "additionalProperties": {
+            "$ref": "#/$defs/PlayedBy-Output"
+          },
+          "default": {},
+          "type": "object"
+        }
+      },
+      "required": [
+        "everyone",
+        "murderers",
+        "town",
+        "seats"
+      ],
+      "title": "Lineup",
+      "type": "object"
+    },
     "Memory": {
       "description": "What a Resident carries in mind from one decision to the next.",
       "properties": {
@@ -1108,6 +1231,10 @@
         "cache_write_tokens": {
           "type": "integer"
         },
+        "cache_write_1h_tokens": {
+          "default": 0,
+          "type": "integer"
+        },
         "cost_usd": {
           "type": "number"
         },
@@ -1226,6 +1353,51 @@
         "phase"
       ],
       "title": "PhaseStarted",
+      "type": "object"
+    },
+    "PlayedBy-Input": {
+      "additionalProperties": false,
+      "description": "Who plays a Resident: an Agent on a provider's model, or (`\"scripted\"`) a scripted bot.\nThe default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.",
+      "properties": {
+        "provider": {
+          "default": "claude",
+          "type": "string"
+        },
+        "model": {
+          "default": "claude-haiku-5-5",
+          "type": "string"
+        },
+        "effort": {
+          "$ref": "#/$defs/Effort",
+          "default": "low"
+        }
+      },
+      "title": "PlayedByInput",
+      "type": "object"
+    },
+    "PlayedBy-Output": {
+      "additionalProperties": false,
+      "description": "Who plays a Resident: an Agent on a provider's model, or (`\"scripted\"`) a scripted bot.\nThe default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set.",
+      "properties": {
+        "provider": {
+          "default": "claude",
+          "type": "string"
+        },
+        "model": {
+          "default": "claude-haiku-5-5",
+          "type": "string"
+        },
+        "effort": {
+          "$ref": "#/$defs/Effort",
+          "default": "low"
+        }
+      },
+      "required": [
+        "provider",
+        "model",
+        "effort"
+      ],
+      "title": "PlayedBy",
       "type": "object"
     },
     "RecapNarrated": {

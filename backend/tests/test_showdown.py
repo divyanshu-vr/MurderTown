@@ -25,7 +25,7 @@ def deaths(events: list[Event]) -> list[tuple[str, str]]:
 
 
 async def test_a_sheriff_who_hits_a_murderer_kills_only_the_murderer() -> None:
-    roles = await seats_by_role(CONFIG)
+    roles = seats_by_role(CONFIG)
     murderer = roles[Role.MURDERER][0]
 
     result = await play_game(CONFIG, puppets(shots={1: murderer}))
@@ -37,7 +37,7 @@ async def test_a_sheriff_who_hits_a_murderer_kills_only_the_murderer() -> None:
 
 async def test_shooting_the_last_murderer_wins_the_game_before_the_vote() -> None:
     config = CONFIG.model_copy(update={"residents": 6, "murderers": 1})
-    (murderer,) = (await seats_by_role(config))[Role.MURDERER]
+    (murderer,) = (seats_by_role(config))[Role.MURDERER]
 
     result = await play_game(config, puppets(shots={1: murderer}))
 
@@ -47,7 +47,7 @@ async def test_shooting_the_last_murderer_wins_the_game_before_the_vote() -> Non
 
 
 async def test_a_sheriff_who_hits_a_town_resident_dies_of_the_backfire() -> None:
-    roles = await seats_by_role(CONFIG)
+    roles = seats_by_role(CONFIG)
     (sheriff,) = roles[Role.SHERIFF]
     civilian = roles[Role.CIVILIAN][0]
 
@@ -60,7 +60,7 @@ async def test_a_sheriff_who_hits_a_town_resident_dies_of_the_backfire() -> None
 
 
 async def test_the_bullet_can_be_fired_only_once_per_game() -> None:
-    first, second = (await seats_by_role(CONFIG))[Role.MURDERER]
+    first, second = (seats_by_role(CONFIG))[Role.MURDERER]
 
     result = await play_game(CONFIG, puppets(shots={1: first, 2: second}))
 
@@ -83,7 +83,7 @@ async def test_without_a_sheriff_there_is_no_showdown() -> None:
 
 async def test_the_night_setting_moves_the_shot_from_the_showdown_to_night() -> None:
     config = CONFIG.model_copy(update={"sheriff_shoots_at": "night"})
-    murderer = (await seats_by_role(config))[Role.MURDERER][0]
+    murderer = (seats_by_role(config))[Role.MURDERER][0]
 
     result = await play_game(config, puppets(shots={1: murderer}))
 

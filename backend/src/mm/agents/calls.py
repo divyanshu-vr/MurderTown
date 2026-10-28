@@ -13,7 +13,7 @@ from opentelemetry.trace import Span
 from pydantic import BaseModel, ConfigDict, computed_field
 
 from mm.engine.decisions import DecisionKind
-from mm.llm import Effort, ModelReply, Outcome
+from mm.llm import Effort, ModelReply, Outcome, Usage
 from mm.observability import tracing
 
 CallOutcome = Outcome | Literal["invalid"]
@@ -42,6 +42,8 @@ class ModelCall(BaseModel):
     output_tokens: int
     cache_read_tokens: int
     cache_write_tokens: int
+    cache_write_1h_tokens: int = 0
+    """Of the tokens written to the cache, those kept for an hour, which cost more."""
     cost_usd: float
     """Equivalent cost: what the call would cost at the Claude API's list prices."""
     latency_ms: int
@@ -54,10 +56,19 @@ class ModelCall(BaseModel):
         return self.decision_id, self.attempt
 
     def as_reply(self) -> ModelReply:
-        """The reply this call recorded, to answer a resumed game again without the model.
-        An unusable answer was a usable reply as far as the provider knew."""
+        """The reply this call recorded, to answer a resumed or replayed game again without the
+        model. An unusable answer was a usable reply as far as the provider knew."""
         outcome = "ok" if self.outcome == "invalid" else self.outcome
-        return ModelReply(outcome=outcome, data=self.answer, text=self.raw_text, error=self.problem)
+        usage = Usage(
+            input_tokens=self.input_tokens,
+            output_tokens=self.output_tokens,
+            cache_read_tokens=self.cache_read_tokens,
+            cache_write_5m_tokens=self.cache_write_tokens - self.cache_write_1h_tokens,
+            cache_write_1h_tokens=self.cache_write_1h_tokens,
+        )
+        return ModelReply(
+            outcome=outcome, data=self.answer, text=self.raw_text, error=self.problem, usage=usage
+        )
 
 
 class Cost(BaseModel):

@@ -10,20 +10,19 @@ from outside the game world hidden, because records are shown to Spectators.
 """
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
 from random import Random
 
 import structlog
 
 from mm.agents.answers import ANSWERS, answer_schema, read_answer, scrubbed
-from mm.agents.brain import Brain, BrainFactory, ModelFailureError
+from mm.agents.brain import Brain, BrainFactory, ModelFailureError, own_random
 from mm.agents.calls import CallOutcome, CallRecorder, ModelCall, label_generation
 from mm.agents.prompting import build_prompt, prompt_version, retry_task
-from mm.engine import Resident, Role
+from mm.engine import PlayedBy, Resident, Role
 from mm.engine.decisions import Answer, Decision, DecisionRequest
 from mm.engine.events import Event
 from mm.engine.perception import assignment
-from mm.llm import Effort, ModelProvider, ModelReply, ModelRequest
+from mm.llm import ModelProvider, ModelReply, ModelRequest
 from mm.llm.prices import equivalent_cost, price_of
 from mm.observability import tracing
 
@@ -36,12 +35,6 @@ LOGGED = {"kind", "attempt", "outcome", "input_tokens", "output_tokens", "cache_
 """What a model call's log line says; the prompt and answer stay in the record and the trace."""
 
 
-@dataclass(frozen=True)
-class AgentSettings:
-    model: str = "claude-haiku-5-5"
-    effort: Effort = Effort.LOW
-
-
 Recorded = Mapping[tuple[str, int], ModelCall]
 """Model calls a resumed game had already made, by `ModelCall.key`."""
 
@@ -50,12 +43,13 @@ class LLMBrain:
     def __init__(
         self,
         provider: ModelProvider,
-        settings: AgentSettings,
+        played_by: PlayedBy,
         record: CallRecorder,
         rng: Random,
         recorded: Recorded | None = None,
     ) -> None:
-        self.provider, self.settings, self.record, self.rng = provider, settings, record, rng
+        """`played_by` gives the model and effort; `provider` is the one it names."""
+        self.provider, self.played_by, self.record, self.rng = provider, played_by, record, rng
         self.recorded = recorded or {}
 
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
@@ -64,16 +58,21 @@ class LLMBrain:
         own_role = assigned.role if assigned else None
         problem: str | None = None
         for attempt in range(1, ATTEMPTS + 1):
-            message = prompt.user_message(retry_task(prompt, problem) if problem else None)
+            asked = ModelRequest(
+                system=prompt.system,
+                memory=prompt.memory,
+                task=retry_task(prompt, problem) if problem else prompt.task,
+                schema=answer_schema(request.kind),
+                model=self.played_by.model,
+                effort=self.played_by.effort,
+            )
             if recorded := self.recorded.get((request.id, attempt)):
                 # made before the game stopped, so not asked again; its problem was worked out
                 # from the answer before it was scrubbed, so it is taken as recorded too
                 decision, _, _ = _interpret(request, recorded.as_reply(), own_role)
                 problem, outcome = recorded.problem, recorded.outcome
             else:
-                decision, problem, outcome = await self._attempt(
-                    request, attempt, prompt.system, message, own_role
-                )
+                decision, problem, outcome = await self._attempt(request, attempt, asked, own_role)
             if decision is not None:
                 return Answer(decision)
             if outcome in ("timeout", "error"):
@@ -83,30 +82,17 @@ class LLMBrain:
         return Answer(ANSWERS[request.kind].fallback(request, self.rng), fallback_reason=problem)
 
     async def _attempt(
-        self,
-        request: DecisionRequest,
-        attempt: int,
-        system: str,
-        message: str,
-        own_role: Role | None,
+        self, request: DecisionRequest, attempt: int, asked: ModelRequest, own_role: Role | None
     ) -> tuple[Decision | None, str | None, CallOutcome]:
         """Ask the model once, and record and trace the call before reading its answer."""
         with tracing.tracer().start_as_current_span(f"{request.kind} attempt {attempt}") as span:
-            reply = await self._complete(
-                ModelRequest(
-                    system=system,
-                    prompt=message,
-                    schema=answer_schema(request.kind),
-                    model=self.settings.model,
-                    effort=self.settings.effort,
-                )
-            )
+            reply = await self._complete(asked)
             decision, problem, outcome = _interpret(request, reply, own_role)
             call = self._call(
                 request=request,
                 attempt=attempt,
-                system=system,
-                prompt=message,
+                system=asked.system,
+                prompt=asked.prompt,
                 reply=reply,
                 outcome=outcome,
                 problem=problem,
@@ -142,8 +128,8 @@ class LLMBrain:
             kind=request.kind,
             attempt=attempt,
             provider=self.provider.name,
-            model=self.settings.model,
-            effort=self.settings.effort,
+            model=self.played_by.model,
+            effort=self.played_by.effort,
             prompt_version=prompt_version(),
             system=system,
             prompt=prompt,
@@ -155,7 +141,8 @@ class LLMBrain:
             output_tokens=reply.usage.output_tokens,
             cache_read_tokens=reply.usage.cache_read_tokens,
             cache_write_tokens=reply.usage.cache_write_tokens,
-            cost_usd=equivalent_cost(self.settings.model, reply.usage),
+            cache_write_1h_tokens=reply.usage.cache_write_1h_tokens,
+            cost_usd=equivalent_cost(self.played_by.model, reply.usage),
             latency_ms=reply.latency_ms,
             trace_id=trace_id,
         )
@@ -179,21 +166,21 @@ def _interpret(
 
 def llm_agents(
     provider: ModelProvider,
-    settings: AgentSettings,
+    played_by: PlayedBy,
     record: CallRecorder,
     seed: int,
     recorded: Sequence[ModelCall] = (),
 ) -> BrainFactory:
-    """A factory giving every Resident its own Agent, sharing one provider.
+    """A factory giving every Resident its own Agent on one provider and model.
 
     A model with no price is refused here, before the game starts. A resumed game
     passes the model calls it had `recorded`: those answer again, so no call is made
     twice.
     """
-    price_of(settings.model)
+    price_of(played_by.model)
     by_key = {call.key: call for call in recorded}
 
     def make(resident: Resident) -> Brain:
-        return LLMBrain(provider, settings, record, Random(f"{seed}:{resident.name}"), by_key)
+        return LLMBrain(provider, played_by, record, own_random(seed, resident), by_key)
 
     return make

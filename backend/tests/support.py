@@ -9,10 +9,11 @@ from itertools import count
 from random import Random
 from typing import Any
 
-from mm.agents import AgentSettings, Brain, BrainFactory, CallRecorder, ModelCall, llm_agents
+from mm.agents import Brain, BrainFactory, CallRecorder, ModelCall, llm_agents
 from mm.agents.scripted import ScriptedBot
 from mm.api.live_games import BrainsFor
-from mm.engine import GameConfig, Resident, Role
+from mm.engine import GameConfig, PlayedBy, Resident, Role
+from mm.engine.casting import seated_roles
 from mm.engine.decisions import (
     SKIP,
     Answer,
@@ -25,7 +26,7 @@ from mm.engine.decisions import (
     Statement,
     Target,
 )
-from mm.engine.events import Event, Payload, RoleAssigned
+from mm.engine.events import Event, Payload
 from mm.engine.state import GameState
 from mm.llm import ModelReply, ModelRequest, Usage
 from mm.orchestrator import play_game
@@ -231,14 +232,12 @@ def name_at_seat(events: Sequence[Event], seat: int) -> str:
     return GameState.fold(events).residents[seat].name
 
 
-async def seats_by_role(config: GameConfig) -> dict[Role, list[int]]:
-    """Which seats hold which role for this config. Casting is deterministic, so a dry run tells."""
-    events = (await play_game(config.model_copy(update={"max_days": 1}), puppets())).events
-    seats_of_names = seat_of(GameState.fold(events))
+def seats_by_role(config: GameConfig) -> dict[Role, list[int]]:
+    """Which seats hold which role for this config, in seat order."""
     seats: dict[Role, list[int]] = {}
-    for assignment in payloads(events, RoleAssigned):
-        seats.setdefault(assignment.role, []).append(seats_of_names[assignment.resident])
-    return {role: sorted(found) for role, found in seats.items()}
+    for seat, role in sorted(seated_roles(config).items()):
+        seats.setdefault(role, []).append(seat)
+    return seats
 
 
 def own_role(request: ModelRequest) -> str:
@@ -340,7 +339,7 @@ async def played_by(model: "FakeModel", config: GameConfig) -> tuple[list[Event]
     async def record(call: ModelCall) -> None:
         calls.append(call)
 
-    result = await play_game(config, llm_agents(model, AgentSettings(), record, config.seed))
+    result = await play_game(config, llm_agents(model, PlayedBy(), record, config.seed))
     return result.events, calls
 
 
@@ -350,7 +349,7 @@ def agents_on(model: "FakeModel") -> BrainsFor:
     def brains_for(
         config: GameConfig, record: CallRecorder, recorded: Sequence[ModelCall]
     ) -> BrainFactory:
-        return llm_agents(model, AgentSettings(), record, config.seed, recorded=recorded)
+        return llm_agents(model, PlayedBy(), record, config.seed, recorded=recorded)
 
     return brains_for
 

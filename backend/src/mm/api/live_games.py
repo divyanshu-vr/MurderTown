@@ -11,13 +11,15 @@ next decision; decisions already asked finish first, so their calls are recorded
 """
 
 import asyncio
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 
 import structlog
 
-from mm.agents import BrainFactory, CallRecorder, ModelCall, scripted_bots
+from mm.agents import BrainFactory, CallRecorder, ModelCall
+from mm.agents.lineup import lineup_brains
 from mm.engine import GameConfig
 from mm.engine.events import Event
+from mm.llm import ModelProvider
 from mm.orchestrator import GameHaltedError, play_game
 from mm.persistence import Bus, GameStatus, GameStore
 
@@ -28,10 +30,19 @@ BrainsFor = Callable[[GameConfig, CallRecorder, Sequence[ModelCall]], BrainFacto
 a resumed game's Agents answer again from the calls it had recorded (empty for a new game)."""
 
 
-def scripted_brains(
-    config: GameConfig, record: CallRecorder, recorded: Sequence[ModelCall]
-) -> BrainFactory:
-    return scripted_bots(config.seed)  # scripted bots call no model, so there is nothing to record
+def lineup_on(providers: Mapping[str, ModelProvider]) -> BrainsFor:
+    """Decision sources as each game's lineup says, on these providers."""
+
+    def brains_for(
+        config: GameConfig, record: CallRecorder, recorded: Sequence[ModelCall]
+    ) -> BrainFactory:
+        return lineup_brains(config, providers, record, recorded)
+
+    return brains_for
+
+
+async def unrecorded(call: ModelCall) -> None:
+    """A recorder for brains made only to check a lineup can be played."""
 
 
 class LiveGames:
@@ -42,6 +53,10 @@ class LiveGames:
         """Set on shutdown: every game stops before its next decision."""
 
     async def start(self, config: GameConfig) -> str:
+        """Store and start a game. A lineup that cannot be played (a provider not available,
+        a model with no price) is refused first, with a `ValueError`. Making a provider may
+        check a login, so it happens off the event loop."""
+        await asyncio.to_thread(self.brains_for, config, unrecorded, ())
         game_id = await self.store.create_game(config)
         self._run(game_id, config)
         return game_id

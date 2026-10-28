@@ -9,6 +9,19 @@ from mm.engine.residents import NAME_POOL, Resident
 from mm.engine.roles import Role
 
 
+def seated_roles(config: GameConfig) -> dict[int, Role]:
+    """The role at each seat, known before the game starts: casting is the first thing a game
+    draws from its seeded Random, so dealing again from a fresh one deals the same roles."""
+    seats: dict[str, int] = {}
+    roles: dict[int, Role] = {}
+    for payload in cast(config, Random(config.seed)):
+        if isinstance(payload, GameStarted):
+            seats = {resident.name: resident.seat for resident in payload.residents}
+        elif isinstance(payload, RoleAssigned):
+            roles[seats[payload.resident]] = payload.role
+    return roles
+
+
 def cast(config: GameConfig, rng: Random) -> list[EventPayload]:
     """The opening events of a game: who lives in the town, then each Resident's secret role."""
     names = rng.sample(NAME_POOL, config.residents)
