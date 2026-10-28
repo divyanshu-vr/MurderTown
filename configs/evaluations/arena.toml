@@ -1,0 +1,26 @@
+# Claude Haiku against Claude Sonnet, on the Host's subscription: each Contender plays the
+# Murderers against the other (and against itself) as the Town, on the same seeds. Live, so it runs
+# only when the Host runs `uv run mm evaluate ../configs/evaluations/arena.toml`, a few games at a
+# time; run it again to go on. Sonnet has its own weekly limit on the subscription, and costs more.
+name = "arena"
+games_per_cell = 10
+first_seed = 1
+
+[base]
+residents = 8
+murderers = 2
+max_days = 5
+
+[[contenders]]
+provider = "claude"
+model = "claude-haiku-5-5"
+effort = "low"
+
+[[contenders]]
+provider = "claude"
+model = "claude-sonnet-5-5"
+effort = "low"
+
+[caps]
+games_per_batch = 4
+pause_seconds = 60

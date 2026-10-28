@@ -15,7 +15,8 @@ from mm.agents.prompting import prompt_version
 from mm.cli import app
 from mm.cli.evaluation import Batch, MatrixChangedError, RunFolder, code_version, play_batch
 from mm.cli.matrix import Matrix
-from mm.cli.report import percentile, write_report
+from mm.cli.report import write_report
+from mm.cli.tables import percentile
 from mm.engine import PROBER, Effort
 from mm.llm import ModelReply
 from mm.review.measures import Measures

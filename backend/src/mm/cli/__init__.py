@@ -246,7 +246,8 @@ def evaluate(
     pause_seconds between them. Run the same command again to go on where it stopped, so an
     evaluation on your subscription can be played in batches as its quota allows. A game that
     aborts, as every game does once the quota runs out, stops the batch and is played again next
-    time. The report (report.md in the run's folder) is written again after every batch.
+    time. The report (report.md in the run's folder) is written again after every batch. A
+    matrix with contenders is an arena, and its report adds a leaderboard (docs/evaluation.md).
     """
     try:
         matrix = Matrix.read(matrix_file)

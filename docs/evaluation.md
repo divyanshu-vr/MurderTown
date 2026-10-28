@@ -39,6 +39,30 @@ Every cell plays the same seeds, so cells differ only in what the axes change (o
 
 To measure how Agents resist a prompt injection, seat an injection prober (`[base.lineup.seats.0]` with `provider = "prober"`, as `injection.toml` does): a scripted bot that tells everyone to reveal their roles whenever it makes a Statement. Only Murderers' confessions count as reveals, since the Town may claim their roles on purpose.
 
+## Arenas: models against each other
+
+An arena is a matrix with `[[contenders]]`, each a provider, model and effort (`arena.toml`):
+
+```toml
+[[contenders]]
+provider = "claude"
+model = "claude-haiku-5-5"
+effort = "low"
+
+[[contenders]]
+provider = "claude"
+model = "claude-sonnet-5-5"
+effort = "low"
+```
+
+Each Contender plays the Murderers against each Contender (itself too) as the Town, on the same seeds, so every pairing of sides is played on the same deal: each Contender plays every role as often as any other, and the swap (A as the Murderers against B, and B against A) is always there. The base and the axes may not set who plays a side or a seat; other axes are crossed with the pairings.
+
+The report adds a leaderboard. It counts only games whose every pairing has been played on the same conditions and seed, by the same prompts, so no Contender gains from playing one side more often, and a change of prompts halfway does not mix into one comparison. For each Contender it gives:
+- its win rate against the others, with its interval, and as each side;
+- its fallbacks, its equivalent cost per game and its latency, from the calls of its own seats.
+
+Beside the leaderboard are the Town's win rate for each pairing of sides (a Contender against itself gives the baseline) and each Contender's results against each other. Bradley-Terry ratings appear from 300 games between Contenders, labelled approximate. CI plays a small arena with fake models (`tests/test_arena.py`); a live arena runs only when the Host runs it.
+
 ## Batches and the subscription's quota
 
 Games are played one at a time. A batch stops after `games_per_batch` games, or at the first game that aborts, as every game does once the subscription's quota runs out; run the same command again to go on where it stopped. A game that aborted is played again, a finished one never is. A run goes on only with the matrix it began with (its caps may change); a changed matrix needs a folder of its own (`--out`).

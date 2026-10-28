@@ -300,6 +300,18 @@ _Avoid_: grid, config file
 One combination of a Matrix's values, played on the same seeds as every other Cell, so Cells differ only in what the Matrix varies.
 _Avoid_: arm, variant
 
+**Arena**:
+An Evaluation in which models play each other: each Contender plays the Murderers against each Contender as the Town, on the same seeds, so each plays every role as often as any other.
+_Avoid_: tournament, battle, league
+
+**Contender**:
+A model, on a provider and at an effort, playing a side in an Arena.
+_Avoid_: player, competitor, entrant
+
+**Leaderboard**:
+How an Arena's Contenders did against each other: each one's win rate with its confidence interval, as each side, beside its cost and latency, and, once enough games have been played, an approximate rating of each from who beat whom.
+_Avoid_: ranking, scoreboard
+
 **Herding**:
 Voting against whoever was accused first that Day.
 _Avoid_: bandwagon, groupthink

@@ -7,7 +7,6 @@ What the model calls used and how long they took are measurements, given without
 a game's tokens and seconds are counted, not sampled.
 """
 
-import math
 from collections.abc import Callable, Hashable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -15,16 +14,15 @@ from pathlib import Path
 from mm.agents import Cost, ModelCall
 from mm.cli.charts import Point, rate_chart
 from mm.cli.evaluation import Played, RunFolder
+from mm.cli.leaderboard import ArenaGame, arena_game, leaderboard
 from mm.cli.matrix import Cell
 from mm.cli.recording import calls_beside, read_ndjson
+from mm.cli.tables import FEW, count, dollars, latency, percent, rate_cells
 from mm.cli.transcript import SIDES
 from mm.engine import GameConfig
 from mm.engine.events import Event
 from mm.review.measures import Measures, SeatAccusations, measures_of
 from mm.review.rates import Rate
-
-FEW = 30
-"""Fewer trials or games than this, and a rate's interval is too wide to say much: marked *."""
 
 CAVEATS = f"""\
 - **Few trials or games.** A count below {FEW} is marked *: a rate resting on it has a wide
@@ -65,6 +63,8 @@ class PlayedGame:
     config: GameConfig
     measures: Measures
     calls: list[ModelCall]
+    arena: ArenaGame | None
+    """How the Contenders played its sides, if they did."""
 
 
 def write_report(folder: Path) -> Path:
@@ -94,6 +94,9 @@ def write_report(folder: Path) -> Path:
         "",
         *_position_bias(games),
     ]
+    if matrix.contenders:
+        arena = [game.arena for game in games if game.arena]
+        lines += ["## Leaderboard", "", *leaderboard(matrix.contenders, arena)]
     for rule, value_of in CHARTED.items():
         lines += [f"## Town win rate by {rule}", "", _chart(folder, rule, value_of, games), ""]
     for cell in cells:
@@ -106,13 +109,17 @@ def write_report(folder: Path) -> Path:
 
 
 def _read(run: RunFolder, played: Played, cells: Sequence[Cell]) -> PlayedGame:
-    file = run.file_of(played)
-    calls = calls_beside(file)
+    file, cell = run.file_of(played), cells[played.cell]
+    calls_file = calls_beside(file)
+    events = read_ndjson(file, Event)
+    calls = read_ndjson(calls_file, ModelCall) if calls_file.exists() else []
+    measures = measures_of(events)
     return PlayedGame(
         played=played,
-        config=cells[played.cell].config(played.seed),
-        measures=measures_of(read_ndjson(file, Event)),
-        calls=read_ndjson(calls, ModelCall) if calls.exists() else [],
+        config=cell.config(played.seed),
+        measures=measures,
+        calls=calls,
+        arena=arena_game(cell, played, measures.winner, events, calls),
     )
 
 
@@ -142,7 +149,7 @@ def _rates(games: Sequence[PlayedGame]) -> list[str]:
     for label in by_game[0]:
         rates = [rates[label] for rates in by_game]
         counted = sum(rate.trials > 0 for rate in rates)
-        rows.append(f"| {label} | {_rate_cells(_pooled(rates))} | {_count(counted)} |")
+        rows.append(f"| {label} | {rate_cells(_pooled(rates))} | {count(counted)} |")
     return [*rows, ""]
 
 
@@ -153,15 +160,13 @@ def _measurements(games: Sequence[PlayedGame]) -> list[str]:
     if not calls:
         return [*rows, "", "No model calls: scripted bots played every seat.", ""]
     cost, per_game = Cost.of(calls), len(games)
-    latencies = [call.latency_ms for call in calls]
     rows += [
         f"| Model calls per game | {cost.calls / per_game:,.1f} |",
         f"| Prompt tokens per game | {cost.prompt_tokens / per_game:,.0f} |",
         f"| Output tokens per game | {cost.output_tokens / per_game:,.0f} |",
-        f"| Read from the cache | {_percent(cost.cache_hit_rate)} of prompt tokens |",
-        f"| Equivalent cost per game | ${cost.cost_usd / per_game:,.4f} |",
-        f"| Latency | median {percentile(latencies, 50):,.0f} ms, "
-        f"95th percentile {percentile(latencies, 95):,.0f} ms, over {len(calls):,} calls |",
+        f"| Read from the cache | {percent(cost.cache_hit_rate)} of prompt tokens |",
+        f"| Equivalent cost per game | {dollars(cost.cost_usd / per_game)} |",
+        f"| Latency | {latency(calls)}, over {len(calls):,} calls |",
     ]
     return [*rows, ""]
 
@@ -180,8 +185,8 @@ def _position_bias(games: Sequence[PlayedGame]) -> list[str]:
     for number, seat in sorted(seats.items()):
         chance = seat.by_chance / seat.accused.trials if seat.accused.trials else None
         rows.append(
-            f"| {number} | {_rate_cells(seat.accused)} | {_count(games_of[number])} "
-            f"| {_percent(chance)} |"
+            f"| {number} | {rate_cells(seat.accused)} | {count(games_of[number])} "
+            f"| {percent(chance)} |"
         )
     return [*rows, ""]
 
@@ -225,27 +230,3 @@ def _every_game(games: Sequence[PlayedGame]) -> list[str]:
 
 def _pooled(rates: Sequence[Rate]) -> Rate:
     return sum(rates, start=Rate())
-
-
-def _rate_cells(rate: Rate) -> str:
-    """A rate, its interval and its trials, as three cells of a table."""
-    if rate.value is None or rate.interval is None:
-        return f"– | – | {_count(rate.trials)}"
-    low, high = rate.interval
-    return f"{_percent(rate.value)} | {_percent(low)} to {_percent(high)} | {_count(rate.trials)}"
-
-
-def _count(count: int) -> str:
-    return f"{count}*" if count < FEW else str(count)
-
-
-def _percent(share: float | None) -> str:
-    return "–" if share is None else f"{share:.1%}"
-
-
-def percentile(values: Sequence[float], percent: int) -> float | None:
-    """The smallest value with at least `percent`% of the values at or below it (nearest rank)."""
-    if not values:
-        return None
-    rank = math.ceil(percent / 100 * len(values))
-    return sorted(values)[max(rank, 1) - 1]
