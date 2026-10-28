@@ -33,7 +33,20 @@ export function useCanDrawTownView(): boolean {
  * It stands still (everyone snaps into place, nothing plays out) for a Spectator who prefers
  * reduced motion, and with `?deterministic=1`, so a screenshot of it is always the same.
  */
-export function TownView({ view, shown, playback }: { view: GameView; shown: readonly Event[]; playback: PlaybackView }) {
+export function TownView({
+  view,
+  shown,
+  reached,
+  playback,
+  mystery,
+}: {
+  view: GameView;
+  shown: readonly Event[];
+  /** The latest event playback has reached, shown or not. */
+  reached: number;
+  playback: PlaybackView;
+  mystery: boolean;
+}) {
   const still = useMemo(
     () =>
       new URLSearchParams(window.location.search).get("deterministic") === "1" ||
@@ -51,9 +64,11 @@ export function TownView({ view, shown, playback }: { view: GameView; shown: rea
           <TownCanvas
             view={view}
             shown={shown}
+            reached={reached}
             speed={playback.speed}
             held={playback.held}
             cuts={playback.cuts}
+            mystery={mystery}
             still={still}
             setWaitForAnimations={playback.setWaitForAnimations}
             animated={playback.animated}

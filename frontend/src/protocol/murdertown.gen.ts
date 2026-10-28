@@ -118,7 +118,7 @@ export interface ConversationStarted {
    * @minItems 2
    * @maxItems 2
    */
-  residents: [unknown, unknown];
+  residents: [string, string];
 }
 /**
  * What some model calls used and cost together: the cost meter's numbers.

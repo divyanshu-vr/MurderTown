@@ -129,7 +129,7 @@ A small errand a Resident does at Dusk instead of talking.
 _Avoid_: task, job
 
 **Den**:
-The Murderers' private Night meeting, where they choose the Victim.
+The Murderers' private Night meeting, where they choose the Victim, and the hut on the edge of town where the Town view shows them meeting. A lone Murderer has no Den.
 _Avoid_: hideout, lair, murderer chat
 
 **Victim**:
@@ -255,11 +255,15 @@ A game's whole log in one file, which the console replays with no server.
 _Avoid_: dump, save file
 
 **Town view**:
-The town drawn as a place beside the console, as of the moment being watched: every Resident at home or in the Square, the dead as gravestones where they died, and what is said and voted over their heads.
+The town drawn as a place beside the console, as of the moment being watched: every Resident where the Phase takes them (home, the Square, a Conversation, a Chore, the Den or a Visit), the dead as gravestones where they died, and what is said and voted over their heads.
 _Avoid_: canvas, map, game view, Town (the side)
 
+**Visit**:
+How the Town view shows a Night action: the Murderers walking to their Victim's house, the Doctor to the house of whom they protect, the Detective to the house of whom they investigate.
+_Avoid_: attack, trip
+
 **Square**:
-Where the living gather round the well for Discussion, the Showdown and the Vote; the rest of the time they are at home.
+Where the living gather round the well for Discussion, the Showdown and the Vote.
 _Avoid_: plaza, meeting place
 
 **Scope**:

@@ -17,6 +17,13 @@ export function countWhen(events: readonly Event[], phase: Phase, nth: number): 
   return starts[nth - 1] ?? 0;
 }
 
+/** How many of `events` have happened once `event` has. */
+export function countOf(events: readonly Event[], event: Event | undefined): number {
+  const index = event ? events.indexOf(event) : -1;
+  if (index < 0) throw new Error("Expected an event of the recorded game");
+  return index + 1;
+}
+
 export function payloadsOf<T extends Event["payload"]["type"]>(events: readonly Event[], type: T) {
   return events
     .map((event) => event.payload)

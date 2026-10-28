@@ -1,6 +1,6 @@
 /**
  * How the town looks: the Tiled map, the Kenney sheets it is drawn with (Tiny Town for the
- * town, Tiny Dungeon for its people), and which picture each seat wears. Tiny Dungeon has
+ * town, Tiny Dungeon for its people, gravestones and ghosts), and which picture each seat wears. Tiny Dungeon has
  * thirteen townsfolk, so seats 13 and 14 wear the first two again in another colour.
  */
 import peopleSheet from "../../assets/town/tiny-dungeon.png";
@@ -29,6 +29,7 @@ const TOWNSFOLK = [84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 109, 111, 112] as co
 const SECOND_LOOK = 0xa8c0ff;
 
 export const GRAVESTONE = 65;
+export const GHOST = 121;
 
 export interface Look {
   frame: number;

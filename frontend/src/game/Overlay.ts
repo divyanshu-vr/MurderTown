@@ -1,21 +1,43 @@
 import type { ResidentView } from "../core/gameView";
+import type { Bubble } from "../core/town/bubbles";
 import type { Point } from "../core/town/layout";
-import type { Words } from "../core/town/stage";
 
 /** How fast words appear in their bubble, in characters a second of game time. */
 const TYPING_PER_SECOND = 45;
 
-/** Where a label sits over the canvas, in CSS pixels, given a spot in town in tiles. */
-export type ToScreen = (at: Point) => { x: number; y: number };
+/** What a Conversation sounds like to those who cannot hear it. */
+const MUFFLED = "· · ·";
 
 /** Below this zoom the town is too small to name everyone over their heads; the houses keep their names. */
 const NAMES_FROM_ZOOM = 2;
 
+/** The space between bubbles stacked over one another, in CSS pixels. */
+const BUBBLE_GAP = 2;
+
+/** Where a label sits over the canvas, in CSS pixels, given a spot in town in tiles. */
+export type ToScreen = (at: Point) => { x: number; y: number };
+
+/** A bubble on screen: its words typed so far, the rest kept invisible so the bubble keeps its size. */
+interface ShownBubble {
+  over: readonly string[];
+  text: string;
+  seq: number | null;
+  typed: number;
+  /** How many characters are showing, or none yet. */
+  showing: number | null;
+  element: HTMLElement;
+  said: HTMLElement;
+  unsaid: HTMLElement;
+  /** Measured once its words are in, to stack it without measuring every frame. */
+  size: { width: number; height: number } | null;
+}
+
 /**
  * The town's words, drawn as HTML over the canvas so they stay crisp at any zoom: each living
- * Resident's name over their head, each house's owner over its roof, a bubble typing out the
- * latest words said, and the running count of ballots against each Resident. The scene says
- * where everything is after each frame; the overlay moves its labels there without React.
+ * Resident's name over their head, each house's owner over its roof, bubbles typing out what is
+ * said (or muffled, when it cannot be heard), the running count of ballots against each Resident,
+ * and the Narrator's banner. The scene says where everything is after each frame; the overlay
+ * moves its labels there without React.
  *
  * Each name carries where its Resident stands (`data-x`, `data-y`, in tiles) so a test can
  * check the town against the map.
@@ -24,15 +46,15 @@ export class Overlay {
   private readonly names = new Map<string, HTMLElement>();
   private readonly houses = new Map<string, HTMLElement>();
   private readonly counts = new Map<string, HTMLElement>();
-  private readonly bubble: HTMLElement;
-  private words: Words | null = null;
-  private typed = 0;
+  private readonly bubbles = new Map<string, ShownBubble>();
+  private readonly banner: HTMLElement;
 
   constructor(private readonly root: HTMLElement) {
-    this.bubble = this.add(
-      "max-w-56 rounded-lg bg-stone-50 px-2 py-1 text-xs leading-snug text-stone-900 shadow-lg",
-    );
-    this.bubble.hidden = true;
+    this.banner = document.createElement("p");
+    this.banner.className =
+      "pointer-events-none absolute left-1/2 top-3 w-max max-w-[80%] -translate-x-1/2 rounded bg-amber-50/95 px-3 py-1.5 text-center text-sm italic text-stone-900 shadow-lg";
+    this.banner.hidden = true;
+    root.append(this.banner);
   }
 
   /** The Residents to name, and whose names to colour: Murderers, where the view knows them. */
@@ -47,26 +69,28 @@ export class Overlay {
         this.addTo(this.houses, name, "text-[9px] font-semibold text-amber-100 drop-shadow").textContent = name;
       }
     }
-    this.removeAllBut(residents.map(({ name }) => name));
+    const named = new Set(residents.map(({ name }) => name));
+    dropAllBut(this.names, named);
+    dropAllBut(this.houses, named);
   }
 
-  /** The words being said, typed out from the start when they are new; `whole` shows them all at once. */
-  say(words: Words | null, whole: boolean): void {
-    if (words?.seq !== this.words?.seq) this.typed = 0;
-    this.words = words;
-    if (whole) this.typed = words?.text.length ?? 0;
-    this.bubble.hidden = words === null;
-    this.bubble.textContent = words?.text.slice(0, Math.ceil(this.typed)) ?? "";
+  /** The bubbles to show; new words type out from the start, unless `whole` shows them all at once. */
+  say(bubbles: readonly Bubble[], whole: boolean): void {
+    dropAllBut(this.bubbles, new Set(bubbles.map(({ key }) => key)));
+    for (const { key, over, text, seq } of bubbles) {
+      const bubble = this.bubbles.get(key) ?? this.addBubble(key, text === null);
+      bubble.over = over;
+      if (bubble.seq !== seq || bubble.text !== (text ?? MUFFLED)) {
+        Object.assign(bubble, { text: text ?? MUFFLED, seq, typed: 0, showing: null, size: null });
+      }
+      if (whole) bubble.typed = bubble.text.length;
+    }
+    this.type(0);
   }
 
   /** Ballots against each Resident so far. */
   count(counts: ReadonlyMap<string, number>): void {
-    for (const [name, label] of this.counts) {
-      if (!counts.has(name)) {
-        label.remove();
-        this.counts.delete(name);
-      }
-    }
+    dropAllBut(this.counts, new Set(counts.keys()));
     for (const [name, count] of counts) {
       const label = this.counts.get(name) ?? this.addTo(this.counts, name, "rounded-full bg-amber-300 px-1.5 text-[10px] font-bold text-stone-900");
       label.textContent = String(count);
@@ -74,18 +98,28 @@ export class Overlay {
     }
   }
 
+  /** The Narrator's words across the top, or nothing. */
+  announce(text: string | null): void {
+    this.banner.hidden = text === null;
+    this.banner.textContent = text ?? "";
+  }
+
   /** Type on for `gameMs` of game time. */
   type(gameMs: number): void {
-    const words = this.words;
-    if (!words || this.typed >= words.text.length) return;
-    this.typed = Math.min(words.text.length, this.typed + (gameMs * TYPING_PER_SECOND) / 1000);
-    this.bubble.textContent = words.text.slice(0, Math.ceil(this.typed));
+    for (const bubble of this.bubbles.values()) {
+      bubble.typed = Math.min(bubble.text.length, bubble.typed + (gameMs * TYPING_PER_SECOND) / 1000);
+      const showing = Math.ceil(bubble.typed);
+      if (showing === bubble.showing) continue;
+      bubble.showing = showing;
+      bubble.said.textContent = bubble.text.slice(0, showing);
+      bubble.unsaid.textContent = bubble.text.slice(showing);
+    }
   }
 
   /**
    * Put every label over what it names: names over heads (the dead have none, and nobody does
-   * when the town is too small to read them), house names over roofs, the bubble over the
-   * speaker, counts beside names.
+   * when the town is too small to read them), house names over roofs, bubbles over whoever they
+   * are about, stacked rather than covering one another, and counts beside names.
    */
   position(where: {
     zoom: number;
@@ -114,8 +148,18 @@ export class Overlay {
       label.hidden = !at;
       if (at) place(label, toScreen({ x: at.x + 0.9, y: at.y - 0.2 }));
     }
-    const speaker = this.words && standing.get(this.words.speaker);
-    if (speaker) place(this.bubble, toScreen({ x: speaker.x, y: speaker.y - 1.3 }));
+    const taken: Box[] = [];
+    for (const bubble of this.bubbles.values()) {
+      const heads = bubble.over.flatMap((name) => standing.get(name) ?? []);
+      bubble.element.hidden = heads.length === 0;
+      if (!heads.length) continue;
+      const sum = heads.reduce((total, at) => ({ x: total.x + at.x, y: total.y + at.y }), { x: 0, y: 0 });
+      const spot = toScreen({ x: sum.x / heads.length, y: sum.y / heads.length - 1.3 });
+      bubble.size ??= { width: bubble.element.offsetWidth, height: bubble.element.offsetHeight };
+      const box = stacked(spot, bubble.size, taken);
+      taken.push(box);
+      place(bubble.element, { x: spot.x, y: box.bottom });
+    }
   }
 
   destroy(): void {
@@ -135,14 +179,47 @@ export class Overlay {
     return label;
   }
 
-  private removeAllBut(names: readonly string[]): void {
-    for (const labels of [this.names, this.houses]) {
-      for (const [name, label] of labels) {
-        if (names.includes(name)) continue;
-        label.remove();
-        labels.delete(name);
-      }
-    }
+  private addBubble(key: string, muffled: boolean): ShownBubble {
+    const tone = muffled ? "italic text-stone-500" : "text-stone-900";
+    const element = this.add(`max-w-56 rounded-lg bg-stone-50 px-2 py-1 text-xs leading-snug shadow-lg ${tone}`);
+    const [said, unsaid] = [document.createElement("span"), document.createElement("span")];
+    unsaid.className = "invisible";
+    element.append(said, unsaid);
+    const bubble = { over: [], text: "", seq: null, typed: 0, showing: null, element, said, unsaid, size: null };
+    this.bubbles.set(key, bubble);
+    return bubble;
+  }
+}
+
+/** Where a bubble sits over the canvas, in CSS pixels. */
+interface Box {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+/** A bubble's box over `spot`, moved above any box it would cover, but never off the top. */
+function stacked(spot: { x: number; y: number }, { width, height }: { width: number; height: number }, taken: readonly Box[]): Box {
+  let box = { left: spot.x - width / 2, right: spot.x + width / 2, top: spot.y - height, bottom: spot.y };
+  let covered = taken.find((other) => overlap(box, other));
+  while (covered && covered.top - BUBBLE_GAP - height >= 0) {
+    box = { ...box, top: covered.top - BUBBLE_GAP - height, bottom: covered.top - BUBBLE_GAP };
+    covered = taken.find((other) => overlap(box, other));
+  }
+  return box.top >= 0 ? box : { ...box, top: 0, bottom: height };
+}
+
+function overlap(a: Box, b: Box): boolean {
+  return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+}
+
+/** Remove every label but those named. */
+function dropAllBut(labels: Map<string, HTMLElement | { element: HTMLElement }>, keep: ReadonlySet<string>): void {
+  for (const [name, label] of labels) {
+    if (keep.has(name)) continue;
+    ("element" in label ? label.element : label).remove();
+    labels.delete(name);
   }
 }
 

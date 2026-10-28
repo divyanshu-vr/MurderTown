@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 
 import { gridOf } from "../../../test/grid";
-import { Walk } from "./walk";
+import { paceFor, TILES_PER_SECOND, Walk } from "./walk";
 
 const open = gridOf(".....", ".....", ".....");
 
@@ -29,6 +29,18 @@ describe("walking", () => {
 
     expect(passed.every(({ x, y }) => !(y > 1 && y < 2 && x > 1 && x < 4))).toBe(true);
     expect(walk.at).toEqual({ x: 4.25, y: 1.75 });
+  });
+
+  it("hurries through the Night and home at first light, and knows how long is left", () => {
+    const hurried = new Walk({ x: 0.5, y: 0.5 }, { x: 4.5, y: 0.5 }, open, paceFor("night"));
+
+    expect(hurried.timeLeft).toBe(250);
+    hurried.advance(125);
+    expect(hurried.timeLeft).toBe(125);
+    hurried.advance(125);
+    expect(hurried.arrived).toBe(true);
+    expect(paceFor("dawn")).toBe(paceFor("night"));
+    expect(paceFor("dusk")).toBe(TILES_PER_SECOND);
   });
 
   it("faces the way it is going", () => {

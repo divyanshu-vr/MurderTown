@@ -18,10 +18,12 @@ const STEP_MS = 260;
 const BREATH_MS = 2400;
 const BREATH_HELD_MS = 300;
 const BREATH_OFFSET_MS = 140;
+/** Someone doing a Chore bobs a pixel as they work. */
+const WORK_MS = 380;
 
 /**
- * A Resident in town: their picture where they stand, breathing while they stand, walking to
- * wherever the layout puts them, and a gravestone once they have died. Everything moves on game
+ * A Resident in town: their picture where they stand, breathing while they stand (or working at
+ * a Chore), walking to wherever the layout puts them, and a gravestone once they have died. Everything moves on game
  * time, which the scene hands over each frame (none while stopped), so walking and falling keep
  * playback's pace.
  */
@@ -67,16 +69,22 @@ export class Actor {
     this.draw();
   }
 
-  /** Walk to where the layout puts them, if it has moved. */
-  head(placement: Placement, grid: Grid): void {
-    const moved = placement.at.x !== this.placement.at.x || placement.at.y !== this.placement.at.y;
-    this.placement = placement;
-    if (moved) this.walk = new Walk(this.at, placement.at, grid);
+  /** How long until they get where they are walking, in game time; nothing if they are there. */
+  get arrivingIn(): number {
+    return this.walk?.timeLeft ?? 0;
   }
 
-  /** Fall where they stand, then lie as a gravestone. */
+  /** Walk to where the layout puts them, if it has moved, at `tilesPerSecond`. */
+  head(placement: Placement, grid: Grid, tilesPerSecond: number): void {
+    const moved = placement.at.x !== this.placement.at.x || placement.at.y !== this.placement.at.y;
+    this.placement = placement;
+    if (moved) this.walk = new Walk(this.at, placement.at, grid, tilesPerSecond);
+  }
+
+  /** Fall where the layout says they died (still walking home, they are found there), then lie as a gravestone. */
   fallDown(): void {
     this.walk = null;
+    this.at = this.placement.at;
     this.falling = 0;
   }
 
@@ -116,10 +124,11 @@ export class Actor {
     sprite.setPosition(x, y - this.lift()).setDepth(this.at.y);
   }
 
-  /** How far off the ground they are, in pixels: mid-step while walking, mid-breath while standing. */
+  /** How far off the ground they are, in pixels: mid-step while walking, at work or mid-breath while standing. */
   private lift(): number {
     if (this.walk) return Math.abs(Math.sin((Math.PI * this.lived) / STEP_MS)) * STEP_HEIGHT;
-    const standing = !this.placement.dead && this.falling === null;
-    return standing && this.lived % BREATH_MS >= BREATH_MS - BREATH_HELD_MS ? 1 : 0;
+    if (this.placement.dead || this.falling !== null) return 0;
+    if (this.placement.atChore) return Math.round(Math.abs(Math.sin((Math.PI * this.lived) / WORK_MS)));
+    return this.lived % BREATH_MS >= BREATH_MS - BREATH_HELD_MS ? 1 : 0;
   }
 }

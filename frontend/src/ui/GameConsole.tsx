@@ -152,7 +152,13 @@ export function GameConsole({
       )}
       {withTownView ? (
         <main className="flex min-h-0 flex-1 flex-col md:flex-row">
-          <TownView view={shownView} shown={shownEvents} playback={playback} />
+          <TownView
+            view={shownView}
+            shown={shownEvents}
+            reached={reached.at(-1)?.seq ?? 0}
+            playback={playback}
+            mystery={mystery}
+          />
           <div className="flex min-h-0 flex-1 flex-col border-stone-800 md:w-[26rem] md:flex-none md:border-l">
             {tabList}
             {panels[tab]}

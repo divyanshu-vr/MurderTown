@@ -140,15 +140,10 @@
         "residents": {
           "maxItems": 2,
           "minItems": 2,
-          "prefixItems": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "string"
-            }
-          ],
-          "type": "array"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": [

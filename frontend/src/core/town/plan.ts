@@ -4,8 +4,9 @@
  * moving a house in Tiled moves where its Resident lives.
  *
  * The map has a `props` layer whose blocking tiles carry the tileset property `collides`, and a
- * `places` object layer: a `square` rectangle, `well` and `hall` points, and a `door` point per
- * seat (the tile in front of the door, with a `seat` property).
+ * `places` object layer: a `square` rectangle; `well`, `hall`, `den` (in front of its door) and
+ * `den window` points; a `door` point per seat (the tile in front of the door, with a `seat`
+ * property); and as many `lantern`, `chore` and `wander` points as the town has.
  */
 import type { Grid, Tile } from "./path";
 
@@ -58,6 +59,13 @@ export interface TownPlan {
   hall: Tile;
   /** The tile in front of each seat's door, by seat. */
   doors: readonly Tile[];
+  /** In front of the Den's door, and its window, which lights up while the Murderers meet. */
+  den: Tile;
+  denWindow: Tile;
+  lanterns: readonly Tile[];
+  /** Where a Resident can do a Chore at Dusk, and where those wandering stop. */
+  chores: readonly Tile[];
+  wanders: readonly Tile[];
 }
 
 export function planOf(map: TiledMap): TownPlan {
@@ -81,6 +89,11 @@ export function planOf(map: TiledMap): TownPlan {
     well: tileOf(only("well")),
     hall: tileOf(only("hall")),
     doors,
+    den: tileOf(only("den")),
+    denWindow: tileOf(only("den window")),
+    lanterns: placed("lantern").map(tileOf),
+    chores: placed("chore").map(tileOf),
+    wanders: placed("wander").map(tileOf),
   };
 }
 

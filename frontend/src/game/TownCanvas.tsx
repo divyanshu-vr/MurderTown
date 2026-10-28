@@ -15,7 +15,18 @@ export interface TownCanvasProps extends TownState {
  * chunk, which the console loads lazily, so a console without the town never downloads it.
  * While the town is up (and moves), blocking moments wait for it to play them.
  */
-export default function TownCanvas({ view, shown, speed, held, cuts, still, setWaitForAnimations, animated }: TownCanvasProps) {
+export default function TownCanvas({
+  view,
+  shown,
+  reached,
+  speed,
+  held,
+  cuts,
+  mystery,
+  still,
+  setWaitForAnimations,
+  animated,
+}: TownCanvasProps) {
   const canvas = useRef<HTMLDivElement>(null);
   const words = useRef<HTMLDivElement>(null);
   const [scene, setScene] = useState<TownScene | null>(null);
@@ -45,8 +56,8 @@ export default function TownCanvas({ view, shown, speed, held, cuts, still, setW
   }, [scene, still, setWaitForAnimations]);
 
   useEffect(() => {
-    scene?.show({ view, shown, speed, held, cuts });
-  }, [scene, view, shown, speed, held, cuts]);
+    scene?.show({ view, shown, reached, speed, held, cuts, mystery });
+  }, [scene, view, shown, reached, speed, held, cuts, mystery]);
 
   return (
     <div className="relative h-full w-full overflow-hidden">

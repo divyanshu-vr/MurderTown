@@ -44,8 +44,22 @@ const DWELL: { [T in Payload["type"]]: Dwell<T> } = {
   game_aborted: 3000,
 };
 
-/** The moments a watcher should see play out: the next event waits for their animation. */
-const BLOCKING: ReadonlySet<Payload["type"]> = new Set(["sheriff_fired", "vote_resolved", "resident_died", "game_ended"]);
+/**
+ * The moments a watcher should see play out, so the next event waits for their animation: a death,
+ * the Sheriff's shot, a Vote's result and the ending, and at Night the Murderers making for the
+ * Den and every Visit, until whoever is going there arrives.
+ */
+const BLOCKING: ReadonlySet<Payload["type"]> = new Set([
+  "sheriff_fired",
+  "vote_resolved",
+  "resident_died",
+  "game_ended",
+  "den_message_posted",
+  "kill_vote_cast",
+  "victim_chosen",
+  "resident_protected",
+  "resident_investigated",
+]);
 
 /** How long an event stays shown before the next one, in milliseconds at normal speed. */
 export function dwellOf(event: Event): number {
