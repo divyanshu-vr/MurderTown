@@ -6,6 +6,8 @@ log and the record of model calls.
 
 from dataclasses import dataclass, replace
 
+import pytest
+
 from mm.agents import AgentSettings, ModelCall, llm_agents
 from mm.agents.prompting import prompt_version
 from mm.engine import GameConfig, Role
@@ -100,7 +102,7 @@ async def test_each_call_records_its_prompt_usage_cost_and_prompt_version() -> N
     call = played.calls[0]
     assert call.system and call.prompt
     assert (call.input_tokens, call.output_tokens, call.cache_read_tokens) == (40, 12, 30)
-    assert call.cost_usd == 0.0002
+    assert call.cost_usd == pytest.approx(0.0000103)  # 40 in, 12 out, 30 read from cache
     assert call.prompt_version == prompt_version()
     assert call.provider == "fake"
 
@@ -153,20 +155,6 @@ async def test_a_refusal_falls_back_without_a_second_try() -> None:
     assert {f.reason for f in payloads(played.result.events, DecisionFellBack)} == {
         "the model declined"
     }
-
-
-async def test_a_timeout_falls_back_without_a_second_try() -> None:
-    def respond(request: ModelRequest) -> ModelReply:
-        if answer_kind(request) is DecisionKind.STATEMENT:
-            return ModelReply(outcome="timeout", data=None, text="", error="no answer in 90s")
-        return sensible_answer(request)
-
-    played = await play_with(FakeModel(respond))
-
-    assert {c.outcome for c in played.calls_for(DecisionKind.STATEMENT)} == {"timeout"}
-    assert len(played.calls_for(DecisionKind.STATEMENT)) == len(
-        payloads(played.result.events, StatementMade)
-    )
 
 
 async def test_details_from_outside_the_game_never_reach_the_event_log() -> None:

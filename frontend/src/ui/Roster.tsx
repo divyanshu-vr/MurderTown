@@ -12,7 +12,7 @@ export function Roster({
   onInspect?: ((name: string) => void) | undefined;
 }) {
   return (
-    <aside className="border-l border-stone-800 px-6 py-4">
+    <aside className="px-6 py-4">
       <h2 className="mb-3 text-sm uppercase tracking-wider text-stone-400">Residents</h2>
       <ul aria-label="Residents" className="space-y-2">
         {residents.map((resident) => (

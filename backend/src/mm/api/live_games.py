@@ -55,7 +55,8 @@ class LiveGames:
             logger.exception("game failed", game=game_id)
             await self.store.set_status(game_id, "failed")
             return
-        await self.store.set_status(game_id, "finished", winner=result.state.winner)
+        winner = result.state.winner
+        await self.store.set_status(game_id, "finished" if winner else "failed", winner=winner)
 
     async def shutdown(self) -> None:
         for task in self._tasks:

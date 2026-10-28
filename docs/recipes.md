@@ -46,3 +46,5 @@ pnpm gen:types
 1. Derive what it shows in `frontend/src/core` (pure, from events), not inside the component.
 2. Render it from a component in `frontend/src/ui` and mount it in `GameConsole`.
 3. Write a seam-3 test: render from the recorded fixture and assert what a Spectator sees, by role and accessible name.
+
+A panel that shows what the events do not hold, such as the cost meter (from the stored model calls), asks the server through a source function in `frontend/src/net` (`costSource`, like `explainer`) that `App` passes to `GameConsole` only for full scope. Its seam-3 test passes a stub source instead.

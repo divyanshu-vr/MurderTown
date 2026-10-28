@@ -8,7 +8,8 @@ from uuid import uuid4
 from sqlalchemy import Select, func, select, text, update
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
-from mm.agents import ModelCall
+from mm.agents import Cost, ModelCall
+from mm.agents.calls import SUMMED
 from mm.engine import GameConfig, Side
 from mm.engine.events import Event
 from mm.persistence.tables import EventRow, GameRow, ModelCallRow
@@ -120,6 +121,21 @@ class GameStore:
         async with self._sessions() as session:
             rows = (await session.scalars(query.order_by(ModelCallRow.attempt))).all()
         return [ModelCall.model_validate(row, from_attributes=True) for row in rows]
+
+    async def cost(self, game_id: str) -> dict[str, Cost]:
+        """What each caller's model calls cost in one game: each Resident's, and the narrator's."""
+        call = ModelCallRow
+        query = (
+            select(call.resident, func.count(), *(func.sum(getattr(call, name)) for name in SUMMED))
+            .where(call.game_id == game_id)
+            .group_by(call.resident)
+        )
+        async with self._sessions() as session:
+            rows = (await session.execute(query)).all()
+        return {
+            caller: Cost(calls=calls, **dict(zip(SUMMED, sums, strict=True)))
+            for caller, calls, *sums in rows
+        }
 
     async def _events(self, query: Select[EventRow]) -> list[Event]:
         async with self._sessions() as session:

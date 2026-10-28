@@ -148,6 +148,87 @@
       "title": "ConversationStarted",
       "type": "object"
     },
+    "Cost": {
+      "description": "What some model calls used and cost together: the cost meter's numbers.\n\nPrompt tokens are every token the model read, whether billed as plain input,\nread from the cache or written to it.",
+      "properties": {
+        "calls": {
+          "default": 0,
+          "type": "integer"
+        },
+        "input_tokens": {
+          "default": 0,
+          "type": "integer"
+        },
+        "output_tokens": {
+          "default": 0,
+          "type": "integer"
+        },
+        "cache_read_tokens": {
+          "default": 0,
+          "type": "integer"
+        },
+        "cache_write_tokens": {
+          "default": 0,
+          "type": "integer"
+        },
+        "cost_usd": {
+          "default": 0.0,
+          "type": "number"
+        },
+        "prompt_tokens": {
+          "readOnly": true,
+          "type": "integer"
+        },
+        "cache_hit_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The share of prompt tokens read from the cache, or None before any prompt.",
+          "readOnly": true
+        }
+      },
+      "required": [
+        "calls",
+        "input_tokens",
+        "output_tokens",
+        "cache_read_tokens",
+        "cache_write_tokens",
+        "cost_usd",
+        "prompt_tokens",
+        "cache_hit_rate"
+      ],
+      "title": "Cost",
+      "type": "object"
+    },
+    "CostReport": {
+      "description": "What a game's model calls cost: in all, for each Resident, and for the narrator,\nwho is not a Resident. The Residents' rows and the narrator's add up to the total.",
+      "properties": {
+        "total": {
+          "$ref": "#/$defs/Cost"
+        },
+        "residents": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Cost"
+          },
+          "type": "object"
+        },
+        "narrator": {
+          "$ref": "#/$defs/Cost"
+        }
+      },
+      "required": [
+        "total",
+        "residents",
+        "narrator"
+      ],
+      "title": "CostReport",
+      "type": "object"
+    },
     "DecisionFellBack": {
       "additionalProperties": false,
       "description": "A decision source could not give a usable answer, so a safe default was used instead.",
@@ -325,6 +406,7 @@
               "decision_fell_back": "#/$defs/DecisionFellBack",
               "den_message_posted": "#/$defs/DenMessagePosted",
               "dusk_intent_chosen": "#/$defs/DuskIntentChosen",
+              "game_aborted": "#/$defs/GameAborted",
               "game_ended": "#/$defs/GameEnded",
               "game_started": "#/$defs/GameStarted",
               "kill_vote_cast": "#/$defs/KillVoteCast",
@@ -416,6 +498,9 @@
             },
             {
               "$ref": "#/$defs/GameEnded"
+            },
+            {
+              "$ref": "#/$defs/GameAborted"
             }
           ]
         }
@@ -475,6 +560,34 @@
         "fallback_reason"
       ],
       "title": "Explanation",
+      "type": "object"
+    },
+    "GameAborted": {
+      "additionalProperties": false,
+      "description": "The game stopped before either side won, because the model gave no answer to a decision.\n\n`reason` is only the problem, such as a timeout, never the decision itself: a\nSpectator in mystery mode sees it, and the decision could reveal a Night role.",
+      "properties": {
+        "type": {
+          "const": "game_aborted",
+          "default": "game_aborted",
+          "type": "string"
+        },
+        "resident": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/DecisionKind"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "resident",
+        "kind",
+        "reason"
+      ],
+      "title": "GameAborted",
       "type": "object"
     },
     "GameConfig-Input": {
@@ -975,14 +1088,7 @@
           "type": "integer"
         },
         "cost_usd": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "number"
         },
         "latency_ms": {
           "type": "integer"

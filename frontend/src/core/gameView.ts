@@ -23,7 +23,8 @@ export interface GameView {
   phase: Phase;
   /** Statements made so far on the Open floor, or null while it is not under way. */
   openFloorStatements: number | null;
-  outcome: { winner: Side; reason: string } | null;
+  /** How the game ended: a side won, or, with no winner, it was aborted for the reason given. */
+  outcome: { winner: Side | null; reason: string } | null;
 }
 
 export const emptyView: GameView = {
@@ -37,6 +38,11 @@ export const emptyView: GameView = {
 
 export function foldEvents(events: readonly Event[]): GameView {
   return events.reduce(applyEvent, emptyView);
+}
+
+/** Whether nothing can follow an event: a side won, or the game was aborted. */
+export function endsTheGame(event: Event): boolean {
+  return event.payload.type === "game_ended" || event.payload.type === "game_aborted";
 }
 
 /** Whether the whole town perceived an event. Mystery mode shows only these. */
@@ -81,6 +87,8 @@ export function applyEvent(view: GameView, event: Event): GameView {
       };
     case "game_ended":
       return { ...view, phase: "ended", outcome: { winner: payload.winner, reason: payload.reason } };
+    case "game_aborted": // only the problem: whose decision failed could reveal a Night role
+      return { ...view, phase: "ended", outcome: { winner: null, reason: payload.reason } };
     case "sheriff_fired": // the deaths that follow change the roster
     case "sheriff_held_fire":
     case "den_message_posted":

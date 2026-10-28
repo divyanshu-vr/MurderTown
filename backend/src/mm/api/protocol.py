@@ -9,7 +9,7 @@ from typing import Any
 from pydantic.json_schema import models_json_schema
 
 from mm.agents.memory import Mind
-from mm.api.routes import EventPage, Explanation, GameCreated, GameSummary
+from mm.api.routes import CostReport, EventPage, Explanation, GameCreated, GameSummary
 from mm.engine import GameConfig
 from mm.engine.events import Event
 
@@ -31,6 +31,7 @@ def protocol_schema() -> dict[str, Any]:
             (GameCreated, "serialization"),
             (Mind, "serialization"),
             (Explanation, "serialization"),
+            (CostReport, "serialization"),
             (GameConfig, "validation"),
         ],
         title="MurderTown protocol",

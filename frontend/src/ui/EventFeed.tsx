@@ -25,6 +25,7 @@ const toneByKind: Partial<Record<Event["payload"]["type"], string>> = {
   resident_died: "font-medium text-rose-300",
   decision_fell_back: "text-sm italic text-stone-500",
   game_ended: "mt-4 text-lg font-semibold text-amber-300",
+  game_aborted: "mt-4 font-semibold text-rose-300",
 };
 
 /** How close to the bottom (in pixels) still counts as "following along". */

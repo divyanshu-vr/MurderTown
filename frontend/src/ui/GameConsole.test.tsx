@@ -143,3 +143,57 @@ describe("the game console", () => {
     );
   });
 });
+
+describe("an aborted game", () => {
+  const firstKillVote = events.findIndex((event) => event.payload.type === "kill_vote_cast");
+  const before = events.slice(0, firstKillVote);
+  const lastKept = before.at(-1);
+  const vote = events[firstKillVote];
+  if (!lastKept || vote?.payload.type !== "kill_vote_cast") throw new Error("The recorded game has no kill vote");
+  const murderer = vote.payload.murderer;
+  const abort: Event = {
+    seq: lastKept.seq + 1,
+    day: lastKept.day,
+    phase: lastKept.phase,
+    visibility: { scope: "spectators", residents: [] },
+    decision_id: "d999",
+    payload: { type: "game_aborted", resident: murderer, kind: "kill_vote", reason: "no answer within 90 seconds" },
+  };
+  const aborted = [...before, abort];
+
+  it("says the game was aborted and why, as an alert", () => {
+    render(<GameConsole events={aborted} connection="ended" />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Game aborted: no answer within 90 seconds");
+  });
+
+  it("tells in the feed whose decision got no answer", () => {
+    render(<GameConsole events={aborted} connection="ended" />);
+
+    const [line] = feedItems("game_aborted");
+    expect(line).toHaveTextContent(`${murderer}'s kill vote got no answer: no answer within 90 seconds`);
+  });
+
+  it("names no one in mystery mode, where it could reveal a Night role", () => {
+    render(<GameConsole events={aborted} connection="ended" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Mystery mode" }));
+
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("Game aborted: no answer within 90 seconds");
+    expect(alert).not.toHaveTextContent(murderer);
+    expect(alert.textContent?.toLowerCase()).not.toContain("kill");
+    expect(within(feed()).queryAllByRole("listitem").filter(isKind("game_aborted"))).toHaveLength(0);
+  });
+
+  it("lists the decision that got no answer in that Resident's mind, ready to explain", () => {
+    render(<GameConsole events={aborted} connection="ended" explain={() => Promise.reject(new Error("unused"))} />);
+
+    const roster = screen.getByRole("list", { name: "Residents" });
+    fireEvent.click(within(roster).getByRole("button", { name: murderer }));
+    const mind = screen.getByRole("complementary", { name: `Mind of ${murderer}` });
+    const decisions = within(mind).getByRole("list", { name: "Decisions" });
+    const item = within(decisions).getByRole("listitem", { name: `Decision at event ${abort.seq}` });
+    expect(within(item).getByRole("button", { name: "why?" })).toBeInTheDocument();
+  });
+});

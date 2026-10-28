@@ -28,6 +28,7 @@ import claude_agent_sdk
 from claude_agent_sdk import (
     AssistantMessage,
     ClaudeAgentOptions,
+    ClaudeSDKError,
     Message,
     ResultMessage,
     SystemMessage,
@@ -147,30 +148,30 @@ class ClaudeAgentSDKProvider:
         )
 
     async def _ask(self, request: ModelRequest) -> ModelReply:
-        """One session: closing the message stream on any exit also ends the subprocess."""
+        """One session. Every failure becomes a reply; closing the message stream on any
+        exit also ends the subprocess."""
         result: ResultMessage | None = None
-        isolation: str | None = None
-        model_error: str | None = None
+        problem: str | None = None
         # query() is an async generator; closing it also ends the Claude Code subprocess.
         messages = cast(
             AsyncGenerator[Message], query(prompt=request.prompt, options=self._options(request))
         )
-        async with aclosing(messages) as stream:
-            async for message in stream:
-                if isinstance(message, SystemMessage) and message.subtype == "init":
-                    self.last_session = _session_facts(message.data)
-                    isolation = _isolation_problem(self.last_session)
-                    if isolation:
-                        break
-                elif isinstance(message, AssistantMessage) and message.error:
-                    model_error = f"the model call failed: {message.error}"
-                elif isinstance(message, ResultMessage):
-                    result = message
-        if isolation:
-            raise SubscriptionError(isolation)
+        try:
+            async with aclosing(messages) as stream:
+                async for message in stream:
+                    if isinstance(message, SystemMessage) and message.subtype == "init":
+                        self.last_session = _session_facts(message.data)
+                        if isolation := _isolation_problem(self.last_session):
+                            return ModelReply(outcome="error", data=None, text="", error=isolation)
+                    elif isinstance(message, AssistantMessage) and message.error:
+                        problem = f"the model call failed: {message.error}"
+                    elif isinstance(message, ResultMessage):
+                        result = message
+        except ClaudeSDKError as error:  # the SDK raises after an error result, too
+            problem = problem or str(error)
         if result is None:
-            return ModelReply(outcome="error", data=None, text="", error=model_error or "no result")
-        return _reply_from(result, model_error)
+            return ModelReply(outcome="error", data=None, text="", error=problem or "no result")
+        return _reply_from(result, problem)
 
 
 def _session_facts(data: dict[str, Any]) -> SessionFacts:
@@ -194,25 +195,26 @@ def _isolation_problem(session: SessionFacts) -> str | None:
     return None
 
 
-def _reply_from(result: ResultMessage, problem: str | None) -> ModelReply:
+def _usage(result: ResultMessage) -> Usage:
+    """The session's tokens. Claude Code says how long each cache write lasts."""
     usage = result.usage or {}
-    tokens = Usage(
+    writes = usage.get("cache_creation") or {}
+    return Usage(
         input_tokens=int(usage.get("input_tokens", 0)),
         output_tokens=int(usage.get("output_tokens", 0)),
         cache_read_tokens=int(usage.get("cache_read_input_tokens", 0)),
-        cache_write_tokens=int(usage.get("cache_creation_input_tokens", 0)),
+        cache_write_5m_tokens=int(writes.get("ephemeral_5m_input_tokens", 0)),
+        cache_write_1h_tokens=int(writes.get("ephemeral_1h_input_tokens", 0)),
     )
-    reply = ModelReply(
-        outcome="ok",
-        data=_structured(result),
-        text=result.result or "",
-        usage=tokens,
-        cost_usd=result.total_cost_usd,
-    )
+
+
+def _reply_from(result: ResultMessage, problem: str | None) -> ModelReply:
+    text = result.result or ""
+    reply = ModelReply(outcome="ok", data=_structured(result), text=text, usage=_usage(result))
     if result.stop_reason == "refusal":
         return replace(reply, outcome="refusal", data=None, error="the model declined to answer")
     if result.is_error or result.subtype != "success":
-        detail = problem or "; ".join(result.errors or []) or result.subtype
+        detail = result.result or problem or "; ".join(result.errors or []) or result.subtype
         return replace(reply, outcome="error", data=None, error=detail)
     return reply
 

@@ -180,7 +180,7 @@ describe("the why? drawer", () => {
       output_tokens: 30,
       cache_read_tokens: 0,
       cache_write_tokens: 0,
-      cost_usd: null,
+      cost_usd: 0.0004,
       latency_ms: 900,
       trace_id: "0af7651916cd43dd8448eb211c80319c",
     };

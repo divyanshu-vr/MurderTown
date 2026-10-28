@@ -90,6 +90,7 @@ export function decider(payload: Payload): string | null {
     case "last_words_spoken":
     case "reflection_written":
     case "decision_fell_back":
+    case "game_aborted": // the decision that got no answer
       return payload.resident;
     case "statement_made":
       return payload.speaker;

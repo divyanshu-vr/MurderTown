@@ -12,6 +12,7 @@ from mm.agents.answers import answer_schema, read_answer
 from mm.engine import GameConfig
 from mm.engine.decisions import DecisionKind, Statement
 from mm.llm import ModelRequest
+from mm.llm.prices import equivalent_cost
 from tests.prompt_spy import Shown, spy_on
 
 pytestmark = pytest.mark.skipif(
@@ -60,8 +61,9 @@ async def test_an_isolated_session_answers_on_the_subscription_and_caches_its_pr
     assert session.tools == ("StructuredOutput",)
     assert session.mcp_servers == ()
     assert repeat.usage.cache_read_tokens > 0
-    print(f"\nfirst: {first.latency_ms} ms, {first.usage}, ${first.cost_usd}")
-    print(f"repeat: {repeat.latency_ms} ms, {repeat.usage}, ${repeat.cost_usd}")
+    for name, reply in (("first", first), ("repeat", repeat)):
+        cost = equivalent_cost(AgentSettings.model, reply.usage)
+        print(f"\n{name}: {reply.latency_ms} ms, {reply.usage}, ${cost:.6f}")
 
 
 @pytest.mark.xfail(
@@ -69,7 +71,7 @@ async def test_an_isolated_session_answers_on_the_subscription_and_caches_its_pr
     reason=(
         "Each decision is a fresh Claude Code session that caches its whole prompt, so an "
         "Agent's next decision, with the same briefing but a new task, finds nothing to reuse. "
-        "Measured in docs/agent-sdk-findings.md; the cost ticket (#9) decides what to do."
+        "Measured in docs/agent-sdk-findings.md; ticket #21 makes caching pay off."
     ),
 )
 async def test_an_agents_next_decision_reads_its_briefing_from_the_cache() -> None:

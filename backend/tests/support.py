@@ -278,10 +278,8 @@ def listed_options(prompt: str) -> list[str]:
 
 
 def model_answer(data: dict[str, Any]) -> ModelReply:
-    usage = Usage(input_tokens=40, output_tokens=12, cache_read_tokens=30, cache_write_tokens=0)
-    return ModelReply(
-        outcome="ok", data=data, text=json.dumps(data), usage=usage, latency_ms=3, cost_usd=0.0002
-    )
+    usage = Usage(input_tokens=40, output_tokens=12, cache_read_tokens=30)
+    return ModelReply(outcome="ok", data=data, text=json.dumps(data), usage=usage, latency_ms=3)
 
 
 def statement_answer(text: str, request: ModelRequest, **fields: Any) -> dict[str, Any]:

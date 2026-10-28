@@ -21,6 +21,7 @@ from mm.engine.events import (
     DuskIntentChosen,
     Event,
     EventPayload,
+    GameAborted,
     GameEnded,
     GameStarted,
     KillVoteCast,
@@ -88,6 +89,8 @@ class GameState:
                 self.investigated.add(target)
             case GameEnded(winner=winner):
                 self.winner, self.phase = winner, Phase.ENDED
+            case GameAborted():
+                self.phase = Phase.ENDED
             case (
                 BidPlaced() | StatementMade() | BallotCast() | VoteResolved() | LastWordsSpoken()
                 | SheriffHeldFire() | ReflectionWritten() | DecisionFellBack() | DenMessagePosted()

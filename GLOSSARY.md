@@ -179,8 +179,12 @@ A Resident's latest Suspicion about each other Resident they have formed an opin
 _Avoid_: suspicion list, belief state
 
 **Fallback**:
-The safe default used when a Resident gives no usable answer: silence, a Bid to listen, holding fire, a vote to skip, no Last words, no notes, a random legal choice at Night, wandering at Dusk, or ending the Conversation.
+The safe default used when a Resident's Agent refuses to answer or twice gives an answer that cannot be used: silence, a Bid to listen, holding fire, a vote to skip, no Last words, no notes, a random legal choice at Night, wandering at Dusk, or ending the Conversation.
 _Avoid_: default answer, error
+
+**Aborted game**:
+A game stopped before either side won, because the model gave no answer at all to a decision: it timed out or failed.
+_Avoid_: crashed game, cancelled game
 
 ### Watching
 
@@ -195,3 +199,11 @@ _Avoid_: hidden mode, fog of war
 **Scope**:
 How much of a game a request may see: public scope is only what the whole town saw, full scope is everything.
 _Avoid_: access level, permission
+
+**Equivalent cost**:
+What a game's model calls would cost at the Claude API's list prices, whichever provider made them. On the Host's subscription the calls cost nothing extra, so this is how a game's use is measured.
+_Avoid_: price, bill, spend
+
+**Cost meter**:
+A Spectator's view of a game's Equivalent cost, model calls, tokens and how much of each prompt was read from the cache, in all and for each Resident.
+_Avoid_: budget, spending panel

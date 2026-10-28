@@ -1,4 +1,8 @@
-"""The recorded game the console's tests replay shows every kind of event, so they can test each."""
+"""The recorded game the console's tests replay shows every kind of event, so they can test each.
+
+Except one: a game that ends with a winner was never aborted, and scripted Residents
+never fail, so the console's tests add an abort to the recorded game themselves.
+"""
 
 from pathlib import Path
 from typing import get_args
@@ -18,4 +22,4 @@ def test_the_recorded_game_contains_every_event_type() -> None:
     lines = FIXTURE.read_text(encoding="utf-8").splitlines()
     recorded = {Event.model_validate_json(line).payload.type for line in lines}
 
-    assert recorded == every_event_type()
+    assert recorded == every_event_type() - {"game_aborted"}

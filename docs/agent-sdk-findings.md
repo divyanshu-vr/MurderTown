@@ -12,7 +12,9 @@ To re-check them, run the opt-in live test: `MM_LIVE_TESTS=1 uv run pytest -s te
 | Do tools stay off? | `tools=[]` leaves exactly one tool, `StructuredOutput`, which is how the SDK carries the structured answer. No MCP servers load with `strict_mcp_config`. |
 | Does structured output work with every built-in tool disabled? | Yes. The answer arrives as a `StructuredOutput` tool call, so one answer takes **2 turns**; `max_turns` is 3. |
 | Which JSON Schema dialect? | Flat draft-07-style schemas work. Answer schemas are generated from the decision models with `$defs` inlined and titles removed. |
-| Is cost reported on the subscription? | Yes, as `total_cost_usd` at list prices: $0.0011 for an uncached first call, $0.0002 for a fully cached repeat. |
+| Is cost reported on the subscription? | Yes, as `total_cost_usd` at list prices: $0.0011 for an uncached first call, $0.0002 for a fully cached repeat. MurderTown prices every call itself from one table (`mm/llm/prices.py`), which reproduces Claude Code's figures exactly. |
+| How long do cache writes last? | An hour. `usage.cache_creation` splits writes into `ephemeral_1h_input_tokens` and `ephemeral_5m_input_tokens`; Claude Code writes only one-hour entries, which cost twice the input price. |
+| What happens when a call fails? | The session yields a `ResultMessage` with `is_error` (its `result` holds the "API Error: ..." text), then the SDK raises `ResultError` because the CLI exits non-zero. The provider turns both, and any other SDK error, into an `error` reply, which aborts the game. |
 | How long does a call take? | 0.6 to 1.6 s to start a session, 2.9 to 4.5 s for a whole call. |
 | Does caching work? | Yes, automatically, with a one-hour lifetime. A repeated identical prompt read 1,862 cached tokens. |
 

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { costSource } from "./net/cost";
 import { explainer } from "./net/explain";
 import type { Scope } from "./net/followGame";
 import { useFollowedGame } from "./net/useFollowedGame";
@@ -16,7 +17,8 @@ function LiveGame({ gameId }: { gameId: string }) {
   const { events, connection } = useFollowedGame(gameId);
   const scope: Scope = new URLSearchParams(window.location.search).get("scope") === "public" ? "public" : "full";
   const explain = useMemo(() => (scope === "full" ? explainer(gameId) : undefined), [gameId, scope]);
-  return <GameConsole events={events} connection={connection} explain={explain} scope={scope} />;
+  const cost = useMemo(() => (scope === "full" ? costSource(gameId) : undefined), [gameId, scope]);
+  return <GameConsole events={events} connection={connection} explain={explain} cost={cost} scope={scope} />;
 }
 
 function Welcome() {

@@ -10,7 +10,8 @@ const connectionLabel: Record<ConnectionStatus, string> = {
 };
 
 /**
- * The Day, the Phase, Open-floor progress and the outcome, plus the mystery-mode switch.
+ * The Day, the Phase, Open-floor progress and the outcome (a win, or an abort and its reason),
+ * plus the mystery-mode switch.
  * Without `onMysteryChange` the switch is locked, as it is for a public-scope page.
  */
 export function PhaseBar({
@@ -36,9 +37,14 @@ export function PhaseBar({
           Open floor: {view.openFloorStatements} of {view.config.open_floor_statements} Statements
         </p>
       )}
-      {view.outcome && (
+      {view.outcome?.winner && (
         <p className="text-amber-300">
           <strong>{victoryLabel[view.outcome.winner]}.</strong> {view.outcome.reason}
+        </p>
+      )}
+      {view.outcome && !view.outcome.winner && (
+        <p role="alert" className="text-rose-300">
+          <strong>Game aborted:</strong> {view.outcome.reason}
         </p>
       )}
       <div className="ml-auto flex items-center gap-3">

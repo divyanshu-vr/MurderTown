@@ -10,11 +10,18 @@ from uuid import uuid4
 import structlog
 from structlog.contextvars import bind_contextvars, bound_contextvars
 
-from mm.agents import Brain, BrainFactory
+from mm.agents import Brain, BrainFactory, ModelFailureError
 from mm.engine import GameConfig, Phase
 from mm.engine.casting import cast
 from mm.engine.decisions import Decision, DecisionRequest
-from mm.engine.events import DecisionFellBack, Event, EventPayload, GameEnded, PhaseStarted
+from mm.engine.events import (
+    DecisionFellBack,
+    Event,
+    EventPayload,
+    GameAborted,
+    GameEnded,
+    PhaseStarted,
+)
 from mm.engine.perception import perceived_by
 from mm.engine.rules import Verdict, verdict, verdict_at_end_of_day, why_illegal
 from mm.engine.state import GameState
@@ -96,7 +103,10 @@ class Game:
             bound_contextvars(game=self.game_id, day=0, phase=Phase.SETUP),
             tracing.in_game(self.game_id, self.config.seed),
         ):
-            await self._play()
+            try:
+                await self._play()
+            except ModelFailureError as failed:
+                await self.abort(failed)
 
     async def _play(self) -> None:
         for payload in cast(self.config, self.rng):
@@ -114,6 +124,14 @@ class Game:
     async def end(self, outcome: Verdict) -> None:
         await self.append(GameEnded(winner=outcome.winner, reason=outcome.reason))
         logger.info("game ended", winner=outcome.winner, reason=outcome.reason)
+
+    async def abort(self, failed: ModelFailureError) -> None:
+        """Stop the game: the model gave no answer to a decision. The abort names that decision,
+        so the Mind inspector can explain it."""
+        request = failed.request
+        aborted = GameAborted(resident=request.resident, kind=request.kind, reason=failed.problem)
+        await self.log.append(aborted, decision_id=request.id)
+        logger.warning("game aborted", resident=request.resident, reason=failed.problem)
 
     async def append(self, payload: EventPayload, cause: Decided[Decision] | None = None) -> Event:
         """Append an event; if a decision caused it, link them and report a fallback once."""
@@ -154,13 +172,18 @@ class Game:
     ) -> list[Decided[D]]:
         """Ask several Residents at once. Answers come back in the order they were asked.
 
+        If any decision fails, every ask still finishes, and the first failure in the order
+        asked is raised, so the same failures always stop the game the same way.
         `pending` is what has been said but not appended yet; each Resident still
         perceives only the part of it their visibility allows.
         """
         stamped = [self._stamp(request) for request in requests]
         heard = [self.log.unlogged(payload) for payload in pending]
         asked = (self._ask(request, answer, heard) for request in stamped)
-        return list(await asyncio.gather(*asked))
+        answers = await asyncio.gather(*asked, return_exceptions=True)
+        if failure := next((a for a in answers if isinstance(a, BaseException)), None):
+            raise failure
+        return [a for a in answers if not isinstance(a, BaseException)]
 
     def _trace_labels(self, request: DecisionRequest) -> dict[str, str]:
         """What a decision's trace says about it: who decided what, when, in which role,

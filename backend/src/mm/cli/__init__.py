@@ -107,6 +107,8 @@ def play(
         typer.echo(f"\n{tally.summary()} Fallbacks: {fallbacks}.")
     if events_file:
         typer.echo(f"Saved {events_file.count} events to {out}")
+    if result.state.winner is None:
+        raise typer.Exit(code=1)  # the game was aborted; the transcript says why
 
 
 def _brains(

@@ -63,6 +63,8 @@ export function describeEvent(event: Event): string {
       return `${payload.resident}'s ${decisionLabel[payload.kind]} ${fellBack(payload.reason)}`;
     case "game_ended":
       return `${victoryLabel[payload.winner]}. ${payload.reason}`;
+    case "game_aborted":
+      return `The game is aborted: ${payload.resident}'s ${decisionLabel[payload.kind]} got no answer: ${payload.reason}`;
   }
 }
 

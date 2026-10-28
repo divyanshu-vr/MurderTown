@@ -3,9 +3,10 @@
 Every decision, whatever its kind, goes the same way: build the prompt from
 what the Resident perceived, call the model, read the answer, and retry once
 with the problem quoted if it is unusable. If it still is, or the model
-refused or timed out, a safe default is used and the reason is reported. Each
-attempt is recorded before the decision is returned, with anything from outside
-the game world hidden, because records are shown to Spectators.
+refused, a safe default is used and the reason is reported. If the model gave no
+answer at all (it timed out or failed), the decision fails and the game stops.
+Each attempt is recorded before the decision is returned or fails, with anything
+from outside the game world hidden, because records are shown to Spectators.
 """
 
 from collections.abc import Sequence
@@ -15,7 +16,7 @@ from random import Random
 import structlog
 
 from mm.agents.answers import ANSWERS, answer_schema, read_answer, scrubbed
-from mm.agents.brain import Brain, BrainFactory
+from mm.agents.brain import Brain, BrainFactory, ModelFailureError
 from mm.agents.calls import CallOutcome, CallRecorder, ModelCall, label_generation
 from mm.agents.prompting import build_prompt, prompt_version, retry_task
 from mm.engine import Resident, Role
@@ -23,6 +24,7 @@ from mm.engine.decisions import Answer, Decision, DecisionRequest
 from mm.engine.events import Event
 from mm.engine.perception import assignment
 from mm.llm import Effort, ModelProvider, ModelReply, ModelRequest
+from mm.llm.prices import equivalent_cost, price_of
 from mm.observability import tracing
 
 logger = structlog.get_logger(__name__)
@@ -57,7 +59,7 @@ class LLMBrain:
             with tracing.tracer().start_as_current_span(
                 f"{request.kind} attempt {attempt}"
             ) as span:
-                reply = await self.provider.complete(
+                reply = await self._complete(
                     ModelRequest(
                         system=prompt.system,
                         prompt=message,
@@ -82,9 +84,18 @@ class LLMBrain:
             await self.record(call)
             if decision is not None:
                 return Answer(decision)
-            if outcome != "invalid":
-                break  # refusals, timeouts and errors are not worth a second try
+            if outcome in ("timeout", "error"):
+                raise ModelFailureError(request, problem or outcome)
+            if outcome == "refusal":
+                break  # a refusal is not worth a second try
         return Answer(ANSWERS[request.kind].fallback(request, self.rng), fallback_reason=problem)
+
+    async def _complete(self, request: ModelRequest) -> ModelReply:
+        """The provider's reply. A provider that raises instead of replying has failed."""
+        try:
+            return await self.provider.complete(request)
+        except Exception as error:  # whatever went wrong, the game reports it
+            return ModelReply(outcome="error", data=None, text="", error=str(error) or repr(error))
 
     def _call(
         self,
@@ -117,7 +128,7 @@ class LLMBrain:
             output_tokens=reply.usage.output_tokens,
             cache_read_tokens=reply.usage.cache_read_tokens,
             cache_write_tokens=reply.usage.cache_write_tokens,
-            cost_usd=reply.cost_usd,
+            cost_usd=equivalent_cost(self.settings.model, reply.usage),
             latency_ms=reply.latency_ms,
             trace_id=trace_id,
         )
@@ -142,7 +153,11 @@ def _interpret(
 def llm_agents(
     provider: ModelProvider, settings: AgentSettings, record: CallRecorder, seed: int
 ) -> BrainFactory:
-    """A factory giving every Resident its own Agent, sharing one provider."""
+    """A factory giving every Resident its own Agent, sharing one provider.
+
+    A model with no price is refused here, before the game starts.
+    """
+    price_of(settings.model)
 
     def make(resident: Resident) -> Brain:
         return LLMBrain(provider, settings, record, Random(f"{seed}:{resident.name}"))

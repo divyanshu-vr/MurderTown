@@ -5,6 +5,7 @@
  * streams new events. Reconnecting with that number, and dropping anything
  * already seen, means the caller never gets a gap or a duplicate.
  */
+import { endsTheGame } from "../core/gameView";
 import type { Event } from "../protocol";
 
 export type ConnectionStatus = "connecting" | "live" | "reconnecting" | "ended";
@@ -41,7 +42,7 @@ export function followGame(gameId: string, follower: GameFollower, apiUrl = API_
       if (event.seq <= lastSeq) return;
       lastSeq = event.seq;
       follower.onEvent(event);
-      if (event.payload.type === "game_ended") {
+      if (endsTheGame(event)) {
         stopped = true;
         follower.onStatus("ended");
       }

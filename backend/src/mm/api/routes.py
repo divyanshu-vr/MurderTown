@@ -8,11 +8,12 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, WebSocket
 from pydantic import BaseModel
 
-from mm.agents import ModelCall
+from mm.agents import Cost, ModelCall
 from mm.agents.memory import Mind, mind_of
 from mm.api.live_games import LiveGames
 from mm.engine import GameConfig, Side
-from mm.engine.events import Event, GameEnded
+from mm.engine.events import Event, ends_the_game
+from mm.orchestrator.narrator import NARRATOR
 from mm.persistence import Bus, GameStatus, GameStore
 
 router = APIRouter()
@@ -58,6 +59,15 @@ class Explanation(BaseModel):
     event: Event
     attempts: list[ModelCall]
     fallback_reason: str | None
+
+
+class CostReport(BaseModel):
+    """What a game's model calls cost: in all, for each Resident, and for the narrator,
+    who is not a Resident. The Residents' rows and the narrator's add up to the total."""
+
+    total: Cost
+    residents: dict[str, Cost]
+    narrator: Cost
 
 
 Scope = Literal["public", "full"]
@@ -144,9 +154,22 @@ async def explain(game_id: str, seq: int, services: ServicesDep) -> Explanation:
     )
 
 
+@router.get("/games/{game_id}/cost", dependencies=[FullScope])
+async def cost(game_id: str, services: ServicesDep) -> CostReport:
+    """Full scope only: what each Resident's calls cost reveals who acts at Night."""
+    if await services.store.game(game_id) is None:
+        raise HTTPException(status_code=404, detail="No such game")
+    residents = await services.store.cost(game_id)
+    narrator = residents.pop(NARRATOR.name, Cost())
+    return CostReport(
+        total=sum(residents.values(), narrator), residents=residents, narrator=narrator
+    )
+
+
 @router.websocket("/ws/games/{game_id}")
 async def stream_game(socket: WebSocket, game_id: str, after: int = 0) -> None:
-    """Send every event after `after`, stored or still to come, and close when the game ends."""
+    """Send every event after `after`, stored or still to come, and close when the game ends
+    or is aborted."""
     services: Services = socket.app.state.services
     await socket.accept()
     if await services.store.game(game_id) is None:
@@ -156,7 +179,7 @@ async def stream_game(socket: WebSocket, game_id: str, after: int = 0) -> None:
     async with aclosing(backlog_then_live(services, game_id, after)) as events:
         async for event in events:
             await socket.send_text(event.model_dump_json())
-            if isinstance(event.payload, GameEnded):
+            if ends_the_game(event.payload):
                 break
     await socket.close()
 

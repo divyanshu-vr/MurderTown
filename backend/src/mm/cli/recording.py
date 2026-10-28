@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from mm.agents import ModelCall
+from mm.agents import Cost, ModelCall
 
 
 class NdjsonFile:
@@ -29,28 +29,20 @@ class CallTally:
     """Totals across every model call of a game, for the summary printed at the end."""
 
     outcomes: Counter[str] = field(default_factory=Counter)
-    input_tokens: int = 0
-    output_tokens: int = 0
-    cache_read_tokens: int = 0
-    cache_write_tokens: int = 0
-    cost_usd: float = 0.0
+    cost: Cost = field(default_factory=Cost)
 
     async def __call__(self, call: ModelCall) -> None:
         self.outcomes[call.outcome] += 1
-        self.input_tokens += call.input_tokens
-        self.output_tokens += call.output_tokens
-        self.cache_read_tokens += call.cache_read_tokens
-        self.cache_write_tokens += call.cache_write_tokens
-        self.cost_usd += call.cost_usd or 0.0
+        self.cost += Cost.of([call])
 
     def summary(self) -> str:
-        calls = sum(self.outcomes.values())
+        cost = self.cost
         outcomes = ", ".join(
             f"{count} {outcome}" for outcome, count in sorted(self.outcomes.items())
         )
         return (
-            f"{calls} model calls ({outcomes}). Tokens: {self.input_tokens} in, "
-            f"{self.output_tokens} out, {self.cache_read_tokens} read from cache, "
-            f"{self.cache_write_tokens} written to cache. "
-            f"Equivalent API cost: ${self.cost_usd:.4f}."
+            f"{cost.calls} model calls ({outcomes}). Tokens: {cost.input_tokens} in, "
+            f"{cost.output_tokens} out, {cost.cache_read_tokens} read from cache, "
+            f"{cost.cache_write_tokens} written to cache. "
+            f"Equivalent API cost: ${cost.cost_usd:.4f}."
         )

@@ -108,7 +108,7 @@ async def test_a_generation_carries_the_model_its_words_usage_cost_and_metadata(
         "cache_read_input_tokens": 30,
         "cache_creation_input_tokens": 0,
     }
-    assert json.loads(str(attribute(generation, tracing.COST))) == {"total": 0.0002}
+    assert json.loads(str(attribute(generation, tracing.COST))) == {"total": call.cost_usd}
     assert attribute(generation, tracing.USER) == call.resident
     assert call.kind is DecisionKind.STATEMENT  # Day 1 opens with Discussion, not reflections
     assert attribute(generation, tracing.TAGS) == ("discussion", "statement", "fake")

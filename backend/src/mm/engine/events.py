@@ -337,6 +337,22 @@ class GameEnded(Payload):
         return Visibility.everyone()
 
 
+class GameAborted(Payload):
+    """The game stopped before either side won, because the model gave no answer to a decision.
+
+    `reason` is only the problem, such as a timeout, never the decision itself: a
+    Spectator in mystery mode sees it, and the decision could reveal a Night role.
+    """
+
+    type: Literal["game_aborted"] = "game_aborted"
+    resident: str
+    kind: DecisionKind
+    reason: str
+
+    def visibility(self) -> Visibility:
+        return Visibility.spectators()
+
+
 EventPayload = Annotated[
     GameStarted
     | RoleAssigned
@@ -361,9 +377,15 @@ EventPayload = Annotated[
     | ConversationMessagePosted
     | ReflectionWritten
     | DecisionFellBack
-    | GameEnded,
+    | GameEnded
+    | GameAborted,
     Field(discriminator="type"),
 ]
+
+
+def ends_the_game(payload: Payload) -> bool:
+    """Whether nothing can follow this event: a side won, or the game was aborted."""
+    return isinstance(payload, GameEnded | GameAborted)
 
 
 class Event(BaseModel):

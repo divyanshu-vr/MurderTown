@@ -105,6 +105,42 @@ export interface ConversationStarted {
   residents: [unknown, unknown];
 }
 /**
+ * What some model calls used and cost together: the cost meter's numbers.
+ *
+ * Prompt tokens are every token the model read, whether billed as plain input,
+ * read from the cache or written to it.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Cost".
+ */
+export interface Cost {
+  calls: number;
+  input_tokens: number;
+  output_tokens: number;
+  cache_read_tokens: number;
+  cache_write_tokens: number;
+  cost_usd: number;
+  prompt_tokens: number;
+  /**
+   * The share of prompt tokens read from the cache, or None before any prompt.
+   */
+  cache_hit_rate: number | null;
+}
+/**
+ * What a game's model calls cost: in all, for each Resident, and for the narrator,
+ * who is not a Resident. The Residents' rows and the narrator's add up to the total.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "CostReport".
+ */
+export interface CostReport {
+  total: Cost;
+  residents: {
+    [k: string]: Cost;
+  };
+  narrator: Cost;
+}
+/**
  * A decision source could not give a usable answer, so a safe default was used instead.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
@@ -178,7 +214,8 @@ export interface Event {
     | ConversationMessagePosted
     | ReflectionWritten
     | DecisionFellBack
-    | GameEnded;
+    | GameEnded
+    | GameAborted;
 }
 /**
  * Who may perceive an event: everyone, a named set of Residents, or Spectators only.
@@ -436,6 +473,21 @@ export interface GameEnded {
   reason: string;
 }
 /**
+ * The game stopped before either side won, because the model gave no answer to a decision.
+ *
+ * `reason` is only the problem, such as a timeout, never the decision itself: a
+ * Spectator in mystery mode sees it, and the decision could reveal a Night role.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "GameAborted".
+ */
+export interface GameAborted {
+  type: "game_aborted";
+  resident: string;
+  kind: DecisionKind;
+  reason: string;
+}
+/**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "EventPage".
  */
@@ -480,7 +532,7 @@ export interface ModelCall {
   output_tokens: number;
   cache_read_tokens: number;
   cache_write_tokens: number;
-  cost_usd: number | null;
+  cost_usd: number;
   latency_ms: number;
   trace_id: string | null;
 }
