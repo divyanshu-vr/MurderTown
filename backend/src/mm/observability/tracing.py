@@ -12,8 +12,8 @@ https://langfuse.com/integrations/native/opentelemetry
 """
 
 import base64
-from collections.abc import Iterator, Sequence
-from contextlib import AbstractContextManager, contextmanager
+from collections.abc import Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 
 from opentelemetry import baggage, context, trace
@@ -26,7 +26,6 @@ from opentelemetry.sdk.trace.export import (
     SimpleSpanProcessor,
     SpanExporter,
 )
-from opentelemetry.util.types import Attributes
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -62,11 +61,13 @@ class TracingSettings(BaseSettings):
 
 
 class GameAttributes(SpanProcessor):
-    """Copies the game's baggage onto every span as it starts, so each one carries the session."""
+    """Copies baggage onto every span as it starts: the game's session on all of them, and a
+    decision's labels on every span of its trace. Baggage holds only strings, so the tags
+    travel comma-separated and become a list again here."""
 
     def on_start(self, span: Span, parent_context: Context | None = None) -> None:
         for key, value in baggage.get_all(parent_context).items():
-            span.set_attribute(key, str(value))
+            span.set_attribute(key, str(value).split(",") if key == TAGS else str(value))
 
     def on_end(self, span: ReadableSpan) -> None:
         pass
@@ -131,10 +132,28 @@ def in_game(game_id: str, seed: int) -> Iterator[None]:
         context.detach(token)
 
 
-def new_trace(name: str, attributes: Attributes) -> AbstractContextManager[trace.Span]:
-    """A span that starts a trace of its own, still within the game's session."""
-    root = trace.set_span_in_context(trace.INVALID_SPAN)
-    return tracer().start_as_current_span(name, context=root, attributes=attributes)
+@contextmanager
+def new_trace(name: str, labels: Mapping[str, str], tags: Sequence[str]) -> Iterator[trace.Span]:
+    """A span that starts a trace of its own, still within the game's session.
+
+    The labels and tags travel as baggage, so every span of the trace carries them,
+    as Langfuse v4 expects.
+    """
+    labelled = context.get_current()
+    for key, value in {**labels, TAGS: ",".join(tags)}.items():
+        labelled = baggage.set_baggage(key, value, context=labelled)
+    token = context.attach(trace.set_span_in_context(trace.INVALID_SPAN, labelled))
+    try:
+        with tracer().start_as_current_span(name) as span:
+            yield span
+    finally:
+        context.detach(token)
+
+
+def add_tag(span: trace.Span, tag: str) -> None:
+    """Add one tag to the trace's tags, on this span."""
+    tags = str(baggage.get_baggage(TAGS) or "").split(",")
+    span.set_attribute(TAGS, [*filter(None, tags), tag])
 
 
 def trace_id_of(span: trace.Span) -> str | None:

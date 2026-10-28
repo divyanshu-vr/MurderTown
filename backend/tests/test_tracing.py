@@ -114,6 +114,8 @@ async def test_a_generation_carries_the_model_its_words_usage_cost_and_metadata(
     assert attribute(generation, tracing.TAGS) == ("discussion", "statement", "fake")
     assert attribute(generation, tracing.METADATA + "attempt") == 1
     assert attribute(generation, tracing.METADATA + "outcome") == "ok"
+    sequence = attribute(decision, tracing.METADATA + "sequence")
+    assert sequence and attribute(generation, tracing.METADATA + "sequence") == sequence
     assert attribute(decision, tracing.TRACE_NAME) == call.kind
     assert attribute(decision, tracing.USER) == call.resident
     assert attribute(decision, tracing.METADATA + "role") in {"murderer", "doctor", "detective",

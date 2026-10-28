@@ -16,7 +16,7 @@ import structlog
 
 from mm.agents.answers import ANSWERS, answer_schema, read_answer, scrubbed
 from mm.agents.brain import Brain, BrainFactory
-from mm.agents.calls import CallOutcome, CallRecorder, ModelCall, describe
+from mm.agents.calls import CallOutcome, CallRecorder, ModelCall, label_generation
 from mm.agents.prompting import build_prompt, prompt_version, retry_task
 from mm.engine import Resident, Role
 from mm.engine.decisions import Answer, Decision, DecisionRequest
@@ -28,6 +28,10 @@ from mm.observability import tracing
 logger = structlog.get_logger(__name__)
 
 ATTEMPTS = 2
+
+LOGGED = {"kind", "attempt", "outcome", "input_tokens", "output_tokens", "cache_read_tokens",
+          "cost_usd", "latency_ms"}  # fmt: skip
+"""What a model call's log line says; the prompt and answer stay in the record and the trace."""
 
 
 @dataclass(frozen=True)
@@ -45,7 +49,6 @@ class LLMBrain:
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         prompt = build_prompt(request, view, self.rng)
         schema = answer_schema(request.kind)
-        phase = view[-1].phase if view else ""
         assigned = assignment(view, request.resident)  # the narrator has no role
         own_role = assigned.role if assigned else None
         problem: str | None = None
@@ -74,17 +77,8 @@ class LLMBrain:
                     problem=problem,
                     trace_id=tracing.trace_id_of(span),
                 )
-                describe(span, call, phase)
-            logger.info(
-                "model call",
-                kind=request.kind,
-                attempt=attempt,
-                outcome=outcome,
-                input_tokens=reply.usage.input_tokens,
-                output_tokens=reply.usage.output_tokens,
-                cache_read_tokens=reply.usage.cache_read_tokens,
-                latency_ms=reply.latency_ms,
-            )
+                label_generation(span, call)
+            logger.info("model call", **call.model_dump(include=LOGGED))
             await self.record(call)
             if decision is not None:
                 return Answer(decision)

@@ -6,8 +6,9 @@ call is stored too, before the event its decision causes.
 """
 
 import asyncio
-import logging
 from collections.abc import Callable
+
+import structlog
 
 from mm.agents import BrainFactory, CallRecorder, ModelCall, scripted_bots
 from mm.engine import GameConfig
@@ -15,7 +16,7 @@ from mm.engine.events import Event
 from mm.orchestrator import play_game
 from mm.persistence import Bus, GameStore
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 BrainsFor = Callable[[GameConfig, CallRecorder], BrainFactory]
 """Chooses the decision source for every Resident of a new game; Agents record their calls."""
@@ -51,7 +52,7 @@ class LiveGames:
             brains = self.brains_for(config, record)
             result = await play_game(config, brains, observers=[store, publish], game_id=game_id)
         except Exception:
-            logger.exception("game %s failed", game_id)
+            logger.exception("game failed", game=game_id)
             await self.store.set_status(game_id, "failed")
             return
         await self.store.set_status(game_id, "finished", winner=result.state.winner)

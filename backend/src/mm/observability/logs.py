@@ -19,6 +19,7 @@ def configure_logging(stream: TextIO = sys.stderr, level: int = logging.INFO) ->
         processors=[
             structlog.contextvars.merge_contextvars,
             structlog.processors.add_log_level,
+            structlog.processors.format_exc_info,
             structlog.processors.TimeStamper(fmt="iso", utc=True),
             structlog.processors.JSONRenderer(sort_keys=True),
         ],

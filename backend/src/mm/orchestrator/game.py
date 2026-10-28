@@ -162,17 +162,17 @@ class Game:
         asked = (self._ask(request, answer, heard) for request in stamped)
         return list(await asyncio.gather(*asked))
 
-    def _trace_attributes(self, request: DecisionRequest) -> dict[str, str | list[str]]:
-        """What a decision's trace says about it: who decided what, when, in which role."""
+    def _trace_labels(self, request: DecisionRequest) -> dict[str, str]:
+        """What a decision's trace says about it: who decided what, when, in which role,
+        and how far into the log (its sequence number) the game was when they were asked."""
         role = self.state.roles.get(request.resident)
-        phase = self.state.phase
         return {
             tracing.TRACE_NAME: request.kind,
             tracing.USER: request.resident,
-            tracing.TAGS: [phase, request.kind],
             tracing.METADATA + "decision": request.id,
+            tracing.METADATA + "sequence": str(len(self.log.events)),
             tracing.METADATA + "day": str(self.state.day),
-            tracing.METADATA + "phase": phase,
+            tracing.METADATA + "phase": self.state.phase,
             tracing.METADATA + "role": role or "narrator",
         }
 
@@ -186,7 +186,11 @@ class Game:
         view = perceived_by([*self.log.events, *heard], request.resident)
         with (
             bound_contextvars(resident=request.resident, decision=request.id),
-            tracing.new_trace(f"decision.{request.kind}", self._trace_attributes(request)),
+            tracing.new_trace(
+                f"decision.{request.kind}",
+                self._trace_labels(request),
+                tags=[self.state.phase, request.kind],
+            ),
         ):
             reply = await self.brains[request.resident].decide(request, view)
         decision = reply.decision

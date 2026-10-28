@@ -48,8 +48,9 @@ class ModelCall(BaseModel):
     """The trace of the decision this attempt belongs to, when tracing is on."""
 
 
-def describe(span: Span, call: ModelCall, phase: str) -> None:
-    """Label a model attempt's span as a Langfuse generation, from its record."""
+def label_generation(span: Span, call: ModelCall) -> None:
+    """Label a model attempt's span as a Langfuse generation, from its record. The trace's
+    own labels (who decided, when) reach this span as baggage from the runner."""
     usage = {
         "input": call.input_tokens,
         "output": call.output_tokens,
@@ -63,13 +64,11 @@ def describe(span: Span, call: ModelCall, phase: str) -> None:
             tracing.INPUT: json.dumps({"system": call.system, "prompt": call.prompt}),
             tracing.OUTPUT: call.raw_text,
             tracing.USAGE: json.dumps(usage),
-            tracing.USER: call.resident,
-            tracing.TAGS: [phase, call.kind, call.provider],
-            tracing.METADATA + "decision": call.decision_id,
             tracing.METADATA + "attempt": call.attempt,
             tracing.METADATA + "outcome": call.outcome,
         }
     )
+    tracing.add_tag(span, call.provider)
     if call.cost_usd is not None:
         span.set_attribute(tracing.COST, json.dumps({"total": call.cost_usd}))
     if call.problem:

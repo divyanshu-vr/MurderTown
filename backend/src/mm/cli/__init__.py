@@ -20,8 +20,7 @@ from mm.engine import GameConfig
 from mm.engine.events import DecisionFellBack, Event, ReflectionWritten
 from mm.llm import Effort
 from mm.llm.claude_agent_sdk import ClaudeAgentSDKProvider, SubscriptionError
-from mm.observability.logs import configure_logging
-from mm.observability.tracing import TracingSettings, configure_tracing, shutdown_tracing
+from mm.observability import observed
 from mm.orchestrator import EventObserver, play_game
 
 app = typer.Typer(help="MurderTown: a town where every Resident is played by an Agent.")
@@ -51,11 +50,17 @@ def play(
     model: str = AgentSettings.model,
     effort: Effort = AgentSettings.effort,
     concurrency: Annotated[int, typer.Option(help="Agents thinking at once.")] = 5,
+    open_floor_statements: Annotated[
+        int, typer.Option(help="Statements allowed on each Open floor; 0 skips it.")
+    ] = GameConfig.model_fields["open_floor_statements"].default,
     open_floor_seconds: Annotated[
         int | None, typer.Option(help="Time limit on each Open floor; off by default here.")
     ] = None,
     out: Annotated[Path | None, typer.Option(help="Save the event log as NDJSON.")] = None,
     quiet: Annotated[bool, typer.Option(help="Do not print the transcript.")] = False,
+    log_level: Annotated[
+        str, typer.Option(help="JSON log lines on stderr from this level up, e.g. info.")
+    ] = "warning",
 ) -> None:
     """Play one game and print its transcript as it happens.
 
@@ -70,6 +75,7 @@ def play(
         doctor=doctor,
         detective=detective,
         sheriff=sheriff,
+        open_floor_statements=open_floor_statements,
         open_floor_seconds=open_floor_seconds,
     )
     tally = CallTally()
@@ -94,12 +100,8 @@ def play(
         typer.echo(f"Cannot start a live game: {error}", err=True)
         raise typer.Exit(code=1) from error
 
-    configure_logging(level=logging.WARNING)  # the transcript is on stdout; only problems here
-    configure_tracing(TracingSettings())
-    try:
+    with observed(logging.getLevelNamesMapping()[log_level.upper()]):
         result = asyncio.run(play_game(config, brain_for, observers))
-    finally:
-        shutdown_tracing()
     fallbacks = sum(isinstance(event.payload, DecisionFellBack) for event in result.events)
     if brains is Brains.CLAUDE:
         typer.echo(f"\n{tally.summary()} Fallbacks: {fallbacks}.")
@@ -142,12 +144,7 @@ def serve(host: str = "127.0.0.1", port: int = 8000, reload: bool = False) -> No
     Logs are JSON lines on stderr; traces go wherever the MM_LANGFUSE_* or
     MM_OTLP_ENDPOINT settings say (see backend/.env.example).
     """
-    configure_logging()
-    configure_tracing(TracingSettings())
-    try:
-        uvicorn.run("mm.api:create_app", factory=True, host=host, port=port, reload=reload)
-    finally:
-        shutdown_tracing()
+    uvicorn.run("mm.api.app:observed_app", factory=True, host=host, port=port, reload=reload)
 
 
 @app.command()

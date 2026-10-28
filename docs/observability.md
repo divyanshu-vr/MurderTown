@@ -13,7 +13,7 @@ jq 'select(.event == "model call" and .resident == "Cora")' server.log
 
 A game is a **session**, each decision is a **trace** (its root span is `decision.<kind>`), and each model attempt is a **generation** inside it, with the model, the prompt, the raw answer, token usage (input, output, cache read, cache creation), cost, and its attempt number and outcome. Retries and fallbacks show as extra generations marked WARNING or ERROR. Every stored model call keeps its trace id, and the Mind inspector's "why?" drawer links to it.
 
-Copy `backend/.env.example` to `backend/.env` and choose where traces go.
+Tracing is off until you choose where traces go, so tests and quick local games send nothing anywhere. Copy `backend/.env.example` to `backend/.env` and choose Langfuse, a local Jaeger or the console below.
 
 ### Langfuse Cloud
 
@@ -36,4 +36,9 @@ Open http://localhost:16686. Set `VITE_TRACE_URL=http://localhost:16686/trace/{t
 
 ## Checked with a live game
 
-Not yet: this needs the Host's Langfuse keys and a short live Claude game. To check, follow "Langfuse Cloud" above, then confirm one session for the game, one trace per decision, a generation per attempt with token and cost fields filled in, and add a screenshot here.
+On 2026-10-28 a one-Day live game (6 Residents, `claude-haiku-5-5`) was played with the Langfuse keys set, and Langfuse read back through its API:
+
+- the game's 13 decisions were 13 traces, all in the game's one session;
+- each trace's root span was its `decision.<kind>` (6 statements, 6 ballots, 1 last words), with the Resident as the user;
+- each trace held one generation with the model, prompt and answer, token usage (input, output, cache read, cache creation) and cost, and metadata for the attempt, outcome, role, Phase, Day, decision and log position;
+- all 13 stored model calls kept their trace ids.
