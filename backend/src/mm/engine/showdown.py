@@ -13,14 +13,13 @@ from mm.engine.state import GameState
 
 def armed_sheriff(state: GameState) -> str | None:
     """The living Sheriff, if they still hold the bullet. Needs the true state."""
-    if state.bullet_spent:
-        return None
-    return next((name for name in state.living if state.roles[name] is Role.SHERIFF), None)
+    sheriffs = state.living_as(Role.SHERIFF)
+    return sheriffs[0] if sheriffs and not state.bullet_spent else None
 
 
 def shot_options(state: GameState, sheriff: str) -> tuple[str, ...]:
     """Every other living Resident."""
-    return tuple(name for name in state.living if name != sheriff)
+    return state.others_living(sheriff)
 
 
 def shot_events(state: GameState, sheriff: str, target: str) -> list[EventPayload]:

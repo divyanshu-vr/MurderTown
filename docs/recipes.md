@@ -9,7 +9,7 @@ Run after any change to an event, a decision answer or an API model:
 ```
 cd backend
 uv run mm schema
-uv run mm play --seed 7 --quiet --out ../fixtures/scripted-game.ndjson
+uv run mm play --seed 18 --quiet --out ../fixtures/scripted-game.ndjson
 uv run mm minds
 cd ../frontend
 pnpm gen:types
@@ -29,8 +29,8 @@ pnpm gen:types
 1. Add the kind to `DecisionKind` and its answer, a `Decision` subclass, in `engine/decisions.py`.
 2. Add its legality rule to `why_illegal` (`engine/rules.py`). Its options builder lives with the rules of its Phase, as `ballot_options` lives in `engine/vote.py`.
 3. Teach `ScriptedBot` to answer it legally (`agents/scripted.py`).
-4. Give LLM Agents what they need: an `AnswerSpec` with its safe default in `ANSWERS` (`agents/answers.py`), and an instructions template in `agents/prompts/decisions/`, listed in `DECISION_TEMPLATES` (`agents/prompting.py`).
-5. Ask for it from the Phase with `game.decide` (one Resident) or `game.decide_all` (several at once, answers in the order asked), and append the event it causes with `cause=` so the event names the decision. Every decision causes at least one event, even one that changes nothing (a Sheriff holding fire causes `SheriffHeldFire`), so the Mind inspector can list and explain it. The event's payload names the Resident who decided.
+4. Give LLM Agents what they need: an `AnswerSpec` with its safe default in `ANSWERS` (`agents/answers.py`), either `always(...)` one decision or a function of the request such as `any_option`, and an instructions template in `agents/prompts/decisions/`, listed in `DECISION_TEMPLATES` (`agents/prompting.py`). If the answer picks a Resident from a list, reuse the `Target` shape and its legality rule.
+5. Ask for it from the Phase with `game.decide` (one Resident) or `game.decide_all` (several at once, answers in the order asked), and append the event it causes with `cause=` so the event names the decision. Every decision causes at least one event, even one that changes nothing (a Sheriff holding fire causes `SheriffHeldFire`), so the Mind inspector can list and explain it. The event's payload names the Resident who decided. Do not ask a Resident whose options are empty.
 6. Add its label to `decisionLabel` (`frontend/src/ui/labels.ts`); the `Record` type will not compile until you do.
 7. Write seam-1 tests that script the answers with a `Puppet`-style test decision source, and seam-2 tests with `FakeModel` for its fallback.
 

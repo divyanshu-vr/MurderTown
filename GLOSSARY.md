@@ -124,6 +124,22 @@ _Avoid_: hideout, lair, murderer chat
 The Resident the Murderers choose to murder at Night.
 _Avoid_: target (for the chosen Resident), kill
 
+**Kill vote**:
+A Murderer's choice of Victim. The most chosen Resident becomes the Victim; a lone Murderer's choice settles it.
+_Avoid_: hit, contract
+
+**Finding**:
+What the Detective learns about one Resident: "murderer" or "not murderer". It is not always right.
+_Avoid_: result, verdict, reading
+
+**Narrator**:
+The game's storyteller, who tells a Recap at each Dawn. Not a Resident: it knows only what the whole town knows.
+_Avoid_: game master (the engine), host
+
+**Recap**:
+The Narrator's short account of the Day before, told at Dawn.
+_Avoid_: summary, news (Dawn's announcements are the news)
+
 ### Agents' minds
 
 **Persona**:
@@ -155,7 +171,7 @@ A Resident's latest Suspicion about each other Resident they have formed an opin
 _Avoid_: suspicion list, belief state
 
 **Fallback**:
-The safe default used when a Resident gives no usable answer: silence, a Bid to listen, holding fire, a vote to skip, no Last words, or no notes.
+The safe default used when a Resident gives no usable answer: silence, a Bid to listen, holding fire, a vote to skip, no Last words, no notes, or a random legal choice at Night.
 _Avoid_: default answer, error
 
 ### Watching

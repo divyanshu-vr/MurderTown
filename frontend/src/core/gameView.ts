@@ -83,6 +83,13 @@ export function applyEvent(view: GameView, event: Event): GameView {
       return { ...view, phase: "ended", outcome: { winner: payload.winner, reason: payload.reason } };
     case "sheriff_fired": // the deaths that follow change the roster
     case "sheriff_held_fire":
+    case "den_message_posted":
+    case "kill_vote_cast":
+    case "victim_chosen": // a murder changes the roster only when Dawn announces it
+    case "resident_protected":
+    case "resident_investigated":
+    case "attack_thwarted":
+    case "recap_narrated":
     case "last_words_spoken":
     case "ballot_cast":
     case "vote_resolved":

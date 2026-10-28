@@ -29,6 +29,10 @@ class GameConfig(BaseModel):
     """A wall-clock limit on the Open floor, for watched games; None turns it off."""
     sheriff_shoots_at: Literal["showdown", "night"] = "showdown"
     """When the Sheriff may fire: in the Showdown each Day, or at Night instead."""
+    detective_accuracy: float = Field(default=0.8, ge=0.5, le=1.0)
+    """How often the Detective's finding is right. A Detective who is never wrong is too strong."""
+    dawn_names_the_saved: bool = True
+    """Whether Dawn says who the Doctor saved, or only that someone was saved."""
     seed: int = 0
 
     @model_validator(mode="after")

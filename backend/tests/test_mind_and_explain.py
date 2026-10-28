@@ -25,8 +25,9 @@ from mm.engine.events import (
     StatementMade,
 )
 from mm.llm import ModelReply, ModelRequest
+from mm.orchestrator.narrator import NARRATOR
 from tests.conftest import start_game, wait_until_finished
-from tests.support import FakeModel, answer_kind, may_perceive, model_answer, sensible_answer
+from tests.support import FakeModel, may_perceive, model_answer, sensible_answer
 
 CONFIG = {"residents": 8, "murderers": 2, "max_days": 2, "seed": 4}
 
@@ -123,9 +124,9 @@ def test_an_event_no_decision_caused_has_nothing_to_explain(client: TestClient) 
 
 def leaky_first_ballots(request: ModelRequest) -> ModelReply:
     """Ballots name an email first and SKIP when retried; every Statement is refused."""
-    match answer_kind(request):
+    match request.kind:
         case DecisionKind.BALLOT if "could not be used" not in request.prompt:
-            return model_answer({"choice": "host@example.com"})
+            return model_answer({"target": "host@example.com", "reason": "a hunch"})
         case DecisionKind.STATEMENT:
             return ModelReply(outcome="refusal", data=None, text="", error="the model declined")
         case _:
@@ -177,12 +178,13 @@ def test_each_game_explains_its_decisions_with_its_own_model_calls(
     finished_game(agents_client)
     game_id, events = finished_game(agents_client, {**CONFIG, "seed": 5})
     residents = {resident.name for resident in first(events, GameStarted)[1].residents}
+    deciders = residents | {NARRATOR.name}
 
     for event in events:
         if event.decision_id:
             explained = agents_client.get(f"/games/{game_id}/events/{event.seq}/explain").json()
             assert explained["attempts"]
-            assert {attempt["resident"] for attempt in explained["attempts"]} <= residents
+            assert {attempt["resident"] for attempt in explained["attempts"]} <= deciders
 
 
 def changed_suspicion(events: list[Event]) -> tuple[int, str, Suspicion, Suspicion]:

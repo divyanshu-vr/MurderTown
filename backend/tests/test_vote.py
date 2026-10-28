@@ -6,7 +6,7 @@ import pytest
 
 from mm.agents import Brain
 from mm.engine import GameConfig, Resident
-from mm.engine.decisions import Answer, Ballot, DecisionKind, DecisionRequest
+from mm.engine.decisions import Answer, DecisionKind, DecisionRequest, Target
 from mm.engine.events import (
     BallotCast,
     Event,
@@ -66,7 +66,7 @@ async def test_every_ballot_is_cast_without_seeing_another_ballot_from_the_same_
 
     await play_game(SIX_RESIDENTS.model_copy(update={"max_days": 2}), lambda _: Peeking({}))
 
-    assert len(ballots_seen_today) == 12
+    assert len(ballots_seen_today) > 6  # both Days' Votes were watched
     assert set(ballots_seen_today) == {0}
 
 
@@ -74,7 +74,7 @@ async def test_a_ballot_for_someone_who_is_not_an_option_is_rejected() -> None:
     class Cheater(Puppet):
         async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
             if request.kind is DecisionKind.BALLOT:
-                return Answer(Ballot(choice=request.resident))
+                return Answer(Target(target=request.resident, reason="me"))
             return await super().decide(request, view)
 
     def make(resident: Resident) -> Brain:

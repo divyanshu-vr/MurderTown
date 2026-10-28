@@ -1,66 +1,18 @@
 [
  {
-  "seq": 151,
-  "mind": {
-   "resident": "Elsie",
-   "role": "doctor",
-   "persona": {
-    "occupation": "baker",
-    "temperament": "warm, chatty and a little nosy",
-    "speaking_style": "homely, with kitchen metaphors",
-    "quirk": "judges people by how they take their bread"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 1: Watch who votes with whom.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     }
-    ],
-    "dossier": []
-   }
-  }
- },
- {
-  "seq": 152,
-  "mind": {
-   "resident": "Milo",
-   "role": "civilian",
-   "persona": {
-    "occupation": "blacksmith",
-    "temperament": "blunt and stubborn",
-    "speaking_style": "short sentences, no hedging",
-    "quirk": "distrusts anyone with soft hands"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 1: Watch who votes with whom.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     }
-    ],
-    "dossier": []
-   }
-  }
- },
- {
   "seq": 153,
   "mind": {
-   "resident": "Umar",
-   "role": "civilian",
+   "resident": "Finn",
+   "role": "murderer",
    "persona": {
-    "occupation": "retired sailor",
-    "temperament": "cynical and sharp-witted",
-    "speaking_style": "dry humour and old war stories",
-    "quirk": "has a nickname for everyone"
+    "occupation": "night watchman",
+    "temperament": "gruff and suspicious",
+    "speaking_style": "clipped, like a report",
+    "quirk": "claims to have seen everything after dark"
    },
-   "teammates": [],
+   "teammates": [
+    "Otto"
+   ],
    "memory": {
     "notebook": "As of Day 1: Watch who votes with whom.",
     "journal": [
@@ -77,92 +29,80 @@
  {
   "seq": 154,
   "mind": {
-   "resident": "Cora",
-   "role": "murderer",
+   "resident": "Dax",
+   "role": "sheriff",
    "persona": {
-    "occupation": "mayor",
-    "temperament": "pompous and eager to lead",
-    "speaking_style": "speeches and appeals to order",
-    "quirk": "proposes a motion for everything"
+    "occupation": "librarian",
+    "temperament": "quiet and observant",
+    "speaking_style": "soft-spoken, notices small details",
+    "quirk": "quotes old books nobody else has read"
    },
-   "teammates": [
-    "Luna"
-   ],
+   "teammates": [],
    "memory": {
-    "notebook": "As of Day 1: I doubt Dax.",
+    "notebook": "As of Day 1: Watch who votes with whom.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Still wary of Dax."
+      "text": "Nothing certain yet."
      }
     ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 64,
-      "note": "I said I doubt them"
-     }
-    ]
+    "dossier": []
    }
   }
  },
  {
   "seq": 155,
   "mind": {
-   "resident": "Rosa",
-   "role": "civilian",
+   "resident": "Vera",
+   "role": "doctor",
    "persona": {
-    "occupation": "fisherman",
-    "temperament": "laid-back but superstitious",
-    "speaking_style": "slow drawl, sea sayings",
-    "quirk": "reads omens in the weather"
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 1: I doubt Silas.",
+    "notebook": "As of Day 1: Watch who votes with whom.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Still wary of Silas."
+      "text": "Nothing certain yet."
      }
     ],
-    "dossier": [
-     {
-      "resident": "Silas",
-      "suspicion": 69,
-      "note": "I said I doubt them"
-     }
-    ]
+    "dossier": []
    }
   }
  },
  {
   "seq": 156,
   "mind": {
-   "resident": "Dax",
-   "role": "civilian",
+   "resident": "Otto",
+   "role": "murderer",
    "persona": {
-    "occupation": "carpenter",
-    "temperament": "cheerful and steady",
-    "speaking_style": "builds arguments like furniture, step by step",
-    "quirk": "knocks on wood after every accusation"
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
    },
-   "teammates": [],
+   "teammates": [
+    "Finn"
+   ],
    "memory": {
-    "notebook": "As of Day 1: I doubt Zane.",
+    "notebook": "As of Day 1: I doubt Greta.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Still wary of Zane."
+      "text": "Still wary of Greta."
      }
     ],
     "dossier": [
      {
-      "resident": "Zane",
-      "suspicion": 76,
+      "resident": "Greta",
+      "suspicion": 56,
       "note": "I said I doubt them"
      }
     ]
@@ -172,48 +112,58 @@
  {
   "seq": 157,
   "mind": {
-   "resident": "Luna",
-   "role": "murderer",
-   "persona": {
-    "occupation": "postmistress",
-    "temperament": "brisk and gossipy",
-    "speaking_style": "rapid-fire, full of names",
-    "quirk": "knows who writes letters to whom"
-   },
-   "teammates": [
-    "Cora"
-   ],
-   "memory": {
-    "notebook": "",
-    "journal": [],
-    "dossier": []
-   }
-  }
- },
- {
-  "seq": 159,
-  "mind": {
-   "resident": "Silas",
+   "resident": "Hugo",
    "role": "civilian",
    "persona": {
-    "occupation": "painter",
-    "temperament": "dreamy and intuitive",
-    "speaking_style": "vivid impressions rather than facts",
-    "quirk": "trusts first impressions above all evidence"
+    "occupation": "blacksmith",
+    "temperament": "blunt and stubborn",
+    "speaking_style": "short sentences, no hedging",
+    "quirk": "distrusts anyone with soft hands"
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 1: I doubt Cora.",
+    "notebook": "As of Day 1: I doubt Wren.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Still wary of Cora."
+      "text": "Still wary of Wren."
      }
     ],
     "dossier": [
      {
-      "resident": "Cora",
+      "resident": "Wren",
+      "suspicion": 57,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 158,
+  "mind": {
+   "resident": "Greta",
+   "role": "civilian",
+   "persona": {
+    "occupation": "apothecary",
+    "temperament": "calm and clinical",
+    "speaking_style": "precise, uses careful qualifiers",
+    "quirk": "describes suspicion as a diagnosis"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 1: I doubt Cyrus.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
       "suspicion": 86,
       "note": "I said I doubt them"
      }
@@ -222,15 +172,40 @@
   }
  },
  {
-  "seq": 160,
+  "seq": 159,
   "mind": {
-   "resident": "Zane",
+   "resident": "Pia",
    "role": "civilian",
    "persona": {
-    "occupation": "innkeeper",
-    "temperament": "sociable and shrewd",
-    "speaking_style": "friendly, remembers every rumour",
-    "quirk": "keeps a mental ledger of who owes whom"
+    "occupation": "tailor",
+    "temperament": "vain and theatrical",
+    "speaking_style": "flowery and dramatic",
+    "quirk": "notices what everyone is wearing"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 1: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 160,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "schoolteacher",
+    "temperament": "patient and methodical",
+    "speaking_style": "lays out evidence point by point",
+    "quirk": "corrects other people's grammar under pressure"
    },
    "teammates": [],
    "memory": {
@@ -249,118 +224,28 @@
  {
   "seq": 161,
   "mind": {
-   "resident": "Quinn",
-   "role": "detective",
-   "persona": {
-    "occupation": "librarian",
-    "temperament": "quiet and observant",
-    "speaking_style": "soft-spoken, notices small details",
-    "quirk": "quotes old books nobody else has read"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 1: Watch who votes with whom.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     }
-    ],
-    "dossier": []
-   }
-  }
- },
- {
-  "seq": 279,
-  "mind": {
-   "resident": "Elsie",
-   "role": "doctor",
-   "persona": {
-    "occupation": "baker",
-    "temperament": "warm, chatty and a little nosy",
-    "speaking_style": "homely, with kitchen metaphors",
-    "quirk": "judges people by how they take their bread"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 2: Watch who votes with whom.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     }
-    ],
-    "dossier": []
-   }
-  }
- },
- {
-  "seq": 280,
-  "mind": {
-   "resident": "Milo",
+   "resident": "Wren",
    "role": "civilian",
    "persona": {
-    "occupation": "blacksmith",
-    "temperament": "blunt and stubborn",
-    "speaking_style": "short sentences, no hedging",
-    "quirk": "distrusts anyone with soft hands"
+    "occupation": "farmer",
+    "temperament": "honest and down-to-earth",
+    "speaking_style": "plain words, practical questions",
+    "quirk": "compares people to livestock"
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 1: Watch who votes with whom.",
+    "notebook": "As of Day 1: I doubt Otto.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Nothing certain yet."
-     }
-    ],
-    "dossier": []
-   }
-  }
- },
- {
-  "seq": 282,
-  "mind": {
-   "resident": "Umar",
-   "role": "civilian",
-   "persona": {
-    "occupation": "retired sailor",
-    "temperament": "cynical and sharp-witted",
-    "speaking_style": "dry humour and old war stories",
-    "quirk": "has a nickname for everyone"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 2: I doubt Zane, Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Silas."
+      "text": "Still wary of Otto."
      }
     ],
     "dossier": [
      {
-      "resident": "Silas",
-      "suspicion": 78,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 86,
+      "resident": "Otto",
+      "suspicion": 89,
       "note": "I said I doubt them"
      }
     ]
@@ -368,83 +253,9 @@
   }
  },
  {
-  "seq": 283,
+  "seq": 162,
   "mind": {
-   "resident": "Cora",
-   "role": "murderer",
-   "persona": {
-    "occupation": "mayor",
-    "temperament": "pompous and eager to lead",
-    "speaking_style": "speeches and appeals to order",
-    "quirk": "proposes a motion for everything"
-   },
-   "teammates": [
-    "Luna"
-   ],
-   "memory": {
-    "notebook": "As of Day 2: I doubt Dax.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 72,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 284,
-  "mind": {
-   "resident": "Rosa",
-   "role": "civilian",
-   "persona": {
-    "occupation": "fisherman",
-    "temperament": "laid-back but superstitious",
-    "speaking_style": "slow drawl, sea sayings",
-    "quirk": "reads omens in the weather"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 2: I doubt Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Silas",
-      "suspicion": 74,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 285,
-  "mind": {
-   "resident": "Dax",
+   "resident": "Ezra",
    "role": "civilian",
    "persona": {
     "occupation": "carpenter",
@@ -454,48 +265,10 @@
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 2: I doubt Zane.",
+    "notebook": "As of Day 1: Watch who votes with whom.",
     "journal": [
      {
       "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Zane",
-      "suspicion": 75,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 286,
-  "mind": {
-   "resident": "Luna",
-   "role": "murderer",
-   "persona": {
-    "occupation": "postmistress",
-    "temperament": "brisk and gossipy",
-    "speaking_style": "rapid-fire, full of names",
-    "quirk": "knows who writes letters to whom"
-   },
-   "teammates": [
-    "Cora"
-   ],
-   "memory": {
-    "notebook": "As of Day 2: Watch who votes with whom.",
-    "journal": [
-     {
-      "day": 2,
       "phase": "vote",
       "text": "Nothing certain yet."
      }
@@ -505,40 +278,30 @@
   }
  },
  {
-  "seq": 287,
+  "seq": 163,
   "mind": {
-   "resident": "Silas",
-   "role": "civilian",
+   "resident": "Cyrus",
+   "role": "detective",
    "persona": {
-    "occupation": "painter",
-    "temperament": "dreamy and intuitive",
-    "speaking_style": "vivid impressions rather than facts",
-    "quirk": "trusts first impressions above all evidence"
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 2: I doubt Cora, Zane.",
+    "notebook": "As of Day 1: I doubt Hugo.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
+      "text": "Still wary of Hugo."
      }
     ],
     "dossier": [
      {
-      "resident": "Cora",
-      "suspicion": 78,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 79,
+      "resident": "Hugo",
+      "suspicion": 72,
       "note": "I said I doubt them"
      }
     ]
@@ -546,10 +309,72 @@
   }
  },
  {
-  "seq": 288,
+  "seq": 175,
   "mind": {
-   "resident": "Zane",
-   "role": "civilian",
+   "resident": "Finn",
+   "role": "murderer",
+   "persona": {
+    "occupation": "night watchman",
+    "temperament": "gruff and suspicious",
+    "speaking_style": "clipped, like a report",
+    "quirk": "claims to have seen everything after dark"
+   },
+   "teammates": [
+    "Otto"
+   ],
+   "memory": {
+    "notebook": "As of Day 2: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 176,
+  "mind": {
+   "resident": "Dax",
+   "role": "sheriff",
+   "persona": {
+    "occupation": "librarian",
+    "temperament": "quiet and observant",
+    "speaking_style": "soft-spoken, notices small details",
+    "quirk": "quotes old books nobody else has read"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 177,
+  "mind": {
+   "resident": "Vera",
+   "role": "doctor",
    "persona": {
     "occupation": "innkeeper",
     "temperament": "sociable and shrewd",
@@ -558,7 +383,7 @@
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 2: I doubt Umar, Milo, Quinn.",
+    "notebook": "As of Day 2: Watch who votes with whom.",
     "journal": [
      {
       "day": 1,
@@ -567,24 +392,46 @@
      },
      {
       "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 178,
+  "mind": {
+   "resident": "Otto",
+   "role": "murderer",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [
+    "Finn"
+   ],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Greta.",
+    "journal": [
+     {
+      "day": 1,
       "phase": "vote",
-      "text": "Still wary of Quinn."
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
      }
     ],
     "dossier": [
      {
-      "resident": "Milo",
-      "suspicion": 72,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Quinn",
+      "resident": "Greta",
       "suspicion": 59,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Umar",
-      "suspicion": 83,
       "note": "I said I doubt them"
      }
     ]
@@ -592,69 +439,9 @@
   }
  },
  {
-  "seq": 289,
+  "seq": 179,
   "mind": {
-   "resident": "Quinn",
-   "role": "detective",
-   "persona": {
-    "occupation": "librarian",
-    "temperament": "quiet and observant",
-    "speaking_style": "soft-spoken, notices small details",
-    "quirk": "quotes old books nobody else has read"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 2: Watch who votes with whom.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     }
-    ],
-    "dossier": []
-   }
-  }
- },
- {
-  "seq": 406,
-  "mind": {
-   "resident": "Elsie",
-   "role": "doctor",
-   "persona": {
-    "occupation": "baker",
-    "temperament": "warm, chatty and a little nosy",
-    "speaking_style": "homely, with kitchen metaphors",
-    "quirk": "judges people by how they take their bread"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 2: Watch who votes with whom.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     }
-    ],
-    "dossier": []
-   }
-  }
- },
- {
-  "seq": 408,
-  "mind": {
-   "resident": "Milo",
+   "resident": "Hugo",
    "role": "civilian",
    "persona": {
     "occupation": "blacksmith",
@@ -664,287 +451,59 @@
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 1: Watch who votes with whom.",
+    "notebook": "As of Day 2: I doubt Wren.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Nothing certain yet."
-     }
-    ],
-    "dossier": []
-   }
-  }
- },
- {
-  "seq": 410,
-  "mind": {
-   "resident": "Umar",
-   "role": "civilian",
-   "persona": {
-    "occupation": "retired sailor",
-    "temperament": "cynical and sharp-witted",
-    "speaking_style": "dry humour and old war stories",
-    "quirk": "has a nickname for everyone"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 3: I doubt Zane, Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
+      "text": "Still wary of Wren."
      },
      {
       "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
+      "phase": "dawn",
+      "text": "Still wary of Wren."
      }
     ],
     "dossier": [
      {
-      "resident": "Silas",
-      "suspicion": 86,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 73,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 411,
-  "mind": {
-   "resident": "Cora",
-   "role": "murderer",
-   "persona": {
-    "occupation": "mayor",
-    "temperament": "pompous and eager to lead",
-    "speaking_style": "speeches and appeals to order",
-    "quirk": "proposes a motion for everything"
-   },
-   "teammates": [
-    "Luna"
-   ],
-   "memory": {
-    "notebook": "As of Day 3: I doubt Dax, Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 62,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 74,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 412,
-  "mind": {
-   "resident": "Rosa",
-   "role": "civilian",
-   "persona": {
-    "occupation": "fisherman",
-    "temperament": "laid-back but superstitious",
-    "speaking_style": "slow drawl, sea sayings",
-    "quirk": "reads omens in the weather"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 3: I doubt Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Silas",
-      "suspicion": 83,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 413,
-  "mind": {
-   "resident": "Dax",
-   "role": "civilian",
-   "persona": {
-    "occupation": "carpenter",
-    "temperament": "cheerful and steady",
-    "speaking_style": "builds arguments like furniture, step by step",
-    "quirk": "knocks on wood after every accusation"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 3: I doubt Zane, Elsie.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Elsie",
-      "suspicion": 60,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 76,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 414,
-  "mind": {
-   "resident": "Luna",
-   "role": "murderer",
-   "persona": {
-    "occupation": "postmistress",
-    "temperament": "brisk and gossipy",
-    "speaking_style": "rapid-fire, full of names",
-    "quirk": "knows who writes letters to whom"
-   },
-   "teammates": [
-    "Cora"
-   ],
-   "memory": {
-    "notebook": "As of Day 3: I doubt Zane.",
-    "journal": [
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Zane",
-      "suspicion": 86,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 415,
-  "mind": {
-   "resident": "Silas",
-   "role": "civilian",
-   "persona": {
-    "occupation": "painter",
-    "temperament": "dreamy and intuitive",
-    "speaking_style": "vivid impressions rather than facts",
-    "quirk": "trusts first impressions above all evidence"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 3: I doubt Cora, Zane, Milo, Luna.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 56,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
+      "resident": "Wren",
       "suspicion": 69,
       "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 180,
+  "mind": {
+   "resident": "Greta",
+   "role": "civilian",
+   "persona": {
+    "occupation": "apothecary",
+    "temperament": "calm and clinical",
+    "speaking_style": "precise, uses careful qualifiers",
+    "quirk": "describes suspicion as a diagnosis"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Cyrus.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
      },
      {
-      "resident": "Milo",
-      "suspicion": 74,
-      "note": "I said I doubt them"
-     },
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     }
+    ],
+    "dossier": [
      {
-      "resident": "Zane",
-      "suspicion": 66,
+      "resident": "Cyrus",
+      "suspicion": 89,
       "note": "I said I doubt them"
      }
     ]
@@ -952,10 +511,244 @@
   }
  },
  {
-  "seq": 416,
+  "seq": 181,
   "mind": {
-   "resident": "Zane",
+   "resident": "Pia",
    "role": "civilian",
+   "persona": {
+    "occupation": "tailor",
+    "temperament": "vain and theatrical",
+    "speaking_style": "flowery and dramatic",
+    "quirk": "notices what everyone is wearing"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 182,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "schoolteacher",
+    "temperament": "patient and methodical",
+    "speaking_style": "lays out evidence point by point",
+    "quirk": "corrects other people's grammar under pressure"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 183,
+  "mind": {
+   "resident": "Wren",
+   "role": "civilian",
+   "persona": {
+    "occupation": "farmer",
+    "temperament": "honest and down-to-earth",
+    "speaking_style": "plain words, practical questions",
+    "quirk": "compares people to livestock"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Otto",
+      "suspicion": 77,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 184,
+  "mind": {
+   "resident": "Ezra",
+   "role": "civilian",
+   "persona": {
+    "occupation": "carpenter",
+    "temperament": "cheerful and steady",
+    "speaking_style": "builds arguments like furniture, step by step",
+    "quirk": "knocks on wood after every accusation"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 185,
+  "mind": {
+   "resident": "Cyrus",
+   "role": "detective",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Hugo.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Hugo."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Hugo."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Hugo",
+      "suspicion": 71,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 311,
+  "mind": {
+   "resident": "Finn",
+   "role": "murderer",
+   "persona": {
+    "occupation": "night watchman",
+    "temperament": "gruff and suspicious",
+    "speaking_style": "clipped, like a report",
+    "quirk": "claims to have seen everything after dark"
+   },
+   "teammates": [
+    "Otto"
+   ],
+   "memory": {
+    "notebook": "As of Day 2: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 312,
+  "mind": {
+   "resident": "Dax",
+   "role": "sheriff",
+   "persona": {
+    "occupation": "librarian",
+    "temperament": "quiet and observant",
+    "speaking_style": "soft-spoken, notices small details",
+    "quirk": "quotes old books nobody else has read"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 313,
+  "mind": {
+   "resident": "Vera",
+   "role": "doctor",
    "persona": {
     "occupation": "innkeeper",
     "temperament": "sociable and shrewd",
@@ -964,7 +757,7 @@
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 3: I doubt Umar, Milo, Cora.",
+    "notebook": "As of Day 2: I doubt Ezra.",
     "journal": [
      {
       "day": 1,
@@ -973,34 +766,19 @@
      },
      {
       "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Quinn."
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
-      "day": 3,
+      "day": 2,
       "phase": "vote",
-      "text": "Still wary of Cora."
+      "text": "Still wary of Ezra."
      }
     ],
     "dossier": [
      {
-      "resident": "Cora",
-      "suspicion": 60,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
-      "suspicion": 61,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Quinn",
-      "suspicion": 59,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Umar",
-      "suspicion": 85,
+      "resident": "Ezra",
+      "suspicion": 65,
       "note": "I said I doubt them"
      }
     ]
@@ -1008,44 +786,46 @@
   }
  },
  {
-  "seq": 525,
+  "seq": 314,
   "mind": {
-   "resident": "Elsie",
-   "role": "doctor",
+   "resident": "Otto",
+   "role": "murderer",
    "persona": {
-    "occupation": "baker",
-    "temperament": "warm, chatty and a little nosy",
-    "speaking_style": "homely, with kitchen metaphors",
-    "quirk": "judges people by how they take their bread"
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
    },
-   "teammates": [],
+   "teammates": [
+    "Finn"
+   ],
    "memory": {
-    "notebook": "As of Day 4: I doubt Silas, Luna.",
+    "notebook": "As of Day 2: I doubt Greta, Cyrus.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Nothing certain yet."
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
      },
      {
       "day": 2,
       "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Luna."
+      "text": "Still wary of Cyrus."
      }
     ],
     "dossier": [
      {
-      "resident": "Luna",
-      "suspicion": 64,
+      "resident": "Cyrus",
+      "suspicion": 82,
       "note": "I said I doubt them"
      },
      {
-      "resident": "Silas",
+      "resident": "Greta",
       "suspicion": 87,
       "note": "I said I doubt them"
      }
@@ -1054,9 +834,9 @@
   }
  },
  {
-  "seq": 526,
+  "seq": 315,
   "mind": {
-   "resident": "Milo",
+   "resident": "Hugo",
    "role": "civilian",
    "persona": {
     "occupation": "blacksmith",
@@ -1066,177 +846,73 @@
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 4: I doubt Umar, Zane.",
+    "notebook": "As of Day 2: I doubt Wren.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Nothing certain yet."
+      "text": "Still wary of Wren."
      },
      {
-      "day": 4,
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 2,
       "phase": "vote",
-      "text": "Still wary of Zane."
+      "text": "Still wary of Wren."
      }
     ],
     "dossier": [
      {
-      "resident": "Umar",
-      "suspicion": 65,
+      "resident": "Wren",
+      "suspicion": 66,
       "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 316,
+  "mind": {
+   "resident": "Greta",
+   "role": "civilian",
+   "persona": {
+    "occupation": "apothecary",
+    "temperament": "calm and clinical",
+    "speaking_style": "precise, uses careful qualifiers",
+    "quirk": "describes suspicion as a diagnosis"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Cyrus, Vera.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
      },
      {
-      "resident": "Zane",
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Vera."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
       "suspicion": 72,
       "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 527,
-  "mind": {
-   "resident": "Umar",
-   "role": "civilian",
-   "persona": {
-    "occupation": "retired sailor",
-    "temperament": "cynical and sharp-witted",
-    "speaking_style": "dry humour and old war stories",
-    "quirk": "has a nickname for everyone"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 4: I doubt Zane, Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
      },
      {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Silas",
-      "suspicion": 89,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 67,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 528,
-  "mind": {
-   "resident": "Cora",
-   "role": "murderer",
-   "persona": {
-    "occupation": "mayor",
-    "temperament": "pompous and eager to lead",
-    "speaking_style": "speeches and appeals to order",
-    "quirk": "proposes a motion for everything"
-   },
-   "teammates": [
-    "Luna"
-   ],
-   "memory": {
-    "notebook": "As of Day 4: I doubt Dax, Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 76,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 60,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 529,
-  "mind": {
-   "resident": "Rosa",
-   "role": "civilian",
-   "persona": {
-    "occupation": "fisherman",
-    "temperament": "laid-back but superstitious",
-    "speaking_style": "slow drawl, sea sayings",
-    "quirk": "reads omens in the weather"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 4: I doubt Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Silas",
+      "resident": "Vera",
       "suspicion": 56,
       "note": "I said I doubt them"
      }
@@ -1245,184 +921,19 @@
   }
  },
  {
-  "seq": 530,
+  "seq": 317,
   "mind": {
-   "resident": "Dax",
+   "resident": "Pia",
    "role": "civilian",
    "persona": {
-    "occupation": "carpenter",
-    "temperament": "cheerful and steady",
-    "speaking_style": "builds arguments like furniture, step by step",
-    "quirk": "knocks on wood after every accusation"
+    "occupation": "tailor",
+    "temperament": "vain and theatrical",
+    "speaking_style": "flowery and dramatic",
+    "quirk": "notices what everyone is wearing"
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 4: I doubt Zane, Elsie.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Elsie",
-      "suspicion": 62,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 89,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 531,
-  "mind": {
-   "resident": "Luna",
-   "role": "murderer",
-   "persona": {
-    "occupation": "postmistress",
-    "temperament": "brisk and gossipy",
-    "speaking_style": "rapid-fire, full of names",
-    "quirk": "knows who writes letters to whom"
-   },
-   "teammates": [
-    "Cora"
-   ],
-   "memory": {
-    "notebook": "As of Day 4: I doubt Zane, Dax, Silas.",
-    "journal": [
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 81,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 61,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 89,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 532,
-  "mind": {
-   "resident": "Silas",
-   "role": "civilian",
-   "persona": {
-    "occupation": "painter",
-    "temperament": "dreamy and intuitive",
-    "speaking_style": "vivid impressions rather than facts",
-    "quirk": "trusts first impressions above all evidence"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 4: I doubt Cora, Zane, Milo, Luna.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 73,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 64,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
-      "suspicion": 58,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 74,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 533,
-  "mind": {
-   "resident": "Zane",
-   "role": "civilian",
-   "persona": {
-    "occupation": "innkeeper",
-    "temperament": "sociable and shrewd",
-    "speaking_style": "friendly, remembers every rumour",
-    "quirk": "keeps a mental ledger of who owes whom"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 4: I doubt Umar, Milo, Cora.",
+    "notebook": "As of Day 2: I doubt Umar.",
     "journal": [
      {
       "day": 1,
@@ -1431,330 +942,18 @@
      },
      {
       "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Quinn."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 80,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Quinn",
-      "suspicion": 59,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Umar",
-      "suspicion": 58,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 642,
-  "mind": {
-   "resident": "Elsie",
-   "role": "doctor",
-   "persona": {
-    "occupation": "baker",
-    "temperament": "warm, chatty and a little nosy",
-    "speaking_style": "homely, with kitchen metaphors",
-    "quirk": "judges people by how they take their bread"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 5: I doubt Silas, Luna.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
+      "phase": "dawn",
       "text": "Nothing certain yet."
      },
      {
       "day": 2,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Luna",
-      "suspicion": 69,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 69,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 643,
-  "mind": {
-   "resident": "Umar",
-   "role": "civilian",
-   "persona": {
-    "occupation": "retired sailor",
-    "temperament": "cynical and sharp-witted",
-    "speaking_style": "dry humour and old war stories",
-    "quirk": "has a nickname for everyone"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 5: I doubt Zane, Silas, Luna, Elsie.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Elsie",
-      "suspicion": 77,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 78,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 72,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 57,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 644,
-  "mind": {
-   "resident": "Cora",
-   "role": "murderer",
-   "persona": {
-    "occupation": "mayor",
-    "temperament": "pompous and eager to lead",
-    "speaking_style": "speeches and appeals to order",
-    "quirk": "proposes a motion for everything"
-   },
-   "teammates": [
-    "Luna"
-   ],
-   "memory": {
-    "notebook": "As of Day 5: I doubt Dax, Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 73,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 84,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 645,
-  "mind": {
-   "resident": "Rosa",
-   "role": "civilian",
-   "persona": {
-    "occupation": "fisherman",
-    "temperament": "laid-back but superstitious",
-    "speaking_style": "slow drawl, sea sayings",
-    "quirk": "reads omens in the weather"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 5: I doubt Silas, Dax.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 57,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 72,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 646,
-  "mind": {
-   "resident": "Dax",
-   "role": "civilian",
-   "persona": {
-    "occupation": "carpenter",
-    "temperament": "cheerful and steady",
-    "speaking_style": "builds arguments like furniture, step by step",
-    "quirk": "knocks on wood after every accusation"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 5: I doubt Zane, Elsie, Umar.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 5,
       "phase": "vote",
       "text": "Still wary of Umar."
      }
     ],
     "dossier": [
      {
-      "resident": "Elsie",
-      "suspicion": 81,
-      "note": "I said I doubt them"
-     },
-     {
       "resident": "Umar",
-      "suspicion": 81,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
       "suspicion": 90,
       "note": "I said I doubt them"
      }
@@ -1763,270 +962,19 @@
   }
  },
  {
-  "seq": 647,
-  "mind": {
-   "resident": "Luna",
-   "role": "murderer",
-   "persona": {
-    "occupation": "postmistress",
-    "temperament": "brisk and gossipy",
-    "speaking_style": "rapid-fire, full of names",
-    "quirk": "knows who writes letters to whom"
-   },
-   "teammates": [
-    "Cora"
-   ],
-   "memory": {
-    "notebook": "As of Day 5: I doubt Zane, Dax, Silas, Rosa.",
-    "journal": [
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Rosa."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 69,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Rosa",
-      "suspicion": 83,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 76,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 61,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 648,
-  "mind": {
-   "resident": "Silas",
-   "role": "civilian",
-   "persona": {
-    "occupation": "painter",
-    "temperament": "dreamy and intuitive",
-    "speaking_style": "vivid impressions rather than facts",
-    "quirk": "trusts first impressions above all evidence"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 5: I doubt Cora, Zane, Luna.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 80,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
-      "suspicion": 58,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 81,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 649,
-  "mind": {
-   "resident": "Zane",
-   "role": "civilian",
-   "persona": {
-    "occupation": "innkeeper",
-    "temperament": "sociable and shrewd",
-    "speaking_style": "friendly, remembers every rumour",
-    "quirk": "keeps a mental ledger of who owes whom"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 5: I doubt Umar, Cora.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Quinn."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 60,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Quinn",
-      "suspicion": 59,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Umar",
-      "suspicion": 58,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 747,
-  "mind": {
-   "resident": "Elsie",
-   "role": "doctor",
-   "persona": {
-    "occupation": "baker",
-    "temperament": "warm, chatty and a little nosy",
-    "speaking_style": "homely, with kitchen metaphors",
-    "quirk": "judges people by how they take their bread"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 6: I doubt Silas, Luna.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Luna",
-      "suspicion": 70,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 82,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 748,
+  "seq": 318,
   "mind": {
    "resident": "Umar",
    "role": "civilian",
    "persona": {
-    "occupation": "retired sailor",
-    "temperament": "cynical and sharp-witted",
-    "speaking_style": "dry humour and old war stories",
-    "quirk": "has a nickname for everyone"
+    "occupation": "schoolteacher",
+    "temperament": "patient and methodical",
+    "speaking_style": "lays out evidence point by point",
+    "quirk": "corrects other people's grammar under pressure"
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 6: I doubt Zane, Silas, Luna, Elsie.",
+    "notebook": "As of Day 2: I doubt Pia, Greta.",
     "journal": [
      {
       "day": 1,
@@ -2035,112 +983,24 @@
      },
      {
       "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Elsie",
-      "suspicion": 67,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 57,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 78,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 77,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 749,
-  "mind": {
-   "resident": "Cora",
-   "role": "murderer",
-   "persona": {
-    "occupation": "mayor",
-    "temperament": "pompous and eager to lead",
-    "speaking_style": "speeches and appeals to order",
-    "quirk": "proposes a motion for everything"
-   },
-   "teammates": [
-    "Luna"
-   ],
-   "memory": {
-    "notebook": "As of Day 6: I doubt Dax, Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Dax."
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
       "day": 2,
       "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
+      "text": "Still wary of Greta."
      }
     ],
     "dossier": [
      {
-      "resident": "Dax",
-      "suspicion": 63,
+      "resident": "Greta",
+      "suspicion": 70,
       "note": "I said I doubt them"
      },
      {
-      "resident": "Silas",
-      "suspicion": 55,
+      "resident": "Pia",
+      "suspicion": 56,
       "note": "I said I doubt them"
      }
     ]
@@ -2148,9 +1008,50 @@
   }
  },
  {
-  "seq": 750,
+  "seq": 319,
   "mind": {
-   "resident": "Dax",
+   "resident": "Wren",
+   "role": "civilian",
+   "persona": {
+    "occupation": "farmer",
+    "temperament": "honest and down-to-earth",
+    "speaking_style": "plain words, practical questions",
+    "quirk": "compares people to livestock"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Otto",
+      "suspicion": 79,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 320,
+  "mind": {
+   "resident": "Ezra",
    "role": "civilian",
    "persona": {
     "occupation": "carpenter",
@@ -2160,53 +1061,28 @@
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 6: I doubt Zane, Elsie, Umar.",
+    "notebook": "As of Day 2: I doubt Otto.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Still wary of Zane."
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
       "day": 2,
       "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Umar."
+      "text": "Still wary of Otto."
      }
     ],
     "dossier": [
      {
-      "resident": "Elsie",
-      "suspicion": 73,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Umar",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 59,
+      "resident": "Otto",
+      "suspicion": 84,
       "note": "I said I doubt them"
      }
     ]
@@ -2214,22 +1090,78 @@
   }
  },
  {
-  "seq": 751,
+  "seq": 321,
   "mind": {
-   "resident": "Luna",
+   "resident": "Cyrus",
+   "role": "detective",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Hugo, Wren.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Hugo."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Hugo."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Wren."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Hugo",
+      "suspicion": 74,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Wren",
+      "suspicion": 71,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 333,
+  "mind": {
+   "resident": "Finn",
    "role": "murderer",
    "persona": {
-    "occupation": "postmistress",
-    "temperament": "brisk and gossipy",
-    "speaking_style": "rapid-fire, full of names",
-    "quirk": "knows who writes letters to whom"
+    "occupation": "night watchman",
+    "temperament": "gruff and suspicious",
+    "speaking_style": "clipped, like a report",
+    "quirk": "claims to have seen everything after dark"
    },
    "teammates": [
-    "Cora"
+    "Otto"
    ],
    "memory": {
-    "notebook": "As of Day 6: I doubt Zane, Dax, Silas.",
+    "notebook": "As of Day 3: Watch who votes with whom.",
     "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
      {
       "day": 2,
       "phase": "vote",
@@ -2237,43 +1169,146 @@
      },
      {
       "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 334,
+  "mind": {
+   "resident": "Dax",
+   "role": "sheriff",
+   "persona": {
+    "occupation": "librarian",
+    "temperament": "quiet and observant",
+    "speaking_style": "soft-spoken, notices small details",
+    "quirk": "quotes old books nobody else has read"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
       "phase": "vote",
-      "text": "Still wary of Zane."
+      "text": "Nothing certain yet."
      },
      {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
-      "day": 5,
+      "day": 2,
       "phase": "vote",
-      "text": "Still wary of Rosa."
+      "text": "Nothing certain yet."
      },
      {
-      "day": 6,
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 335,
+  "mind": {
+   "resident": "Vera",
+   "role": "doctor",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
       "phase": "vote",
-      "text": "Still wary of Silas."
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Ezra."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      }
     ],
     "dossier": [
      {
-      "resident": "Dax",
-      "suspicion": 71,
+      "resident": "Ezra",
+      "suspicion": 65,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 336,
+  "mind": {
+   "resident": "Otto",
+   "role": "murderer",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [
+    "Finn"
+   ],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Greta, Cyrus.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 58,
       "note": "I said I doubt them"
      },
      {
-      "resident": "Rosa",
-      "suspicion": 83,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 82,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
+      "resident": "Greta",
       "suspicion": 88,
       "note": "I said I doubt them"
      }
@@ -2282,69 +1317,141 @@
   }
  },
  {
-  "seq": 752,
+  "seq": 337,
   "mind": {
-   "resident": "Silas",
+   "resident": "Hugo",
    "role": "civilian",
    "persona": {
-    "occupation": "painter",
-    "temperament": "dreamy and intuitive",
-    "speaking_style": "vivid impressions rather than facts",
-    "quirk": "trusts first impressions above all evidence"
+    "occupation": "blacksmith",
+    "temperament": "blunt and stubborn",
+    "speaking_style": "short sentences, no hedging",
+    "quirk": "distrusts anyone with soft hands"
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 6: I doubt Cora, Zane, Luna.",
+    "notebook": "As of Day 3: I doubt Wren.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Still wary of Cora."
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Wren."
      },
      {
       "day": 2,
       "phase": "vote",
-      "text": "Still wary of Zane."
+      "text": "Still wary of Wren."
      },
      {
       "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Luna."
+      "phase": "dawn",
+      "text": "Still wary of Wren."
      }
     ],
     "dossier": [
      {
-      "resident": "Cora",
-      "suspicion": 55,
+      "resident": "Wren",
+      "suspicion": 79,
       "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 338,
+  "mind": {
+   "resident": "Greta",
+   "role": "civilian",
+   "persona": {
+    "occupation": "apothecary",
+    "temperament": "calm and clinical",
+    "speaking_style": "precise, uses careful qualifiers",
+    "quirk": "describes suspicion as a diagnosis"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Cyrus, Vera.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
      },
      {
-      "resident": "Luna",
-      "suspicion": 84,
-      "note": "I said I doubt them"
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
      },
      {
-      "resident": "Milo",
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Vera."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Vera."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
       "suspicion": 58,
       "note": "I said I doubt them"
      },
      {
-      "resident": "Zane",
+      "resident": "Vera",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 339,
+  "mind": {
+   "resident": "Pia",
+   "role": "civilian",
+   "persona": {
+    "occupation": "tailor",
+    "temperament": "vain and theatrical",
+    "speaking_style": "flowery and dramatic",
+    "quirk": "notices what everyone is wearing"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Umar",
       "suspicion": 80,
       "note": "I said I doubt them"
      }
@@ -2353,147 +1460,107 @@
   }
  },
  {
-  "seq": 753,
-  "mind": {
-   "resident": "Zane",
-   "role": "civilian",
-   "persona": {
-    "occupation": "innkeeper",
-    "temperament": "sociable and shrewd",
-    "speaking_style": "friendly, remembers every rumour",
-    "quirk": "keeps a mental ledger of who owes whom"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 6: I doubt Umar, Cora, Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Quinn."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 83,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Quinn",
-      "suspicion": 59,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 69,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Umar",
-      "suspicion": 76,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 839,
-  "mind": {
-   "resident": "Elsie",
-   "role": "doctor",
-   "persona": {
-    "occupation": "baker",
-    "temperament": "warm, chatty and a little nosy",
-    "speaking_style": "homely, with kitchen metaphors",
-    "quirk": "judges people by how they take their bread"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 7: I doubt Silas, Luna.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Luna",
-      "suspicion": 55,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 87,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 840,
+  "seq": 340,
   "mind": {
    "resident": "Umar",
    "role": "civilian",
+   "persona": {
+    "occupation": "schoolteacher",
+    "temperament": "patient and methodical",
+    "speaking_style": "lays out evidence point by point",
+    "quirk": "corrects other people's grammar under pressure"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Pia, Greta.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Greta",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Pia",
+      "suspicion": 89,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 341,
+  "mind": {
+   "resident": "Wren",
+   "role": "civilian",
+   "persona": {
+    "occupation": "farmer",
+    "temperament": "honest and down-to-earth",
+    "speaking_style": "plain words, practical questions",
+    "quirk": "compares people to livestock"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Otto",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 342,
+  "mind": {
+   "resident": "Cyrus",
+   "role": "detective",
    "persona": {
     "occupation": "retired sailor",
     "temperament": "cynical and sharp-witted",
@@ -2502,58 +1569,38 @@
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 6: I doubt Zane, Silas, Luna, Elsie.",
+    "notebook": "As of Day 3: I doubt Hugo, Wren.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Nothing certain yet."
+      "text": "Still wary of Hugo."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Hugo."
      },
      {
       "day": 2,
       "phase": "vote",
-      "text": "Still wary of Silas."
+      "text": "Still wary of Wren."
      },
      {
       "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
+      "phase": "dawn",
+      "text": "Still wary of Wren."
      }
     ],
     "dossier": [
      {
-      "resident": "Elsie",
-      "suspicion": 67,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 57,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
+      "resident": "Hugo",
       "suspicion": 78,
       "note": "I said I doubt them"
      },
      {
-      "resident": "Zane",
-      "suspicion": 77,
+      "resident": "Wren",
+      "suspicion": 64,
       "note": "I said I doubt them"
      }
     ]
@@ -2561,166 +1608,32 @@
   }
  },
  {
-  "seq": 842,
+  "seq": 460,
   "mind": {
-   "resident": "Cora",
+   "resident": "Finn",
    "role": "murderer",
    "persona": {
-    "occupation": "mayor",
-    "temperament": "pompous and eager to lead",
-    "speaking_style": "speeches and appeals to order",
-    "quirk": "proposes a motion for everything"
+    "occupation": "night watchman",
+    "temperament": "gruff and suspicious",
+    "speaking_style": "clipped, like a report",
+    "quirk": "claims to have seen everything after dark"
    },
    "teammates": [
-    "Luna"
+    "Otto"
    ],
    "memory": {
-    "notebook": "As of Day 7: I doubt Dax, Silas, Luna.",
+    "notebook": "As of Day 3: Watch who votes with whom.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Still wary of Dax."
+      "text": "Nothing certain yet."
      },
      {
       "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Dax."
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 67,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 77,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 843,
-  "mind": {
-   "resident": "Dax",
-   "role": "civilian",
-   "persona": {
-    "occupation": "carpenter",
-    "temperament": "cheerful and steady",
-    "speaking_style": "builds arguments like furniture, step by step",
-    "quirk": "knocks on wood after every accusation"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 7: I doubt Zane, Elsie, Umar.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Elsie",
-      "suspicion": 90,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Umar",
-      "suspicion": 59,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 55,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 844,
-  "mind": {
-   "resident": "Luna",
-   "role": "murderer",
-   "persona": {
-    "occupation": "postmistress",
-    "temperament": "brisk and gossipy",
-    "speaking_style": "rapid-fire, full of names",
-    "quirk": "knows who writes letters to whom"
-   },
-   "teammates": [
-    "Cora"
-   ],
-   "memory": {
-    "notebook": "As of Day 7: I doubt Zane, Dax, Silas.",
-    "journal": [
      {
       "day": 2,
       "phase": "vote",
@@ -2728,141 +1641,24 @@
      },
      {
       "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Rosa."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 67,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Rosa",
-      "suspicion": 83,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 73,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 87,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 845,
-  "mind": {
-   "resident": "Silas",
-   "role": "civilian",
-   "persona": {
-    "occupation": "painter",
-    "temperament": "dreamy and intuitive",
-    "speaking_style": "vivid impressions rather than facts",
-    "quirk": "trusts first impressions above all evidence"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 7: I doubt Cora, Zane, Luna, Elsie.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
       "day": 3,
       "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
+      "text": "Nothing certain yet."
      }
     ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 67,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Elsie",
-      "suspicion": 82,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 87,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
-      "suspicion": 58,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     }
-    ]
+    "dossier": []
    }
   }
  },
  {
-  "seq": 846,
+  "seq": 461,
   "mind": {
-   "resident": "Zane",
-   "role": "civilian",
+   "resident": "Vera",
+   "role": "doctor",
    "persona": {
     "occupation": "innkeeper",
     "temperament": "sociable and shrewd",
@@ -2871,7 +1667,7 @@
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 7: I doubt Umar, Cora, Silas.",
+    "notebook": "As of Day 3: I doubt Greta.",
     "journal": [
      {
       "day": 1,
@@ -2880,59 +1676,34 @@
      },
      {
       "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
       "phase": "vote",
-      "text": "Still wary of Quinn."
+      "text": "Still wary of Ezra."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
       "day": 3,
       "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Silas."
+      "text": "Still wary of Greta."
      }
     ],
     "dossier": [
      {
-      "resident": "Cora",
-      "suspicion": 84,
+      "resident": "Ezra",
+      "suspicion": 65,
       "note": "I said I doubt them"
      },
      {
-      "resident": "Milo",
+      "resident": "Greta",
       "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Quinn",
-      "suspicion": 59,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 76,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Umar",
-      "suspicion": 70,
       "note": "I said I doubt them"
      }
     ]
@@ -2940,19 +1711,133 @@
   }
  },
  {
-  "seq": 931,
+  "seq": 462,
   "mind": {
-   "resident": "Elsie",
-   "role": "doctor",
+   "resident": "Otto",
+   "role": "murderer",
    "persona": {
-    "occupation": "baker",
-    "temperament": "warm, chatty and a little nosy",
-    "speaking_style": "homely, with kitchen metaphors",
-    "quirk": "judges people by how they take their bread"
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [
+    "Finn"
+   ],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Greta, Cyrus.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 464,
+  "mind": {
+   "resident": "Greta",
+   "role": "civilian",
+   "persona": {
+    "occupation": "apothecary",
+    "temperament": "calm and clinical",
+    "speaking_style": "precise, uses careful qualifiers",
+    "quirk": "describes suspicion as a diagnosis"
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 8: I doubt Silas, Luna, Cora.",
+    "notebook": "As of Day 3: I doubt Cyrus, Vera, Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Vera."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Vera."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Otto",
+      "suspicion": 89,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Vera",
+      "suspicion": 78,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 465,
+  "mind": {
+   "resident": "Pia",
+   "role": "civilian",
+   "persona": {
+    "occupation": "tailor",
+    "temperament": "vain and theatrical",
+    "speaking_style": "flowery and dramatic",
+    "quirk": "notices what everyone is wearing"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Umar.",
     "journal": [
      {
       "day": 1,
@@ -2961,49 +1846,29 @@
      },
      {
       "day": 2,
-      "phase": "vote",
+      "phase": "dawn",
       "text": "Nothing certain yet."
      },
      {
-      "day": 4,
+      "day": 2,
       "phase": "vote",
-      "text": "Still wary of Luna."
+      "text": "Still wary of Umar."
      },
      {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Luna."
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
      },
      {
-      "day": 6,
+      "day": 3,
       "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Cora."
+      "text": "Still wary of Umar."
      }
     ],
     "dossier": [
      {
-      "resident": "Cora",
-      "suspicion": 59,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 55,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 55,
+      "resident": "Umar",
+      "suspicion": 80,
       "note": "I said I doubt them"
      }
     ]
@@ -3011,10 +1876,117 @@
   }
  },
  {
-  "seq": 932,
+  "seq": 466,
   "mind": {
    "resident": "Umar",
    "role": "civilian",
+   "persona": {
+    "occupation": "schoolteacher",
+    "temperament": "patient and methodical",
+    "speaking_style": "lays out evidence point by point",
+    "quirk": "corrects other people's grammar under pressure"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Pia, Greta.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Greta",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Pia",
+      "suspicion": 79,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 467,
+  "mind": {
+   "resident": "Wren",
+   "role": "civilian",
+   "persona": {
+    "occupation": "farmer",
+    "temperament": "honest and down-to-earth",
+    "speaking_style": "plain words, practical questions",
+    "quirk": "compares people to livestock"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Otto",
+      "suspicion": 72,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 468,
+  "mind": {
+   "resident": "Cyrus",
+   "role": "detective",
    "persona": {
     "occupation": "retired sailor",
     "temperament": "cynical and sharp-witted",
@@ -3023,7 +1995,65 @@
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 8: I doubt Zane, Silas, Luna, Elsie.",
+    "notebook": "As of Day 3: I doubt Wren.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Hugo."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Hugo."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Wren."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Hugo",
+      "suspicion": 78,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Wren",
+      "suspicion": 61,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 480,
+  "mind": {
+   "resident": "Finn",
+   "role": "murderer",
+   "persona": {
+    "occupation": "night watchman",
+    "temperament": "gruff and suspicious",
+    "speaking_style": "clipped, like a report",
+    "quirk": "claims to have seen everything after dark"
+   },
+   "teammates": [
+    "Otto"
+   ],
+   "memory": {
+    "notebook": "As of Day 4: Watch who votes with whom.",
     "journal": [
      {
       "day": 1,
@@ -3032,569 +2062,223 @@
      },
      {
       "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Elsie",
-      "suspicion": 74,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 75,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 77,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 73,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 933,
-  "mind": {
-   "resident": "Cora",
-   "role": "murderer",
-   "persona": {
-    "occupation": "mayor",
-    "temperament": "pompous and eager to lead",
-    "speaking_style": "speeches and appeals to order",
-    "quirk": "proposes a motion for everything"
-   },
-   "teammates": [
-    "Luna"
-   ],
-   "memory": {
-    "notebook": "As of Day 8: I doubt Dax, Silas, Luna, Elsie.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Dax."
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
       "day": 2,
       "phase": "vote",
-      "text": "Still wary of Dax."
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
       "day": 3,
       "phase": "vote",
-      "text": "Still wary of Silas."
+      "text": "Nothing certain yet."
      },
      {
       "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      }
     ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Elsie",
-      "suspicion": 64,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 84,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 62,
-      "note": "I said I doubt them"
-     }
-    ]
+    "dossier": []
    }
   }
  },
  {
-  "seq": 934,
+  "seq": 481,
   "mind": {
-   "resident": "Dax",
-   "role": "civilian",
+   "resident": "Vera",
+   "role": "doctor",
    "persona": {
-    "occupation": "carpenter",
-    "temperament": "cheerful and steady",
-    "speaking_style": "builds arguments like furniture, step by step",
-    "quirk": "knocks on wood after every accusation"
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 8: I doubt Zane, Elsie, Umar.",
+    "notebook": "As of Day 4: Watch who votes with whom.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Still wary of Zane."
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
       "day": 2,
       "phase": "vote",
-      "text": "Still wary of Zane."
+      "text": "Still wary of Ezra."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
       "day": 3,
       "phase": "vote",
-      "text": "Still wary of Elsie."
+      "text": "Still wary of Greta."
      },
      {
       "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Umar."
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      }
     ],
     "dossier": [
      {
-      "resident": "Elsie",
-      "suspicion": 67,
+      "resident": "Ezra",
+      "suspicion": 65,
       "note": "I said I doubt them"
      },
+     {
+      "resident": "Greta",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 482,
+  "mind": {
+   "resident": "Otto",
+   "role": "murderer",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [
+    "Finn"
+   ],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Cyrus.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 81,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 483,
+  "mind": {
+   "resident": "Pia",
+   "role": "civilian",
+   "persona": {
+    "occupation": "tailor",
+    "temperament": "vain and theatrical",
+    "speaking_style": "flowery and dramatic",
+    "quirk": "notices what everyone is wearing"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
      {
       "resident": "Umar",
       "suspicion": 85,
       "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 72,
-      "note": "I said I doubt them"
      }
     ]
    }
   }
  },
  {
-  "seq": 935,
-  "mind": {
-   "resident": "Luna",
-   "role": "murderer",
-   "persona": {
-    "occupation": "postmistress",
-    "temperament": "brisk and gossipy",
-    "speaking_style": "rapid-fire, full of names",
-    "quirk": "knows who writes letters to whom"
-   },
-   "teammates": [
-    "Cora"
-   ],
-   "memory": {
-    "notebook": "As of Day 8: I doubt Zane, Dax, Silas, Cora.",
-    "journal": [
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Rosa."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 87,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Dax",
-      "suspicion": 72,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Rosa",
-      "suspicion": 83,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 77,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 89,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 936,
-  "mind": {
-   "resident": "Silas",
-   "role": "civilian",
-   "persona": {
-    "occupation": "painter",
-    "temperament": "dreamy and intuitive",
-    "speaking_style": "vivid impressions rather than facts",
-    "quirk": "trusts first impressions above all evidence"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 8: I doubt Cora, Zane, Luna, Elsie.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 64,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Elsie",
-      "suspicion": 70,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 66,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
-      "suspicion": 58,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 55,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 937,
-  "mind": {
-   "resident": "Zane",
-   "role": "civilian",
-   "persona": {
-    "occupation": "innkeeper",
-    "temperament": "sociable and shrewd",
-    "speaking_style": "friendly, remembers every rumour",
-    "quirk": "keeps a mental ledger of who owes whom"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 8: I doubt Umar, Cora, Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Quinn."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 57,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Quinn",
-      "suspicion": 59,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 61,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Umar",
-      "suspicion": 66,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 1023,
-  "mind": {
-   "resident": "Elsie",
-   "role": "doctor",
-   "persona": {
-    "occupation": "baker",
-    "temperament": "warm, chatty and a little nosy",
-    "speaking_style": "homely, with kitchen metaphors",
-    "quirk": "judges people by how they take their bread"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 9: I doubt Silas, Luna, Cora, Zane.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 89,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 75,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 60,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 86,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 1024,
+  "seq": 484,
   "mind": {
    "resident": "Umar",
    "role": "civilian",
    "persona": {
-    "occupation": "retired sailor",
-    "temperament": "cynical and sharp-witted",
-    "speaking_style": "dry humour and old war stories",
-    "quirk": "has a nickname for everyone"
+    "occupation": "schoolteacher",
+    "temperament": "patient and methodical",
+    "speaking_style": "lays out evidence point by point",
+    "quirk": "corrects other people's grammar under pressure"
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 9: I doubt Zane, Silas, Luna, Elsie.",
+    "notebook": "As of Day 4: I doubt Pia.",
     "journal": [
      {
       "day": 1,
@@ -3603,874 +2287,490 @@
      },
      {
       "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Elsie",
-      "suspicion": 86,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 89,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 87,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 59,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 1025,
-  "mind": {
-   "resident": "Cora",
-   "role": "murderer",
-   "persona": {
-    "occupation": "mayor",
-    "temperament": "pompous and eager to lead",
-    "speaking_style": "speeches and appeals to order",
-    "quirk": "proposes a motion for everything"
-   },
-   "teammates": [
-    "Luna"
-   ],
-   "memory": {
-    "notebook": "As of Day 9: I doubt Dax, Silas, Luna, Elsie.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 71,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Elsie",
-      "suspicion": 55,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 60,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 73,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 1026,
-  "mind": {
-   "resident": "Dax",
-   "role": "civilian",
-   "persona": {
-    "occupation": "carpenter",
-    "temperament": "cheerful and steady",
-    "speaking_style": "builds arguments like furniture, step by step",
-    "quirk": "knocks on wood after every accusation"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 9: I doubt Zane, Elsie, Umar, Silas.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Elsie",
-      "suspicion": 73,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Umar",
-      "suspicion": 57,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 70,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 1027,
-  "mind": {
-   "resident": "Luna",
-   "role": "murderer",
-   "persona": {
-    "occupation": "postmistress",
-    "temperament": "brisk and gossipy",
-    "speaking_style": "rapid-fire, full of names",
-    "quirk": "knows who writes letters to whom"
-   },
-   "teammates": [
-    "Cora"
-   ],
-   "memory": {
-    "notebook": "As of Day 9: I doubt Zane, Dax, Silas, Cora.",
-    "journal": [
-     {
-      "day": 2,
-      "phase": "vote",
+      "phase": "dawn",
       "text": "Nothing certain yet."
      },
      {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Rosa."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 90,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Dax",
-      "suspicion": 90,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Rosa",
-      "suspicion": 83,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 83,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 69,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 1028,
-  "mind": {
-   "resident": "Silas",
-   "role": "civilian",
-   "persona": {
-    "occupation": "painter",
-    "temperament": "dreamy and intuitive",
-    "speaking_style": "vivid impressions rather than facts",
-    "quirk": "trusts first impressions above all evidence"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 9: I doubt Cora, Zane, Luna, Elsie.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
       "day": 2,
       "phase": "vote",
-      "text": "Still wary of Zane."
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
      },
      {
       "day": 3,
       "phase": "vote",
-      "text": "Still wary of Luna."
+      "text": "Still wary of Greta."
      },
      {
       "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
+      "phase": "dawn",
+      "text": "Still wary of Pia."
      }
     ],
     "dossier": [
      {
-      "resident": "Cora",
-      "suspicion": 80,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Elsie",
-      "suspicion": 64,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 84,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
+      "resident": "Greta",
       "suspicion": 58,
       "note": "I said I doubt them"
      },
      {
-      "resident": "Zane",
-      "suspicion": 76,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 1029,
-  "mind": {
-   "resident": "Zane",
-   "role": "civilian",
-   "persona": {
-    "occupation": "innkeeper",
-    "temperament": "sociable and shrewd",
-    "speaking_style": "friendly, remembers every rumour",
-    "quirk": "keeps a mental ledger of who owes whom"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 9: I doubt Umar, Cora, Silas, Elsie, Dax.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Quinn."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 57,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Dax",
-      "suspicion": 70,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Elsie",
-      "suspicion": 74,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Quinn",
-      "suspicion": 59,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Umar",
-      "suspicion": 78,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 1116,
-  "mind": {
-   "resident": "Elsie",
-   "role": "doctor",
-   "persona": {
-    "occupation": "baker",
-    "temperament": "warm, chatty and a little nosy",
-    "speaking_style": "homely, with kitchen metaphors",
-    "quirk": "judges people by how they take their bread"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 10: I doubt Silas, Luna, Cora, Zane.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 10,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 86,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 63,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 69,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 82,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 1117,
-  "mind": {
-   "resident": "Umar",
-   "role": "civilian",
-   "persona": {
-    "occupation": "retired sailor",
-    "temperament": "cynical and sharp-witted",
-    "speaking_style": "dry humour and old war stories",
-    "quirk": "has a nickname for everyone"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 10: I doubt Zane, Silas, Luna, Elsie.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Nothing certain yet."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 10,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Elsie",
+      "resident": "Pia",
       "suspicion": 79,
       "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 70,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 82,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 69,
-      "note": "I said I doubt them"
      }
     ]
    }
   }
  },
  {
-  "seq": 1118,
+  "seq": 485,
   "mind": {
-   "resident": "Cora",
-   "role": "murderer",
-   "persona": {
-    "occupation": "mayor",
-    "temperament": "pompous and eager to lead",
-    "speaking_style": "speeches and appeals to order",
-    "quirk": "proposes a motion for everything"
-   },
-   "teammates": [
-    "Luna"
-   ],
-   "memory": {
-    "notebook": "As of Day 10: I doubt Dax, Silas, Luna, Elsie.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 10,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Dax",
-      "suspicion": 83,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Elsie",
-      "suspicion": 83,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 73,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 65,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 1119,
-  "mind": {
-   "resident": "Dax",
+   "resident": "Wren",
    "role": "civilian",
    "persona": {
-    "occupation": "carpenter",
-    "temperament": "cheerful and steady",
-    "speaking_style": "builds arguments like furniture, step by step",
-    "quirk": "knocks on wood after every accusation"
+    "occupation": "farmer",
+    "temperament": "honest and down-to-earth",
+    "speaking_style": "plain words, practical questions",
+    "quirk": "compares people to livestock"
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 10: I doubt Zane, Elsie, Umar, Silas, Cora.",
+    "notebook": "As of Day 4: I doubt Otto.",
     "journal": [
      {
       "day": 1,
       "phase": "vote",
-      "text": "Still wary of Zane."
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
      },
      {
       "day": 2,
       "phase": "vote",
-      "text": "Still wary of Zane."
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
      },
      {
       "day": 3,
       "phase": "vote",
-      "text": "Still wary of Elsie."
+      "text": "Still wary of Otto."
      },
      {
       "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Umar."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 10,
-      "phase": "vote",
-      "text": "Still wary of Cora."
+      "phase": "dawn",
+      "text": "Still wary of Otto."
      }
     ],
     "dossier": [
      {
-      "resident": "Cora",
+      "resident": "Otto",
+      "suspicion": 89,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 486,
+  "mind": {
+   "resident": "Cyrus",
+   "role": "detective",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Wren.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Hugo."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Hugo."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Wren."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Hugo",
+      "suspicion": 78,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Wren",
+      "suspicion": 72,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 568,
+  "mind": {
+   "resident": "Finn",
+   "role": "murderer",
+   "persona": {
+    "occupation": "night watchman",
+    "temperament": "gruff and suspicious",
+    "speaking_style": "clipped, like a report",
+    "quirk": "claims to have seen everything after dark"
+   },
+   "teammates": [
+    "Otto"
+   ],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Umar",
+      "suspicion": 68,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 569,
+  "mind": {
+   "resident": "Vera",
+   "role": "doctor",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Ezra."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Ezra",
+      "suspicion": 65,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 570,
+  "mind": {
+   "resident": "Otto",
+   "role": "murderer",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [
+    "Finn"
+   ],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Cyrus, Wren.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Wren."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 87,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Wren",
+      "suspicion": 72,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 571,
+  "mind": {
+   "resident": "Pia",
+   "role": "civilian",
+   "persona": {
+    "occupation": "tailor",
+    "temperament": "vain and theatrical",
+    "speaking_style": "flowery and dramatic",
+    "quirk": "notices what everyone is wearing"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Umar",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 572,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "schoolteacher",
+    "temperament": "patient and methodical",
+    "speaking_style": "lays out evidence point by point",
+    "quirk": "corrects other people's grammar under pressure"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Pia, Finn, Cyrus.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Pia."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
       "suspicion": 68,
       "note": "I said I doubt them"
      },
      {
-      "resident": "Elsie",
-      "suspicion": 77,
+      "resident": "Finn",
+      "suspicion": 85,
       "note": "I said I doubt them"
      },
      {
-      "resident": "Silas",
-      "suspicion": 88,
+      "resident": "Greta",
+      "suspicion": 58,
       "note": "I said I doubt them"
      },
      {
-      "resident": "Umar",
-      "suspicion": 79,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 84,
+      "resident": "Pia",
+      "suspicion": 86,
       "note": "I said I doubt them"
      }
     ]
@@ -4478,22 +2778,169 @@
   }
  },
  {
-  "seq": 1120,
+  "seq": 573,
   "mind": {
-   "resident": "Luna",
+   "resident": "Wren",
+   "role": "civilian",
+   "persona": {
+    "occupation": "farmer",
+    "temperament": "honest and down-to-earth",
+    "speaking_style": "plain words, practical questions",
+    "quirk": "compares people to livestock"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Otto, Cyrus.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Otto",
+      "suspicion": 71,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 574,
+  "mind": {
+   "resident": "Cyrus",
+   "role": "detective",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Wren, Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Hugo."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Hugo."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Hugo",
+      "suspicion": 78,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Otto",
+      "suspicion": 61,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Wren",
+      "suspicion": 70,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 586,
+  "mind": {
+   "resident": "Finn",
    "role": "murderer",
    "persona": {
-    "occupation": "postmistress",
-    "temperament": "brisk and gossipy",
-    "speaking_style": "rapid-fire, full of names",
-    "quirk": "knows who writes letters to whom"
+    "occupation": "night watchman",
+    "temperament": "gruff and suspicious",
+    "speaking_style": "clipped, like a report",
+    "quirk": "claims to have seen everything after dark"
    },
    "teammates": [
-    "Cora"
+    "Otto"
    ],
    "memory": {
-    "notebook": "As of Day 10: I doubt Zane, Dax, Silas, Cora.",
+    "notebook": "As of Day 5: I doubt Umar.",
     "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
      {
       "day": 2,
       "phase": "vote",
@@ -4501,165 +2948,34 @@
      },
      {
       "day": 3,
-      "phase": "vote",
-      "text": "Still wary of Zane."
-     },
-     {
-      "day": 4,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Rosa."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 10,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     }
-    ],
-    "dossier": [
-     {
-      "resident": "Cora",
-      "suspicion": 71,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Dax",
-      "suspicion": 64,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Rosa",
-      "suspicion": 83,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Silas",
-      "suspicion": 85,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 85,
-      "note": "I said I doubt them"
-     }
-    ]
-   }
-  }
- },
- {
-  "seq": 1121,
-  "mind": {
-   "resident": "Silas",
-   "role": "civilian",
-   "persona": {
-    "occupation": "painter",
-    "temperament": "dreamy and intuitive",
-    "speaking_style": "vivid impressions rather than facts",
-    "quirk": "trusts first impressions above all evidence"
-   },
-   "teammates": [],
-   "memory": {
-    "notebook": "As of Day 10: I doubt Cora, Zane, Luna, Elsie.",
-    "journal": [
-     {
-      "day": 1,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 2,
-      "phase": "vote",
-      "text": "Still wary of Zane."
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
       "day": 3,
       "phase": "vote",
-      "text": "Still wary of Luna."
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
       "day": 4,
       "phase": "vote",
-      "text": "Still wary of Luna."
+      "text": "Still wary of Umar."
      },
      {
       "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Luna."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
-     },
-     {
-      "day": 10,
-      "phase": "vote",
-      "text": "Still wary of Elsie."
+      "phase": "dawn",
+      "text": "Still wary of Umar."
      }
     ],
     "dossier": [
      {
-      "resident": "Cora",
-      "suspicion": 71,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Elsie",
-      "suspicion": 58,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Luna",
-      "suspicion": 89,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
-      "suspicion": 58,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Zane",
-      "suspicion": 58,
+      "resident": "Umar",
+      "suspicion": 72,
       "note": "I said I doubt them"
      }
     ]
@@ -4667,10 +2983,10 @@
   }
  },
  {
-  "seq": 1122,
+  "seq": 587,
   "mind": {
-   "resident": "Zane",
-   "role": "civilian",
+   "resident": "Vera",
+   "role": "doctor",
    "persona": {
     "occupation": "innkeeper",
     "temperament": "sociable and shrewd",
@@ -4679,7 +2995,7 @@
    },
    "teammates": [],
    "memory": {
-    "notebook": "As of Day 10: I doubt Umar, Cora, Silas, Elsie, Dax.",
+    "notebook": "As of Day 5: Watch who votes with whom.",
     "journal": [
      {
       "day": 1,
@@ -4688,84 +3004,1819 @@
      },
      {
       "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
       "phase": "vote",
-      "text": "Still wary of Quinn."
+      "text": "Still wary of Ezra."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
       "day": 3,
       "phase": "vote",
-      "text": "Still wary of Cora."
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      },
      {
       "day": 4,
       "phase": "vote",
-      "text": "Still wary of Cora."
+      "text": "Nothing certain yet."
      },
      {
       "day": 5,
-      "phase": "vote",
-      "text": "Still wary of Cora."
-     },
-     {
-      "day": 6,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 7,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 8,
-      "phase": "vote",
-      "text": "Still wary of Silas."
-     },
-     {
-      "day": 9,
-      "phase": "vote",
-      "text": "Still wary of Dax."
-     },
-     {
-      "day": 10,
-      "phase": "vote",
-      "text": "Still wary of Dax."
+      "phase": "dawn",
+      "text": "Nothing certain yet."
      }
     ],
     "dossier": [
      {
-      "resident": "Cora",
-      "suspicion": 55,
+      "resident": "Ezra",
+      "suspicion": 65,
       "note": "I said I doubt them"
      },
      {
-      "resident": "Dax",
-      "suspicion": 86,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Elsie",
-      "suspicion": 57,
-      "note": "I said I doubt them"
-     },
-     {
-      "resident": "Milo",
+      "resident": "Greta",
       "suspicion": 63,
       "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 588,
+  "mind": {
+   "resident": "Otto",
+   "role": "murderer",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [
+    "Finn"
+   ],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Wren.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Greta."
      },
      {
-      "resident": "Quinn",
-      "suspicion": 59,
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Wren."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 87,
       "note": "I said I doubt them"
      },
      {
-      "resident": "Silas",
+      "resident": "Greta",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Wren",
+      "suspicion": 77,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 589,
+  "mind": {
+   "resident": "Pia",
+   "role": "civilian",
+   "persona": {
+    "occupation": "tailor",
+    "temperament": "vain and theatrical",
+    "speaking_style": "flowery and dramatic",
+    "quirk": "notices what everyone is wearing"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Umar",
+      "suspicion": 80,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 590,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "schoolteacher",
+    "temperament": "patient and methodical",
+    "speaking_style": "lays out evidence point by point",
+    "quirk": "corrects other people's grammar under pressure"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Pia, Finn.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Pia."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Finn."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 68,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Finn",
+      "suspicion": 80,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Pia",
       "suspicion": 60,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 591,
+  "mind": {
+   "resident": "Wren",
+   "role": "civilian",
+   "persona": {
+    "occupation": "farmer",
+    "temperament": "honest and down-to-earth",
+    "speaking_style": "plain words, practical questions",
+    "quirk": "compares people to livestock"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Otto",
+      "suspicion": 82,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 666,
+  "mind": {
+   "resident": "Finn",
+   "role": "murderer",
+   "persona": {
+    "occupation": "night watchman",
+    "temperament": "gruff and suspicious",
+    "speaking_style": "clipped, like a report",
+    "quirk": "claims to have seen everything after dark"
+   },
+   "teammates": [
+    "Otto"
+   ],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Umar, Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Otto",
+      "suspicion": 77,
       "note": "I said I doubt them"
      },
      {
       "resident": "Umar",
+      "suspicion": 74,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 667,
+  "mind": {
+   "resident": "Vera",
+   "role": "doctor",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Finn.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Ezra."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Finn."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Ezra",
+      "suspicion": 65,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Finn",
+      "suspicion": 82,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 668,
+  "mind": {
+   "resident": "Otto",
+   "role": "murderer",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [
+    "Finn"
+   ],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Wren, Finn, Pia.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Pia."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 87,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Finn",
+      "suspicion": 86,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Pia",
+      "suspicion": 74,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Wren",
+      "suspicion": 70,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 669,
+  "mind": {
+   "resident": "Pia",
+   "role": "civilian",
+   "persona": {
+    "occupation": "tailor",
+    "temperament": "vain and theatrical",
+    "speaking_style": "flowery and dramatic",
+    "quirk": "notices what everyone is wearing"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Umar",
+      "suspicion": 81,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 670,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "schoolteacher",
+    "temperament": "patient and methodical",
+    "speaking_style": "lays out evidence point by point",
+    "quirk": "corrects other people's grammar under pressure"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Pia, Finn, Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Pia."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Finn."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 68,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Finn",
+      "suspicion": 73,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Otto",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Pia",
+      "suspicion": 69,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 671,
+  "mind": {
+   "resident": "Wren",
+   "role": "civilian",
+   "persona": {
+    "occupation": "farmer",
+    "temperament": "honest and down-to-earth",
+    "speaking_style": "plain words, practical questions",
+    "quirk": "compares people to livestock"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Otto, Vera.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Vera."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Otto",
+      "suspicion": 61,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Vera",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 682,
+  "mind": {
+   "resident": "Finn",
+   "role": "murderer",
+   "persona": {
+    "occupation": "night watchman",
+    "temperament": "gruff and suspicious",
+    "speaking_style": "clipped, like a report",
+    "quirk": "claims to have seen everything after dark"
+   },
+   "teammates": [
+    "Otto"
+   ],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Umar, Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 6,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Otto",
+      "suspicion": 76,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 79,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 683,
+  "mind": {
+   "resident": "Vera",
+   "role": "doctor",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Finn.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Ezra."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Finn."
+     },
+     {
+      "day": 6,
+      "phase": "dawn",
+      "text": "Still wary of Finn."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Ezra",
+      "suspicion": 65,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Finn",
+      "suspicion": 70,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 684,
+  "mind": {
+   "resident": "Otto",
+   "role": "murderer",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [
+    "Finn"
+   ],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Wren, Finn, Pia.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Pia."
+     },
+     {
+      "day": 6,
+      "phase": "dawn",
+      "text": "Still wary of Pia."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 87,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Finn",
+      "suspicion": 70,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Pia",
+      "suspicion": 79,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Wren",
+      "suspicion": 78,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 685,
+  "mind": {
+   "resident": "Pia",
+   "role": "civilian",
+   "persona": {
+    "occupation": "tailor",
+    "temperament": "vain and theatrical",
+    "speaking_style": "flowery and dramatic",
+    "quirk": "notices what everyone is wearing"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 6,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Umar",
+      "suspicion": 90,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 686,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "schoolteacher",
+    "temperament": "patient and methodical",
+    "speaking_style": "lays out evidence point by point",
+    "quirk": "corrects other people's grammar under pressure"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Pia, Finn, Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Pia."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Finn."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 6,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 68,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Finn",
       "suspicion": 80,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Otto",
+      "suspicion": 69,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Pia",
+      "suspicion": 62,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 687,
+  "mind": {
+   "resident": "Wren",
+   "role": "civilian",
+   "persona": {
+    "occupation": "farmer",
+    "temperament": "honest and down-to-earth",
+    "speaking_style": "plain words, practical questions",
+    "quirk": "compares people to livestock"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Otto, Vera.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Vera."
+     },
+     {
+      "day": 6,
+      "phase": "dawn",
+      "text": "Still wary of Vera."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Otto",
+      "suspicion": 87,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Vera",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 761,
+  "mind": {
+   "resident": "Finn",
+   "role": "murderer",
+   "persona": {
+    "occupation": "night watchman",
+    "temperament": "gruff and suspicious",
+    "speaking_style": "clipped, like a report",
+    "quirk": "claims to have seen everything after dark"
+   },
+   "teammates": [
+    "Otto"
+   ],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Umar, Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 6,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Otto",
+      "suspicion": 55,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 762,
+  "mind": {
+   "resident": "Otto",
+   "role": "murderer",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [
+    "Finn"
+   ],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Wren, Finn, Pia, Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Wren."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Pia."
+     },
+     {
+      "day": 6,
+      "phase": "dawn",
+      "text": "Still wary of Pia."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 87,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Finn",
+      "suspicion": 90,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Pia",
+      "suspicion": 84,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 57,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Wren",
+      "suspicion": 57,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 763,
+  "mind": {
+   "resident": "Pia",
+   "role": "civilian",
+   "persona": {
+    "occupation": "tailor",
+    "temperament": "vain and theatrical",
+    "speaking_style": "flowery and dramatic",
+    "quirk": "notices what everyone is wearing"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 6,
+      "phase": "dawn",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Umar",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 764,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "schoolteacher",
+    "temperament": "patient and methodical",
+    "speaking_style": "lays out evidence point by point",
+    "quirk": "corrects other people's grammar under pressure"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Pia, Finn, Otto.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Greta."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Pia."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Finn."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 6,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 68,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Finn",
+      "suspicion": 90,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Greta",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Otto",
+      "suspicion": 90,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Pia",
+      "suspicion": 78,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 765,
+  "mind": {
+   "resident": "Wren",
+   "role": "civilian",
+   "persona": {
+    "occupation": "farmer",
+    "temperament": "honest and down-to-earth",
+    "speaking_style": "plain words, practical questions",
+    "quirk": "compares people to livestock"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Otto, Pia.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 4,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cyrus."
+     },
+     {
+      "day": 5,
+      "phase": "dawn",
+      "text": "Still wary of Otto."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Vera."
+     },
+     {
+      "day": 6,
+      "phase": "dawn",
+      "text": "Still wary of Vera."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Pia."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cyrus",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Otto",
+      "suspicion": 65,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Pia",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Vera",
+      "suspicion": 58,
       "note": "I said I doubt them"
      }
     ]

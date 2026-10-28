@@ -1,5 +1,5 @@
 /** Seam 3: a recorded event log goes in; what a Spectator sees in the console comes out. */
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import type { Event } from "../protocol";
@@ -12,12 +12,19 @@ function upTo(predicate: (index: number) => boolean) {
   return events.filter((_, index) => predicate(index));
 }
 
+function feed() {
+  return screen.getByRole("log", { name: "Town feed" });
+}
+
+type Kind = Event["payload"]["type"];
+
+function isKind(kind: Kind) {
+  return (item: HTMLElement) => item.dataset.kind === kind;
+}
+
 /** The feed's lines for one kind of event. */
-function feedItems(kind: Event["payload"]["type"]) {
-  const feed = screen.getByRole("log", { name: "Town feed" });
-  return within(feed)
-    .getAllByRole("listitem")
-    .filter((item) => item.dataset.kind === kind);
+function feedItems(kind: Kind) {
+  return within(feed()).getAllByRole("listitem").filter(isKind(kind));
 }
 
 describe("the game console", () => {
@@ -48,8 +55,8 @@ describe("the game console", () => {
 
     const roster = screen.getByRole("list", { name: "Residents" });
     const deaths = payloadsOf(events, "resident_died");
-    expect(new Set(deaths.map((death) => death.cause))).toEqual(new Set(["banished", "shot", "backfire"]));
-    const marks = { banished: "Banished", shot: "Shot", backfire: "Backfire" };
+    expect(new Set(deaths.map((death) => death.cause))).toEqual(new Set(["banished", "shot", "backfire", "murdered"]));
+    const marks = { banished: "Banished", shot: "Shot", backfire: "Backfire", murdered: "Murdered" };
     for (const death of deaths) {
       const row = within(roster).getByRole("listitem", { name: death.resident });
       expect(row).toHaveTextContent(marks[death.cause]);
@@ -108,5 +115,27 @@ describe("the game console", () => {
     const phaseBar = screen.getByRole("banner");
     expect(phaseBar).toHaveTextContent(ending?.winner === "town" ? "The Town wins" : "The Murderers win");
     expect(phaseBar).toHaveTextContent(ending?.reason ?? "");
+  });
+
+  it("shows the Night in full, and in mystery mode only what Dawn tells the whole town", () => {
+    render(<GameConsole events={events} connection="ended" />);
+    const secret: Kind[] = [
+      "den_message_posted",
+      "kill_vote_cast",
+      "victim_chosen",
+      "resident_protected",
+      "resident_investigated",
+    ];
+    const told: Kind[] = ["attack_thwarted", "recap_narrated"];
+    for (const kind of [...secret, ...told]) expect(feedItems(kind).length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: "Mystery mode" }));
+
+    for (const kind of secret) expect(within(feed()).queryAllByRole("listitem").filter(isKind(kind))).toHaveLength(0);
+    for (const kind of told) expect(feedItems(kind).length).toBeGreaterThan(0);
+    const murdered = payloadsOf(events, "resident_died").filter((death) => death.cause === "murdered");
+    expect(feedItems("resident_died").map((item) => item.textContent)).toEqual(
+      expect.arrayContaining(murdered.map((death) => expect.stringContaining(`${death.resident} is found murdered`))),
+    );
   });
 });

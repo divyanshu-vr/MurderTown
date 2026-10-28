@@ -19,7 +19,7 @@ from mm.agents.prompting import build_prompt, prompt_version, retry_task
 from mm.engine import Resident, Role
 from mm.engine.decisions import Answer, Decision, DecisionRequest
 from mm.engine.events import Event
-from mm.engine.perception import briefing
+from mm.engine.perception import assignment
 from mm.llm import Effort, ModelProvider, ModelReply, ModelRequest
 
 ATTEMPTS = 2
@@ -40,7 +40,8 @@ class LLMBrain:
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         prompt = build_prompt(request, view, self.rng)
         schema = answer_schema(request.kind)
-        own_role = briefing(view, request.resident).role
+        assigned = assignment(view, request.resident)  # the narrator has no role
+        own_role = assigned.role if assigned else None
         problem: str | None = None
         for attempt in range(1, ATTEMPTS + 1):
             message = prompt.user_message(retry_task(prompt, problem) if problem else None)
@@ -51,6 +52,7 @@ class LLMBrain:
                     schema=schema,
                     model=self.settings.model,
                     effort=self.settings.effort,
+                    kind=request.kind,
                 )
             )
             decision, problem, outcome = _interpret(request, reply, own_role)
@@ -69,7 +71,7 @@ class LLMBrain:
                 return Answer(decision)
             if outcome != "invalid":
                 break  # refusals, timeouts and errors are not worth a second try
-        return Answer(ANSWERS[request.kind].fallback, fallback_reason=problem)
+        return Answer(ANSWERS[request.kind].fallback(request, self.rng), fallback_reason=problem)
 
     def _call(
         self,
@@ -107,7 +109,7 @@ class LLMBrain:
 
 
 def _interpret(
-    request: DecisionRequest, reply: ModelReply, own_role: Role
+    request: DecisionRequest, reply: ModelReply, own_role: Role | None
 ) -> tuple[Decision | None, str | None, CallOutcome]:
     """The decision in a reply, or why there is none.
 

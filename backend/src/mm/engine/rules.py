@@ -3,12 +3,14 @@
 from dataclasses import dataclass
 
 from mm.engine.decisions import (
-    Ballot,
     Decision,
     DecisionRequest,
+    DenMessage,
+    Recap,
     Reflection,
     Showdown,
     Statement,
+    Target,
 )
 from mm.engine.roles import Role, Side
 from mm.engine.state import GameState
@@ -17,10 +19,10 @@ from mm.engine.state import GameState
 def why_illegal(request: DecisionRequest, decision: Decision) -> str | None:
     """Why a decision breaks the rules for its request, or None if it is legal."""
     match decision:
-        case Ballot(choice=choice) if choice not in request.options:
-            return f"{choice!r} is not one of the options {list(request.options)}"
-        case Statement(text=text) if not text.strip():
-            return "a Statement cannot be empty"
+        case Target(target=target) if target not in request.options:
+            return f"{target!r} is not one of the options {list(request.options)}"
+        case Statement(text=text) | DenMessage(text=text) | Recap(text=text) if not text.strip():
+            return "the text cannot be empty"
         case Reflection(suspicions=suspicions):
             return _suspicions_problem([s.resident for s in suspicions], request.options)
         case Showdown(fire=True, target=target) if target not in request.options:
@@ -64,7 +66,7 @@ def verdict(state: GameState) -> Verdict | None:
 
     Needs the true state, because only it knows every living Resident's role.
     """
-    murderers = sum(state.roles[name] is Role.MURDERER for name in state.living)
+    murderers = len(state.living_as(Role.MURDERER))
     if murderers == 0:
         return Verdict(Side.TOWN, "Every Murderer is gone.")
     if murderers >= len(state.living) - murderers:

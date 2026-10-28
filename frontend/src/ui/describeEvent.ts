@@ -31,6 +31,24 @@ export function describeEvent(event: Event): string {
       return payload.banished ? `${payload.banished} is banished.` : "Nobody is banished.";
     case "resident_died":
       return `${payload.resident} ${deathLabel[payload.cause]}. They were a ${roleLabel[payload.role]}.`;
+    case "den_message_posted":
+      return `${payload.murderer}, in the Den: "${payload.text}"${
+        payload.proposed_victim ? ` (proposes ${payload.proposed_victim})` : ""
+      }`;
+    case "kill_vote_cast":
+      return `${payload.murderer} votes to kill ${payload.target}.`;
+    case "victim_chosen":
+      return `The Murderers choose ${payload.victim}.`;
+    case "resident_protected":
+      return `${payload.doctor}, the Doctor, protects ${payload.target}.`;
+    case "resident_investigated":
+      return `${payload.detective}, the Detective, learns that ${payload.target} is ${
+        payload.found_murderer ? "a Murderer" : "not a Murderer"
+      }.`;
+    case "attack_thwarted":
+      return `${payload.saved ?? "Someone"} was attacked in the night, but the Doctor saved them.`;
+    case "recap_narrated":
+      return `Narrator: ${payload.text}`;
     case "reflection_written":
       return `${payload.resident} writes a reflection.`;
     case "decision_fell_back":

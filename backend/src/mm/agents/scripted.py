@@ -3,11 +3,14 @@
 They make games instant and free, which is what rules tests and demos need.
 They play legally but naively: Town bots vote at random, Murderer bots at
 random among everyone except their teammates, and a scripted Sheriff fires now
-and then at a random Resident. In their reflections they suspect whoever they
-have accused. Now and then a bot loses its train of thought and falls back to
-the safe default, as an Agent sometimes does, so recorded games show fallbacks.
+and then at a random Resident. At Night, Murderer bots each propose a random
+Victim and then vote for the most proposed; the Doctor and Detective choose at
+random. In their reflections they suspect whoever they have accused. Now and
+then a bot loses its train of thought and falls back to the safe default, as an
+Agent sometimes does, so recorded games show fallbacks.
 """
 
+from collections import Counter
 from collections.abc import Sequence
 from random import Random
 
@@ -16,19 +19,30 @@ from mm.agents.brain import Brain, BrainFactory
 from mm.engine import Resident, Role
 from mm.engine.decisions import (
     Answer,
-    Ballot,
     Bid,
     Decision,
     DecisionKind,
     DecisionRequest,
+    DenMessage,
     LastWords,
+    Recap,
     Reflection,
     Showdown,
     Statement,
     Suspicion,
+    Target,
 )
-from mm.engine.events import Event, StatementMade
+from mm.engine.events import (
+    AttackThwarted,
+    DenMessagePosted,
+    Event,
+    ResidentDied,
+    StatementMade,
+)
+from mm.engine.perception import began, since_last
+from mm.engine.phases import Phase
 from mm.engine.state import GameState
+from mm.engine.tally import drawn_from_the_top
 
 OPENING_LINES = (
     "Hello, I'm {me}. Keep your eyes open, everyone.",
@@ -52,7 +66,8 @@ class ScriptedBot:
 
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         if self.lapses and self.rng.randrange(LAPSE_ONE_DECISION_IN) == 0:
-            return Answer(ANSWERS[request.kind].fallback, fallback_reason="lost the thread")
+            fallback = ANSWERS[request.kind].fallback(request, self.rng)
+            return Answer(fallback, fallback_reason="lost the thread")
         return Answer(self._decision(request, view))
 
     def _decision(self, request: DecisionRequest, view: Sequence[Event]) -> Decision:
@@ -69,11 +84,41 @@ class ScriptedBot:
                     return Showdown(fire=True, target=target, reason="a hunch")
                 return Showdown(fire=False, target=None, reason="not yet")
             case DecisionKind.BALLOT:
-                return Ballot(choice=self.rng.choice(self._ballot_options(request, view)))
+                choice = self.rng.choice(self._ballot_options(request, view))
+                return Target(target=choice, reason="a hunch")
             case DecisionKind.LAST_WORDS:
                 return LastWords(text="Remember what I told you.")
             case DecisionKind.REFLECTION:
                 return self._reflection(request, view)
+            case (
+                DecisionKind.DEN_MESSAGE
+                | DecisionKind.KILL_VOTE
+                | DecisionKind.PROTECT
+                | DecisionKind.INVESTIGATE
+                | DecisionKind.RECAP
+            ):
+                return self._night_decision(request, view)
+
+    def _night_decision(self, request: DecisionRequest, view: Sequence[Event]) -> Decision:
+        match request.kind:
+            case DecisionKind.DEN_MESSAGE:
+                victim = self.rng.choice(request.options)
+                return DenMessage(text=f"Let's take {victim} tonight.", proposed_victim=victim)
+            case DecisionKind.KILL_VOTE:
+                proposed = Counter(
+                    victim for victim in _proposed_tonight(view) if victim in request.options
+                )
+                victim = (
+                    drawn_from_the_top(proposed, self.rng)
+                    if proposed
+                    else self.rng.choice(request.options)
+                )
+                return Target(target=victim, reason="as the Den agreed")
+            case DecisionKind.PROTECT | DecisionKind.INVESTIGATE:
+                return Target(target=self.rng.choice(request.options), reason="a hunch")
+            case DecisionKind.RECAP:
+                return Recap(text=_recap(view))
+        raise ValueError(f"{request.kind} is not decided at Night or Dawn")
 
     def _statement(self, request: DecisionRequest, known: GameState) -> Statement:
         me = request.resident
@@ -126,6 +171,28 @@ def _accused_by(view: Sequence[Event], me: str) -> list[str]:
         for name in event.payload.accused
     ]
     return list(dict.fromkeys(accused))
+
+
+def _proposed_tonight(view: Sequence[Event]) -> list[str]:
+    """The Victims proposed in the Den since Night fell."""
+    tonight = since_last(view, began(Phase.NIGHT))
+    return [
+        event.payload.proposed_victim
+        for event in tonight
+        if isinstance(event.payload, DenMessagePosted) and event.payload.proposed_victim
+    ]
+
+
+def _recap(view: Sequence[Event]) -> str:
+    """The narrator's line for this Dawn: who was found dead, or who survived an attack."""
+    day = GameState.fold(view).day
+    for event in since_last(view, began(Phase.DAWN)):
+        match event.payload:
+            case ResidentDied(resident=victim, cause="murdered"):
+                return f"Day {day} dawns, and the town finds {victim} dead."
+            case AttackThwarted(saved=saved):
+                return f"Day {day} dawns. {saved or 'Someone'} was attacked, and lived."
+    return f"Day {day} dawns quietly over the town."
 
 
 def scripted_bots(seed: int) -> BrainFactory:

@@ -11,6 +11,7 @@ from random import Random
 
 from mm.engine.config import GameConfig
 from mm.engine.state import GameState
+from mm.engine.tally import drawn_from_the_top
 
 ADDRESSED_WEIGHT = 3
 """How much likelier a Resident the previous Statement addressed is to win a tied bid."""
@@ -20,10 +21,7 @@ def speaker_for(bids: Mapping[str, int], addressed: Collection[str], rng: Random
     """Who makes the next Statement, given each Resident's bid; None if nobody wants to."""
     if not bids or max(bids.values()) == 0:
         return None
-    top = max(bids.values())
-    tied = [name for name, urgency in bids.items() if urgency == top]
-    weights = [ADDRESSED_WEIGHT if name in addressed else 1 for name in tied]
-    return rng.choices(tied, weights=weights)[0]
+    return drawn_from_the_top(bids, rng, lambda name: ADDRESSED_WEIGHT if name in addressed else 1)
 
 
 def named(names: Iterable[str], state: GameState, speaker: str) -> tuple[str, ...]:

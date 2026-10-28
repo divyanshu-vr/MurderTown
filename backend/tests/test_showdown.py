@@ -20,7 +20,8 @@ def showdown_days(events: list[Event]) -> list[int]:
 
 
 def deaths(events: list[Event]) -> list[tuple[str, str]]:
-    return [(d.resident, d.cause) for d in payloads(events, ResidentDied)]
+    """Who died on Day 1, and how. The first Night's murder is announced on Day 2."""
+    return [(d.resident, d.cause) for d in payloads(events, ResidentDied, day=1)]
 
 
 async def test_a_sheriff_who_hits_a_murderer_kills_only_the_murderer() -> None:

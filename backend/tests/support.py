@@ -13,12 +13,12 @@ from mm.engine import GameConfig, Resident, Role
 from mm.engine.decisions import (
     SKIP,
     Answer,
-    Ballot,
     Bid,
     DecisionKind,
     DecisionRequest,
     Showdown,
     Statement,
+    Target,
 )
 from mm.engine.events import Event, Payload, RoleAssigned
 from mm.engine.state import GameState
@@ -62,7 +62,8 @@ class Puppet:
     """A test decision source that does exactly what a test scripts.
 
     By default it bids 0, holds fire and votes to skip. Unscripted Statements,
-    last words and reflections come from a scripted bot that never lapses.
+    last words, reflections and Night choices come from a scripted bot that never
+    lapses, so unscripted Murderers still kill.
     """
 
     ballots: Script = field(default_factory=dict)
@@ -70,6 +71,12 @@ class Puppet:
     shots: Mapping[int, int] = field(default_factory=dict)
     """For the Sheriff: the seat to fire at, by Day."""
     says: StatementRule | None = None
+    kills: Mapping[int, int] = field(default_factory=dict)
+    """For the Murderers: the seat to kill on each Day's Night."""
+    protects: Mapping[int, int] = field(default_factory=dict)
+    """For the Doctor: the seat to protect on each Day's Night."""
+    investigations: Mapping[int, int] = field(default_factory=dict)
+    """For the Detective: the seat to investigate on each Day's Night."""
 
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         known = GameState.fold(view)
@@ -78,7 +85,7 @@ class Puppet:
             case DecisionKind.BALLOT:
                 target = self.ballots.get(known.day, {}).get(seat_of(known)[me])
                 choice = SKIP if target is None else known.residents[target].name
-                return Answer(Ballot(choice=choice))
+                return Answer(Target(target=choice, reason="scripted"))
             case DecisionKind.BID:
                 return Answer(Bid(urgency=self.bids(me, known), reason="scripted"))
             case DecisionKind.SHOWDOWN:
@@ -89,8 +96,20 @@ class Puppet:
                 return Answer(Showdown(fire=True, target=target, reason="scripted"))
             case DecisionKind.STATEMENT if self.says:
                 return Answer(self.says(request, known))
+            case DecisionKind.KILL_VOTE | DecisionKind.PROTECT | DecisionKind.INVESTIGATE if (
+                seat := self._chosen_at_night(request.kind, known.day)
+            ) is not None:
+                return Answer(Target(target=known.residents[seat].name, reason="scripted"))
             case _:
                 return await ScriptedBot(Random(me), lapses=False).decide(request, view)
+
+    def _chosen_at_night(self, kind: DecisionKind, day: int) -> int | None:
+        scripted = {
+            DecisionKind.KILL_VOTE: self.kills,
+            DecisionKind.PROTECT: self.protects,
+            DecisionKind.INVESTIGATE: self.investigations,
+        }
+        return scripted[kind].get(day)
 
 
 def may_perceive(event: Event, resident: str) -> bool:
@@ -118,8 +137,19 @@ def puppets(
     bids: BidRule = quiet,
     shots: Mapping[int, int] | None = None,
     says: StatementRule | None = None,
+    kills: Mapping[int, int] | None = None,
+    protects: Mapping[int, int] | None = None,
+    investigations: Mapping[int, int] | None = None,
 ) -> BrainFactory:
-    puppet = Puppet(ballots=ballots or {}, bids=bids, shots=shots or {}, says=says)
+    puppet = Puppet(
+        ballots=ballots or {},
+        bids=bids,
+        shots=shots or {},
+        says=says,
+        kills=kills or {},
+        protects=protects or {},
+        investigations=investigations or {},
+    )
 
     def make(resident: Resident) -> Brain:
         return puppet
@@ -139,22 +169,6 @@ async def seats_by_role(config: GameConfig) -> dict[Role, list[int]]:
     for assignment in payloads(events, RoleAssigned):
         seats.setdefault(assignment.role, []).append(seats_of_names[assignment.resident])
     return {role: sorted(found) for role, found in seats.items()}
-
-
-KIND_BY_FIELD = {
-    "my_role": DecisionKind.STATEMENT,
-    "urgency": DecisionKind.BID,
-    "fire": DecisionKind.SHOWDOWN,
-    "choice": DecisionKind.BALLOT,
-    "journal_entry": DecisionKind.REFLECTION,
-}
-
-
-def answer_kind(request: ModelRequest) -> DecisionKind:
-    """Which decision a model request is for, read from the shape of its answer schema."""
-    fields = set(request.schema["properties"])
-    found = [kind for field, kind in KIND_BY_FIELD.items() if field in fields]
-    return found[0] if found else DecisionKind.LAST_WORDS
 
 
 def own_role(request: ModelRequest) -> str:
@@ -185,8 +199,9 @@ def statement_answer(text: str, request: ModelRequest, **fields: Any) -> dict[st
 
 
 def sensible_answer(request: ModelRequest) -> ModelReply:
-    """A cooperative model: short Statements, quiet bids, held fire, SKIP and brief notes."""
-    match answer_kind(request):
+    """A cooperative model: short Statements, quiet bids, held fire, SKIP, brief notes,
+    and at Night the first option it is offered."""
+    match request.kind:
         case DecisionKind.STATEMENT:
             return model_answer(statement_answer("I am watching every one of you.", request))
         case DecisionKind.BID:
@@ -194,12 +209,18 @@ def sensible_answer(request: ModelRequest) -> ModelReply:
         case DecisionKind.SHOWDOWN:
             return model_answer({"fire": False, "target": None, "reason": "not yet"})
         case DecisionKind.BALLOT:
-            return model_answer({"choice": "SKIP"})
+            return model_answer({"target": "SKIP", "reason": "not sure yet"})
         case DecisionKind.LAST_WORDS:
             return model_answer({"text": "You will regret this."})
         case DecisionKind.REFLECTION:
             return model_answer({"journal_entry": "Quiet so far.", "notebook": "Stay alert.",
                                  "suspicions": []})  # fmt: skip
+        case DecisionKind.DEN_MESSAGE:
+            return model_answer({"text": "Careful tonight.", "proposed_victim": None})
+        case DecisionKind.KILL_VOTE | DecisionKind.PROTECT | DecisionKind.INVESTIGATE:
+            return model_answer({"target": listed_options(request.prompt)[0], "reason": "a hunch"})
+        case DecisionKind.RECAP:
+            return model_answer({"text": "Another Day dawns over the town."})
 
 
 class FakeModel:

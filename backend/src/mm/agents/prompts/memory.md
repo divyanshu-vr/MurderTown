@@ -6,3 +6,6 @@ $journal
 
 # Your suspicions (0 = certainly innocent, 100 = certainly a Murderer)
 $suspicions
+
+# What only you know
+$private

@@ -10,8 +10,14 @@ import pytest
 
 from mm.engine import GameConfig, Role
 from mm.engine.decisions import DecisionKind
-from mm.engine.events import DecisionFellBack, RoleAssigned, SheriffFired
-from tests.prompt_spy import FALLBACK_SENTINEL, spy_on
+from mm.engine.events import (
+    DecisionFellBack,
+    DenMessagePosted,
+    ResidentInvestigated,
+    RoleAssigned,
+    SheriffFired,
+)
+from tests.prompt_spy import DEN_SENTINEL, FALLBACK_SENTINEL, spy_on
 from tests.support import listed_options, payloads, puppets, seats_by_role
 
 
@@ -41,7 +47,8 @@ async def test_no_prompt_pairs_a_living_resident_with_a_role_the_viewer_should_n
 
     for seen in shown:
         text = seen.text()
-        known = {seen.resident, *seen.revealed, *assignments[seen.resident].teammates}
+        own = assignments.get(seen.resident)  # the narrator has no role
+        known = {seen.resident, *seen.revealed, *(own.teammates if own else ())}
         for other, assignment in assignments.items():
             if other in known:
                 continue
@@ -60,7 +67,7 @@ async def test_what_only_spectators_may_perceive_never_reaches_a_prompt() -> Non
 async def test_a_residents_own_notes_come_back_to_them_after_they_reflect() -> None:
     shown, _ = await spy_on(GameConfig(residents=8, murderers=2, max_days=3, seed=31))
 
-    day_two = [s for s in shown if "It is Day 2." in s.prompt.task]
+    day_two = [s for s in shown if "It is Day 2." in s.prompt.task and s.role is not None]
     assert day_two
     for seen in day_two:
         assert f"SECRET-{seen.resident}-notebook" in seen.prompt.memory
@@ -120,3 +127,34 @@ async def test_after_a_shot_every_prompt_names_the_sheriff_who_fired() -> None:
     assert ballots
     fact = f"Day 1: {shot.sheriff}, the Sheriff, fired at {shot.target}."
     assert all(fact in seen.prompt.task for seen in ballots)
+
+
+async def test_den_words_reach_only_the_other_murderers() -> None:
+    shown, events = await spy_on(GameConfig(residents=10, murderers=2, max_days=3, seed=31))
+    posted = payloads(events, DenMessagePosted)
+    whispers = {f"{DEN_SENTINEL}-{message.murderer}" for message in posted}
+
+    for seen in shown:
+        if seen.role is not Role.MURDERER:  # the narrator included
+            assert not any(whisper in seen.text() for whisper in whispers)
+    first, second = posted[0], posted[1]
+    dens = [s for s in shown if s.request.kind is DecisionKind.DEN_MESSAGE]
+    replying = next(s for s in dens if s.resident == second.murderer)
+    assert f"{DEN_SENTINEL}-{first.murderer}" in replying.text()
+
+
+async def test_only_the_detective_is_ever_shown_an_investigation() -> None:
+    shown, events = await spy_on(GameConfig(residents=10, murderers=2, max_days=4, seed=32))
+
+    assert payloads(events, ResidentInvestigated)
+    told = {seen.resident for seen in shown if "your investigation of" in seen.text()}
+    assert told
+    assert all(seen.role is Role.DETECTIVE for seen in shown if seen.resident in told)
+
+
+async def test_the_narrators_prompt_stays_one_day_long_however_long_the_game_runs() -> None:
+    shown, _ = await spy_on(GameConfig(residents=15, murderers=3, max_days=20, seed=31))
+
+    recaps = [len(seen.text()) for seen in shown if seen.request.kind is DecisionKind.RECAP]
+    assert len(recaps) > 2
+    assert max(recaps) < 2 * recaps[0] + 3000

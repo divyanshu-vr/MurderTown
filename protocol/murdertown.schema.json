@@ -1,5 +1,32 @@
 {
   "$defs": {
+    "AttackThwarted": {
+      "additionalProperties": false,
+      "description": "Dawn's news that the Murderers attacked someone the Doctor had protected.",
+      "properties": {
+        "type": {
+          "const": "attack_thwarted",
+          "default": "attack_thwarted",
+          "type": "string"
+        },
+        "saved": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "saved"
+      ],
+      "title": "AttackThwarted",
+      "type": "object"
+    },
     "BallotCast": {
       "additionalProperties": false,
       "description": "One Resident's ballot, revealed once every ballot of the Vote has been cast.",
@@ -94,10 +121,57 @@
         "showdown",
         "ballot",
         "last_words",
-        "reflection"
+        "reflection",
+        "den_message",
+        "kill_vote",
+        "protect",
+        "investigate",
+        "recap"
       ],
       "title": "DecisionKind",
       "type": "string"
+    },
+    "DenMessagePosted": {
+      "additionalProperties": false,
+      "description": "One Murderer's message to the others, perhaps proposing tonight's Victim.",
+      "properties": {
+        "den": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "type": {
+          "const": "den_message_posted",
+          "default": "den_message_posted",
+          "type": "string"
+        },
+        "murderer": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "proposed_victim": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "den",
+        "type",
+        "murderer",
+        "text",
+        "proposed_victim"
+      ],
+      "title": "DenMessagePosted",
+      "type": "object"
     },
     "Effort": {
       "description": "How hard the model thinks before answering: more effort, slower and dearer answers.",
@@ -139,19 +213,26 @@
         "payload": {
           "discriminator": {
             "mapping": {
+              "attack_thwarted": "#/$defs/AttackThwarted",
               "ballot_cast": "#/$defs/BallotCast",
               "bid_placed": "#/$defs/BidPlaced",
               "decision_fell_back": "#/$defs/DecisionFellBack",
+              "den_message_posted": "#/$defs/DenMessagePosted",
               "game_ended": "#/$defs/GameEnded",
               "game_started": "#/$defs/GameStarted",
+              "kill_vote_cast": "#/$defs/KillVoteCast",
               "last_words_spoken": "#/$defs/LastWordsSpoken",
               "phase_started": "#/$defs/PhaseStarted",
+              "recap_narrated": "#/$defs/RecapNarrated",
               "reflection_written": "#/$defs/ReflectionWritten",
               "resident_died": "#/$defs/ResidentDied",
+              "resident_investigated": "#/$defs/ResidentInvestigated",
+              "resident_protected": "#/$defs/ResidentProtected",
               "role_assigned": "#/$defs/RoleAssigned",
               "sheriff_fired": "#/$defs/SheriffFired",
               "sheriff_held_fire": "#/$defs/SheriffHeldFire",
               "statement_made": "#/$defs/StatementMade",
+              "victim_chosen": "#/$defs/VictimChosen",
               "vote_resolved": "#/$defs/VoteResolved"
             },
             "propertyName": "type"
@@ -189,6 +270,27 @@
             },
             {
               "$ref": "#/$defs/ResidentDied"
+            },
+            {
+              "$ref": "#/$defs/DenMessagePosted"
+            },
+            {
+              "$ref": "#/$defs/KillVoteCast"
+            },
+            {
+              "$ref": "#/$defs/VictimChosen"
+            },
+            {
+              "$ref": "#/$defs/ResidentProtected"
+            },
+            {
+              "$ref": "#/$defs/ResidentInvestigated"
+            },
+            {
+              "$ref": "#/$defs/AttackThwarted"
+            },
+            {
+              "$ref": "#/$defs/RecapNarrated"
             },
             {
               "$ref": "#/$defs/ReflectionWritten"
@@ -319,6 +421,16 @@
           ],
           "type": "string"
         },
+        "detective_accuracy": {
+          "default": 0.8,
+          "maximum": 1.0,
+          "minimum": 0.5,
+          "type": "number"
+        },
+        "dawn_names_the_saved": {
+          "default": true,
+          "type": "boolean"
+        },
         "seed": {
           "default": 0,
           "type": "integer"
@@ -387,6 +499,16 @@
           ],
           "type": "string"
         },
+        "detective_accuracy": {
+          "default": 0.8,
+          "maximum": 1.0,
+          "minimum": 0.5,
+          "type": "number"
+        },
+        "dawn_names_the_saved": {
+          "default": true,
+          "type": "boolean"
+        },
         "seed": {
           "default": 0,
           "type": "integer"
@@ -402,6 +524,8 @@
         "open_floor_statements",
         "open_floor_seconds",
         "sheriff_shoots_at",
+        "detective_accuracy",
+        "dawn_names_the_saved",
         "seed"
       ],
       "title": "GameConfig",
@@ -526,6 +650,37 @@
         "text"
       ],
       "title": "JournalEntry",
+      "type": "object"
+    },
+    "KillVoteCast": {
+      "additionalProperties": false,
+      "description": "One Murderer's choice of Victim; a lone Murderer's choice settles it.",
+      "properties": {
+        "den": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "type": {
+          "const": "kill_vote_cast",
+          "default": "kill_vote_cast",
+          "type": "string"
+        },
+        "murderer": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "den",
+        "type",
+        "murderer",
+        "target"
+      ],
+      "title": "KillVoteCast",
       "type": "object"
     },
     "LastWordsSpoken": {
@@ -803,6 +958,26 @@
       "title": "PhaseStarted",
       "type": "object"
     },
+    "RecapNarrated": {
+      "additionalProperties": false,
+      "description": "The narrator's short recap of the Day so far, told at Dawn.",
+      "properties": {
+        "type": {
+          "const": "recap_narrated",
+          "default": "recap_narrated",
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "text"
+      ],
+      "title": "RecapNarrated",
+      "type": "object"
+    },
     "ReflectionWritten": {
       "additionalProperties": false,
       "description": "A Resident's private journal entry, rewritten notebook and changed suspicions.",
@@ -861,7 +1036,7 @@
     },
     "ResidentDied": {
       "additionalProperties": false,
-      "description": "A death, announced to everyone with the dead Resident's role.\n\nA Resident is banished by Vote or shot by the Sheriff; a Sheriff who shoots a\nTown Resident dies of the backfire.",
+      "description": "A death, announced to everyone with the dead Resident's role.\n\nA Resident is banished by Vote, shot by the Sheriff or murdered at Night; a\nSheriff who shoots a Town Resident dies of the backfire.",
       "properties": {
         "type": {
           "const": "resident_died",
@@ -875,7 +1050,8 @@
           "enum": [
             "banished",
             "shot",
-            "backfire"
+            "backfire",
+            "murdered"
           ],
           "type": "string"
         },
@@ -890,6 +1066,58 @@
         "role"
       ],
       "title": "ResidentDied",
+      "type": "object"
+    },
+    "ResidentInvestigated": {
+      "additionalProperties": false,
+      "description": "What the Detective learns about one Resident. It is not always right.",
+      "properties": {
+        "type": {
+          "const": "resident_investigated",
+          "default": "resident_investigated",
+          "type": "string"
+        },
+        "detective": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "found_murderer": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "detective",
+        "target",
+        "found_murderer"
+      ],
+      "title": "ResidentInvestigated",
+      "type": "object"
+    },
+    "ResidentProtected": {
+      "additionalProperties": false,
+      "description": "The Doctor's protection for the Night. If the Murderers attack this Resident, they live.",
+      "properties": {
+        "type": {
+          "const": "resident_protected",
+          "default": "resident_protected",
+          "type": "string"
+        },
+        "doctor": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "doctor",
+        "target"
+      ],
+      "title": "ResidentProtected",
       "type": "object"
     },
     "Role": {
@@ -1087,6 +1315,33 @@
         "note"
       ],
       "title": "Suspicion",
+      "type": "object"
+    },
+    "VictimChosen": {
+      "additionalProperties": false,
+      "description": "The Den's Victim: the most kill votes, with a tie drawn at random.",
+      "properties": {
+        "den": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "type": {
+          "const": "victim_chosen",
+          "default": "victim_chosen",
+          "type": "string"
+        },
+        "victim": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "den",
+        "type",
+        "victim"
+      ],
+      "title": "VictimChosen",
       "type": "object"
     },
     "Visibility": {

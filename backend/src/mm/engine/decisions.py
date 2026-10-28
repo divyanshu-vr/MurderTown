@@ -26,6 +26,11 @@ class DecisionKind(StrEnum):
     BALLOT = "ballot"
     LAST_WORDS = "last_words"
     REFLECTION = "reflection"
+    DEN_MESSAGE = "den_message"
+    KILL_VOTE = "kill_vote"
+    PROTECT = "protect"
+    INVESTIGATE = "investigate"
+    RECAP = "recap"
 
 
 @dataclass(frozen=True)
@@ -81,12 +86,27 @@ class Showdown(Decision):
     reason: str = Field(description="Why, in a few words.")
 
 
-class Ballot(Decision):
-    choice: str = Field(description="Exactly one of the options you were given.")
+class Target(Decision):
+    """A choice of one option from a list: a ballot (which may be SKIP), a kill vote,
+    a protection or an investigation."""
+
+    target: str = Field(description="Exactly one of the options you were given, spelled as shown.")
+    reason: str = Field(description="Why, in a few words.")
 
 
 class LastWords(Decision):
     text: str = Field(description="What you say as you leave the town forever.")
+
+
+class DenMessage(Decision):
+    text: str = Field(description="What you say to your fellow Murderers, in your own voice.")
+    proposed_victim: str | None = Field(
+        description="Whom you propose to kill tonight, one of the listed options, or null."
+    )
+
+
+class Recap(Decision):
+    text: str = Field(description="The recap, in two or three sentences.")
 
 
 class Suspicion(BaseModel):

@@ -26,13 +26,15 @@ async def test_the_town_wins_the_moment_the_last_murderer_is_banished() -> None:
 async def test_the_murderers_win_once_they_equal_the_rest_of_the_town() -> None:
     (murderer,) = (await seats_by_role(SIX_RESIDENTS))[Role.MURDERER]
     town = [seat for seat in range(6) if seat != murderer]
-    script: Script = {day: everyone_votes_for(town[day - 1]) for day in range(1, 5)}
+    banish: Script = {1: everyone_votes_for(town[0]), 2: everyone_votes_for(town[2])}
+    nights = {"kills": {1: town[1], 2: town[3]}, "protects": {1: murderer, 2: town[4]}}
 
-    result = await play_game(SIX_RESIDENTS, puppets(script))
+    result = await play_game(SIX_RESIDENTS, puppets(banish, **nights))
 
     (ending,) = payloads(result.events, GameEnded)
     assert ending.winner is Side.MURDERERS
-    assert result.events[-1].day == 4
+    assert ending.reason == "The Murderers now equal the rest of the town."
+    assert len(result.state.living) == 2
 
 
 async def test_the_murderers_win_when_the_town_runs_out_of_days() -> None:

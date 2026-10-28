@@ -4,7 +4,18 @@
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "DecisionKind".
  */
-export type DecisionKind = "statement" | "bid" | "showdown" | "ballot" | "last_words" | "reflection";
+export type DecisionKind =
+  | "statement"
+  | "bid"
+  | "showdown"
+  | "ballot"
+  | "last_words"
+  | "reflection"
+  | "den_message"
+  | "kill_vote"
+  | "protect"
+  | "investigate"
+  | "recap";
 /**
  * How hard the model thinks before answering: more effort, slower and dearer answers.
  *
@@ -30,6 +41,16 @@ export type Side = "town" | "murderers";
 
 export interface MurderTownProtocol {
   [k: string]: unknown;
+}
+/**
+ * Dawn's news that the Murderers attacked someone the Doctor had protected.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "AttackThwarted".
+ */
+export interface AttackThwarted {
+  type: "attack_thwarted";
+  saved: string | null;
 }
 /**
  * One Resident's ballot, revealed once every ballot of the Vote has been cast.
@@ -67,6 +88,19 @@ export interface DecisionFellBack {
   reason: string;
 }
 /**
+ * One Murderer's message to the others, perhaps proposing tonight's Victim.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "DenMessagePosted".
+ */
+export interface DenMessagePosted {
+  den: string[];
+  type: "den_message_posted";
+  murderer: string;
+  text: string;
+  proposed_victim: string | null;
+}
+/**
  * One entry in a game's log: a payload stamped with its place in the game.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
@@ -90,6 +124,13 @@ export interface Event {
     | VoteResolved
     | LastWordsSpoken
     | ResidentDied
+    | DenMessagePosted
+    | KillVoteCast
+    | VictimChosen
+    | ResidentProtected
+    | ResidentInvestigated
+    | AttackThwarted
+    | RecapNarrated
     | ReflectionWritten
     | DecisionFellBack
     | GameEnded;
@@ -127,6 +168,8 @@ export interface GameConfig {
   open_floor_statements: number;
   open_floor_seconds: number | null;
   sheriff_shoots_at: "showdown" | "night";
+  detective_accuracy: number;
+  dawn_names_the_saved: boolean;
   seed: number;
 }
 /**
@@ -239,8 +282,8 @@ export interface LastWordsSpoken {
 /**
  * A death, announced to everyone with the dead Resident's role.
  *
- * A Resident is banished by Vote or shot by the Sheriff; a Sheriff who shoots a
- * Town Resident dies of the backfire.
+ * A Resident is banished by Vote, shot by the Sheriff or murdered at Night; a
+ * Sheriff who shoots a Town Resident dies of the backfire.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "ResidentDied".
@@ -248,8 +291,64 @@ export interface LastWordsSpoken {
 export interface ResidentDied {
   type: "resident_died";
   resident: string;
-  cause: "banished" | "shot" | "backfire";
+  cause: "banished" | "shot" | "backfire" | "murdered";
   role: Role;
+}
+/**
+ * One Murderer's choice of Victim; a lone Murderer's choice settles it.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "KillVoteCast".
+ */
+export interface KillVoteCast {
+  den: string[];
+  type: "kill_vote_cast";
+  murderer: string;
+  target: string;
+}
+/**
+ * The Den's Victim: the most kill votes, with a tie drawn at random.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "VictimChosen".
+ */
+export interface VictimChosen {
+  den: string[];
+  type: "victim_chosen";
+  victim: string;
+}
+/**
+ * The Doctor's protection for the Night. If the Murderers attack this Resident, they live.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "ResidentProtected".
+ */
+export interface ResidentProtected {
+  type: "resident_protected";
+  doctor: string;
+  target: string;
+}
+/**
+ * What the Detective learns about one Resident. It is not always right.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "ResidentInvestigated".
+ */
+export interface ResidentInvestigated {
+  type: "resident_investigated";
+  detective: string;
+  target: string;
+  found_murderer: boolean;
+}
+/**
+ * The narrator's short recap of the Day so far, told at Dawn.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "RecapNarrated".
+ */
+export interface RecapNarrated {
+  type: "recap_narrated";
+  text: string;
 }
 /**
  * A Resident's private journal entry, rewritten notebook and changed suspicions.
@@ -353,6 +452,8 @@ export interface GameConfigInput {
   open_floor_statements?: number;
   open_floor_seconds?: number | null;
   sheriff_shoots_at?: "showdown" | "night";
+  detective_accuracy?: number;
+  dawn_names_the_saved?: boolean;
   seed?: number;
 }
 /**

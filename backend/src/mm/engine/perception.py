@@ -4,7 +4,7 @@ Every prompt, every bot decision and the server's mind endpoint are built from
 `perceived_by`, so information isolation is enforced in this one function.
 """
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 
 from mm.engine.events import Event, PhaseStarted, ReflectionWritten, RoleAssigned
 from mm.engine.phases import Phase
@@ -15,14 +15,28 @@ def perceived_by(events: Iterable[Event], resident: str) -> list[Event]:
     return [event for event in events if event.visibility.allows(resident)]
 
 
+def since_last(view: Sequence[Event], marks: Callable[[Event], bool]) -> list[Event]:
+    """The events after the last one that `marks` picks out (all of them, if none does)."""
+    marked = [index for index, event in enumerate(view) if marks(event)]
+    return list(view[marked[-1] + 1 :] if marked else view)
+
+
+def began(phase: Phase) -> Callable[[Event], bool]:
+    """A test for the event that began a Phase, to use with `since_last`."""
+
+    def began_phase(event: Event) -> bool:
+        return isinstance(event.payload, PhaseStarted) and event.payload.phase is phase
+
+    return began_phase
+
+
 def since_last_reflection(view: Sequence[Event], resident: str) -> list[Event]:
     """What a Resident has perceived since they last wrote a reflection (everything, if never)."""
-    reflected = [
-        index
-        for index, event in enumerate(view)
-        if isinstance(event.payload, ReflectionWritten) and event.payload.resident == resident
-    ]
-    return list(view[reflected[-1] + 1 :] if reflected else view)
+
+    def reflected(event: Event) -> bool:
+        return isinstance(event.payload, ReflectionWritten) and event.payload.resident == resident
+
+    return since_last(view, reflected)
 
 
 def has_news(view: Sequence[Event], resident: str) -> bool:

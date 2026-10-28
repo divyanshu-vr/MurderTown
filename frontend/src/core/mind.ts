@@ -96,6 +96,13 @@ export function decider(payload: Payload): string | null {
     case "sheriff_fired":
     case "sheriff_held_fire":
       return payload.sheriff;
+    case "den_message_posted":
+    case "kill_vote_cast":
+      return payload.murderer;
+    case "resident_protected":
+      return payload.doctor;
+    case "resident_investigated":
+      return payload.detective;
     case "ballot_cast":
       return payload.voter;
     case "game_started":
@@ -103,6 +110,9 @@ export function decider(payload: Payload): string | null {
     case "phase_started":
     case "vote_resolved":
     case "resident_died":
+    case "victim_chosen":
+    case "attack_thwarted":
+    case "recap_narrated": // the narrator is not a Resident
     case "game_ended":
       return null;
   }

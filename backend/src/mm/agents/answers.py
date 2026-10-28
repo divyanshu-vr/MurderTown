@@ -5,7 +5,9 @@ scrubbed of anything from outside the game world, can be shown to everyone.
 """
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
+from random import Random
 from typing import Any, cast
 
 from pydantic import Field, ValidationError
@@ -13,15 +15,17 @@ from pydantic import Field, ValidationError
 from mm.engine import Role
 from mm.engine.decisions import (
     SKIP,
-    Ballot,
     Bid,
     Decision,
     DecisionKind,
     DecisionRequest,
+    DenMessage,
     LastWords,
+    Recap,
     Reflection,
     Showdown,
     Statement,
+    Target,
 )
 from mm.engine.rules import why_illegal
 
@@ -32,25 +36,46 @@ class StatementAnswer(Statement):
     my_role: Role = Field(description="Your own true role. Nobody else ever sees this field.")
 
 
+Fallback = Callable[[DecisionRequest, Random], Decision]
+"""What a Resident does when they cannot decide, given what they were asked."""
+
+
+def always(decision: Decision) -> Fallback:
+    """A fallback that is the same whatever was asked."""
+    return lambda request, rng: decision
+
+
+def any_option(request: DecisionRequest, rng: Random) -> Decision:
+    """A random legal option: what happens to a Night choice nobody could make."""
+    return Target(target=rng.choice(request.options), reason="(no answer)")
+
+
 @dataclass(frozen=True)
 class AnswerSpec:
     shape: type[Decision]
-    fallback: Decision
-    """What happens when the Resident cannot decide: silence, a bid of 0, holding fire,
-    a vote to skip, no last words or an empty reflection that changes nothing."""
+    fallback: Fallback
+    """Silence, a bid of 0, holding fire, a vote to skip, no last words, an empty
+    reflection that changes nothing, or a random legal Night choice."""
 
 
 ANSWERS: dict[DecisionKind, AnswerSpec] = {
-    DecisionKind.STATEMENT: AnswerSpec(StatementAnswer, Statement.plain("(stays silent)")),
-    DecisionKind.BID: AnswerSpec(Bid, Bid(urgency=0, reason="(no answer)")),
+    DecisionKind.STATEMENT: AnswerSpec(StatementAnswer, always(Statement.plain("(stays silent)"))),
+    DecisionKind.BID: AnswerSpec(Bid, always(Bid(urgency=0, reason="(no answer)"))),
     DecisionKind.SHOWDOWN: AnswerSpec(
-        Showdown, Showdown(fire=False, target=None, reason="(no answer)")
+        Showdown, always(Showdown(fire=False, target=None, reason="(no answer)"))
     ),
-    DecisionKind.BALLOT: AnswerSpec(Ballot, Ballot(choice=SKIP)),
-    DecisionKind.LAST_WORDS: AnswerSpec(LastWords, LastWords(text="(says nothing)")),
+    DecisionKind.BALLOT: AnswerSpec(Target, always(Target(target=SKIP, reason="(no answer)"))),
+    DecisionKind.LAST_WORDS: AnswerSpec(LastWords, always(LastWords(text="(says nothing)"))),
     DecisionKind.REFLECTION: AnswerSpec(
-        Reflection, Reflection(journal_entry="", notebook="", suspicions=[])
+        Reflection, always(Reflection(journal_entry="", notebook="", suspicions=[]))
     ),
+    DecisionKind.DEN_MESSAGE: AnswerSpec(
+        DenMessage, always(DenMessage(text="(says nothing)", proposed_victim=None))
+    ),
+    DecisionKind.KILL_VOTE: AnswerSpec(Target, any_option),
+    DecisionKind.PROTECT: AnswerSpec(Target, any_option),
+    DecisionKind.INVESTIGATE: AnswerSpec(Target, any_option),
+    DecisionKind.RECAP: AnswerSpec(Recap, always(Recap(text="Another Day dawns over the town."))),
 }
 
 OUTSIDE_WORLD = re.compile(
@@ -70,9 +95,13 @@ def answer_schema(kind: DecisionKind) -> dict[str, Any]:
 
 
 def read_answer(
-    request: DecisionRequest, data: dict[str, Any] | None, own_role: Role
+    request: DecisionRequest, data: dict[str, Any] | None, own_role: Role | None
 ) -> Decision | str:
-    """The decision in a model's answer, or why it cannot be used."""
+    """The decision in a model's answer, or why it cannot be used.
+
+    `own_role` is the Resident's true role, checked against a Statement's tripwire;
+    the narrator has none.
+    """
     if data is None:
         return "the answer was not in the requested structure"
     try:
@@ -84,7 +113,7 @@ def read_answer(
         )
     if problem := why_illegal(request, decision):
         return problem
-    if isinstance(decision, StatementAnswer) and decision.my_role is not own_role:
+    if isinstance(decision, StatementAnswer) and own_role and decision.my_role is not own_role:
         return f"your true role is {own_role.capitalize()}, not {decision.my_role.capitalize()}"
     return type(decision).model_validate(scrubbed(decision.model_dump()))
 

@@ -11,14 +11,13 @@ from mm.engine.decisions import DecisionKind, DecisionRequest, Reflection
 from mm.engine.events import ReflectionWritten
 from mm.engine.perception import has_news, perceived_by
 from mm.engine.reflection import suspect_options
-from mm.engine.rules import verdict
 
 if TYPE_CHECKING:
     from mm.orchestrator.game import Game
 
 
 async def reflect(game: "Game") -> None:
-    if verdict(game.state):
+    if game.decided:
         return
     requests = [
         DecisionRequest(DecisionKind.REFLECTION, name, suspect_options(game.state, name))

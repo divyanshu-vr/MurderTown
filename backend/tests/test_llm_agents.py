@@ -8,14 +8,16 @@ from dataclasses import dataclass, replace
 
 from mm.agents import AgentSettings, ModelCall, llm_agents
 from mm.agents.prompting import prompt_version
-from mm.engine import GameConfig
+from mm.engine import GameConfig, Role
 from mm.engine.decisions import DecisionKind
 from mm.engine.events import (
     BallotCast,
     BidPlaced,
     DecisionFellBack,
+    DenMessagePosted,
     Event,
     GameEnded,
+    KillVoteCast,
     LastWordsSpoken,
     SheriffFired,
     StatementMade,
@@ -24,7 +26,6 @@ from mm.llm import ModelReply, ModelRequest
 from mm.orchestrator import GameResult, play_game
 from tests.support import (
     FakeModel,
-    answer_kind,
     listed_options,
     model_answer,
     own_role,
@@ -34,6 +35,8 @@ from tests.support import (
 )
 
 CONFIG = GameConfig(residents=6, murderers=1, max_days=1, seed=13)
+NIGHTS = GameConfig(residents=8, murderers=2, max_days=2, seed=13)
+"""Two Days, so two Murderers talk in the Den and the narrator recaps a Dawn."""
 
 
 @dataclass
@@ -47,7 +50,7 @@ class Played:
         return [call for call in self.calls if call.kind is kind]
 
 
-async def play_with(model: FakeModel) -> Played:
+async def play_with(model: FakeModel, config: GameConfig = CONFIG) -> Played:
     calls: list[ModelCall] = []
     timeline: list[str] = []
 
@@ -59,8 +62,8 @@ async def play_with(model: FakeModel) -> Played:
         if event.decision_id:
             timeline.append(f"event {event.decision_id}")
 
-    agents = llm_agents(model, AgentSettings(), record, seed=CONFIG.seed)
-    result = await play_game(CONFIG, agents, observers=[observe])
+    agents = llm_agents(model, AgentSettings(), record, seed=config.seed)
+    result = await play_game(config, agents, observers=[observe])
     return Played(result, calls, timeline)
 
 
@@ -100,8 +103,8 @@ async def test_each_call_records_its_prompt_usage_cost_and_prompt_version() -> N
 
 async def test_an_invalid_answer_is_retried_once_with_the_problem_quoted() -> None:
     def respond(request: ModelRequest) -> ModelReply:
-        if answer_kind(request) is DecisionKind.BALLOT and not retried(request):
-            return model_answer({"choice": "Nobody"})
+        if request.kind is DecisionKind.BALLOT and not retried(request):
+            return model_answer({"target": "Nobody", "reason": "a hunch"})
         return sensible_answer(request)
 
     played = await play_with(FakeModel(respond))
@@ -115,8 +118,8 @@ async def test_an_invalid_answer_is_retried_once_with_the_problem_quoted() -> No
 
 async def test_two_invalid_answers_fall_back_to_a_safe_default_and_say_why() -> None:
     def respond(request: ModelRequest) -> ModelReply:
-        if answer_kind(request) is DecisionKind.BALLOT:
-            return model_answer({"choice": "Nobody"})
+        if request.kind is DecisionKind.BALLOT:
+            return model_answer({"target": "Nobody", "reason": "a hunch"})
         return sensible_answer(request)
 
     played = await play_with(FakeModel(respond))
@@ -133,7 +136,7 @@ async def test_two_invalid_answers_fall_back_to_a_safe_default_and_say_why() -> 
 
 async def test_a_refusal_falls_back_without_a_second_try() -> None:
     def respond(request: ModelRequest) -> ModelReply:
-        if answer_kind(request) is DecisionKind.STATEMENT:
+        if request.kind is DecisionKind.STATEMENT:
             return ModelReply(outcome="refusal", data=None, text="", error="the model declined")
         return sensible_answer(request)
 
@@ -150,7 +153,7 @@ async def test_a_refusal_falls_back_without_a_second_try() -> None:
 
 async def test_a_timeout_falls_back_without_a_second_try() -> None:
     def respond(request: ModelRequest) -> ModelReply:
-        if answer_kind(request) is DecisionKind.STATEMENT:
+        if request.kind is DecisionKind.STATEMENT:
             return ModelReply(outcome="timeout", data=None, text="", error="no answer in 90s")
         return sensible_answer(request)
 
@@ -166,7 +169,7 @@ async def test_details_from_outside_the_game_never_reach_the_event_log() -> None
     leaky = r"Write to host@example.com, or open C:\Users\host\secrets.txt tonight."
 
     def respond(request: ModelRequest) -> ModelReply:
-        if answer_kind(request) is DecisionKind.STATEMENT:
+        if request.kind is DecisionKind.STATEMENT:
             return model_answer(statement_answer(leaky, request))
         return sensible_answer(request)
 
@@ -180,7 +183,7 @@ async def test_details_from_outside_the_game_never_reach_the_event_log() -> None
 
 async def test_a_suspicion_about_someone_outside_the_options_is_retried_with_the_problem() -> None:
     def respond(request: ModelRequest) -> ModelReply:
-        if answer_kind(request) is DecisionKind.REFLECTION and not retried(request):
+        if request.kind is DecisionKind.REFLECTION and not retried(request):
             return model_answer({"journal_entry": "Hmm.", "notebook": "Watch.", "suspicions": [
                 {"resident": "Nobody", "suspicion": 90, "note": "a stranger"}]})  # fmt: skip
         return sensible_answer(request)
@@ -194,7 +197,7 @@ async def test_a_suspicion_about_someone_outside_the_options_is_retried_with_the
 
 async def test_a_statement_that_gets_its_own_role_wrong_is_retried_with_the_true_role() -> None:
     def respond(request: ModelRequest) -> ModelReply:
-        if answer_kind(request) is DecisionKind.STATEMENT and not retried(request):
+        if request.kind is DecisionKind.STATEMENT and not retried(request):
             wrong = "civilian" if own_role(request) == "murderer" else "murderer"
             return model_answer(statement_answer("Trust me.", request, my_role=wrong))
         return sensible_answer(request)
@@ -209,7 +212,7 @@ async def test_a_statement_that_gets_its_own_role_wrong_is_retried_with_the_true
 
 async def test_a_shot_at_someone_outside_the_options_falls_back_to_holding_fire() -> None:
     def respond(request: ModelRequest) -> ModelReply:
-        if answer_kind(request) is DecisionKind.SHOWDOWN:
+        if request.kind is DecisionKind.SHOWDOWN:
             return model_answer({"fire": True, "target": "Nobody", "reason": "a hunch"})
         return sensible_answer(request)
 
@@ -224,7 +227,7 @@ async def test_a_shot_at_someone_outside_the_options_falls_back_to_holding_fire(
 
 async def test_an_unusable_bid_falls_back_to_listening() -> None:
     def respond(request: ModelRequest) -> ModelReply:
-        if answer_kind(request) is DecisionKind.BID:
+        if request.kind is DecisionKind.BID:
             return model_answer({"urgency": 9, "reason": "me, me, me"})
         return sensible_answer(request)
 
@@ -241,10 +244,10 @@ async def test_an_unusable_bid_falls_back_to_listening() -> None:
 
 async def test_last_words_the_model_refuses_fall_back_to_saying_nothing() -> None:
     def respond(request: ModelRequest) -> ModelReply:
-        match answer_kind(request):
+        match request.kind:
             case DecisionKind.BALLOT:  # everyone votes for the first name, alphabetically
                 names = sorted(set(listed_options(request.prompt)) - {"SKIP"})
-                return model_answer({"choice": names[0]})
+                return model_answer({"target": names[0], "reason": "first"})
             case DecisionKind.LAST_WORDS:
                 return ModelReply(outcome="refusal", data=None, text="", error="the model declined")
             case _:
@@ -260,8 +263,8 @@ async def test_last_words_the_model_refuses_fall_back_to_saying_nothing() -> Non
 
 async def test_details_from_outside_the_game_never_reach_a_call_record_or_a_fallback() -> None:
     def respond(request: ModelRequest) -> ModelReply:
-        if answer_kind(request) is DecisionKind.BALLOT:
-            reply = model_answer({"choice": "host@example.com"})
+        if request.kind is DecisionKind.BALLOT:
+            reply = model_answer({"target": "host@example.com", "reason": "a hunch"})
             return replace(reply, text=reply.text + " see /home/host/notes.txt")
         return sensible_answer(request)
 
@@ -274,3 +277,48 @@ async def test_details_from_outside_the_game_never_reach_a_call_record_or_a_fall
         assert "host@example.com" not in text
         assert "notes.txt" not in text
         assert "[hidden]" in text
+
+
+async def test_every_night_decision_and_the_recap_go_through_the_model() -> None:
+    played = await play_with(FakeModel(), NIGHTS)
+
+    night_kinds = {
+        DecisionKind.DEN_MESSAGE,
+        DecisionKind.KILL_VOTE,
+        DecisionKind.PROTECT,
+        DecisionKind.INVESTIGATE,
+        DecisionKind.RECAP,
+    }
+    assert night_kinds <= {call.kind for call in played.calls}
+    assert payloads(played.result.events, DecisionFellBack) == []
+
+
+async def test_an_unusable_kill_vote_falls_back_to_a_random_legal_victim() -> None:
+    def respond(request: ModelRequest) -> ModelReply:
+        if request.kind is DecisionKind.KILL_VOTE:
+            return model_answer({"target": "Nobody", "reason": "a hunch"})
+        return sensible_answer(request)
+
+    played = await play_with(FakeModel(respond), NIGHTS)
+
+    votes = payloads(played.result.events, KillVoteCast)
+    roles = played.result.state.roles
+    assert votes
+    assert all(roles[vote.target] is not Role.MURDERER for vote in votes)
+    fallbacks = payloads(played.result.events, DecisionFellBack)
+    assert {fallback.kind for fallback in fallbacks} == {DecisionKind.KILL_VOTE}
+    assert len(fallbacks) == len(votes)
+
+
+async def test_a_den_proposal_of_someone_who_cannot_be_killed_is_dropped_not_retried() -> None:
+    def respond(request: ModelRequest) -> ModelReply:
+        if request.kind is DecisionKind.DEN_MESSAGE:
+            return model_answer({"text": "Let us take Nobody.", "proposed_victim": "Nobody"})
+        return sensible_answer(request)
+
+    played = await play_with(FakeModel(respond), NIGHTS)
+
+    messages = payloads(played.result.events, DenMessagePosted)
+    assert messages
+    assert {message.proposed_victim for message in messages} == {None}
+    assert {call.outcome for call in played.calls_for(DecisionKind.DEN_MESSAGE)} == {"ok"}

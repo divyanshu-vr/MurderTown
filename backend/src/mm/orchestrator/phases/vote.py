@@ -6,7 +6,7 @@ A banished Resident says their last words before their role is revealed.
 from typing import TYPE_CHECKING
 
 from mm.engine import Phase
-from mm.engine.decisions import Ballot, DecisionKind, DecisionRequest, LastWords
+from mm.engine.decisions import DecisionKind, DecisionRequest, LastWords, Target
 from mm.engine.events import BallotCast, LastWordsSpoken, ResidentDied, VoteResolved
 from mm.engine.rules import trimmed
 from mm.engine.vote import ballot_options, tally_ballots, target_of
@@ -22,12 +22,12 @@ async def run_vote(game: "Game") -> None:
         DecisionRequest(DecisionKind.BALLOT, voter, ballot_options(game.state, voter))
         for voter in game.state.living
     ]
-    ballots = await game.decide_all(requests, Ballot)
+    ballots = await game.decide_all(requests, Target)
 
     for ballot in ballots:
-        cast = BallotCast(voter=ballot.request.resident, target=target_of(ballot.decision.choice))
+        cast = BallotCast(voter=ballot.request.resident, target=target_of(ballot.decision.target))
         await game.append(cast, cause=ballot)
-    outcome = tally_ballots(ballot.decision.choice for ballot in ballots)
+    outcome = tally_ballots(ballot.decision.target for ballot in ballots)
     await game.append(
         VoteResolved(tally=outcome.tally, skips=outcome.skips, banished=outcome.banished)
     )

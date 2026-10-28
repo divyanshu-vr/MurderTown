@@ -1,0 +1,1 @@
+Each Night you protect one Resident from the Murderers. If they attack the Resident you protect, that Resident survives. You may not protect the same Resident two Nights running, and you may protect yourself only once in the whole game. Nobody learns whom you protect, unless Dawn reveals that someone was saved.

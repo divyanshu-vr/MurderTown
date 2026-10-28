@@ -1,6 +1,6 @@
 # mm.engine: the rules
 
-Owns everything that decides what is true in a game: the configuration and its bounds, roles and sides, casting, the events and who may perceive each one, the state fold, the Open floor, the Showdown, the Vote and the win conditions.
+Owns everything that decides what is true in a game: the configuration and its bounds, roles and sides, casting, the events and who may perceive each one, the state fold, the Open floor, the Showdown, the Vote, the Night and the win conditions.
 
 **May import:** nothing else from `mm`. No I/O, clocks or async, so every rule is a plain function that a test can call directly.
 
@@ -12,6 +12,8 @@ Owns everything that decides what is true in a game: the configuration and its b
 - `rules.py` and `vote.py`: legality of decisions, the word limit on anything a Resident says, the tally, banishment and the verdict.
 - `discussion.py`: who speaks next on the Open floor, when the Open floor is over, and which names a Statement records.
 - `showdown.py`: whether a Sheriff may still fire, at whom, and the deaths a shot causes.
+- `night.py`: whom the Murderers may kill, the Doctor protect and the Detective investigate, how often a Finding is right, and what Dawn announces.
+- `tally.py`: the top choice with a tie drawn by the game's seed, shared by the Open floor and the kill vote.
 - `casting.py`: names, seats, personas and roles, all drawn from the game's seeded random source.
 - `personas.py`: who each Resident is as a person. The occupation is public; the rest is private.
 

@@ -29,8 +29,11 @@ def phase_start(day: int, phase: Phase) -> Callable[[Event], bool]:
 
 async def test_every_living_resident_reflects_after_each_vote() -> None:
     result = await play_game(CONFIG, scripted_bots(seed=21))
+    dawns = {p.day for p in payloads(result.events, PhaseStarted) if p.phase is Phase.DAWN}
+    days_that_went_on = sorted(day for day in dawns if day + 1 in dawns)
 
-    for day in (1, 2):
+    assert days_that_went_on
+    for day in days_that_went_on:
         after_vote = state_before(result.events, phase_start(day + 1, Phase.DAWN))
         writers = [
             event.payload.resident
@@ -42,15 +45,20 @@ async def test_every_living_resident_reflects_after_each_vote() -> None:
         assert sorted(writers) == sorted(after_vote.living)
 
 
-async def test_nobody_reflects_at_dawn_when_nothing_happened_since_their_last_reflection() -> None:
+async def test_nobody_reflects_at_the_first_dawn_but_everyone_does_after_a_night() -> None:
     result = await play_game(CONFIG, scripted_bots(seed=21))
 
-    at_dawn = [
-        event
-        for event in result.events
-        if isinstance(event.payload, ReflectionWritten) and event.phase is Phase.DAWN
-    ]
-    assert at_dawn == []
+    def writers_at_dawn(day: int) -> list[str]:
+        return sorted(
+            event.payload.resident
+            for event in result.events
+            if isinstance(event.payload, ReflectionWritten)
+            and (event.day, event.phase) == (day, Phase.DAWN)
+        )
+
+    assert writers_at_dawn(1) == []
+    after_the_news = state_before(result.events, phase_start(2, Phase.DISCUSSION))
+    assert writers_at_dawn(2) == sorted(after_the_news.living)
 
 
 async def test_a_reflection_is_perceived_only_by_its_writer() -> None:

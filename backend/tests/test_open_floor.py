@@ -161,5 +161,4 @@ async def test_a_game_where_everyone_stays_quiet_and_skips_still_ends() -> None:
 
     result = await play_game(config, puppets())
 
-    assert payloads(result.events, GameEnded)
-    assert result.events[-1].day == 10
+    assert isinstance(result.events[-1].payload, GameEnded)

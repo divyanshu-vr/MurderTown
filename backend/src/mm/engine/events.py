@@ -172,16 +172,94 @@ class LastWordsSpoken(Payload):
         return Visibility.everyone()
 
 
+class DenPayload(Payload):
+    """Something that happens in the Den: only the Murderers alive that Night perceive it."""
+
+    den: tuple[str, ...]
+    """The living Murderers, who alone perceive it."""
+
+    def visibility(self) -> Visibility:
+        return Visibility.only(*self.den)
+
+
+class DenMessagePosted(DenPayload):
+    """One Murderer's message to the others, perhaps proposing tonight's Victim."""
+
+    type: Literal["den_message_posted"] = "den_message_posted"
+    murderer: str
+    text: str
+    proposed_victim: str | None
+
+
+class KillVoteCast(DenPayload):
+    """One Murderer's choice of Victim; a lone Murderer's choice settles it."""
+
+    type: Literal["kill_vote_cast"] = "kill_vote_cast"
+    murderer: str
+    target: str
+
+
+class VictimChosen(DenPayload):
+    """The Den's Victim: the most kill votes, with a tie drawn at random."""
+
+    type: Literal["victim_chosen"] = "victim_chosen"
+    victim: str
+
+
+class ResidentProtected(Payload):
+    """The Doctor's protection for the Night. If the Murderers attack this Resident, they live."""
+
+    type: Literal["resident_protected"] = "resident_protected"
+    doctor: str
+    target: str
+
+    def visibility(self) -> Visibility:
+        return Visibility.only(self.doctor)
+
+
+class ResidentInvestigated(Payload):
+    """What the Detective learns about one Resident. It is not always right."""
+
+    type: Literal["resident_investigated"] = "resident_investigated"
+    detective: str
+    target: str
+    found_murderer: bool
+
+    def visibility(self) -> Visibility:
+        return Visibility.only(self.detective)
+
+
+class AttackThwarted(Payload):
+    """Dawn's news that the Murderers attacked someone the Doctor had protected."""
+
+    type: Literal["attack_thwarted"] = "attack_thwarted"
+    saved: str | None
+    """Who was saved, or None when the game is set up not to say."""
+
+    def visibility(self) -> Visibility:
+        return Visibility.everyone()
+
+
+class RecapNarrated(Payload):
+    """The narrator's short recap of the Day so far, told at Dawn."""
+
+    type: Literal["recap_narrated"] = "recap_narrated"
+    text: str
+
+    def visibility(self) -> Visibility:
+        return Visibility.everyone()
+
+
 class ResidentDied(Payload):
     """A death, announced to everyone with the dead Resident's role.
 
-    A Resident is banished by Vote or shot by the Sheriff; a Sheriff who shoots a
-    Town Resident dies of the backfire.
+    A Resident is banished by Vote, shot by the Sheriff or murdered at Night; a
+    Sheriff who shoots a Town Resident dies of the backfire.
     """
 
     type: Literal["resident_died"] = "resident_died"
     resident: str
-    cause: Literal["banished", "shot", "backfire"]
+    cause: Literal["banished", "shot", "backfire", "murdered"]
     role: Role
 
     def visibility(self) -> Visibility:
@@ -234,6 +312,13 @@ EventPayload = Annotated[
     | VoteResolved
     | LastWordsSpoken
     | ResidentDied
+    | DenMessagePosted
+    | KillVoteCast
+    | VictimChosen
+    | ResidentProtected
+    | ResidentInvestigated
+    | AttackThwarted
+    | RecapNarrated
     | ReflectionWritten
     | DecisionFellBack
     | GameEnded,

@@ -9,4 +9,4 @@ from mm.engine.state import GameState
 
 def suspect_options(state: GameState, writer: str) -> tuple[str, ...]:
     """Every other living Resident."""
-    return tuple(name for name in state.living if name != writer)
+    return state.others_living(writer)

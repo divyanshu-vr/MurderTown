@@ -22,7 +22,7 @@ class VoteOutcome:
 
 def ballot_options(state: GameState, voter: str) -> tuple[str, ...]:
     """Every other living Resident, plus SKIP."""
-    return (*[name for name in state.living if name != voter], SKIP)
+    return (*state.others_living(voter), SKIP)
 
 
 def target_of(choice: str) -> str | None:

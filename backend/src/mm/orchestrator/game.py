@@ -15,6 +15,7 @@ from mm.engine.perception import perceived_by
 from mm.engine.rules import Verdict, verdict, verdict_at_end_of_day, why_illegal
 from mm.engine.state import GameState
 from mm.orchestrator.log import EventLog, EventObserver
+from mm.orchestrator.narrator import NARRATOR
 from mm.orchestrator.phases.dawn import run_dawn
 from mm.orchestrator.phases.discussion import run_discussion
 from mm.orchestrator.phases.night import run_night
@@ -24,7 +25,8 @@ from mm.orchestrator.phases.vote import run_vote
 PhaseRunner = Callable[["Game"], Awaitable[None]]
 
 DAY: tuple[PhaseRunner, ...] = (run_dawn, run_discussion, run_showdown, run_vote, run_night)
-"""One Day, in order, with a check for a winner after each Phase."""
+"""One Day, in order, with a check for a winner after each Phase. A Phase in which
+someone dies checks `Game.decided` itself, so nobody acts once the game is won."""
 
 
 class IllegalDecisionError(Exception):
@@ -67,10 +69,16 @@ class Game:
     def state(self) -> GameState:
         return self.log.state
 
+    @property
+    def decided(self) -> bool:
+        """Whether a side has already won, so nobody should be asked anything more."""
+        return verdict(self.state) is not None
+
     async def play(self) -> None:
         for payload in cast(self.config, self.rng):
             await self.append(payload)
-        self.brains = {resident.name: self.brain_for(resident) for resident in self.state.residents}
+        everyone = (*self.state.residents, NARRATOR)
+        self.brains = {resident.name: self.brain_for(resident) for resident in everyone}
         while True:
             for run_phase in DAY:
                 await run_phase(self)

@@ -40,6 +40,7 @@ def request_for(seen: Shown) -> ModelRequest:
         schema=answer_schema(seen.request.kind),
         model=settings.model,
         effort=settings.effort,
+        kind=seen.request.kind,
     )
 
 

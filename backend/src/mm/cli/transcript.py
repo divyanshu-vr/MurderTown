@@ -6,24 +6,38 @@ characters that some Windows terminals cannot print.
 
 from mm.engine import Side
 from mm.engine.events import (
+    AttackThwarted,
     BallotCast,
     BidPlaced,
     DecisionFellBack,
+    DenMessagePosted,
     Event,
     GameEnded,
     GameStarted,
+    KillVoteCast,
     LastWordsSpoken,
     PhaseStarted,
+    RecapNarrated,
     ReflectionWritten,
     ResidentDied,
+    ResidentInvestigated,
+    ResidentProtected,
     RoleAssigned,
     SheriffFired,
     SheriffHeldFire,
     StatementMade,
+    VictimChosen,
     VoteResolved,
 )
 
 VICTORY = {Side.TOWN: "The Town wins.", Side.MURDERERS: "The Murderers win."}
+
+DEATHS = {
+    "banished": "leaves the town forever",
+    "shot": "falls to the Sheriff's bullet",
+    "backfire": "is struck down by the backfire",
+    "murdered": "is found murdered",
+}
 
 
 def describe(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per event type
@@ -54,9 +68,23 @@ def describe(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per 
             result = f"{banished} is banished." if banished else "Nobody is banished."
             return f"Tally: {', '.join(counts)}. {result}"
         case ResidentDied(resident=resident, cause=cause, role=role):
-            how = {"banished": "leaves the town forever", "shot": "falls to the Sheriff's bullet",
-                   "backfire": "is struck down by the backfire"}[cause]  # fmt: skip
-            return f"{resident} {how}. They were a {role.capitalize()}."
+            return f"{resident} {DEATHS[cause]}. They were a {role.capitalize()}."
+        case DenMessagePosted(murderer=murderer, text=text, proposed_victim=proposal):
+            proposed = f" (proposes {proposal})" if proposal else ""
+            return f'  [Den] {murderer}: "{text}"{proposed}'
+        case KillVoteCast(murderer=murderer, target=target):
+            return f"  [Den] {murderer} votes to kill {target}."
+        case VictimChosen(victim=victim):
+            return f"  [Den] The Murderers choose {victim}."
+        case ResidentProtected(doctor=doctor, target=target):
+            return f"  ({doctor}, the Doctor, protects {target}.)"
+        case ResidentInvestigated(detective=detective, target=target, found_murderer=found):
+            finding = "a Murderer" if found else "not a Murderer"
+            return f"  ({detective}, the Detective, learns that {target} is {finding}.)"
+        case AttackThwarted(saved=saved):
+            return f"{saved or 'Someone'} was attacked in the night, but the Doctor saved them."
+        case RecapNarrated(text=text):
+            return f"Narrator: {text}"
         case ReflectionWritten(resident=resident, journal_entry=entry):
             return f"  ({resident} writes privately: {entry})"
         case DecisionFellBack(resident=resident, kind=kind, reason=reason):
