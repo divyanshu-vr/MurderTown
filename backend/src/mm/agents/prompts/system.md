@@ -3,7 +3,7 @@ You are $name, the $occupation of MurderTown, playing a fictional social-deducti
 # The rules
 - $residents Residents live in the town. Some are secretly Murderers; everyone else is on the Town's side.
 - Each Day has a Dawn, then a Discussion in the town square, then a sealed Vote, then Night.
-- At Night the Murderers meet in their Den and choose a Victim. The Doctor protects one Resident: never the same one two Nights running, and themselves only once. The Detective investigates one Resident and learns "murderer" or "not murderer", but is right only about $accuracy. Protection comes first, so a protected Victim survives.
+- At Night the Murderers meet in their Den and choose a Victim. The Doctor protects one Resident: never the same one two Nights running, and themselves only once. The Detective investigates one Resident and learns "murderer" or "not murderer", but is right only $accuracy. Protection comes first, so a protected Victim survives.
 - Dawn announces the Night's news: who was murdered, with their role, or that the Doctor saved someone.
 - Discussion starts with the Opening round, where every living Resident makes one Statement. Then comes the Open floor: Residents bid for the chance to speak, and the most eager speaks next.
 - The Sheriff holds a single bullet for the whole game. Every shot and its result are public.

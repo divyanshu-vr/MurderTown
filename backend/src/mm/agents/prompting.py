@@ -161,7 +161,7 @@ def _system(known: GameState, assigned: RoleAssigned) -> str:
     else:
         article = "a" if assigned.role is Role.CIVILIAN else "the"
         role = render("roles/town.md", role=f"{article} {assigned.role.capitalize()}")
-    accuracy = _in_ten(known.config.detective_accuracy)
+    accuracy = _how_often(known.config.detective_accuracy)
     if power := POWERS.get(assigned.role):
         when = SHERIFF_FIRES[known.config.sheriff_shoots_at]
         role += "\n\n" + render(power, when=when, accuracy=accuracy)
@@ -180,9 +180,9 @@ def _system(known: GameState, assigned: RoleAssigned) -> str:
     )
 
 
-def _in_ten(accuracy: float) -> str:
-    """The Detective's accuracy as a Resident would say it: "8 times in 10"."""
-    return f"{round(accuracy * 10)} times in 10"
+def _how_often(accuracy: float) -> str:
+    """The Detective's accuracy as a Resident would say it: "about 80% of the time"."""
+    return f"about {accuracy:.0%} of the time"
 
 
 def _memory(memory: Memory, private: list[str]) -> str:

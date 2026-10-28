@@ -20,6 +20,7 @@ from mm.engine.events import (
     VictimChosen,
 )
 from mm.engine.night import (
+    den_proposal,
     investigate_options,
     investigation_finding,
     kill_options,
@@ -61,11 +62,10 @@ async def _den(game: "Game", murderers: tuple[str, ...]) -> None:
         options = kill_options(game.state)
         request = DecisionRequest(DecisionKind.DEN_MESSAGE, murderer, options)
         said = await game.decide(request, DenMessage)
-        proposal = said.decision.proposed_victim
         posted = DenMessagePosted(
             murderer=murderer,
             text=trimmed(said.decision.text),
-            proposed_victim=proposal if proposal in options else None,
+            proposed_victim=den_proposal(said.decision.proposed_victim, options),
             den=murderers,
         )
         await game.append(posted, cause=said)

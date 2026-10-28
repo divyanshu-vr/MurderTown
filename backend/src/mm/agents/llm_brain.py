@@ -52,7 +52,6 @@ class LLMBrain:
                     schema=schema,
                     model=self.settings.model,
                     effort=self.settings.effort,
-                    kind=request.kind,
                 )
             )
             decision, problem, outcome = _interpret(request, reply, own_role)

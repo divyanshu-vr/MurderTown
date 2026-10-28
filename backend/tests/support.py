@@ -122,6 +122,26 @@ def seat_of(state: GameState) -> dict[str, int]:
     return {resident.name: resident.seat for resident in state.residents}
 
 
+def everyone_votes_for(target: int, seats: range = range(6)) -> dict[int, int | None]:
+    """Ballots by seat, all for `target`, who abstains: nobody may vote for themselves."""
+    return {seat: target for seat in seats if seat != target}
+
+
+Requests = list[tuple[DecisionRequest, list[Event]]]
+"""Every request a game made, each with the view it came with."""
+
+
+class Asked:
+    """A decision source that passes every request on, noting it with the view it came with."""
+
+    def __init__(self, inner: Brain, asked: Requests) -> None:
+        self.inner, self.asked = inner, asked
+
+    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
+        self.asked.append((request, list(view)))
+        return await self.inner.decide(request, view)
+
+
 def wrapped(factory: BrainFactory, wrap: Callable[[Brain], Brain]) -> BrainFactory:
     """Every Resident's decision source from `factory`, passed through `wrap`."""
 
@@ -178,6 +198,39 @@ def own_role(request: ModelRequest) -> str:
     return found.group(1).lower()
 
 
+KIND_BY_FIELD = {
+    "my_role": DecisionKind.STATEMENT,
+    "urgency": DecisionKind.BID,
+    "fire": DecisionKind.SHOWDOWN,
+    "journal_entry": DecisionKind.REFLECTION,
+    "proposed_victim": DecisionKind.DEN_MESSAGE,
+}
+
+KIND_BY_WORDING = {
+    "the Vote is open": DecisionKind.BALLOT,
+    "Choose tonight's Victim": DecisionKind.KILL_VOTE,
+    "Choose one Resident to protect": DecisionKind.PROTECT,
+    "Choose one Resident to investigate": DecisionKind.INVESTIGATE,
+}
+
+
+def answer_kind(request: ModelRequest) -> DecisionKind:
+    """Which decision a model request is for.
+
+    Providers are told nothing about the game, so a test fake works it out: from a
+    field only that kind's answer has, or, where answers share a shape, from the
+    wording of the instructions.
+    """
+    fields = set(request.schema["properties"])
+    for only_in, kind in KIND_BY_FIELD.items():
+        if only_in in fields:
+            return kind
+    if "target" in fields:
+        return next(kind for words, kind in KIND_BY_WORDING.items() if words in request.prompt)
+    narrating = request.system.startswith("You are the narrator")
+    return DecisionKind.RECAP if narrating else DecisionKind.LAST_WORDS
+
+
 def listed_options(prompt: str) -> list[str]:
     """The options a ballot prompt lists, in the order it lists them."""
     found = re.search(r"spelled as shown\): (.+)", prompt)
@@ -201,7 +254,7 @@ def statement_answer(text: str, request: ModelRequest, **fields: Any) -> dict[st
 def sensible_answer(request: ModelRequest) -> ModelReply:
     """A cooperative model: short Statements, quiet bids, held fire, SKIP, brief notes,
     and at Night the first option it is offered."""
-    match request.kind:
+    match answer_kind(request):
         case DecisionKind.STATEMENT:
             return model_answer(statement_answer("I am watching every one of you.", request))
         case DecisionKind.BID:

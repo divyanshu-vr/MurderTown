@@ -24,24 +24,20 @@ from mm.engine.events import (
 )
 from mm.engine.state import GameState
 from mm.orchestrator import play_game
-from tests.support import Puppet, name_at_seat, payloads, puppets, seats_by_role, wrapped
+from tests.support import (
+    Asked,
+    Puppet,
+    Requests,
+    everyone_votes_for,
+    name_at_seat,
+    payloads,
+    puppets,
+    seats_by_role,
+    wrapped,
+)
 
 CONFIG = GameConfig(residents=8, murderers=2, max_days=2, seed=9, open_floor_seconds=None)
 SIX = GameConfig(residents=6, murderers=1, max_days=4, seed=2, open_floor_seconds=None)
-
-Requests = list[tuple[DecisionRequest, list[Event]]]
-"""Every request a game made, each with the view it came with."""
-
-
-class Asked:
-    """Passes every request on, noting it with the view it came with."""
-
-    def __init__(self, inner: Brain, asked: Requests) -> None:
-        self.inner, self.asked = inner, asked
-
-    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
-        self.asked.append((request, list(view)))
-        return await self.inner.decide(request, view)
 
 
 async def requests_and_log(
@@ -66,10 +62,6 @@ async def six_seats() -> tuple[int, int, int, int, int, int]:
     )
     (sheriff,), (first, second) = roles[Role.SHERIFF], roles[Role.CIVILIAN]
     return murderer, doctor, detective, sheriff, first, second
-
-
-def everyone_votes_for(target: int) -> dict[int, int | None]:
-    return {seat: target for seat in range(6) if seat != target}
 
 
 # --- The Den and the kill ---------------------------------------------------------------

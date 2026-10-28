@@ -3,14 +3,9 @@
 from mm.engine import GameConfig, Role, Side
 from mm.engine.events import GameEnded, PhaseStarted
 from mm.orchestrator import play_game
-from tests.support import Script, payloads, puppets, seats_by_role
+from tests.support import Script, everyone_votes_for, payloads, puppets, seats_by_role
 
 SIX_RESIDENTS = GameConfig(residents=6, murderers=1, max_days=5, seed=2)
-
-
-def everyone_votes_for(target: int, seats: range = range(6)) -> dict[int, int | None]:
-    """The target abstains, because nobody may vote for themselves."""
-    return {seat: target for seat in seats if seat != target}
 
 
 async def test_the_town_wins_the_moment_the_last_murderer_is_banished() -> None:

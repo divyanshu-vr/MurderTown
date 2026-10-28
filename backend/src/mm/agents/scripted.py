@@ -10,7 +10,6 @@ then a bot loses its train of thought and falls back to the safe default, as an
 Agent sometimes does, so recorded games show fallbacks.
 """
 
-from collections import Counter
 from collections.abc import Sequence
 from random import Random
 
@@ -42,7 +41,7 @@ from mm.engine.events import (
 from mm.engine.perception import began, since_last
 from mm.engine.phases import Phase
 from mm.engine.state import GameState
-from mm.engine.tally import drawn_from_the_top
+from mm.engine.tally import plurality
 
 OPENING_LINES = (
     "Hello, I'm {me}. Keep your eyes open, everyone.",
@@ -105,14 +104,9 @@ class ScriptedBot:
                 victim = self.rng.choice(request.options)
                 return DenMessage(text=f"Let's take {victim} tonight.", proposed_victim=victim)
             case DecisionKind.KILL_VOTE:
-                proposed = Counter(
-                    victim for victim in _proposed_tonight(view) if victim in request.options
-                )
-                victim = (
-                    drawn_from_the_top(proposed, self.rng)
-                    if proposed
-                    else self.rng.choice(request.options)
-                )
+                options = request.options
+                proposed = [v for v in _proposed_tonight(view) if v in options]
+                victim = plurality(proposed, self.rng) if proposed else self.rng.choice(options)
                 return Target(target=victim, reason="as the Den agreed")
             case DecisionKind.PROTECT | DecisionKind.INVESTIGATE:
                 return Target(target=self.rng.choice(request.options), reason="a hunch")

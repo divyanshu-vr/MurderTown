@@ -27,7 +27,7 @@ from mm.engine.events import (
 from mm.llm import ModelReply, ModelRequest
 from mm.orchestrator.narrator import NARRATOR
 from tests.conftest import start_game, wait_until_finished
-from tests.support import FakeModel, may_perceive, model_answer, sensible_answer
+from tests.support import FakeModel, answer_kind, may_perceive, model_answer, sensible_answer
 
 CONFIG = {"residents": 8, "murderers": 2, "max_days": 2, "seed": 4}
 
@@ -124,7 +124,7 @@ def test_an_event_no_decision_caused_has_nothing_to_explain(client: TestClient) 
 
 def leaky_first_ballots(request: ModelRequest) -> ModelReply:
     """Ballots name an email first and SKIP when retried; every Statement is refused."""
-    match request.kind:
+    match answer_kind(request):
         case DecisionKind.BALLOT if "could not be used" not in request.prompt:
             return model_answer({"target": "host@example.com", "reason": "a hunch"})
         case DecisionKind.STATEMENT:

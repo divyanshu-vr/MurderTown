@@ -10,8 +10,6 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, Literal, Protocol
 
-from mm.engine.decisions import DecisionKind
-
 
 class Effort(StrEnum):
     """How hard the model thinks before answering: more effort, slower and dearer answers."""
@@ -33,8 +31,6 @@ class ModelRequest:
     """The JSON Schema the answer must match."""
     model: str
     effort: Effort
-    kind: DecisionKind
-    """Which kind of decision the answer is for, so traces and test fakes can tell them apart."""
 
 
 @dataclass(frozen=True)

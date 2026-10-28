@@ -19,6 +19,15 @@ def kill_options(state: GameState) -> tuple[str, ...]:
     return tuple(name for name in state.living if state.roles[name] is not Role.MURDERER)
 
 
+def den_proposal(proposal: str | None, options: tuple[str, ...]) -> str | None:
+    """The Victim a Den message proposes, if it is one the Murderers may kill.
+
+    Any other name is dropped rather than retried: the message still counts, and
+    a retry would cost another model call for a proposal that binds nobody.
+    """
+    return proposal if proposal in options else None
+
+
 def protect_options(state: GameState, doctor: str) -> tuple[str, ...]:
     """Every living Resident, except last Night's protected and, after once, the Doctor."""
     last_night = state.protections.get(state.day - 1)
