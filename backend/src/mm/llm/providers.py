@@ -32,6 +32,9 @@ class Providers(Mapping[str, ModelProvider]):
             self._made[name] = self._make(name)
         return self._made[name]
 
+    def __contains__(self, name: object) -> bool:
+        return name in NAMES
+
     def __iter__(self) -> Iterator[str]:
         return iter(NAMES)
 

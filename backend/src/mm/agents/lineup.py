@@ -1,6 +1,6 @@
 """Lineups: every Resident's Brain, as the game's configuration says who plays them."""
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 
 from mm.agents.brain import Brain, BrainFactory, own_random
 from mm.agents.calls import CallRecorder, ModelCall
@@ -29,14 +29,50 @@ def lineup_brains(
     chosen = {
         seat: lineup.played_by(seat, role.side) for seat, role in seated_roles(config).items()
     }
-    for played_by in {*chosen.values(), lineup.everyone}:
+
+    def choose(resident: Resident) -> PlayedBy:
+        return chosen.get(resident.seat, lineup.everyone)  # the narrator has no seat
+
+    choices = {*chosen.values(), lineup.everyone}
+    return _brains(choose, choices, providers, record=record, seed=config.seed, recorded=recorded)
+
+
+def llm_agents(
+    provider: ModelProvider,
+    played_by: PlayedBy,
+    record: CallRecorder,
+    seed: int,
+    recorded: Sequence[ModelCall] = (),
+) -> BrainFactory:
+    """A factory giving every Resident its own Agent on one provider and model."""
+    providers = {played_by.provider: provider}
+    return _brains(
+        lambda resident: played_by,
+        {played_by},
+        providers,
+        record=record,
+        seed=seed,
+        recorded=recorded,
+    )
+
+
+def _brains(
+    choose: Callable[[Resident], PlayedBy],
+    choices: set[PlayedBy],
+    providers: Mapping[str, ModelProvider],
+    *,
+    record: CallRecorder,
+    seed: int,
+    recorded: Sequence[ModelCall],
+) -> BrainFactory:
+    for played_by in choices:
         _check(played_by, providers)
     by_key = {call.key: call for call in recorded}
 
     def make(resident: Resident) -> Brain:
-        played_by = chosen.get(resident.seat, lineup.everyone)  # the narrator has no seat
-        rng = own_random(config.seed, resident)
-        if played_by.provider == "scripted":
+        played_by = choose(resident)
+        rng = own_random(seed, resident)
+        if played_by.scripted:
             return ScriptedBot(rng)
         return LLMBrain(providers[played_by.provider], played_by, record, rng, by_key)
 
@@ -44,10 +80,10 @@ def lineup_brains(
 
 
 def _check(played_by: PlayedBy, providers: Mapping[str, ModelProvider]) -> None:
-    if played_by.provider == "scripted":
+    """Refuse a choice nobody can play: a provider not available, or a model with no price."""
+    if played_by.scripted:
         return
-    try:
-        providers[played_by.provider]
-    except KeyError:
-        raise ValueError(f"no provider called {played_by.provider} is available") from None
+    if played_by.provider not in providers:
+        raise ValueError(f"no provider called {played_by.provider} is available")
+    providers[played_by.provider]  # made now, so a missing key or login is reported here
     price_of(played_by.model)

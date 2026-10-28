@@ -24,6 +24,9 @@ class Effort(StrEnum):
     MAX = "max"
 
 
+SCRIPTED_PROVIDER = "scripted"
+
+
 class PlayedBy(BaseModel):
     """Who plays a Resident: an Agent on a provider's model, or (`"scripted"`) a scripted bot.
     The default is an Agent on Claude Haiku, on the Host's subscription unless an API key is set."""
@@ -34,8 +37,13 @@ class PlayedBy(BaseModel):
     model: str = "claude-haiku-5-5"
     effort: Effort = Effort.LOW
 
+    @property
+    def scripted(self) -> bool:
+        """Whether a scripted bot plays, which needs no model (its model and effort are unused)."""
+        return self.provider == SCRIPTED_PROVIDER
 
-SCRIPTED = PlayedBy(provider="scripted")
+
+SCRIPTED = PlayedBy(provider=SCRIPTED_PROVIDER)
 
 
 class Lineup(BaseModel):

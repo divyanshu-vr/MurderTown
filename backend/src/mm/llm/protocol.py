@@ -6,6 +6,7 @@ so every provider behaves the same way to the rest of the game. Providers report
 the tokens a call used; its cost comes from the one price table (`prices.py`).
 """
 
+import json
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any, Literal, Protocol
@@ -67,6 +68,19 @@ class ModelReply:
     def failure(cls, error: str, outcome: Outcome = "error") -> "ModelReply":
         """A call that brought back no answer at all."""
         return cls(outcome=outcome, data=None, text="", error=error)
+
+
+def json_object(text: str) -> dict[str, Any] | None:
+    """The JSON object in a model's answer, even with words or a fenced block around it; None
+    if there is none, which the pipeline reports as an answer it could not use."""
+    start, end = text.find("{"), text.rfind("}")
+    if start < 0 or end < start:
+        return None
+    try:
+        parsed = json.loads(text[start : end + 1])
+    except json.JSONDecodeError:
+        return None
+    return parsed if isinstance(parsed, dict) else None
 
 
 class ModelProvider(Protocol):

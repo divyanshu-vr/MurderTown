@@ -357,10 +357,10 @@ def agents_on(model: "FakeModel") -> BrainsFor:
 class FakeModel:
     """A test model provider that answers from a script and remembers every request."""
 
-    name = "fake"
-
-    def __init__(self, respond: Callable[[ModelRequest], ModelReply] = sensible_answer) -> None:
-        self.respond = respond
+    def __init__(
+        self, respond: Callable[[ModelRequest], ModelReply] = sensible_answer, name: str = "fake"
+    ) -> None:
+        self.respond, self.name = respond, name
         self.requests: list[ModelRequest] = []
 
     async def complete(self, request: ModelRequest) -> ModelReply:

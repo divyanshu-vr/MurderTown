@@ -34,7 +34,7 @@ from claude_agent_sdk import (
 )
 
 from mm.llm.calling import CallLimits
-from mm.llm.protocol import CALL_TIMEOUT_S, ModelReply, ModelRequest, Usage
+from mm.llm.protocol import CALL_TIMEOUT_S, ModelReply, ModelRequest, Usage, json_object
 
 ISOLATION_ENV = {
     "CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1",
@@ -212,11 +212,7 @@ def _reply_from(result: ResultMessage, problem: str | None) -> ModelReply:
 
 
 def _structured(result: ResultMessage) -> dict[str, Any] | None:
-    """The structured answer, or the result text parsed as JSON if the SDK did not supply one."""
+    """The structured answer, or the result text read as JSON if the SDK did not supply one."""
     if isinstance(result.structured_output, dict):
         return result.structured_output
-    try:
-        parsed = json.loads(result.result or "")
-    except json.JSONDecodeError:
-        return None
-    return parsed if isinstance(parsed, dict) else None
+    return json_object(result.result or "")

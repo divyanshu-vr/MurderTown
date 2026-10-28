@@ -48,7 +48,7 @@ async def test_no_prompt_pairs_a_living_resident_with_a_role_the_viewer_should_n
     sheriff_hits_on_day_one: bool,
 ) -> None:
     config = GameConfig(residents=12, murderers=2, max_days=4, seed=31)
-    murderer = (seats_by_role(config))[Role.MURDERER][0]
+    murderer = seats_by_role(config)[Role.MURDERER][0]
     inner = puppets(shots={1: murderer}) if sheriff_hits_on_day_one else None
 
     shown, events = await spy_on(config, inner=inner)
@@ -128,7 +128,7 @@ async def test_ballot_options_are_all_listed_in_a_shuffled_order() -> None:
 
 async def test_after_a_shot_every_prompt_names_the_sheriff_who_fired() -> None:
     config = GameConfig(residents=8, murderers=2, max_days=1, seed=9)
-    murderer = (seats_by_role(config))[Role.MURDERER][0]
+    murderer = seats_by_role(config)[Role.MURDERER][0]
 
     shown, events = await spy_on(config, inner=puppets(shots={1: murderer}))
 

@@ -25,7 +25,9 @@ def create_app(
     `observe`, the server process sends logs and traces where the environment says; tests
     leave it off, so they never send spans anywhere."""
     settings = settings or Settings()
-    brains_for = brains_for or lineup_on(providers or settings.providers())
+    brains_for = brains_for or lineup_on(
+        providers if providers is not None else settings.providers()
+    )
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:

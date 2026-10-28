@@ -69,7 +69,7 @@ async def six_seats() -> tuple[int, int, int, int, int, int]:
 
 
 async def test_murderers_speak_in_the_den_one_after_another_each_hearing_the_last() -> None:
-    murderers = (seats_by_role(CONFIG))[Role.MURDERER]
+    murderers = seats_by_role(CONFIG)[Role.MURDERER]
     asked, events = await requests_and_log(CONFIG, puppets())
 
     den = [(request, view) for request, view in asked if request.kind is DecisionKind.DEN_MESSAGE]
@@ -140,7 +140,7 @@ async def test_a_tied_kill_vote_is_drawn_the_same_way_for_the_same_seed() -> Non
 @pytest.mark.parametrize("names_the_saved", [True, False])
 async def test_a_protected_victim_survives_and_dawn_says_so(names_the_saved: bool) -> None:
     config = CONFIG.model_copy(update={"dawn_names_the_saved": names_the_saved})
-    civilian = (seats_by_role(config))[Role.CIVILIAN][0]
+    civilian = seats_by_role(config)[Role.CIVILIAN][0]
 
     result = await play_game(config, puppets(kills={1: civilian}, protects={1: civilian}))
 
@@ -195,7 +195,7 @@ async def investigated_wrongly(config: GameConfig, target_role: Role, games: int
     wrong = 0
     for seed in range(games):
         seeded = config.model_copy(update={"seed": seed})
-        target = (seats_by_role(seeded))[target_role][0]
+        target = seats_by_role(seeded)[target_role][0]
         result = await play_game(seeded, puppets(investigations={1: target}))
         (found,) = payloads(result.events, ResidentInvestigated)
         wrong += found.found_murderer != (target_role is Role.MURDERER)
@@ -224,7 +224,7 @@ async def test_a_detective_with_perfect_accuracy_is_never_wrong() -> None:
 
 
 async def test_dawn_announces_the_news_then_the_recap_then_residents_reflect() -> None:
-    civilian = (seats_by_role(CONFIG))[Role.CIVILIAN][0]
+    civilian = seats_by_role(CONFIG)[Role.CIVILIAN][0]
 
     result = await play_game(CONFIG, puppets(kills={1: civilian}))
 

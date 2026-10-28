@@ -6,9 +6,15 @@ extra; equivalent cost is still the fairest measure of how much a game uses.
 
 Haiku 5.5 costs five times as much for a prompt over 100K tokens. MurderTown's
 prompts stay far below that, so the table holds only the ordinary price.
+
+The table holds Claude's prices. A Host who plays other vendors' models adds theirs in
+`MM_MODEL_PRICES`, as JSON: `{"some-model": {"input": 1.25, "output": 10, "cache_read": 0.125}}`.
 """
 
 from dataclasses import dataclass
+from functools import cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from mm.llm.protocol import Usage
 
@@ -40,11 +46,23 @@ PRICES = {
 """List prices by full model id, from Anthropic's model pages (checked 2026-10-28)."""
 
 
+class ModelPrices(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="MM_", env_file=".env", extra="ignore")
+
+    model_prices: dict[str, Price] = {}
+
+
+@cache
+def _configured() -> dict[str, Price]:
+    return {**PRICES, **ModelPrices().model_prices}
+
+
 def price_of(model: str) -> Price:
     """The model's price, or a `ValueError` saying where to add it."""
-    if model not in PRICES:
-        raise ValueError(f"No price for {model}: add it to PRICES in mm/llm/prices.py")
-    return PRICES[model]
+    prices = _configured()
+    if model not in prices:
+        raise ValueError(f"No price for {model}: add it to MM_MODEL_PRICES (docs/providers.md)")
+    return prices[model]
 
 
 def equivalent_cost(model: str, usage: Usage) -> float:

@@ -2,7 +2,7 @@
 
 Owns talking to a language model. A provider takes a system prompt, a user prompt, an answer schema, a model and an effort level, and returns the structured answer with its raw text, token usage, latency and outcome (`ok`, `refusal`, `timeout` or `error`). A failed call is a reply (`ModelReply.failure`), not an exception; the pipeline treats a provider that raises anyway as an error too.
 
-**May import:** nothing else from `mm`.
+**May import:** `mm.engine` (a lineup's `Effort`).
 
 **Entry points**
 - `protocol.py`: the `ModelProvider` interface, `ModelRequest`, `ModelReply` and `Usage` (cache writes split into five-minute and one-hour ones, which are priced differently).

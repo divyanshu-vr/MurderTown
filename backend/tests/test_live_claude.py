@@ -33,14 +33,14 @@ async def first_two_decisions() -> tuple[Shown, Shown]:
 
 
 def request_for(seen: Shown) -> ModelRequest:
-    settings = PlayedBy()
+    played_by = PlayedBy()
     return ModelRequest(
         system=seen.prompt.system,
         memory=seen.prompt.memory,
         task=seen.prompt.task,
         schema=answer_schema(seen.request.kind),
-        model=settings.model,
-        effort=settings.effort,
+        model=played_by.model,
+        effort=played_by.effort,
     )
 
 
@@ -62,7 +62,7 @@ async def test_an_isolated_session_answers_on_the_subscription_and_caches_its_pr
     assert session.mcp_servers == ()
     assert repeat.usage.cache_read_tokens > 0
     for name, reply in (("first", first), ("repeat", repeat)):
-        cost = equivalent_cost(PlayedBy.model, reply.usage)
+        cost = equivalent_cost(PlayedBy().model, reply.usage)
         print(f"\n{name}: {reply.latency_ms} ms, {reply.usage}, ${cost:.6f}")
 
 

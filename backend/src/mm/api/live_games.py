@@ -16,6 +16,7 @@ from collections.abc import Callable, Mapping, Sequence
 import structlog
 
 from mm.agents import BrainFactory, CallRecorder, ModelCall
+from mm.agents.calls import unrecorded
 from mm.agents.lineup import lineup_brains
 from mm.engine import GameConfig
 from mm.engine.events import Event
@@ -39,10 +40,6 @@ def lineup_on(providers: Mapping[str, ModelProvider]) -> BrainsFor:
         return lineup_brains(config, providers, record, recorded)
 
     return brains_for
-
-
-async def unrecorded(call: ModelCall) -> None:
-    """A recorder for brains made only to check a lineup can be played."""
 
 
 class LiveGames:

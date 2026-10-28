@@ -17,9 +17,9 @@ from mm.agents.lineup import lineup_brains
 from mm.agents.memory import mind_of
 from mm.api.protocol import protocol_schema
 from mm.api.settings import Settings
-from mm.cli.recording import CallTally, NdjsonFile
+from mm.cli.recording import CallTally, NdjsonFile, calls_beside, read_ndjson
 from mm.cli.transcript import describe
-from mm.engine import GameConfig, Lineup, PlayedBy
+from mm.engine import SCRIPTED, GameConfig, Lineup, PlayedBy
 from mm.engine.events import DecisionFellBack, Event, GameStarted, ReflectionWritten
 from mm.llm import Effort, ModelProvider
 from mm.llm.providers import NAMES
@@ -33,7 +33,19 @@ CONNECTION_GRACE_SECONDS = 5
 
 
 AGENT = PlayedBy()
-"""The Agent `mm play --provider claude` puts in every seat unless told otherwise."""
+"""The Agent `--provider claude` puts in every seat unless told otherwise."""
+
+Provider = Annotated[
+    str, typer.Option(help=f"Who plays every Resident: scripted, or one of {', '.join(NAMES)}.")
+]
+
+LIVE_GAME = Path("../fixtures/live-game.ndjson")
+"""The live game CI replays from its recorded model calls."""
+
+
+def _everyone(provider: str, model: str, effort: Effort) -> Lineup:
+    """A lineup with the same player in every seat."""
+    return Lineup(everyone=PlayedBy(provider=provider, model=model, effort=effort))
 
 
 @app.callback()
@@ -51,9 +63,7 @@ def play(
     doctor: bool = True,
     detective: bool = True,
     sheriff: bool = True,
-    provider: Annotated[
-        str, typer.Option(help=f"Who plays every Resident: scripted, or one of {', '.join(NAMES)}.")
-    ] = "scripted",
+    provider: Provider = SCRIPTED.provider,
     model: str = AGENT.model,
     effort: Effort = AGENT.effort,
     lineup: Annotated[
@@ -98,7 +108,7 @@ def play(
             open_floor_seconds=open_floor_seconds,
             lineup=Lineup.model_validate_json(lineup.read_text(encoding="utf-8"))
             if lineup
-            else Lineup(everyone=PlayedBy(provider=provider, model=model, effort=effort)),
+            else _everyone(provider, model, effort),
         )
         providers = Settings().providers(concurrency)
     tally = CallTally()
@@ -112,7 +122,7 @@ def play(
         nonlocal calls_file
         await tally(call)
         if out:
-            calls_file = calls_file or NdjsonFile(Cassette.calls_beside(out))
+            calls_file = calls_file or NdjsonFile(calls_beside(out))
             await calls_file(call)
 
     try:
@@ -134,20 +144,11 @@ def play(
 
 def _recorded(events: Path) -> tuple[GameConfig, Mapping[str, ModelProvider]]:
     """A saved game's configuration, and its recorded model calls standing in for every model."""
-    lines = Path(events).read_text(encoding="utf-8").splitlines()
-    started = Event.model_validate_json(lines[0]).payload
+    started = read_ndjson(events, Event)[0].payload
     if not isinstance(started, GameStarted):
         raise typer.BadParameter(f"{events} does not start with a game")
-    calls_file = Cassette.calls_beside(events)
-    calls = (
-        [
-            ModelCall.model_validate_json(line)
-            for line in calls_file.read_text(encoding="utf-8").splitlines()
-            if line.strip()
-        ]
-        if calls_file.exists()
-        else []
-    )
+    calls_file = calls_beside(events)
+    calls = read_ndjson(calls_file, ModelCall) if calls_file.exists() else []
     return started.config, Cassette.serving(calls)
 
 
@@ -176,6 +177,15 @@ def serve(host: str = "127.0.0.1", port: int = 8000, reload: bool = False) -> No
 
 
 @app.command()
+def rerecord(out: Path = LIVE_GAME) -> None:
+    """Record again, on your Claude subscription, the live game CI replays (about 180 Haiku calls).
+
+    Needed after any change to the prompts: the old recording no longer answers them.
+    """
+    play(provider="claude", residents=6, murderers=1, max_days=2, seed=3, quiet=True, out=out)
+
+
+@app.command()
 def new_game(
     *,
     api: str = "http://127.0.0.1:8000",
@@ -184,20 +194,17 @@ def new_game(
     murderers: int = 2,
     seed: int = 7,
     max_days: int = 10,
-    provider: Annotated[
-        str, typer.Option(help=f"Who plays every Resident: scripted, or one of {', '.join(NAMES)}.")
-    ] = "scripted",
+    provider: Provider = SCRIPTED.provider,
     model: str = AGENT.model,
     effort: Effort = AGENT.effort,
 ) -> None:
     """Start a game on a running server and print where to watch it."""
-    everyone = PlayedBy(provider=provider, model=model, effort=effort)
     config = GameConfig(
         residents=residents,
         murderers=murderers,
         seed=seed,
         max_days=max_days,
-        lineup=Lineup(everyone=everyone),
+        lineup=_everyone(provider, model, effort),
     ).model_dump(mode="json")
     request = urllib.request.Request(
         f"{api}/games",
@@ -220,7 +227,7 @@ def minds(
     The console folds minds itself, so replays need no backend. This file lets the
     console's tests check that its fold agrees with the server's at every change.
     """
-    log = [Event.model_validate_json(line) for line in events.read_text("utf-8").splitlines()]
+    log = read_ndjson(events, Event)
     minds = []
     for event in log:
         if isinstance(event.payload, ReflectionWritten):

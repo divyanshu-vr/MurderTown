@@ -15,7 +15,7 @@ from mm.agents import BrainFactory, CallRecorder, Cost, ModelCall, llm_agents
 from mm.engine import GameConfig, PlayedBy
 from mm.engine.decisions import DecisionKind
 from mm.llm import ModelReply, ModelRequest, Usage
-from mm.llm.prices import equivalent_cost
+from mm.llm.prices import _configured, equivalent_cost
 from mm.orchestrator.narrator import NARRATOR
 from tests.conftest import serving, start_game, wait_until_finished
 from tests.support import FakeModel, answer_kind, played_by, sensible_answer
@@ -56,6 +56,21 @@ async def test_each_model_call_records_its_cost_from_the_price_table() -> None:
     assert calls
     assert all(call.cost_usd == pytest.approx(0.0007835) for call in calls)
     assert {call.cache_write_tokens for call in calls} == {2634}
+
+
+def test_a_model_from_another_vendor_plays_once_the_host_gives_it_a_price(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    prices = {"some-gpt": {"input": 1.0, "output": 4.0, "cache_read": 0.1}}
+    monkeypatch.setenv("MM_MODEL_PRICES", json.dumps(prices))
+    _configured.cache_clear()
+    try:
+        cost = equivalent_cost("some-gpt", Usage(input_tokens=1_000_000, output_tokens=500_000))
+    finally:
+        monkeypatch.delenv("MM_MODEL_PRICES")
+        _configured.cache_clear()
+
+    assert cost == pytest.approx(3.0)
 
 
 def test_agents_refuse_a_model_with_no_price_before_the_game_starts() -> None:

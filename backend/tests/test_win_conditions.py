@@ -9,7 +9,7 @@ SIX_RESIDENTS = GameConfig(residents=6, murderers=1, max_days=5, seed=2)
 
 
 async def test_the_town_wins_the_moment_the_last_murderer_is_banished() -> None:
-    (murderer,) = (seats_by_role(SIX_RESIDENTS))[Role.MURDERER]
+    (murderer,) = seats_by_role(SIX_RESIDENTS)[Role.MURDERER]
 
     result = await play_game(SIX_RESIDENTS, puppets({1: everyone_votes_for(murderer)}))
 
@@ -19,7 +19,7 @@ async def test_the_town_wins_the_moment_the_last_murderer_is_banished() -> None:
 
 
 async def test_the_murderers_win_once_they_equal_the_rest_of_the_town() -> None:
-    (murderer,) = (seats_by_role(SIX_RESIDENTS))[Role.MURDERER]
+    (murderer,) = seats_by_role(SIX_RESIDENTS)[Role.MURDERER]
     town = [seat for seat in range(6) if seat != murderer]
     banish: Script = {1: everyone_votes_for(town[0]), 2: everyone_votes_for(town[2])}
     nights = {"kills": {1: town[1], 2: town[3]}, "protects": {1: murderer, 2: town[4]}}

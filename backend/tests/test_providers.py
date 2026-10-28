@@ -7,6 +7,7 @@ the tokens used and how it went. Every failure is a reply, never an exception.
 import asyncio
 import json
 from collections.abc import Callable
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -14,11 +15,14 @@ import httpx2
 import pytest
 
 from mm.agents import ModelCall, llm_agents
+from mm.agents.answers import answer_schema
+from mm.agents.calls import unrecorded
 from mm.agents.cassette import Cassette, CassetteMissError
 from mm.agents.lineup import lineup_brains
+from mm.cli.recording import calls_beside, read_ndjson
 from mm.engine import GameConfig, PlayedBy
 from mm.engine.decisions import DecisionKind
-from mm.engine.events import Event, GameEnded, GameStarted
+from mm.engine.events import Event, GameAborted, GameEnded, GameStarted
 from mm.llm import Effort, ModelProvider, ModelReply, ModelRequest
 from mm.llm import providers as providers_module
 from mm.llm.anthropic_api import AnthropicAPIProvider
@@ -39,10 +43,6 @@ REQUEST = ModelRequest(
 ANSWER = {"target": "Silas", "reason": "lamps at the forge"}
 
 Handler = Callable[[httpx2.Request], httpx2.Response]
-
-
-async def ignore(call: ModelCall) -> None:
-    """A recorder for games whose model calls a test does not look at."""
 
 
 class Sent:
@@ -107,10 +107,9 @@ async def test_the_anthropic_api_caches_the_briefing_and_the_memory_but_not_the_
         "cache_control": {"type": "ephemeral"},
     }
     assert task == {"type": "text", "text": REQUEST.task}
-    assert body["output_config"] == {
-        "effort": "low",
-        "format": {"type": "json_schema", "schema": REQUEST.schema},
-    }
+    output = body["output_config"]
+    assert (output["effort"], output["format"]["type"]) == ("low", "json_schema")
+    assert output["format"]["schema"]["properties"] == REQUEST.schema["properties"]
 
 
 async def test_the_anthropic_api_reads_the_answer_and_every_kind_of_token() -> None:
@@ -122,6 +121,28 @@ async def test_the_anthropic_api_reads_the_answer_and_every_kind_of_token() -> N
     usage = reply.usage
     assert (usage.input_tokens, usage.output_tokens, usage.cache_read_tokens) == (20, 7, 300)
     assert (usage.cache_write_5m_tokens, usage.cache_write_1h_tokens) == (40, 9)
+
+
+async def test_the_anthropic_api_moves_limits_it_cannot_enforce_into_the_schemas_words() -> None:
+    sent = Sent()
+    bid = replace(REQUEST, schema=answer_schema(DecisionKind.BID))
+
+    await anthropic(sent, anthropic_message(json.dumps({"urgency": 2, "reason": "r"}))).complete(
+        bid
+    )
+
+    sent_schema = json.dumps(sent.bodies[0]["output_config"]["format"]["schema"])
+    assert "minimum" not in json.loads(sent_schema)["properties"]["urgency"]
+    assert "maximum: 4" in sent_schema  # kept as words; the pipeline still checks the range
+
+
+async def test_the_anthropic_api_reports_an_answer_cut_off_at_the_token_limit() -> None:
+    reply = await anthropic(Sent(), anthropic_message('{"targ', stop_reason="max_tokens")).complete(
+        REQUEST
+    )
+
+    assert (reply.outcome, reply.data) == ("error", None)
+    assert "16000 tokens" in (reply.error or "")
 
 
 async def test_the_anthropic_api_reports_a_refusal() -> None:
@@ -190,12 +211,12 @@ def openai_compatible(
     )
 
 
-def rejecting(parameter: str, status: int = 400, message: str | None = None) -> Handler:
-    """A server that refuses any request carrying `parameter`, and answers the rest."""
+def rejecting(option: str, status: int = 400, message: str | None = None) -> Handler:
+    """A server that refuses any request carrying `option`, and answers the rest."""
 
     def answer(request: httpx2.Request) -> httpx2.Response:
-        if parameter in json.loads(request.content):
-            error = {"message": message or f"Unsupported parameter: '{parameter}'", "type": "x"}
+        if option in json.loads(request.content):
+            error = {"message": message or f"Unsupported parameter: '{option}'", "type": "x"}
             return httpx2.Response(status, json={"error": error})
         return chat_completion(f"Here it is: {json.dumps(ANSWER)}")(request)
 
@@ -223,7 +244,7 @@ async def test_an_openai_compatible_provider_asks_in_its_strict_json_schema_at_i
     assert (usage.input_tokens, usage.cache_read_tokens, usage.output_tokens) == (70, 30, 12)
 
 
-async def test_openrouter_only_routes_to_providers_that_honour_every_parameter() -> None:
+async def test_openrouter_only_routes_to_providers_that_honour_every_option() -> None:
     sent = Sent()
     openrouter = openai_compatible(sent, chat_completion(json.dumps(ANSWER)), "openrouter")
 
@@ -244,7 +265,7 @@ async def test_openrouter_only_routes_to_providers_that_honour_every_parameter()
     ],
     ids=["format refused", "effort refused", "no endpoint for the format"],
 )
-async def test_a_parameter_the_server_refuses_is_dropped_for_that_model_from_then_on(
+async def test_an_option_the_server_refuses_is_dropped_for_that_model_from_then_on(
     answer: Handler, dropped: str
 ) -> None:
     sent = Sent()
@@ -331,7 +352,7 @@ async def test_a_game_replayed_from_its_recorded_calls_makes_the_same_log_withou
     asked = len(model.requests)
 
     cassette = Cassette(calls)
-    replayed = await play_game(config, llm_agents(cassette, PlayedBy(), ignore, config.seed))
+    replayed = await play_game(config, llm_agents(cassette, PlayedBy(), unrecorded, config.seed))
 
     assert {call.outcome for call in calls} >= {"ok", "invalid", "refusal"}
     assert [e.model_dump() for e in replayed.events] == [e.model_dump() for e in recorded.events]
@@ -344,23 +365,19 @@ async def test_a_request_the_cassette_does_not_hold_fails_loudly_saying_how_to_r
 
 
 async def test_the_recorded_live_game_replays_exactly_with_no_network() -> None:
-    events = [Event.model_validate_json(line) for line in lines(LIVE_GAME)]
-    calls = [
-        ModelCall.model_validate_json(line) for line in lines(Cassette.calls_beside(LIVE_GAME))
-    ]
+    events = read_ndjson(LIVE_GAME, Event)
+    calls = read_ndjson(calls_beside(LIVE_GAME), ModelCall)
     started = events[0].payload
     assert isinstance(started, GameStarted)
     assert isinstance(events[-1].payload, GameEnded), "re-record the live game: it did not end"
 
     replayed = await play_game(
-        started.config, lineup_brains(started.config, Cassette.serving(calls), ignore)
+        started.config, lineup_brains(started.config, Cassette.serving(calls), unrecorded)
     )
 
+    last = replayed.events[-1].payload
+    assert not isinstance(last, GameAborted), last.reason  # a cassette miss says to re-record
     assert [e.model_dump() for e in replayed.events] == [e.model_dump() for e in events]
-
-
-def lines(path: Path) -> list[str]:
-    return [line for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
 # Which provider each name means
@@ -386,7 +403,7 @@ def test_claude_means_the_subscription_when_no_api_key_is_set(
     made: list[ModelProvider] = []
 
     def subscription(**_: object) -> ModelProvider:
-        made.append(Named("subscription"))
+        made.append(FakeModel(name="subscription"))
         return made[-1]
 
     monkeypatch.setattr(providers_module, "ClaudeAgentSDKProvider", subscription)
@@ -406,9 +423,3 @@ def test_a_provider_with_no_api_key_is_refused_naming_the_setting(name: str) -> 
 def test_an_unknown_provider_is_not_one_of_them() -> None:
     with pytest.raises(KeyError):
         Providers({})["mistral"]
-
-
-class Named(FakeModel):
-    def __init__(self, name: str) -> None:
-        super().__init__()
-        self.name = name

@@ -11,8 +11,7 @@ made.
 import hashlib
 import json
 from collections import defaultdict
-from collections.abc import Iterable, Mapping
-from pathlib import Path
+from collections.abc import Iterable, Iterator, Mapping
 from typing import Any
 
 from mm.agents.answers import answer_schema
@@ -25,7 +24,9 @@ class CassetteMissError(Exception):
     """A replayed game asked something its cassette does not hold."""
 
 
-def key(model: str, effort: Effort, system: str, prompt: str, schema: Mapping[str, Any]) -> str:
+def request_hash(
+    model: str, effort: Effort, system: str, prompt: str, schema: Mapping[str, Any]
+) -> str:
     """Everything a model was asked, hashed."""
     asked = [model, effort, system, prompt, schema]
     return hashlib.sha256(json.dumps(asked, sort_keys=True).encode()).hexdigest()
@@ -39,25 +40,42 @@ class Cassette:
     def __init__(self, calls: Iterable[ModelCall]) -> None:
         self._unplayed: defaultdict[str, list[ModelCall]] = defaultdict(list)
         for call in calls:
-            asked = key(call.model, call.effort, call.system, call.prompt, answer_schema(call.kind))
+            asked = request_hash(
+                call.model, call.effort, call.system, call.prompt, answer_schema(call.kind)
+            )
             self._unplayed[asked].append(call)
-
-    @staticmethod
-    def calls_beside(events: Path) -> Path:
-        """Where `mm play --out` keeps the model calls of the game it saved at `events`."""
-        return events.with_suffix(".calls.ndjson")
 
     @classmethod
     def serving(cls, calls: Iterable[ModelCall]) -> Mapping[str, ModelProvider]:
         """One cassette standing in for every provider a game's lineup names."""
-        cassette = cls(calls)
-        return defaultdict(lambda: cassette)
+        return _StandingIn(cls(calls))
 
     async def complete(self, request: ModelRequest) -> ModelReply:
-        asked = key(request.model, request.effort, request.system, request.prompt, request.schema)
+        asked = request_hash(
+            request.model, request.effort, request.system, request.prompt, request.schema
+        )
         if not self._unplayed[asked]:
             raise CassetteMissError(
                 f"the cassette holds no answer to request {asked[:12]}, so a prompt or the game "
                 "changed since it was recorded: re-record it (see docs/providers.md)"
             )
         return self._unplayed[asked].pop(0).as_reply()
+
+
+class _StandingIn(Mapping[str, ModelProvider]):
+    """Every provider name, each answered by the same cassette."""
+
+    def __init__(self, cassette: Cassette) -> None:
+        self.cassette = cassette
+
+    def __getitem__(self, name: str) -> ModelProvider:
+        return self.cassette
+
+    def __contains__(self, name: object) -> bool:
+        return True
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(())  # it names no provider of its own
+
+    def __len__(self) -> int:
+        return 0

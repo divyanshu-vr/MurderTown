@@ -5,8 +5,7 @@ memory each carry a cache breakpoint, so a Resident's later decisions read them 
 cache while their memory is unchanged; the task, new every time, is never cached.
 """
 
-import json
-from typing import Any, Literal
+from typing import Literal
 
 import anthropic
 import httpx2
@@ -21,10 +20,10 @@ from anthropic.types import (
 
 from mm.engine import Effort
 from mm.llm.calling import CallLimits
-from mm.llm.protocol import CALL_TIMEOUT_S, ModelReply, ModelRequest, Usage
+from mm.llm.protocol import CALL_TIMEOUT_S, ModelReply, ModelRequest, Usage, json_object
 
-MAX_TOKENS = 8192
-"""Room for the answer and for the thinking current models always do before it."""
+MAX_TOKENS = 16_000
+"""Room for the answer and for the thinking current models do by default before it."""
 
 EFFORTS: dict[Effort, Literal["low", "medium", "high", "max"]] = {
     Effort.LOW: "low",
@@ -73,7 +72,10 @@ class AnthropicAPIProvider:
                 messages=[_asked(request)],
                 output_config=OutputConfigParam(
                     effort=EFFORTS[request.effort],
-                    format=JSONOutputFormatParam(type="json_schema", schema=dict(request.schema)),
+                    # limits the API cannot enforce move into descriptions; the pipeline checks them
+                    format=JSONOutputFormatParam(
+                        type="json_schema", schema=anthropic.transform_schema(dict(request.schema))
+                    ),
                 ),
             )
         except anthropic.APITimeoutError as error:
@@ -102,17 +104,10 @@ def _reply_from(message: Message) -> ModelReply:
         cache_write_5m_tokens=writes.ephemeral_5m_input_tokens if writes else 0,
         cache_write_1h_tokens=writes.ephemeral_1h_input_tokens if writes else 0,
     )
+    if message.stop_reason == "max_tokens":
+        return ModelReply.failure(f"the answer ran past {MAX_TOKENS} tokens")
     if message.stop_reason == "refusal":
         return ModelReply(
             outcome="refusal", data=None, text=text, usage=tokens, error="the model declined"
         )
-    return ModelReply(outcome="ok", data=_parsed(text), text=text, usage=tokens)
-
-
-def _parsed(text: str) -> dict[str, Any] | None:
-    """The answer as JSON, or None if it is not a JSON object (the pipeline then says so)."""
-    try:
-        parsed = json.loads(text)
-    except json.JSONDecodeError:
-        return None
-    return parsed if isinstance(parsed, dict) else None
+    return ModelReply(outcome="ok", data=json_object(text), text=text, usage=tokens)

@@ -146,3 +146,7 @@ def label_generation(span: Span, call: ModelCall) -> None:
 
 
 CallRecorder = Callable[[ModelCall], Awaitable[None]]
+
+
+async def unrecorded(call: ModelCall) -> None:
+    """A recorder that keeps nothing, for brains made only to check a lineup can be played."""

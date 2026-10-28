@@ -15,15 +15,15 @@ from random import Random
 import structlog
 
 from mm.agents.answers import ANSWERS, answer_schema, read_answer, scrubbed
-from mm.agents.brain import Brain, BrainFactory, ModelFailureError, own_random
+from mm.agents.brain import ModelFailureError
 from mm.agents.calls import CallOutcome, CallRecorder, ModelCall, label_generation
 from mm.agents.prompting import build_prompt, prompt_version, retry_task
-from mm.engine import PlayedBy, Resident, Role
+from mm.engine import PlayedBy, Role
 from mm.engine.decisions import Answer, Decision, DecisionRequest
 from mm.engine.events import Event
 from mm.engine.perception import assignment
 from mm.llm import ModelProvider, ModelReply, ModelRequest
-from mm.llm.prices import equivalent_cost, price_of
+from mm.llm.prices import equivalent_cost
 from mm.observability import tracing
 
 logger = structlog.get_logger(__name__)
@@ -162,25 +162,3 @@ def _interpret(
     if isinstance(answer, str):
         return None, scrubbed(answer), "invalid"
     return answer, None, "ok"
-
-
-def llm_agents(
-    provider: ModelProvider,
-    played_by: PlayedBy,
-    record: CallRecorder,
-    seed: int,
-    recorded: Sequence[ModelCall] = (),
-) -> BrainFactory:
-    """A factory giving every Resident its own Agent on one provider and model.
-
-    A model with no price is refused here, before the game starts. A resumed game
-    passes the model calls it had `recorded`: those answer again, so no call is made
-    twice.
-    """
-    price_of(played_by.model)
-    by_key = {call.key: call for call in recorded}
-
-    def make(resident: Resident) -> Brain:
-        return LLMBrain(provider, played_by, record, own_random(seed, resident), by_key)
-
-    return make

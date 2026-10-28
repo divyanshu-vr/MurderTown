@@ -6,7 +6,8 @@ effort. A server that refuses either option for a model (not every model reasons
 and not every server enforces schemas) is asked again without it, and the provider
 remembers, so later calls to that model ask once. Without the schema option, the
 schema is written into the prompt and the JSON read from the text; the pipeline
-checks the answer either way.
+checks the answer either way. A call's record keeps the effort and briefing the game
+asked for, not what a server was finally sent.
 """
 
 import json
@@ -19,7 +20,7 @@ import openai
 from openai.types.chat import ChatCompletion, ChatCompletionMessageParam
 
 from mm.llm.calling import CallLimits
-from mm.llm.protocol import CALL_TIMEOUT_S, ModelReply, ModelRequest, Usage
+from mm.llm.protocol import CALL_TIMEOUT_S, ModelReply, ModelRequest, Usage, json_object
 
 OPTIONAL = ("response_format", "reasoning_effort")
 """Request options a server may refuse for a model, so they can be dropped."""
@@ -152,16 +153,4 @@ def _reply_from(completion: ChatCompletion) -> ModelReply:
         return ModelReply(
             outcome="refusal", data=None, text=message.refusal or text, usage=tokens, error=declined
         )
-    return ModelReply(outcome="ok", data=_json_in(text), text=text, usage=tokens)
-
-
-def _json_in(text: str) -> dict[str, Any] | None:
-    """The JSON object in a reply, even with words or a fenced block around it."""
-    start, end = text.find("{"), text.rfind("}")
-    if start < 0 or end < start:
-        return None
-    try:
-        parsed = json.loads(text[start : end + 1])
-    except json.JSONDecodeError:
-        return None
-    return parsed if isinstance(parsed, dict) else None
+    return ModelReply(outcome="ok", data=json_object(text), text=text, usage=tokens)

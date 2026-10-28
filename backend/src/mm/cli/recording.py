@@ -9,6 +9,17 @@ from pydantic import BaseModel
 from mm.agents import Cost, ModelCall
 
 
+def calls_beside(events: Path) -> Path:
+    """Where `mm play --out` keeps the model calls of the game it saved at `events`."""
+    return events.with_suffix(".calls.ndjson")
+
+
+def read_ndjson[R: BaseModel](path: Path, record: type[R]) -> list[R]:
+    """Every record in an NDJSON file, skipping blank lines."""
+    lines = path.read_text(encoding="utf-8").splitlines()
+    return [record.model_validate_json(line) for line in lines if line.strip()]
+
+
 class NdjsonFile:
     """Appends one JSON line per record as it happens, so a crash loses nothing already written."""
 

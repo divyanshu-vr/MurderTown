@@ -28,7 +28,13 @@ A game's configuration includes its **lineup**: who plays each Resident. Each en
 
 Set keys in `backend/.env` (never `ANTHROPIC_API_KEY`: the subscription provider refuses to start while it is set, so subscription games can never be billed to an API key). Every provider sends the same prompts. The Anthropic API marks the briefing and the Resident's memory for caching. The OpenAI-compatible providers ask for the answer in its JSON schema at the Resident's effort (`reasoning_effort`); a server that refuses either option for a model is asked again without it, and the schema then goes into the prompt.
 
-**Prices.** Every call's equivalent cost comes from one table, `backend/src/mm/llm/prices.py`, which holds Claude's list prices. A model that is not in it cannot play: add its price per million tokens (input, output, cache read) first.
+**Prices.** Every call's equivalent cost comes from one table, `backend/src/mm/llm/prices.py`, which holds Claude's list prices. A model with no price cannot play: give it one in `backend/.env`, in dollars per million tokens, before naming it in a lineup:
+
+```
+MM_MODEL_PRICES={"gpt-5-mini": {"input": 0.25, "output": 2.0, "cache_read": 0.025}}
+```
+
+**Limits.** Each provider runs at most five calls at once, and gives up on a call after 90 seconds, its SDK's own retries included; a game on two providers can run ten at once. The Anthropic API is given 16,000 tokens for each answer and the thinking before it.
 
 ## Cassettes
 
@@ -36,11 +42,11 @@ A cassette is a recorded game's model calls, played back with no model and no ne
 
 CI replays `fixtures/live-game.ndjson`, a short live Claude game, and checks that the replay makes exactly the recorded log (`tests/test_providers.py`).
 
-Each recorded call answers only the very same request: the same model, effort, briefing, prompt and answer schema. So **any change to the prompts** (templates, personas, rendering, schemas) makes the replay miss, and CI fails saying to re-record. Re-record on the subscription (about 60 Haiku calls, a couple of minutes):
+Each recorded call answers only the very same request: the same model, effort, briefing, prompt and answer schema. So **any change to the prompts** (templates, personas, rendering, schemas) makes the replay miss, and CI fails saying to re-record. Re-record on the subscription (about 180 Haiku calls, a few minutes):
 
 ```
 cd backend
-uv run mm play --provider claude --residents 6 --murderers 1 --max-days 2 --seed 3 --quiet --out ../fixtures/live-game.ndjson
+uv run mm rerecord
 ```
 
-A recording whose game was aborted cannot be used: run it again.
+A recording whose game was aborted cannot be used: run it again. Only games played with `mm play --out` can be replayed this way; ticket #13's export brings server games to the same files.
