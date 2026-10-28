@@ -17,11 +17,18 @@ import { PlaybackBar, usePlaybackKeys } from "./PlaybackBar";
 import { PostGameReview } from "./PostGameReview";
 import { Roster } from "./Roster";
 import { SuspicionHeatmap } from "./SuspicionHeatmap";
+import { TownView } from "./TownView";
 import type { PlaybackView } from "./usePlayback";
 
-type Tab = "feed" | "suspicion" | "review";
+type Tab = "feed" | "residents" | "suspicion" | "review" | "mind";
 
-const tabLabel: Record<Tab, string> = { feed: "Feed", suspicion: "Suspicion", review: "Review" };
+const tabLabel: Record<Tab, string> = {
+  feed: "Feed",
+  residents: "Residents",
+  suspicion: "Suspicion",
+  review: "Review",
+  mind: "Mind",
+};
 
 /**
  * The text console: phase bar, town feed, roster, cost meter and Mind inspector, for the
@@ -38,6 +45,11 @@ const tabLabel: Record<Tab, string> = { feed: "Feed", suspicion: "Suspicion", re
  * Outside mystery mode, a Suspicion tab shows the heatmap as of the view, and once the view
  * reaches the game's end the `review` opens in a Review tab. Both tell private beliefs, so
  * mystery mode (and so a public page) has neither.
+ *
+ * With the `townView` (and playback to play it), the Town view takes the main space and every
+ * panel becomes a tab beside it, or below it on a narrow screen: the feed, the Residents with the
+ * cost meter, and the Mind inspector while someone is inspected. The Town view shows what the
+ * panels show, mystery mode included.
  */
 export function GameConsole({
   events,
@@ -50,6 +62,7 @@ export function GameConsole({
   playback,
   replayUrl,
   review,
+  townView = false,
 }: {
   events: readonly Event[];
   connection: ConnectionStatus;
@@ -62,6 +75,8 @@ export function GameConsole({
   /** Where to replay the game, offered once the view reaches its end. */
   replayUrl?: string | undefined;
   review?: Review | null | undefined;
+  /** Whether to draw the Town view: the page decides, as only a browser with WebGL can. */
+  townView?: boolean;
 }) {
   const [mysteryChosen, setMysteryChosen] = useState(false);
   const [inspected, setInspected] = useState<string | null>(null);
@@ -78,8 +93,37 @@ export function GameConsole({
   const report = useCost(cost, events.length);
   const heat = useMemo(() => (mystery ? null : heatAt(reached)), [mystery, reached]);
   const ending = mystery ? null : view.outcome;
-  const tabs: Tab[] = ["feed", ...(heat ? ["suspicion" as const] : []), ...(review && ending ? ["review" as const] : [])];
+  const withTownView = townView && playback !== undefined;
+
+  // beside the Town view, the Mind inspector is a tab of its own, opened from the Residents tab
+  const inspect = useCallback(
+    (name: string) => {
+      setInspected(name);
+      if (withTownView) setChosenTab("mind");
+    },
+    [withTownView],
+  );
+  const closeMind = useCallback(() => {
+    setInspected(null);
+    if (withTownView) setChosenTab("residents");
+  }, [withTownView]);
+  const panels: Partial<Record<Tab, ReactNode>> = {
+    feed: <EventFeed events={shownEvents} />,
+    residents: (
+      <div className="min-h-0 overflow-y-auto">
+        <Roster residents={shownView.residents} inspected={inspected} onInspect={mystery ? undefined : inspect} />
+        {report && <CostMeter report={report} residents={view.residents} mystery={mystery} />}
+      </div>
+    ),
+    ...(heat && { suspicion: <SuspicionHeatmap heat={heat} residents={view.residents} /> }),
+    ...(review && ending && { review: <PostGameReview review={review} events={reached} outcome={ending} /> }),
+    ...(mind && { mind: <MindInspector mind={mind} residents={view.residents} explain={explain} onClose={closeMind} /> }),
+  };
+  const tabs = (
+    withTownView ? (["feed", "residents", "suspicion", "review", "mind"] as const) : (["feed", "suspicion", "review"] as const)
+  ).filter((name) => panels[name]);
   const tab = chosenTab && tabs.includes(chosenTab) ? chosenTab : tabs.includes("review") ? "review" : "feed";
+  const tabList = tabs.length > 1 && <TabList tabs={tabs} chosen={tab} onChoose={setChosenTab} />;
 
   const chooseMystery = useCallback((on: boolean) => {
     setMysteryChosen(on);
@@ -106,40 +150,45 @@ export function GameConsole({
           replayUrl={view.outcome ? replayUrl : undefined}
         />
       )}
-      <main
-        className={`grid min-h-0 flex-1 grid-cols-1 ${mind ? "lg:grid-cols-[1fr_18rem_28rem]" : "md:grid-cols-[1fr_20rem]"}`}
-      >
-        <div className="flex min-h-0 flex-col">
-          {tabs.length > 1 && (
-            <div role="tablist" aria-label="What to show" className="flex gap-1 border-b border-stone-800 px-6 pt-2">
-              {tabs.map((name) => (
-                <button
-                  key={name}
-                  type="button"
-                  role="tab"
-                  aria-selected={tab === name}
-                  onClick={() => setChosenTab(name)}
-                  className="rounded-t px-3 py-1 text-sm text-stone-400 aria-selected:bg-stone-800 aria-selected:text-amber-200"
-                >
-                  {tabLabel[name]}
-                </button>
-              ))}
-            </div>
-          )}
-          {tab === "feed" && <EventFeed events={shownEvents} />}
-          {tab === "suspicion" && heat && <SuspicionHeatmap heat={heat} residents={view.residents} />}
-          {tab === "review" && review && ending && (
-            <PostGameReview review={review} events={reached} outcome={ending} />
-          )}
-        </div>
-        <div className="min-h-0 overflow-y-auto border-l border-stone-800">
-          <Roster residents={shownView.residents} inspected={inspected} onInspect={mystery ? undefined : setInspected} />
-          {report && <CostMeter report={report} residents={view.residents} mystery={mystery} />}
-        </div>
-        {mind && (
-          <MindInspector mind={mind} residents={view.residents} explain={explain} onClose={() => setInspected(null)} />
-        )}
-      </main>
+      {withTownView ? (
+        <main className="flex min-h-0 flex-1 flex-col md:flex-row">
+          <TownView view={shownView} shown={shownEvents} playback={playback} />
+          <div className="flex min-h-0 flex-1 flex-col border-stone-800 md:w-[26rem] md:flex-none md:border-l">
+            {tabList}
+            {panels[tab]}
+          </div>
+        </main>
+      ) : (
+        <main
+          className={`grid min-h-0 flex-1 grid-cols-1 ${mind ? "lg:grid-cols-[1fr_18rem_28rem]" : "md:grid-cols-[1fr_20rem]"}`}
+        >
+          <div className="flex min-h-0 flex-col">
+            {tabList}
+            {panels[tab]}
+          </div>
+          <div className="flex min-h-0 flex-col border-l border-stone-800">{panels.residents}</div>
+          {panels.mind}
+        </main>
+      )}
+    </div>
+  );
+}
+
+function TabList({ tabs, chosen, onChoose }: { tabs: readonly Tab[]; chosen: Tab; onChoose(tab: Tab): void }) {
+  return (
+    <div role="tablist" aria-label="What to show" className="flex flex-wrap gap-1 border-b border-stone-800 px-6 pt-2">
+      {tabs.map((name) => (
+        <button
+          key={name}
+          type="button"
+          role="tab"
+          aria-selected={chosen === name}
+          onClick={() => onChoose(name)}
+          className="rounded-t px-3 py-1 text-sm text-stone-400 aria-selected:bg-stone-800 aria-selected:text-amber-200"
+        >
+          {tabLabel[name]}
+        </button>
+      ))}
     </div>
   );
 }

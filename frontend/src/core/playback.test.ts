@@ -76,7 +76,8 @@ describe("playing back a game", () => {
 
   it("holds a blocking moment for its animation, or a few seconds at most, then gives the next its full time", () => {
     const events = [died(), phase(), died(), phase(), phase()];
-    const playback = new Playback({ live: false, waitForAnimations: true });
+    const playback = new Playback({ live: false });
+    playback.setWaitForAnimations(true);
     playback.receive(events);
     playback.tick(0);
 
@@ -103,6 +104,46 @@ describe("playing back a game", () => {
     playback.tick(dwellOf(events[0] as Event));
 
     expect(playback.shown).toBe(2);
+  });
+
+  it("holds for animations only while something animates them, and lets go when that stops", () => {
+    const events = [died(), phase(), phase()];
+    const playback = new Playback({ live: false });
+    playback.receive(events);
+    playback.setWaitForAnimations(true);
+    playback.tick(0);
+
+    playback.tick(dwellOf(events[0] as Event));
+    expect(playback.shown).toBe(1);
+
+    playback.setWaitForAnimations(false);
+    playback.tick(0);
+    expect(playback.shown).toBe(2);
+    playback.tick(PHASE_DWELL - 1);
+    expect(playback.shown).toBe(2); // the next event still gets its full time
+  });
+
+  it("counts a cut whenever the view jumps rather than plays on, so the town can snap to it", () => {
+    const events = phases(5);
+    const playback = new Playback({ live: true });
+    playback.receive(events);
+    playback.hold();
+    const cuts = () => playback.cuts;
+
+    playback.tick(PHASE_DWELL);
+    playback.next();
+    playback.play();
+    playback.tick(PHASE_DWELL);
+    expect(cuts()).toBe(0);
+
+    playback.seek(1);
+    playback.previous();
+    playback.skipToLive();
+    expect(cuts()).toBe(3);
+
+    events.push(...phases(PAST_A_MINUTE)); // falling far behind while following live jumps to live
+    playback.receive(events);
+    expect(cuts()).toBe(4);
   });
 
   it("jumps to live when a live game is far behind, but plays a replay from the start", () => {

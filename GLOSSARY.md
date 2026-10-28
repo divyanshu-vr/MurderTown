@@ -254,6 +254,14 @@ _Avoid_: recording, playback (how a Spectator moves through it)
 A game's whole log in one file, which the console replays with no server.
 _Avoid_: dump, save file
 
+**Town view**:
+The town drawn as a place beside the console, as of the moment being watched: every Resident at home or in the Square, the dead as gravestones where they died, and what is said and voted over their heads.
+_Avoid_: canvas, map, game view, Town (the side)
+
+**Square**:
+Where the living gather round the well for Discussion, the Showdown and the Vote; the rest of the time they are at home.
+_Avoid_: plaza, meeting place
+
 **Scope**:
 How much of a game a request may see: public scope is only what the whole town saw, full scope is everything. Only the Host has full scope.
 _Avoid_: access level, permission

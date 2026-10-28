@@ -1,7 +1,8 @@
 /**
  * Playback: how a Spectator moves through what has arrived, at their own pace or following
  * live. Pure, with no timers: a hook feeds it each animation frame's time, and tests feed it
- * numbers.
+ * numbers. It counts the cuts, the times the view jumps rather than plays on, so the town can
+ * snap to a jump instead of walking there.
  *
  * Time here is the game's virtual time: real time times the speed, standing still while held.
  * Each event stays shown for its dwell (presentation.ts) before the next appears, and a
@@ -35,8 +36,6 @@ export function nextSpeed(speed: Speed, notches: -1 | 1): Speed {
 export interface PlaybackOptions {
   /** Following a game live, so falling far behind jumps to live. A replay starts at the beginning. */
   live: boolean;
-  /** Whether a blocking moment waits for its animation to finish. */
-  waitForAnimations?: boolean;
 }
 
 export class Playback {
@@ -46,6 +45,8 @@ export class Playback {
   held = false;
   /** Whether the Spectator chose their own pace, so falling behind does not jump to live. */
   detached: boolean;
+  /** How many times the view has jumped: sought, stepped back, or skipped or caught up to live. */
+  cuts = 0;
 
   private events: readonly Event[] = [];
   /** How many events had arrived when last told: a caller may add to the same list. */
@@ -53,15 +54,15 @@ export class Playback {
   private now = 0;
   /** When the latest event shown appeared, in virtual time. */
   private shownAt = 0;
+  /** Whether a blocking moment waits for its animation: only while something animates it. */
+  private waitForAnimations = false;
   /** The blocking event shown last, while its animation is still playing. */
   private animating: number | null = null;
   /** When the latest event's animation finished, so the next one still gets its full time. */
   private animatedAt = 0;
-  private readonly waitForAnimations: boolean;
 
-  constructor({ live, waitForAnimations = false }: PlaybackOptions) {
+  constructor({ live }: PlaybackOptions) {
     this.detached = !live;
-    this.waitForAnimations = waitForAnimations;
   }
 
   /** Events received but not shown yet. */
@@ -94,8 +95,8 @@ export class Playback {
     for (;;) {
       const latest = this.latestShown();
       if (latest && this.animating === latest.seq) {
-        if (this.now - this.shownAt < ANIMATION_TIMEOUT_MS) return;
-        this.animated(latest.seq, this.shownAt + ANIMATION_TIMEOUT_MS);
+        if (this.waitForAnimations && this.now - this.shownAt < ANIMATION_TIMEOUT_MS) return;
+        this.animated(latest.seq, Math.min(this.now, this.shownAt + ANIMATION_TIMEOUT_MS));
       }
       const due = latest ? Math.max(this.shownAt + dwellOf(latest), this.animatedAt) : this.shownAt;
       if (this.shown >= this.events.length || this.now < due) return;
@@ -120,6 +121,10 @@ export class Playback {
     this.detached = true;
   }
 
+  setWaitForAnimations(on: boolean): void {
+    this.waitForAnimations = on;
+  }
+
   setSpeed(speed: Speed): void {
     this.speed = speed;
     this.detached = true;
@@ -134,12 +139,14 @@ export class Playback {
   /** Show one event fewer, then hold. */
   previous(): void {
     this.stayHere();
+    this.cuts += 1;
     this.shown = Math.max(0, this.shown - 1);
   }
 
   /** Show the first `count` events. */
   seek(count: number): void {
     this.detached = true;
+    this.cuts += 1;
     this.animating = null;
     this.shown = Math.min(Math.max(0, count), this.events.length);
     this.shownAt = this.now;
@@ -161,6 +168,7 @@ export class Playback {
 
   private jumpToLive(): void {
     this.detached = false;
+    this.cuts += 1;
     this.animating = null;
     this.shown = this.events.length;
     this.shownAt = this.now;

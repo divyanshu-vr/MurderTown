@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
 
 import { Playback, type Speed } from "../core/playback";
 import type { Event } from "../protocol";
@@ -12,6 +12,8 @@ export interface PlaybackView {
   held: boolean;
   /** Following a game live, rather than replaying it. */
   live: boolean;
+  /** How many times the view has jumped rather than played on. */
+  cuts: number;
   play(): void;
   hold(): void;
   next(): void;
@@ -19,16 +21,23 @@ export interface PlaybackView {
   seek(count: number): void;
   setSpeed(speed: Speed): void;
   skipToLive(): void;
+  /** Whether blocking moments wait for their animation: while the town is there to play them. */
+  setWaitForAnimations(on: boolean): void;
+  /** A blocking moment's animation has finished. */
+  animated(seq: number): void;
 }
 
 /**
  * Plays back the events received, one animation frame at a time. A live game follows live;
- * a replay starts at the beginning. Nothing animates blocking moments yet, so they do not
- * wait for an animation (the town will, except with reduced motion).
+ * a replay starts at the beginning. Blocking moments wait for their animation only while the
+ * town says it plays them.
  */
 export function usePlayback(events: readonly Event[], live: boolean): PlaybackView {
-  const [playback] = useState(() => new Playback({ live, waitForAnimations: false }));
+  const [playback] = useState(() => new Playback({ live }));
   const [, rerender] = useReducer((renders: number) => renders + 1, 0);
+  // the town holds on to these, so they keep their identity from one render to the next
+  const setWaitForAnimations = useCallback((on: boolean) => playback.setWaitForAnimations(on), [playback]);
+  const animated = useCallback((seq: number) => playback.animated(seq), [playback]);
 
   useEffect(() => {
     playback.receive(events);
@@ -61,6 +70,7 @@ export function usePlayback(events: readonly Event[], live: boolean): PlaybackVi
     speed: playback.speed,
     held: playback.held,
     live,
+    cuts: playback.cuts,
     play: act(() => playback.play()),
     hold: act(() => playback.hold()),
     next: act(() => playback.next()),
@@ -68,5 +78,7 @@ export function usePlayback(events: readonly Event[], live: boolean): PlaybackVi
     seek: act((count: number) => playback.seek(count)),
     setSpeed: act((speed: Speed) => playback.setSpeed(speed)),
     skipToLive: act(() => playback.skipToLive()),
+    setWaitForAnimations,
+    animated,
   };
 }

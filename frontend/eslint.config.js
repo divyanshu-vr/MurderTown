@@ -18,11 +18,37 @@ export default defineConfig(
         {
           patterns: [
             {
-              group: ["react", "react-dom", "phaser", "../ui/*", "../net/*"],
-              message: "core/ stays pure: no React, Phaser, UI or network code.",
+              group: ["react", "react-dom", "phaser", "**/ui/**", "**/net/**", "**/game/**"],
+              message: "core/ stays pure: no React, Phaser, UI, game or network code.",
             },
           ],
         },
+      ],
+    },
+  },
+  {
+    files: ["src/ui/**", "src/net/**", "src/*.tsx"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["phaser", "**/game/**"],
+              allowTypeImports: true,
+              message: "Phaser comes only with the town: load game/ with import(), so the console never downloads it.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/game/**"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        { patterns: [{ group: ["**/ui/**", "**/net/**"], message: "game/ draws what it is given: no UI or network code." }] },
       ],
     },
   },

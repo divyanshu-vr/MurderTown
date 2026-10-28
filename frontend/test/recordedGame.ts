@@ -2,11 +2,19 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { eventsInGameFile } from "../src/core/gameFile";
-import type { Event, Mind, PayloadOf, Review } from "../src/protocol";
+import type { Event, Mind, PayloadOf, Phase, Review } from "../src/protocol";
 
 /** The scripted game the backend records with `mm play --seed 2 --out ../fixtures/scripted-game.ndjson`, chosen because it shows every kind of event, every kind of lie and a swing in suspicion. */
 export function recordedGame(): Event[] {
   return eventsInGameFile(readFileSync(resolve(process.cwd(), "../fixtures/scripted-game.ndjson"), "utf-8"));
+}
+
+/** How many of `events` have happened once the `nth` Phase named `phase` has started (counting from 1). */
+export function countWhen(events: readonly Event[], phase: Phase, nth: number): number {
+  const starts = events.flatMap((event, index) =>
+    event.payload.type === "phase_started" && event.payload.phase === phase ? [index + 1] : [],
+  );
+  return starts[nth - 1] ?? 0;
 }
 
 export function payloadsOf<T extends Event["payload"]["type"]>(events: readonly Event[], type: T) {

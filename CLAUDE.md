@@ -7,7 +7,7 @@ A social-deduction game where every Resident is played by an LLM Agent with its 
 - **The event log is the single source of truth.** True state, each Agent's knowledge, the Spectator view and replays are all folds of one append-only log per game. New behaviour starts as a new event type whose visibility is declared beside its definition (`backend/src/mm/engine/events.py`).
 - **Perception has one door**: `perceived_by` in the engine. Everything shown to a Resident (bot view, prompt) and the server's mind endpoint go through it, which is what makes information isolation testable. The console's Mind inspector is a full-scope view, folded from events a full-scope page already holds (`frontend/src/core/mind.ts` follows the rules of `remember` in `agents/memory.py`).
 - **Backend layers**, top to bottom: cli, api, persistence, orchestrator, review, agents, llm, observability, engine. A layer imports only from layers below it (`lint-imports` enforces this). The engine is pure: no I/O, clocks or async.
-- **Frontend layers**: `src/core` is pure TypeScript with no React, Phaser or network code (ESLint enforces this); `src/net` talks to the server; `src/ui` renders. Protocol types are generated from the backend, never written by hand.
+- **Frontend layers**: `src/core` is pure TypeScript with no React, Phaser or network code (ESLint enforces this); `src/net` talks to the server; `src/ui` renders; `src/game` draws the Town view with Phaser, the only place Phaser is imported, and `src/ui` loads it only with `import()`, so a console without the town never downloads it. Protocol types are generated from the backend, never written by hand.
 - **Determinism**: all randomness comes from the game's seeded `Random`. Decisions collected concurrently have their events appended in a fixed order (seat order; at Night, kill votes, then the protection, then the investigation; at Dusk, each wave's messages Conversation by Conversation), so the same seed and decisions always give the same log.
 - **Vocabulary** in code, tests and UI text follows `GLOSSARY.md`.
 
@@ -29,7 +29,7 @@ A social-deduction game where every Resident is played by an LLM Agent with its 
 
 - On Windows, write multi-line source files with the file tools; long shell heredocs fail to parse.
 - If `import mm` fails after adding a package directory, run `uv sync --reinstall-package murdertown` in `backend/`.
-- Browser tests (`pnpm e2e`, Playwright, `frontend/e2e/`) run the built console against a mocked server; install their browser once with `pnpm exec playwright install chromium`.
+- Browser tests (`pnpm e2e`, Playwright, `frontend/e2e/`) run the built console against a mocked server; install their browser once with `pnpm exec playwright install chromium`. The Town view's screenshot compares only on Linux: `pnpm e2e:linux` runs them in Playwright's image as CI does (needs Docker).
 - The frontend runs on Node 24, which pnpm downloads per project through `devEngines`; run Node tools through `pnpm`, not the system Node.
 - TypeScript stays on 6.0.x until typescript-eslint supports 7.
 - The Docker Compose Postgres listens on host port 5433, because a locally installed Postgres may own 5432.

@@ -12,6 +12,7 @@ import { useReview } from "../net/useReview";
 import { GameConsole } from "./GameConsole";
 import { HostControls } from "./HostControls";
 import { replayPath } from "./paths";
+import { useCanDrawTownView } from "./TownView";
 import { usePlayback } from "./usePlayback";
 
 /** A console played back from a source (live follows live, a replay starts at the beginning),
@@ -21,7 +22,8 @@ function useWatched(source: EventSource, live: boolean, reviews: ReviewSource | 
   const playback = usePlayback(events, live);
   const last = events.at(-1);
   const review = useReview(reviews, last !== undefined && endsTheGame(last));
-  return { events, connection, playback, review };
+  const townView = useCanDrawTownView();
+  return { events, connection, playback, review, townView };
 }
 
 /**
@@ -38,7 +40,7 @@ export function GamePage({ gameId, hostToken, replay }: { gameId: string; hostTo
     [gameId, host, replay],
   );
   const reviews = useMemo(() => (host ? reviewSource(gameId, host) : undefined), [gameId, host]);
-  const { events, connection, playback, review } = useWatched(source, !replay, reviews);
+  const { events, connection, playback, review, townView } = useWatched(source, !replay, reviews);
   const { summary, show } = useGameSummary(gameId, host);
   const asks = useMemo(
     () => (host ? { explain: explainer(gameId, host), cost: costSource(gameId, host) } : {}),
@@ -58,6 +60,7 @@ export function GamePage({ gameId, hostToken, replay }: { gameId: string; hostTo
       playback={playback}
       replayUrl={`${window.location.origin}${replayPath(gameId)}`}
       review={review}
+      townView={townView}
     />
   );
 }
@@ -66,6 +69,6 @@ export function GamePage({ gameId, hostToken, replay }: { gameId: string; hostTo
 export function GameFilePage({ file }: { file: string }) {
   const source = useMemo(() => fileSource(file), [file]);
   const reviews = useMemo(() => fileReviewSource(file), [file]);
-  const { events, connection, playback, review } = useWatched(source, false, reviews);
-  return <GameConsole events={events} connection={connection} playback={playback} review={review} />;
+  const { events, connection, playback, review, townView } = useWatched(source, false, reviews);
+  return <GameConsole events={events} connection={connection} playback={playback} review={review} townView={townView} />;
 }

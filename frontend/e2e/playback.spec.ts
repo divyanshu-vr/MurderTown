@@ -2,19 +2,19 @@
  * Playback in a real browser. A mocked socket streams the recorded game as a Spectator's
  * would (only what the whole town saw), the server's REST answers are mocked too, and the
  * page's clock is driven by the test, so time passes only when a test says.
+ *
+ * These watch the console alone, as a browser without WebGL does; town.spec.ts watches the town.
  */
-import { readFileSync } from "node:fs";
-
 import { expect, type Page, test, type WebSocketRoute } from "@playwright/test";
 
 import { isPublic } from "../src/core/gameView";
 import type { GameSummary } from "../src/protocol";
-import { recordedGame } from "../test/recordedGame";
+import { recordedGame, recordedReview } from "../test/recordedGame";
+import { API, serveTheGameFile, withoutWebGL } from "./gameFile";
 
 const seen = recordedGame().filter(isPublic);
 
-/** Where the built console looks for the server (its default `API_URL`). */
-const API = "http://127.0.0.1:8000";
+test.beforeEach(({ page }) => withoutWebGL(page));
 
 /** The server, as a Spectator's browser reaches it: the game's summary and its whole log. */
 async function serveTheGame(page: Page): Promise<void> {
@@ -115,15 +115,7 @@ test("new lines fade in, unless the Spectator prefers reduced motion", async ({ 
 });
 
 test("a game file replays with no server at all, ending with the review beside it", async ({ page }) => {
-  await page.route(`${API}/**`, (route) => route.abort()); // the server is gone
-  await page.route(({ pathname }) => pathname === "/a-game.ndjson", (route) =>
-    route.fulfill({ body: readFileSync("../fixtures/scripted-game.ndjson", "utf-8") }),
-  );
-  await page.route(({ pathname }) => pathname === "/a-game.review.json", (route) =>
-    route.fulfill({ body: readFileSync("../fixtures/scripted-game.review.json", "utf-8") }),
-  );
-
-  await page.goto("/replay?file=/a-game.ndjson");
+  await page.goto(await serveTheGameFile(page));
   await expect(feedLines(page).first()).toBeVisible();
   await page.keyboard.press("l");
 
@@ -137,9 +129,7 @@ test("the Host's replay shows the suspicion heatmap as it goes, and the review a
   await page.addInitScript(() => localStorage.setItem("murdertown.host-token", "the-token"));
   await serveTheGame(page);
   await page.route(`${API}/games/abc/events`, (route) => route.fulfill({ json: { events: recordedGame() } }));
-  await page.route(`${API}/games/abc/review`, (route) =>
-    route.fulfill({ body: readFileSync("../fixtures/scripted-game.review.json", "utf-8") }),
-  );
+  await page.route(`${API}/games/abc/review`, (route) => route.fulfill({ json: recordedReview() }));
   await page.route(`${API}/games/abc/cost`, (route) => route.abort());
 
   await page.goto("/games/abc/replay");

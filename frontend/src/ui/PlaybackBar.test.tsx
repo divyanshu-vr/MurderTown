@@ -3,6 +3,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import type { Speed } from "../core/playback";
+import { playbackAt } from "../../test/playback";
 import { recordedGame } from "../../test/recordedGame";
 import { describeEvent, inFeed } from "./describeEvent";
 import { GameConsole } from "./GameConsole";
@@ -18,18 +19,17 @@ function playback(shown: number, live = true): PlaybackView & { asked: string[] 
   };
   return {
     asked,
-    shown,
-    behind: events.length - shown,
-    speed: 1,
-    held: false,
-    live,
-    play: note("play"),
-    hold: note("hold"),
-    next: note("next"),
-    previous: note("previous"),
-    seek: (count: number) => asked.push(`seek ${count}`),
-    setSpeed: (speed: Speed) => asked.push(`speed ${speed}`),
-    skipToLive: note("skip to live"),
+    ...playbackAt(shown, events.length, {
+      held: false,
+      live,
+      play: note("play"),
+      hold: note("hold"),
+      next: note("next"),
+      previous: note("previous"),
+      seek: (count: number) => asked.push(`seek ${count}`),
+      setSpeed: (speed: Speed) => asked.push(`speed ${speed}`),
+      skipToLive: note("skip to live"),
+    }),
   };
 }
 

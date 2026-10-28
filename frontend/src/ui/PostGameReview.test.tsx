@@ -2,6 +2,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { playbackAt } from "../../test/playback";
 import { recordedGame, recordedReview } from "../../test/recordedGame";
 import { GameConsole } from "./GameConsole";
 import { roleLabel, victoryLabel } from "./labels";
@@ -12,21 +13,7 @@ const review = recordedReview();
 
 /** A playback that has shown the first `shown` events. */
 function reached(shown: number): PlaybackView {
-  const nothing = () => undefined;
-  return {
-    shown,
-    behind: events.length - shown,
-    speed: 1,
-    held: true,
-    live: false,
-    play: nothing,
-    hold: nothing,
-    next: nothing,
-    previous: nothing,
-    seek: nothing,
-    setSpeed: nothing,
-    skipToLive: nothing,
-  };
+  return playbackAt(shown, events.length);
 }
 
 describe("the post-game review", () => {

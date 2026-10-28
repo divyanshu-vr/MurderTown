@@ -54,3 +54,13 @@ The post-game review is computed once, in `backend/src/mm/review/review.py`; the
 Panels read what playback has reached (the `events` up to `playback.shown`), not everything received, and a panel that tells private beliefs (the suspicion heatmap, the post-game review) is left out of mystery mode.
 
 A panel that shows what the events do not hold gets it from the server, only on the Host's page, since only the Host may ask. Two ways, by how often it changes: the cost meter, asked again as events arrive, takes a source function from `frontend/src/net` (`costSource`, like `explainer`), and its seam-3 test passes a stub source; the post-game review, asked once the game has ended, is fetched by `GamePage` (`useReview`, from the server or from beside a game file) and passed in as data, and its seam-3 test passes the recorded review (`fixtures/scripted-game.review.json`).
+
+## Change the town
+
+The Town view draws what the console's view says, so the rules live in pure code and Phaser only draws.
+
+- **The map** is `frontend/assets/town/town.json`, a Tiled map with its tileset embedded; edit it in Tiled. The game reads the `props` layer (tiles with the `collides` property cannot be walked) and the `places` objects: the `square`, the `well`, the `hall` and a `door` per seat (`frontend/src/core/town/plan.ts`). Then run `pnpm check:assets` and `pnpm test`.
+- **New art** goes beside the map, credited in `ATTRIBUTION.md` (`pnpm check:assets` fails until it is), and is loaded in `frontend/src/game/looks.ts`.
+- **Where Residents stand** for a view is `layoutFor` (`core/town/layout.ts`), tested from the recorded game; the town walks everyone there, and snaps after a seek.
+- **A moment to play out** (an event playback waits for) goes in `BLOCKING` (`core/presentation.ts`) and gets its animation in `TownScene.play` (`game/TownScene.ts`), which tells playback when it is done.
+- **The screenshot** compares only on Linux. `pnpm e2e:linux` runs the browser tests in Playwright's image, as CI does (it needs Docker); after changing how the town looks, `pnpm e2e:linux --update-snapshots` makes the new baseline to commit. When Playwright is upgraded, change the image's tag in `.github/workflows/ci.yml` to match.

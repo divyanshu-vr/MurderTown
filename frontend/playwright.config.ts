@@ -3,6 +3,8 @@ import { defineConfig, devices } from "@playwright/test";
 /** The console in a real browser: the built app, with the server mocked by each test. */
 export default defineConfig({
   testDir: "e2e",
+  // one baseline for every platform, made on Linux as CI runs: see docs/recipes.md
+  snapshotPathTemplate: "{testDir}/__screenshots__/{testFilePath}/{arg}{ext}",
   forbidOnly: Boolean(process.env.CI),
   use: { baseURL: "http://localhost:4173" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],

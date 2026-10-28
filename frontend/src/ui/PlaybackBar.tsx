@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 
+import { isShortcut } from "../core/keys";
 import { nextSpeed, SPEEDS, type Speed } from "../core/playback";
 import type { PlaybackView } from "./usePlayback";
 
@@ -77,17 +78,6 @@ export function PlaybackBar({
   );
 }
 
-/** Whether the focused control uses a key itself: typing, choosing from a list, moving a slider
- * with the arrows, or pressing a button with Space. Every other key is playback's. */
-function keyBelongsToFocus(target: EventTarget | null, key: string): boolean {
-  if (!(target instanceof HTMLElement)) return false;
-  if (target.isContentEditable || target.tagName === "TEXTAREA" || target.tagName === "SELECT") return true;
-  if (target instanceof HTMLInputElement) {
-    return target.type === "range" ? key.startsWith("Arrow") : true;
-  }
-  return target.tagName === "BUTTON" && (key === " " || key === "Enter");
-}
-
 /** Space holds or plays, the arrows move an event back or forward, L skips to live, minus and equals
  * change speed, M toggles mystery mode. */
 export function usePlaybackKeys(playback: PlaybackView | undefined, toggleMystery: (() => void) | undefined): void {
@@ -103,7 +93,7 @@ export function usePlaybackKeys(playback: PlaybackView | undefined, toggleMyster
       ...(toggleMystery && { m: toggleMystery }),
     };
     const onKey = (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey || event.altKey || keyBelongsToFocus(event.target, event.key)) return;
+      if (!isShortcut(event)) return;
       const action = actions[event.key.length === 1 ? event.key.toLowerCase() : event.key];
       if (!action) return;
       event.preventDefault();
