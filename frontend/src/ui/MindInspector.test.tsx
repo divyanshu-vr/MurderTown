@@ -66,6 +66,16 @@ describe("the Mind inspector", () => {
     view.rerender(<GameConsole events={upTo(later.seq)} connection="live" />);
     const now = screen.getByRole("complementary", { name: `Mind of ${writer}` });
     expect(section(now, "Notebook")).toHaveTextContent(later.payload.notebook);
+    const laterEntries = notes.filter((n) => n.payload.resident === writer && n.seq <= later.seq && n.payload.journal_entry);
+    expect(within(within(now).getByRole("list", { name: "Journal" })).getAllByRole("listitem")).toHaveLength(
+      laterEntries.length,
+    );
+    for (const changed of later.payload.suspicions) {
+      const changedRow = within(within(now).getByRole("list", { name: "Dossier" })).getByRole("listitem", {
+        name: changed.resident,
+      });
+      expect(changedRow).toHaveTextContent(`${changed.suspicion}/100: ${changed.note}`);
+    }
   });
 
   it("keeps the previous notebook after a reflection that fell back to an empty one", () => {
@@ -105,9 +115,9 @@ describe("the Mind inspector", () => {
 
     const decisions = within(inspect(resident)).getByRole("list", { name: "Decisions" });
 
-    const marked = within(decisions).getAllByText(/^Fell back to a safe default: /);
+    const marked = within(decisions).getAllByText(/^fell back to a safe default: /i);
     expect(marked.map((mark) => mark.textContent)).toEqual(
-      reasons.map((reason) => `Fell back to a safe default: ${reason.reason}`),
+      reasons.map((reason) => `fell back to a safe default: ${reason.reason}`),
     );
   });
 
@@ -216,6 +226,6 @@ describe("the why? drawer", () => {
     const drawer = await within(item).findByRole("region", { name: "Why?" });
 
     expect(drawer).toHaveTextContent("A scripted bot made this decision, so no model was asked.");
-    expect(drawer).toHaveTextContent("Fell back to a safe default: lost the thread");
+    expect(drawer).toHaveTextContent(/fell back to a safe default: lost the thread/i);
   });
 });

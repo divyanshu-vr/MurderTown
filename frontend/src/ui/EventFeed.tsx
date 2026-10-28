@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 
 import type { Event } from "../protocol";
-import { describeEvent } from "./describeEvent";
+import { describeEvent, inFeed } from "./describeEvent";
 
 const toneByKind: Partial<Record<Event["payload"]["type"], string>> = {
   phase_started: "mt-4 font-semibold text-amber-200",
@@ -44,16 +44,11 @@ export function EventFeed({ events }: { events: readonly Event[] }) {
       className="min-h-0 overflow-y-auto px-6 py-4"
     >
       <ol className="space-y-1">
-        {events.map((event) => {
-          const line = describeEvent(event);
-          return (
-            line && (
-              <li key={event.seq} data-kind={event.payload.type} className={toneByKind[event.payload.type]}>
-                {line}
-              </li>
-            )
-          );
-        })}
+        {events.filter(inFeed).map((event) => (
+          <li key={event.seq} data-kind={event.payload.type} className={toneByKind[event.payload.type]}>
+            {describeEvent(event)}
+          </li>
+        ))}
       </ol>
     </div>
   );

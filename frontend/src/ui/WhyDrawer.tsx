@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { Explain } from "../net/explain";
 import type { Explanation, ModelCall } from "../protocol";
 import { describeEvent } from "./describeEvent";
+import { FallbackNote } from "./FallbackNote";
 import { attemptLabel } from "./labels";
 
 type Asked =
@@ -54,7 +55,7 @@ function ExplanationView({ explanation }: { explanation: Explanation }) {
   return (
     <div className="space-y-3">
       <p className="text-stone-300">{describeEvent(event)}</p>
-      {fallbackReason && <p className="text-amber-300">Fell back to a safe default: {fallbackReason}</p>}
+      {fallbackReason && <FallbackNote reason={fallbackReason} />}
       {attempts.length === 0 ? (
         <p className="text-stone-400">A scripted bot made this decision, so no model was asked.</p>
       ) : (

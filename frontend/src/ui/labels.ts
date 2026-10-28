@@ -58,3 +58,8 @@ export const attemptLabel: Record<ModelCall["outcome"], string> = {
   timeout: "no answer in time",
   error: "the call failed",
 };
+
+/** When something happened, as the Mind inspector dates journal entries and decisions. */
+export function whenLabel(day: number, phase: Phase): string {
+  return `Day ${day}, ${phaseLabel[phase]}`;
+}

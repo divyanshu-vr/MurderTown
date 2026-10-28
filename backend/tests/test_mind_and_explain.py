@@ -13,7 +13,7 @@ from fastapi.testclient import TestClient
 from mm.agents import AgentSettings, BrainFactory, CallRecorder, llm_agents
 from mm.api import Settings, create_app
 from mm.engine import GameConfig
-from mm.engine.decisions import DecisionKind
+from mm.engine.decisions import DecisionKind, Suspicion
 from mm.engine.events import (
     BallotCast,
     Event,
@@ -183,3 +183,32 @@ def test_each_game_explains_its_decisions_with_its_own_model_calls(
             explained = agents_client.get(f"/games/{game_id}/events/{event.seq}/explain").json()
             assert explained["attempts"]
             assert {attempt["resident"] for attempt in explained["attempts"]} <= residents
+
+
+def changed_suspicion(events: list[Event]) -> tuple[int, str, Suspicion, Suspicion]:
+    """A reflection that changes a suspicion its writer recorded earlier.
+
+    Returns its sequence number, its writer, and the suspicion before and after.
+    """
+    latest: dict[tuple[str, str], Suspicion] = {}
+    for event in events:
+        if isinstance(notes := event.payload, ReflectionWritten):
+            for suspicion in notes.suspicions:
+                about = (notes.resident, suspicion.resident)
+                if about in latest and latest[about] != suspicion:
+                    return event.seq, notes.resident, latest[about], suspicion
+                latest[about] = suspicion
+    raise AssertionError("no Resident changed a suspicion")
+
+
+def test_a_minds_dossier_holds_the_latest_suspicion_about_each_resident(client: TestClient) -> None:
+    game_id, events = finished_game(client)
+    seq, writer, old, new = changed_suspicion(events)
+    url = f"/games/{game_id}/residents/{writer}/mind"
+
+    before = client.get(url, params={"at": seq - 1}).json()["memory"]["dossier"]
+    after = client.get(url, params={"at": seq}).json()["memory"]["dossier"]
+
+    assert old.model_dump() in before
+    assert new.model_dump() in after
+    assert old.model_dump() not in after

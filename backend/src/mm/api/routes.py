@@ -12,7 +12,7 @@ from mm.agents import ModelCall
 from mm.agents.memory import Mind, mind_of
 from mm.api.live_games import LiveGames
 from mm.engine import GameConfig, Side
-from mm.engine.events import DecisionFellBack, Event, GameEnded
+from mm.engine.events import Event, GameEnded
 from mm.persistence import Bus, GameStatus, GameStore
 
 router = APIRouter()
@@ -137,12 +137,10 @@ async def explain(game_id: str, seq: int, services: ServicesDep) -> Explanation:
     event = await store.event(game_id, seq)
     if event is None or event.decision_id is None:
         raise HTTPException(status_code=404, detail=f"Event {seq} was not caused by a decision")
-    caused = await store.caused_by(game_id, event.decision_id)
-    fallbacks = [e.payload.reason for e in caused if isinstance(e.payload, DecisionFellBack)]
     return Explanation(
         event=event,
         attempts=await store.calls(game_id, event.decision_id),
-        fallback_reason=fallbacks[0] if fallbacks else None,
+        fallback_reason=await store.fallback_reason(game_id, event.decision_id),
     )
 
 

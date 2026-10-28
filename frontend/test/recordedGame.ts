@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import type { Event, PayloadOf } from "../src/protocol";
+import type { Event, Mind, PayloadOf } from "../src/protocol";
 
 /** The scripted game the backend records with `mm play --seed 7 --out ../fixtures/scripted-game.ndjson`. */
 export function recordedGame(): Event[] {
@@ -20,4 +20,10 @@ export function payloadsOf<T extends Event["payload"]["type"]>(events: readonly 
 
 export function eventsOf<T extends Event["payload"]["type"]>(events: readonly Event[], type: T) {
   return events.filter((event): event is Event & { payload: PayloadOf<T> } => event.payload.type === type);
+}
+
+/** The server's mind of each Resident right after each of their reflections (`mm minds`). */
+export function recordedMinds(): { seq: number; mind: Omit<Mind, "perceived"> }[] {
+  const file = resolve(process.cwd(), "../fixtures/scripted-game.minds.json");
+  return JSON.parse(readFileSync(file, "utf-8")) as { seq: number; mind: Omit<Mind, "perceived"> }[];
 }

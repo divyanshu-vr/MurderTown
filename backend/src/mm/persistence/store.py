@@ -97,12 +97,16 @@ class GameStore:
         found = await self._events(query)
         return found[0] if found else None
 
-    async def caused_by(self, game_id: str, decision_id: str) -> list[Event]:
-        """Every event one decision caused, oldest first."""
-        query = select(EventRow).where(
-            EventRow.game_id == game_id, EventRow.decision_id == decision_id
+    async def fallback_reason(self, game_id: str, decision_id: str) -> str | None:
+        """Why a decision fell back to a safe default, or None if it did not."""
+        query = select(EventRow.payload).where(
+            EventRow.game_id == game_id,
+            EventRow.decision_id == decision_id,
+            EventRow.type == "decision_fell_back",
         )
-        return await self._events(query.order_by(EventRow.seq))
+        async with self._sessions() as session:
+            fell_back = await session.scalar(query)
+        return str(fell_back["reason"]) if fell_back else None
 
     async def record_call(self, game_id: str, call: ModelCall) -> None:
         async with self._sessions.begin() as session:

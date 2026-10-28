@@ -6,7 +6,7 @@ scrubbed of anything from outside the game world, can be shown to everyone.
 
 import re
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 from pydantic import Field, ValidationError
 
@@ -86,21 +86,24 @@ def read_answer(
         return problem
     if isinstance(decision, StatementAnswer) and decision.my_role is not own_role:
         return f"your true role is {own_role.capitalize()}, not {decision.my_role.capitalize()}"
-    return scrub(decision)
-
-
-def scrub(decision: Decision) -> Decision:
     return type(decision).model_validate(scrubbed(decision.model_dump()))
 
 
-def scrubbed(value: Any) -> Any:
-    """Text, or JSON-like data, with anything from outside the game world hidden."""
+def scrubbed[T](value: T) -> T:
+    """Text, or JSON-like data, with anything from outside the game world hidden.
+
+    The value keeps its shape, so a string stays a string and a dict a dict.
+    """
+    return cast(T, _scrubbed(value))
+
+
+def _scrubbed(value: Any) -> Any:
     if isinstance(value, str):
         return OUTSIDE_WORLD.sub("[hidden]", value)
     if isinstance(value, dict):
-        return {key: scrubbed(item) for key, item in value.items()}
+        return {key: _scrubbed(item) for key, item in value.items()}
     if isinstance(value, list):
-        return [scrubbed(item) for item in value]
+        return [_scrubbed(item) for item in value]
     return value
 
 

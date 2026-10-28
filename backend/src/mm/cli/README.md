@@ -5,7 +5,7 @@ Owns the terminal entry points. Run `uv run mm --help` for the commands and opti
 **May import:** every layer.
 
 **Entry points**
-- `__init__.py`: the commands. `play` runs a game with scripted bots or, with `--brains claude`, LLM Agents on the Host's subscription, printing the transcript as it happens and saving events and model calls as NDJSON with `--out`; `serve` runs the API; `new-game` starts a game on a running API; `schema` exports the protocol.
+- `__init__.py`: the commands. `play` runs a game with scripted bots or, with `--brains claude`, LLM Agents on the Host's subscription, printing the transcript as it happens and saving events and model calls as NDJSON with `--out`; `serve` runs the API; `new-game` starts a game on a running API; `schema` exports the protocol; `minds` writes the server's mind of each Resident after each reflection in the recorded fixture, which the console's tests check its own fold against.
 - `recording.py`: NDJSON files written as records happen, and the tally of model calls printed at the end.
 - `transcript.py`: `describe(event)`, one readable line per event.
 

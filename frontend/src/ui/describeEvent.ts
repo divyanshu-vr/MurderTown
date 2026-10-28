@@ -1,20 +1,20 @@
-/** One line of the town feed for each event, or null for events the feed does not show. */
+/** One line for each event, in the words the feed and the Mind inspector use. */
 import type { Event } from "../protocol";
 import { deathLabel, decisionLabel, phaseLabel, roleLabel, victoryLabel } from "./labels";
 
-export function describeEvent(event: Event): string | null {
+export function describeEvent(event: Event): string {
   const payload = event.payload;
   switch (payload.type) {
     case "game_started":
       return `${payload.residents.length} Residents move into town.`;
     case "role_assigned":
-      return null; // roles live in the roster
+      return `${payload.resident} is secretly a ${roleLabel[payload.role]}.`;
     case "phase_started":
       return `Day ${payload.day}: ${phaseLabel[payload.phase]}`;
     case "bid_placed":
-      return payload.urgency > 0 // a bid of 0 only means listening, so the feed leaves it out
+      return payload.urgency > 0
         ? `${payload.resident} bids ${payload.urgency} to speak next: ${payload.reason}`
-        : null;
+        : `${payload.resident} bids 0 and listens: ${payload.reason}`;
     case "statement_made":
       return `${payload.speaker}: "${payload.text}"`;
     case "sheriff_fired":
@@ -32,10 +32,28 @@ export function describeEvent(event: Event): string | null {
     case "resident_died":
       return `${payload.resident} ${deathLabel[payload.cause]}. They were a ${roleLabel[payload.role]}.`;
     case "reflection_written":
-      return null; // private notes belong in the Mind inspector, not the town feed
+      return `${payload.resident} writes a reflection.`;
     case "decision_fell_back":
-      return `${payload.resident}'s ${decisionLabel[payload.kind]} used a safe default: ${payload.reason}`;
+      return `${payload.resident}'s ${decisionLabel[payload.kind]} ${fellBack(payload.reason)}`;
     case "game_ended":
       return `${victoryLabel[payload.winner]}. ${payload.reason}`;
   }
+}
+
+/**
+ * Whether the town feed shows an event. It leaves out role assignments (the roster
+ * shows roles), private reflections (the Mind inspector shows them) and bids to listen.
+ */
+export function inFeed(event: Event): boolean {
+  const payload = event.payload;
+  return !(
+    payload.type === "role_assigned" ||
+    payload.type === "reflection_written" ||
+    (payload.type === "bid_placed" && payload.urgency === 0)
+  );
+}
+
+/** How every view words a Fallback. */
+export function fellBack(reason: string): string {
+  return `fell back to a safe default: ${reason}`;
 }

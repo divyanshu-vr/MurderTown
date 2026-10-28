@@ -8,6 +8,7 @@
  * entries are skipped, and the latest suspicion about each Resident wins.
  */
 import type { Event, JournalEntry, Mind, Payload, PayloadOf, Suspicion } from "../protocol";
+import type { ResidentView } from "./gameView";
 
 /** One decision the Resident made: the event it caused, and why it fell back, if it did. */
 export interface DecisionView {
@@ -57,10 +58,29 @@ export function mindOf(events: readonly Event[], resident: string): MindView | n
     memory: {
       notebook,
       journal,
-      dossier: [...dossier.values()].sort((a, b) => a.resident.localeCompare(b.resident)),
+      dossier: [...dossier.values()].sort(byName),
     },
     decisions: [...decisions.values()],
   };
+}
+
+/** Sorts by name in code-point order, as the backend does, so both folds give the same list. */
+function byName(a: Suspicion, b: Suspicion): number {
+  return a.resident < b.resident ? -1 : a.resident > b.resident ? 1 : 0;
+}
+
+/** One row of the Dossier as the inspector shows it: every other Resident, rated or not. */
+export interface DossierRow {
+  name: string;
+  dead: boolean;
+  suspicion: Suspicion | null;
+}
+
+export function dossierRows(mind: MindView, residents: readonly ResidentView[]): DossierRow[] {
+  const latest = new Map(mind.memory.dossier.map((suspicion) => [suspicion.resident, suspicion]));
+  return residents
+    .filter((resident) => resident.name !== mind.resident)
+    .map(({ name, fate }) => ({ name, dead: fate !== null, suspicion: latest.get(name) ?? null }));
 }
 
 /** The Resident whose decision an event records, or null for events no Resident decided. */

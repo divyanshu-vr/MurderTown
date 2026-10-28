@@ -1,11 +1,11 @@
 import { useState } from "react";
 
 import type { ResidentView } from "../core/gameView";
-import type { DecisionView, MindView } from "../core/mind";
+import { type DecisionView, type DossierRow, dossierRows, type MindView } from "../core/mind";
 import type { Explain } from "../net/explain";
-import type { Event } from "../protocol";
 import { describeEvent } from "./describeEvent";
-import { phaseLabel, roleLabel } from "./labels";
+import { FallbackNote } from "./FallbackNote";
+import { roleLabel, whenLabel } from "./labels";
 import { WhyDrawer } from "./WhyDrawer";
 
 /**
@@ -64,10 +64,7 @@ export function MindInspector({
           <ol aria-label="Journal" className="space-y-1 text-sm">
             {memory.journal.map((entry, index) => (
               <li key={index}>
-                <span className="text-stone-500">
-                  Day {entry.day}, {phaseLabel[entry.phase]}:
-                </span>{" "}
-                {entry.text}
+                <span className="text-stone-500">{whenLabel(entry.day, entry.phase)}:</span> {entry.text}
               </li>
             ))}
           </ol>
@@ -75,7 +72,7 @@ export function MindInspector({
       </Section>
 
       <Section title="Dossier">
-        <Dossier mind={mind} residents={residents} />
+        <Dossier rows={dossierRows(mind, residents)} />
       </Section>
 
       <Section title="Decisions">
@@ -95,35 +92,29 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 /** A row for every other Resident: the latest suspicion and note, or no opinion yet. */
-function Dossier({ mind, residents }: { mind: MindView; residents: readonly ResidentView[] }) {
-  const opinions = new Map(mind.memory.dossier.map((suspicion) => [suspicion.resident, suspicion]));
+function Dossier({ rows }: { rows: readonly DossierRow[] }) {
   return (
     <ul aria-label="Dossier" className="space-y-2 text-sm">
-      {residents
-        .filter((resident) => resident.name !== mind.resident)
-        .map(({ name, fate }) => {
-          const opinion = opinions.get(name);
-          return (
-            <li key={name} aria-label={name} className={fate ? "text-stone-500" : ""}>
-              <div className="flex items-baseline justify-between gap-2">
-                <span>
-                  {name}
-                  {fate && " (dead)"}
-                </span>
-                {opinion ? (
-                  <meter min={0} max={100} value={opinion.suspicion} className="w-24" aria-label={`Suspicion of ${name}`} />
-                ) : (
-                  <span className="text-stone-500">no opinion yet</span>
-                )}
-              </div>
-              {opinion && (
-                <p className="text-stone-400">
-                  {opinion.suspicion}/100: {opinion.note}
-                </p>
-              )}
-            </li>
-          );
-        })}
+      {rows.map(({ name, dead, suspicion }) => (
+        <li key={name} aria-label={name} className={dead ? "text-stone-500" : ""}>
+          <div className="flex items-baseline justify-between gap-2">
+            <span>
+              {name}
+              {dead && " (dead)"}
+            </span>
+            {suspicion ? (
+              <meter min={0} max={100} value={suspicion.suspicion} className="w-24" aria-label={`Suspicion of ${name}`} />
+            ) : (
+              <span className="text-stone-500">no opinion yet</span>
+            )}
+          </div>
+          {suspicion && (
+            <p className="text-stone-400">
+              {suspicion.suspicion}/100: {suspicion.note}
+            </p>
+          )}
+        </li>
+      ))}
     </ul>
   );
 }
@@ -137,10 +128,7 @@ function Decisions({ decisions, explain }: { decisions: readonly DecisionView[];
         <li key={event.seq} aria-label={`Decision at event ${event.seq}`}>
           <div className="flex items-baseline justify-between gap-2">
             <span>
-              <span className="text-stone-500">
-                Day {event.day}, {phaseLabel[event.phase]}:
-              </span>{" "}
-              {decisionLine(event)}
+              <span className="text-stone-500">{whenLabel(event.day, event.phase)}:</span> {describeEvent(event)}
             </span>
             {explain && (
               <button type="button" onClick={() => setAsking(event.seq)} className="text-amber-300 hover:underline">
@@ -148,7 +136,7 @@ function Decisions({ decisions, explain }: { decisions: readonly DecisionView[];
               </button>
             )}
           </div>
-          {fallbackReason && <p className="text-amber-300">Fell back to a safe default: {fallbackReason}</p>}
+          {fallbackReason && <FallbackNote reason={fallbackReason} />}
           {explain && asking === event.seq && (
             <WhyDrawer key={event.seq} seq={event.seq} explain={explain} onClose={() => setAsking(null)} />
           )}
@@ -156,11 +144,4 @@ function Decisions({ decisions, explain }: { decisions: readonly DecisionView[];
       ))}
     </ol>
   );
-}
-
-/** The feed's line for a decision; the feed leaves out quiet bids and private reflections, so these get their own. */
-function decisionLine(event: Event): string {
-  const line = describeEvent(event);
-  if (line) return line;
-  return event.payload.type === "reflection_written" ? "Writes a reflection." : "Bids 0 and listens.";
 }

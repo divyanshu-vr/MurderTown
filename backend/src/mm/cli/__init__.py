@@ -11,11 +11,12 @@ import typer
 import uvicorn
 
 from mm.agents import AgentSettings, BrainFactory, ModelCall, llm_agents, scripted_bots
+from mm.agents.memory import mind_of
 from mm.api.protocol import protocol_schema
 from mm.cli.recording import CallTally, NdjsonFile
 from mm.cli.transcript import describe
 from mm.engine import GameConfig
-from mm.engine.events import DecisionFellBack, Event
+from mm.engine.events import DecisionFellBack, Event, ReflectionWritten
 from mm.llm import Effort
 from mm.llm.claude_agent_sdk import ClaudeAgentSDKProvider, SubscriptionError
 from mm.orchestrator import EventObserver, play_game
@@ -153,6 +154,28 @@ def new_game(
     with urllib.request.urlopen(request) as response:
         game_id = json.load(response)["id"]
     typer.echo(f"Game {game_id} started. Watch it at {web}/games/{game_id}")
+
+
+@app.command()
+def minds(
+    events: Path = Path("../fixtures/scripted-game.ndjson"),
+    out: Path = Path("../fixtures/scripted-game.minds.json"),
+) -> None:
+    """Write each Resident's mind right after each reflection they wrote, as the server builds it.
+
+    The console folds minds itself, so replays need no backend. This file lets the
+    console's tests check that its fold agrees with the server's at every change.
+    """
+    log = [Event.model_validate_json(line) for line in events.read_text("utf-8").splitlines()]
+    minds = []
+    for event in log:
+        if isinstance(event.payload, ReflectionWritten):
+            mind = mind_of(log[: event.seq], event.payload.resident)
+            assert mind is not None, "a Resident who reflects has a role"
+            folded = mind.model_dump(mode="json", exclude={"perceived"})
+            minds.append({"seq": event.seq, "mind": folded})
+    out.write_text(json.dumps(minds, indent=1) + "\n", encoding="utf-8", newline="\n")
+    typer.echo(f"Saved {len(minds)} minds to {out}")
 
 
 @app.command()

@@ -1,0 +1,4775 @@
+[
+ {
+  "seq": 151,
+  "mind": {
+   "resident": "Elsie",
+   "role": "doctor",
+   "persona": {
+    "occupation": "baker",
+    "temperament": "warm, chatty and a little nosy",
+    "speaking_style": "homely, with kitchen metaphors",
+    "quirk": "judges people by how they take their bread"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 1: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 152,
+  "mind": {
+   "resident": "Milo",
+   "role": "civilian",
+   "persona": {
+    "occupation": "blacksmith",
+    "temperament": "blunt and stubborn",
+    "speaking_style": "short sentences, no hedging",
+    "quirk": "distrusts anyone with soft hands"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 1: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 153,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 1: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 154,
+  "mind": {
+   "resident": "Cora",
+   "role": "murderer",
+   "persona": {
+    "occupation": "mayor",
+    "temperament": "pompous and eager to lead",
+    "speaking_style": "speeches and appeals to order",
+    "quirk": "proposes a motion for everything"
+   },
+   "teammates": [
+    "Luna"
+   ],
+   "memory": {
+    "notebook": "As of Day 1: I doubt Dax.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 64,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 155,
+  "mind": {
+   "resident": "Rosa",
+   "role": "civilian",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 1: I doubt Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Silas",
+      "suspicion": 69,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 156,
+  "mind": {
+   "resident": "Dax",
+   "role": "civilian",
+   "persona": {
+    "occupation": "carpenter",
+    "temperament": "cheerful and steady",
+    "speaking_style": "builds arguments like furniture, step by step",
+    "quirk": "knocks on wood after every accusation"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 1: I doubt Zane.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Zane",
+      "suspicion": 76,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 157,
+  "mind": {
+   "resident": "Luna",
+   "role": "murderer",
+   "persona": {
+    "occupation": "postmistress",
+    "temperament": "brisk and gossipy",
+    "speaking_style": "rapid-fire, full of names",
+    "quirk": "knows who writes letters to whom"
+   },
+   "teammates": [
+    "Cora"
+   ],
+   "memory": {
+    "notebook": "",
+    "journal": [],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 159,
+  "mind": {
+   "resident": "Silas",
+   "role": "civilian",
+   "persona": {
+    "occupation": "painter",
+    "temperament": "dreamy and intuitive",
+    "speaking_style": "vivid impressions rather than facts",
+    "quirk": "trusts first impressions above all evidence"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 1: I doubt Cora.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 86,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 160,
+  "mind": {
+   "resident": "Zane",
+   "role": "civilian",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 1: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 161,
+  "mind": {
+   "resident": "Quinn",
+   "role": "detective",
+   "persona": {
+    "occupation": "librarian",
+    "temperament": "quiet and observant",
+    "speaking_style": "soft-spoken, notices small details",
+    "quirk": "quotes old books nobody else has read"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 1: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 279,
+  "mind": {
+   "resident": "Elsie",
+   "role": "doctor",
+   "persona": {
+    "occupation": "baker",
+    "temperament": "warm, chatty and a little nosy",
+    "speaking_style": "homely, with kitchen metaphors",
+    "quirk": "judges people by how they take their bread"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 280,
+  "mind": {
+   "resident": "Milo",
+   "role": "civilian",
+   "persona": {
+    "occupation": "blacksmith",
+    "temperament": "blunt and stubborn",
+    "speaking_style": "short sentences, no hedging",
+    "quirk": "distrusts anyone with soft hands"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 1: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 282,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Zane, Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Silas",
+      "suspicion": 78,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 86,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 283,
+  "mind": {
+   "resident": "Cora",
+   "role": "murderer",
+   "persona": {
+    "occupation": "mayor",
+    "temperament": "pompous and eager to lead",
+    "speaking_style": "speeches and appeals to order",
+    "quirk": "proposes a motion for everything"
+   },
+   "teammates": [
+    "Luna"
+   ],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Dax.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 72,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 284,
+  "mind": {
+   "resident": "Rosa",
+   "role": "civilian",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Silas",
+      "suspicion": 74,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 285,
+  "mind": {
+   "resident": "Dax",
+   "role": "civilian",
+   "persona": {
+    "occupation": "carpenter",
+    "temperament": "cheerful and steady",
+    "speaking_style": "builds arguments like furniture, step by step",
+    "quirk": "knocks on wood after every accusation"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Zane.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Zane",
+      "suspicion": 75,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 286,
+  "mind": {
+   "resident": "Luna",
+   "role": "murderer",
+   "persona": {
+    "occupation": "postmistress",
+    "temperament": "brisk and gossipy",
+    "speaking_style": "rapid-fire, full of names",
+    "quirk": "knows who writes letters to whom"
+   },
+   "teammates": [
+    "Cora"
+   ],
+   "memory": {
+    "notebook": "As of Day 2: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 287,
+  "mind": {
+   "resident": "Silas",
+   "role": "civilian",
+   "persona": {
+    "occupation": "painter",
+    "temperament": "dreamy and intuitive",
+    "speaking_style": "vivid impressions rather than facts",
+    "quirk": "trusts first impressions above all evidence"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Cora, Zane.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 78,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 79,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 288,
+  "mind": {
+   "resident": "Zane",
+   "role": "civilian",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: I doubt Umar, Milo, Quinn.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Quinn."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Milo",
+      "suspicion": 72,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Quinn",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 289,
+  "mind": {
+   "resident": "Quinn",
+   "role": "detective",
+   "persona": {
+    "occupation": "librarian",
+    "temperament": "quiet and observant",
+    "speaking_style": "soft-spoken, notices small details",
+    "quirk": "quotes old books nobody else has read"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 406,
+  "mind": {
+   "resident": "Elsie",
+   "role": "doctor",
+   "persona": {
+    "occupation": "baker",
+    "temperament": "warm, chatty and a little nosy",
+    "speaking_style": "homely, with kitchen metaphors",
+    "quirk": "judges people by how they take their bread"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 2: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 408,
+  "mind": {
+   "resident": "Milo",
+   "role": "civilian",
+   "persona": {
+    "occupation": "blacksmith",
+    "temperament": "blunt and stubborn",
+    "speaking_style": "short sentences, no hedging",
+    "quirk": "distrusts anyone with soft hands"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 1: Watch who votes with whom.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     }
+    ],
+    "dossier": []
+   }
+  }
+ },
+ {
+  "seq": 410,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Zane, Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Silas",
+      "suspicion": 86,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 73,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 411,
+  "mind": {
+   "resident": "Cora",
+   "role": "murderer",
+   "persona": {
+    "occupation": "mayor",
+    "temperament": "pompous and eager to lead",
+    "speaking_style": "speeches and appeals to order",
+    "quirk": "proposes a motion for everything"
+   },
+   "teammates": [
+    "Luna"
+   ],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Dax, Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 62,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 74,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 412,
+  "mind": {
+   "resident": "Rosa",
+   "role": "civilian",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Silas",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 413,
+  "mind": {
+   "resident": "Dax",
+   "role": "civilian",
+   "persona": {
+    "occupation": "carpenter",
+    "temperament": "cheerful and steady",
+    "speaking_style": "builds arguments like furniture, step by step",
+    "quirk": "knocks on wood after every accusation"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Zane, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 60,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 76,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 414,
+  "mind": {
+   "resident": "Luna",
+   "role": "murderer",
+   "persona": {
+    "occupation": "postmistress",
+    "temperament": "brisk and gossipy",
+    "speaking_style": "rapid-fire, full of names",
+    "quirk": "knows who writes letters to whom"
+   },
+   "teammates": [
+    "Cora"
+   ],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Zane.",
+    "journal": [
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Zane",
+      "suspicion": 86,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 415,
+  "mind": {
+   "resident": "Silas",
+   "role": "civilian",
+   "persona": {
+    "occupation": "painter",
+    "temperament": "dreamy and intuitive",
+    "speaking_style": "vivid impressions rather than facts",
+    "quirk": "trusts first impressions above all evidence"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Cora, Zane, Milo, Luna.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 56,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 69,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 74,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 66,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 416,
+  "mind": {
+   "resident": "Zane",
+   "role": "civilian",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 3: I doubt Umar, Milo, Cora.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Quinn."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 60,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 61,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Quinn",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 85,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 525,
+  "mind": {
+   "resident": "Elsie",
+   "role": "doctor",
+   "persona": {
+    "occupation": "baker",
+    "temperament": "warm, chatty and a little nosy",
+    "speaking_style": "homely, with kitchen metaphors",
+    "quirk": "judges people by how they take their bread"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Silas, Luna.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Luna",
+      "suspicion": 64,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 87,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 526,
+  "mind": {
+   "resident": "Milo",
+   "role": "civilian",
+   "persona": {
+    "occupation": "blacksmith",
+    "temperament": "blunt and stubborn",
+    "speaking_style": "short sentences, no hedging",
+    "quirk": "distrusts anyone with soft hands"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Umar, Zane.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Umar",
+      "suspicion": 65,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 72,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 527,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Zane, Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Silas",
+      "suspicion": 89,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 528,
+  "mind": {
+   "resident": "Cora",
+   "role": "murderer",
+   "persona": {
+    "occupation": "mayor",
+    "temperament": "pompous and eager to lead",
+    "speaking_style": "speeches and appeals to order",
+    "quirk": "proposes a motion for everything"
+   },
+   "teammates": [
+    "Luna"
+   ],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Dax, Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 76,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 60,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 529,
+  "mind": {
+   "resident": "Rosa",
+   "role": "civilian",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Silas",
+      "suspicion": 56,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 530,
+  "mind": {
+   "resident": "Dax",
+   "role": "civilian",
+   "persona": {
+    "occupation": "carpenter",
+    "temperament": "cheerful and steady",
+    "speaking_style": "builds arguments like furniture, step by step",
+    "quirk": "knocks on wood after every accusation"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Zane, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 62,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 89,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 531,
+  "mind": {
+   "resident": "Luna",
+   "role": "murderer",
+   "persona": {
+    "occupation": "postmistress",
+    "temperament": "brisk and gossipy",
+    "speaking_style": "rapid-fire, full of names",
+    "quirk": "knows who writes letters to whom"
+   },
+   "teammates": [
+    "Cora"
+   ],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Zane, Dax, Silas.",
+    "journal": [
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 81,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 61,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 89,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 532,
+  "mind": {
+   "resident": "Silas",
+   "role": "civilian",
+   "persona": {
+    "occupation": "painter",
+    "temperament": "dreamy and intuitive",
+    "speaking_style": "vivid impressions rather than facts",
+    "quirk": "trusts first impressions above all evidence"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Cora, Zane, Milo, Luna.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 73,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 64,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 74,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 533,
+  "mind": {
+   "resident": "Zane",
+   "role": "civilian",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 4: I doubt Umar, Milo, Cora.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Quinn."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 80,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Quinn",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 642,
+  "mind": {
+   "resident": "Elsie",
+   "role": "doctor",
+   "persona": {
+    "occupation": "baker",
+    "temperament": "warm, chatty and a little nosy",
+    "speaking_style": "homely, with kitchen metaphors",
+    "quirk": "judges people by how they take their bread"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Silas, Luna.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Luna",
+      "suspicion": 69,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 69,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 643,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Zane, Silas, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 77,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 78,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 72,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 57,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 644,
+  "mind": {
+   "resident": "Cora",
+   "role": "murderer",
+   "persona": {
+    "occupation": "mayor",
+    "temperament": "pompous and eager to lead",
+    "speaking_style": "speeches and appeals to order",
+    "quirk": "proposes a motion for everything"
+   },
+   "teammates": [
+    "Luna"
+   ],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Dax, Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 73,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 84,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 645,
+  "mind": {
+   "resident": "Rosa",
+   "role": "civilian",
+   "persona": {
+    "occupation": "fisherman",
+    "temperament": "laid-back but superstitious",
+    "speaking_style": "slow drawl, sea sayings",
+    "quirk": "reads omens in the weather"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Silas, Dax.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 57,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 72,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 646,
+  "mind": {
+   "resident": "Dax",
+   "role": "civilian",
+   "persona": {
+    "occupation": "carpenter",
+    "temperament": "cheerful and steady",
+    "speaking_style": "builds arguments like furniture, step by step",
+    "quirk": "knocks on wood after every accusation"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Zane, Elsie, Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 81,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 81,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 90,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 647,
+  "mind": {
+   "resident": "Luna",
+   "role": "murderer",
+   "persona": {
+    "occupation": "postmistress",
+    "temperament": "brisk and gossipy",
+    "speaking_style": "rapid-fire, full of names",
+    "quirk": "knows who writes letters to whom"
+   },
+   "teammates": [
+    "Cora"
+   ],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Zane, Dax, Silas, Rosa.",
+    "journal": [
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Rosa."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 69,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Rosa",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 76,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 61,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 648,
+  "mind": {
+   "resident": "Silas",
+   "role": "civilian",
+   "persona": {
+    "occupation": "painter",
+    "temperament": "dreamy and intuitive",
+    "speaking_style": "vivid impressions rather than facts",
+    "quirk": "trusts first impressions above all evidence"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Cora, Zane, Luna.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 80,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 81,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 649,
+  "mind": {
+   "resident": "Zane",
+   "role": "civilian",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 5: I doubt Umar, Cora.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Quinn."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 60,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Quinn",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 747,
+  "mind": {
+   "resident": "Elsie",
+   "role": "doctor",
+   "persona": {
+    "occupation": "baker",
+    "temperament": "warm, chatty and a little nosy",
+    "speaking_style": "homely, with kitchen metaphors",
+    "quirk": "judges people by how they take their bread"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Silas, Luna.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Luna",
+      "suspicion": 70,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 82,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 748,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Zane, Silas, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 57,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 78,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 77,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 749,
+  "mind": {
+   "resident": "Cora",
+   "role": "murderer",
+   "persona": {
+    "occupation": "mayor",
+    "temperament": "pompous and eager to lead",
+    "speaking_style": "speeches and appeals to order",
+    "quirk": "proposes a motion for everything"
+   },
+   "teammates": [
+    "Luna"
+   ],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Dax, Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 55,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 750,
+  "mind": {
+   "resident": "Dax",
+   "role": "civilian",
+   "persona": {
+    "occupation": "carpenter",
+    "temperament": "cheerful and steady",
+    "speaking_style": "builds arguments like furniture, step by step",
+    "quirk": "knocks on wood after every accusation"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Zane, Elsie, Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 73,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 751,
+  "mind": {
+   "resident": "Luna",
+   "role": "murderer",
+   "persona": {
+    "occupation": "postmistress",
+    "temperament": "brisk and gossipy",
+    "speaking_style": "rapid-fire, full of names",
+    "quirk": "knows who writes letters to whom"
+   },
+   "teammates": [
+    "Cora"
+   ],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Zane, Dax, Silas.",
+    "journal": [
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Rosa."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 71,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Rosa",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 82,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 752,
+  "mind": {
+   "resident": "Silas",
+   "role": "civilian",
+   "persona": {
+    "occupation": "painter",
+    "temperament": "dreamy and intuitive",
+    "speaking_style": "vivid impressions rather than facts",
+    "quirk": "trusts first impressions above all evidence"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Cora, Zane, Luna.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 55,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 84,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 80,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 753,
+  "mind": {
+   "resident": "Zane",
+   "role": "civilian",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Umar, Cora, Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Quinn."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Quinn",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 69,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 76,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 839,
+  "mind": {
+   "resident": "Elsie",
+   "role": "doctor",
+   "persona": {
+    "occupation": "baker",
+    "temperament": "warm, chatty and a little nosy",
+    "speaking_style": "homely, with kitchen metaphors",
+    "quirk": "judges people by how they take their bread"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 7: I doubt Silas, Luna.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Luna",
+      "suspicion": 55,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 87,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 840,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 6: I doubt Zane, Silas, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 57,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 78,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 77,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 842,
+  "mind": {
+   "resident": "Cora",
+   "role": "murderer",
+   "persona": {
+    "occupation": "mayor",
+    "temperament": "pompous and eager to lead",
+    "speaking_style": "speeches and appeals to order",
+    "quirk": "proposes a motion for everything"
+   },
+   "teammates": [
+    "Luna"
+   ],
+   "memory": {
+    "notebook": "As of Day 7: I doubt Dax, Silas, Luna.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 77,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 843,
+  "mind": {
+   "resident": "Dax",
+   "role": "civilian",
+   "persona": {
+    "occupation": "carpenter",
+    "temperament": "cheerful and steady",
+    "speaking_style": "builds arguments like furniture, step by step",
+    "quirk": "knocks on wood after every accusation"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 7: I doubt Zane, Elsie, Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 90,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 55,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 844,
+  "mind": {
+   "resident": "Luna",
+   "role": "murderer",
+   "persona": {
+    "occupation": "postmistress",
+    "temperament": "brisk and gossipy",
+    "speaking_style": "rapid-fire, full of names",
+    "quirk": "knows who writes letters to whom"
+   },
+   "teammates": [
+    "Cora"
+   ],
+   "memory": {
+    "notebook": "As of Day 7: I doubt Zane, Dax, Silas.",
+    "journal": [
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Rosa."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Rosa",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 73,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 87,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 845,
+  "mind": {
+   "resident": "Silas",
+   "role": "civilian",
+   "persona": {
+    "occupation": "painter",
+    "temperament": "dreamy and intuitive",
+    "speaking_style": "vivid impressions rather than facts",
+    "quirk": "trusts first impressions above all evidence"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 7: I doubt Cora, Zane, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Elsie",
+      "suspicion": 82,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 87,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 846,
+  "mind": {
+   "resident": "Zane",
+   "role": "civilian",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 7: I doubt Umar, Cora, Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Quinn."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 84,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Quinn",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 76,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 70,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 931,
+  "mind": {
+   "resident": "Elsie",
+   "role": "doctor",
+   "persona": {
+    "occupation": "baker",
+    "temperament": "warm, chatty and a little nosy",
+    "speaking_style": "homely, with kitchen metaphors",
+    "quirk": "judges people by how they take their bread"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 8: I doubt Silas, Luna, Cora.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 55,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 55,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 932,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 8: I doubt Zane, Silas, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 74,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 75,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 77,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 73,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 933,
+  "mind": {
+   "resident": "Cora",
+   "role": "murderer",
+   "persona": {
+    "occupation": "mayor",
+    "temperament": "pompous and eager to lead",
+    "speaking_style": "speeches and appeals to order",
+    "quirk": "proposes a motion for everything"
+   },
+   "teammates": [
+    "Luna"
+   ],
+   "memory": {
+    "notebook": "As of Day 8: I doubt Dax, Silas, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Elsie",
+      "suspicion": 64,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 84,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 62,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 934,
+  "mind": {
+   "resident": "Dax",
+   "role": "civilian",
+   "persona": {
+    "occupation": "carpenter",
+    "temperament": "cheerful and steady",
+    "speaking_style": "builds arguments like furniture, step by step",
+    "quirk": "knocks on wood after every accusation"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 8: I doubt Zane, Elsie, Umar.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 67,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 85,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 72,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 935,
+  "mind": {
+   "resident": "Luna",
+   "role": "murderer",
+   "persona": {
+    "occupation": "postmistress",
+    "temperament": "brisk and gossipy",
+    "speaking_style": "rapid-fire, full of names",
+    "quirk": "knows who writes letters to whom"
+   },
+   "teammates": [
+    "Cora"
+   ],
+   "memory": {
+    "notebook": "As of Day 8: I doubt Zane, Dax, Silas, Cora.",
+    "journal": [
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Rosa."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 87,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Dax",
+      "suspicion": 72,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Rosa",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 77,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 89,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 936,
+  "mind": {
+   "resident": "Silas",
+   "role": "civilian",
+   "persona": {
+    "occupation": "painter",
+    "temperament": "dreamy and intuitive",
+    "speaking_style": "vivid impressions rather than facts",
+    "quirk": "trusts first impressions above all evidence"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 8: I doubt Cora, Zane, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 64,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Elsie",
+      "suspicion": 70,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 66,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 55,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 937,
+  "mind": {
+   "resident": "Zane",
+   "role": "civilian",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 8: I doubt Umar, Cora, Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Quinn."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 57,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Quinn",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 61,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 66,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1023,
+  "mind": {
+   "resident": "Elsie",
+   "role": "doctor",
+   "persona": {
+    "occupation": "baker",
+    "temperament": "warm, chatty and a little nosy",
+    "speaking_style": "homely, with kitchen metaphors",
+    "quirk": "judges people by how they take their bread"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 9: I doubt Silas, Luna, Cora, Zane.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 89,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 75,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 60,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 86,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1024,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 9: I doubt Zane, Silas, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 86,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 89,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 87,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1025,
+  "mind": {
+   "resident": "Cora",
+   "role": "murderer",
+   "persona": {
+    "occupation": "mayor",
+    "temperament": "pompous and eager to lead",
+    "speaking_style": "speeches and appeals to order",
+    "quirk": "proposes a motion for everything"
+   },
+   "teammates": [
+    "Luna"
+   ],
+   "memory": {
+    "notebook": "As of Day 9: I doubt Dax, Silas, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 71,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Elsie",
+      "suspicion": 55,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 60,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 73,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1026,
+  "mind": {
+   "resident": "Dax",
+   "role": "civilian",
+   "persona": {
+    "occupation": "carpenter",
+    "temperament": "cheerful and steady",
+    "speaking_style": "builds arguments like furniture, step by step",
+    "quirk": "knocks on wood after every accusation"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 9: I doubt Zane, Elsie, Umar, Silas.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 73,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 57,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 70,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1027,
+  "mind": {
+   "resident": "Luna",
+   "role": "murderer",
+   "persona": {
+    "occupation": "postmistress",
+    "temperament": "brisk and gossipy",
+    "speaking_style": "rapid-fire, full of names",
+    "quirk": "knows who writes letters to whom"
+   },
+   "teammates": [
+    "Cora"
+   ],
+   "memory": {
+    "notebook": "As of Day 9: I doubt Zane, Dax, Silas, Cora.",
+    "journal": [
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Rosa."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 90,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Dax",
+      "suspicion": 90,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Rosa",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 69,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1028,
+  "mind": {
+   "resident": "Silas",
+   "role": "civilian",
+   "persona": {
+    "occupation": "painter",
+    "temperament": "dreamy and intuitive",
+    "speaking_style": "vivid impressions rather than facts",
+    "quirk": "trusts first impressions above all evidence"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 9: I doubt Cora, Zane, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 80,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Elsie",
+      "suspicion": 64,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 84,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 76,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1029,
+  "mind": {
+   "resident": "Zane",
+   "role": "civilian",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 9: I doubt Umar, Cora, Silas, Elsie, Dax.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Quinn."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 57,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Dax",
+      "suspicion": 70,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Elsie",
+      "suspicion": 74,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Quinn",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 78,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1116,
+  "mind": {
+   "resident": "Elsie",
+   "role": "doctor",
+   "persona": {
+    "occupation": "baker",
+    "temperament": "warm, chatty and a little nosy",
+    "speaking_style": "homely, with kitchen metaphors",
+    "quirk": "judges people by how they take their bread"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 10: I doubt Silas, Luna, Cora, Zane.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 10,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 86,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 69,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 82,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1117,
+  "mind": {
+   "resident": "Umar",
+   "role": "civilian",
+   "persona": {
+    "occupation": "retired sailor",
+    "temperament": "cynical and sharp-witted",
+    "speaking_style": "dry humour and old war stories",
+    "quirk": "has a nickname for everyone"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 10: I doubt Zane, Silas, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 10,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Elsie",
+      "suspicion": 79,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 70,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 82,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 69,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1118,
+  "mind": {
+   "resident": "Cora",
+   "role": "murderer",
+   "persona": {
+    "occupation": "mayor",
+    "temperament": "pompous and eager to lead",
+    "speaking_style": "speeches and appeals to order",
+    "quirk": "proposes a motion for everything"
+   },
+   "teammates": [
+    "Luna"
+   ],
+   "memory": {
+    "notebook": "As of Day 10: I doubt Dax, Silas, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 10,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Dax",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Elsie",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 73,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 65,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1119,
+  "mind": {
+   "resident": "Dax",
+   "role": "civilian",
+   "persona": {
+    "occupation": "carpenter",
+    "temperament": "cheerful and steady",
+    "speaking_style": "builds arguments like furniture, step by step",
+    "quirk": "knocks on wood after every accusation"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 10: I doubt Zane, Elsie, Umar, Silas, Cora.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Umar."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 10,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 68,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Elsie",
+      "suspicion": 77,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 88,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 79,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 84,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1120,
+  "mind": {
+   "resident": "Luna",
+   "role": "murderer",
+   "persona": {
+    "occupation": "postmistress",
+    "temperament": "brisk and gossipy",
+    "speaking_style": "rapid-fire, full of names",
+    "quirk": "knows who writes letters to whom"
+   },
+   "teammates": [
+    "Cora"
+   ],
+   "memory": {
+    "notebook": "As of Day 10: I doubt Zane, Dax, Silas, Cora.",
+    "journal": [
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Rosa."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 10,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 71,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Dax",
+      "suspicion": 64,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Rosa",
+      "suspicion": 83,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 85,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 85,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1121,
+  "mind": {
+   "resident": "Silas",
+   "role": "civilian",
+   "persona": {
+    "occupation": "painter",
+    "temperament": "dreamy and intuitive",
+    "speaking_style": "vivid impressions rather than facts",
+    "quirk": "trusts first impressions above all evidence"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 10: I doubt Cora, Zane, Luna, Elsie.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Zane."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Luna."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     },
+     {
+      "day": 10,
+      "phase": "vote",
+      "text": "Still wary of Elsie."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 71,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Elsie",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Luna",
+      "suspicion": 89,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Zane",
+      "suspicion": 58,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "seq": 1122,
+  "mind": {
+   "resident": "Zane",
+   "role": "civilian",
+   "persona": {
+    "occupation": "innkeeper",
+    "temperament": "sociable and shrewd",
+    "speaking_style": "friendly, remembers every rumour",
+    "quirk": "keeps a mental ledger of who owes whom"
+   },
+   "teammates": [],
+   "memory": {
+    "notebook": "As of Day 10: I doubt Umar, Cora, Silas, Elsie, Dax.",
+    "journal": [
+     {
+      "day": 1,
+      "phase": "vote",
+      "text": "Nothing certain yet."
+     },
+     {
+      "day": 2,
+      "phase": "vote",
+      "text": "Still wary of Quinn."
+     },
+     {
+      "day": 3,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 4,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 5,
+      "phase": "vote",
+      "text": "Still wary of Cora."
+     },
+     {
+      "day": 6,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 7,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 8,
+      "phase": "vote",
+      "text": "Still wary of Silas."
+     },
+     {
+      "day": 9,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     },
+     {
+      "day": 10,
+      "phase": "vote",
+      "text": "Still wary of Dax."
+     }
+    ],
+    "dossier": [
+     {
+      "resident": "Cora",
+      "suspicion": 55,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Dax",
+      "suspicion": 86,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Elsie",
+      "suspicion": 57,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Milo",
+      "suspicion": 63,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Quinn",
+      "suspicion": 59,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Silas",
+      "suspicion": 60,
+      "note": "I said I doubt them"
+     },
+     {
+      "resident": "Umar",
+      "suspicion": 80,
+      "note": "I said I doubt them"
+     }
+    ]
+   }
+  }
+ }
+]

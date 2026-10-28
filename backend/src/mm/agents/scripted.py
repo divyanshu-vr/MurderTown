@@ -97,7 +97,7 @@ class ScriptedBot:
         ]
         plan = f"I doubt {', '.join(doubted)}." if doubted else "Watch who votes with whom."
         return Reflection(
-            journal_entry=f"Day {day}: nothing certain yet.",
+            journal_entry=f"Still wary of {doubted[-1]}." if doubted else "Nothing certain yet.",
             notebook=f"As of Day {day}: {plan}",
             suspicions=suspicions,
         )
