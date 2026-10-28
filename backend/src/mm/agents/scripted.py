@@ -33,6 +33,7 @@ from mm.engine.decisions import (
     Suspicion,
     Target,
 )
+from mm.engine.dusk import PARTNERS_NAMED_AT_MOST
 from mm.engine.events import (
     AttackThwarted,
     DenMessagePosted,
@@ -56,6 +57,12 @@ QUIET_BIDS = (0, 0, 0, 1, 1, 2, 3)
 """Mostly listening, sometimes wanting a word."""
 
 SHERIFF_FIRES_ONE_DAY_IN = 5
+
+TALKS_AT_DUSK = 0.5
+"""How often a bot asks for a Conversation rather than wandering or doing a chore."""
+
+ENDS_ONE_MESSAGE_IN = 3
+"""How often a bot ends a Conversation with the message it is saying."""
 
 LAPSE_ONE_DECISION_IN = 40
 """How rarely a bot loses its train of thought and falls back to the safe default."""
@@ -105,13 +112,13 @@ class ScriptedBot:
     def _dusk_decision(self, request: DecisionRequest, view: Sequence[Event]) -> Decision:
         """Half the bots seek out one to three others; Conversations end at random."""
         if request.kind is DecisionKind.DUSK_INTENT:
-            if self.rng.random() < 0.5:
-                wanted = min(len(request.options), self.rng.randint(1, 3))
+            if self.rng.random() < TALKS_AT_DUSK:
+                wanted = min(len(request.options), self.rng.randint(1, PARTNERS_NAMED_AT_MOST))
                 partners = self.rng.sample(request.options, wanted)
                 return DuskIntent(activity="talk", partners=partners, topic="whom to trust")
             return DuskIntent(activity=self.rng.choice(["wander", "chore"]), partners=[], topic="")
         doubted = self._someone_else(GameState.fold(view), request.resident)
-        ending = self.rng.randrange(3) == 0
+        ending = self.rng.randrange(ENDS_ONE_MESSAGE_IN) == 0
         return ConversationMessage(text=f"I don't trust {doubted}.", end_conversation=ending)
 
     def _someone_else(self, known: GameState, me: str) -> str:

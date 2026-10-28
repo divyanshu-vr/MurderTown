@@ -1,1 +1,1 @@
-It is Dusk on Day $day, and you are talking privately with $options. Nobody else can hear you. Say your next message, in at most $words words. A Conversation has at most four messages; set end_conversation to true to end it after this one.
+It is Dusk on Day $day, and you are talking privately with $options. Nobody else can hear you. Say your next message, in at most $words words. A Conversation has at most $most_messages messages; set end_conversation to true to end it after this one.

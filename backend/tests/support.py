@@ -1,5 +1,6 @@
 """Helpers shared by the seam-1 tests: reading an event log the way a test needs to."""
 
+import asyncio
 import json
 import re
 from collections.abc import Callable, Mapping, Sequence
@@ -52,13 +53,13 @@ BidRule = Callable[[str, GameState], int]
 """How urgently a Resident bids, given their name and what they know."""
 
 StatementRule = Callable[[DecisionRequest, GameState], Statement]
+"""What a Resident says, given the request and what they know."""
 
 MessageRule = Callable[[DecisionRequest, GameState], ConversationMessage]
 """What a Resident says in a Conversation, given the request and what they know."""
 
 Talks = Mapping[int, Mapping[int, Sequence[int]]]
-"""Who wants to talk at Dusk, by Day: each talker's seat, then their partners' seats."""
-"""What a Resident says, given the request and what they know."""
+"""Who wants to talk at Dusk, by Day: each asker's seat, then their partners' seats."""
 
 
 def quiet(name: str, known: GameState) -> int:
@@ -86,7 +87,9 @@ class Puppet:
     investigations: Mapping[int, int] = field(default_factory=dict)
     """For the Detective: the seat to investigate on each Day's Night."""
     talks: Talks = field(default_factory=dict)
+    """Who asks whom for a Conversation at Dusk; everyone else wanders."""
     messages: MessageRule | None = None
+    """What Residents say in a Conversation, if not left to a scripted bot."""
 
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         known = GameState.fold(view)
@@ -156,6 +159,19 @@ class Asked:
 
     async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
         self.asked.append((request, list(view)))
+        return await self.inner.decide(request, view)
+
+
+class Delayed:
+    """A decision source that lets the event loop run `turns()` times before each answer,
+    so answers given at once can arrive in any order."""
+
+    def __init__(self, inner: Brain, turns: Callable[[], int]) -> None:
+        self.inner, self.turns = inner, turns
+
+    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
+        for _ in range(self.turns()):
+            await asyncio.sleep(0)
         return await self.inner.decide(request, view)
 
 

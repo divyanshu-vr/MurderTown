@@ -10,7 +10,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from mm.engine.config import GameConfig
-from mm.engine.decisions import DecisionKind, StatementPart, Suspicion
+from mm.engine.decisions import DecisionKind, DuskActivity, StatementPart, Suspicion
 from mm.engine.personas import Persona
 from mm.engine.phases import Phase
 from mm.engine.residents import Resident
@@ -245,7 +245,7 @@ class DuskIntentChosen(Payload):
 
     type: Literal["dusk_intent_chosen"] = "dusk_intent_chosen"
     resident: str
-    activity: Literal["talk", "wander", "chore"]
+    activity: DuskActivity
     partners: tuple[str, ...]
     topic: str
 
@@ -257,7 +257,7 @@ class ConversationStarted(Payload):
     """Two Residents slip away to talk. Everyone sees that they met, but not who asked whom."""
 
     type: Literal["conversation_started"] = "conversation_started"
-    pair: tuple[str, str]
+    residents: tuple[str, str]
     """The two Residents, in seat order."""
 
     def visibility(self) -> Visibility:

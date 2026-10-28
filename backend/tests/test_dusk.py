@@ -1,6 +1,5 @@
 """Seam 1: Dusk. Who talks to whom, in what order, and who hears what was said."""
 
-import asyncio
 from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -20,6 +19,7 @@ from mm.engine.state import GameState
 from mm.orchestrator import play_game
 from tests.support import (
     Asked,
+    Delayed,
     Puppet,
     Requests,
     name_at_seat,
@@ -38,7 +38,7 @@ def chatty(request: DecisionRequest, known: GameState) -> ConversationMessage:
 
 def seats_met(events: list[Event]) -> list[set[int]]:
     seats = seat_of(GameState.fold(events))
-    return [{seats[name] for name in p.pair} for p in payloads(events, ConversationStarted)]
+    return [{seats[name] for name in p.residents} for p in payloads(events, ConversationStarted)]
 
 
 async def test_a_resident_is_approached_for_at_most_two_conversations() -> None:
@@ -102,18 +102,6 @@ async def test_who_met_is_public_but_what_they_said_reaches_only_the_pair() -> N
                 assert set(event.visibility.residents) == {speaker, partner}
 
 
-class ReverseSeatOrder:
-    """Answers later the earlier its Resident's seat, so answers arrive out of order."""
-
-    def __init__(self, inner: Brain, seat: int) -> None:
-        self.inner, self.seat = inner, seat
-
-    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
-        for _ in range(10 - self.seat):
-            await asyncio.sleep(0)
-        return await self.inner.decide(request, view)
-
-
 async def test_conversations_held_at_once_log_the_same_however_fast_each_answers() -> None:
     def zero_ends_at_once(request: DecisionRequest, known: GameState) -> ConversationMessage:
         ending = seat_of(known)[request.resident] == 0
@@ -121,8 +109,8 @@ async def test_conversations_held_at_once_log_the_same_however_fast_each_answers
 
     scripted = puppets(talks={1: {0: [1], 2: [3]}}, messages=zero_ends_at_once)
 
-    def slow(resident: Resident) -> Brain:
-        return ReverseSeatOrder(scripted(resident), max(resident.seat, 0))
+    def slow(resident: Resident) -> Brain:  # the lower the seat, the later the answer
+        return Delayed(scripted(resident), lambda: 10 - max(resident.seat, 0))
 
     instant = await play_game(CONFIG, scripted)
     reversed_answers = await play_game(CONFIG, slow)

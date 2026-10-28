@@ -127,7 +127,7 @@
           "default": "conversation_started",
           "type": "string"
         },
-        "pair": {
+        "residents": {
           "maxItems": 2,
           "minItems": 2,
           "prefixItems": [
@@ -143,7 +143,7 @@
       },
       "required": [
         "type",
-        "pair"
+        "residents"
       ],
       "title": "ConversationStarted",
       "type": "object"

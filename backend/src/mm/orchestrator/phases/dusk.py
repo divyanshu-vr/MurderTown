@@ -1,23 +1,30 @@
 """Dusk: the town disperses. Residents wander, do chores, or meet in pairs to talk privately.
 
-Every living Resident says what they mean to do. The talkers are paired, and
-the pairs talk in waves of Conversations that run at once. Within a wave, each
+Every living Resident says what they mean to do. The askers are paired, and the
+pairs talk in waves of Conversations that run at once. Within a wave, each
 round asks the next speaker of every unfinished Conversation together. What
 they say is held back until the wave ends, then appended Conversation by
 Conversation, so the log is the same however fast anyone answers. Who met is
 public as soon as a wave begins; what they said reaches only the pair.
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from mm.engine import Phase
 from mm.engine.decisions import ConversationMessage, DecisionKind, DecisionRequest, DuskIntent
-from mm.engine.dusk import Pair, next_speaker, pair_up, settled, waves
+from mm.engine.dusk import Pair, as_seen, next_speaker, pair_up, partner_of, settled, waves
 from mm.engine.events import ConversationMessagePosted, ConversationStarted, DuskIntentChosen
 from mm.engine.rules import trimmed
 
 if TYPE_CHECKING:
     from mm.orchestrator.game import Decided, Game
+
+
+class Spoken(NamedTuple):
+    """A message said in a wave but not appended yet, with the decision that caused it."""
+
+    message: ConversationMessagePosted
+    cause: "Decided[ConversationMessage]"
 
 
 async def run_dusk(game: "Game") -> None:
@@ -46,43 +53,37 @@ async def run_dusk(game: "Game") -> None:
 async def _talk(game: "Game", wave: list[Pair]) -> None:
     """Run one wave of Conversations together, then append what was said."""
     for pair in wave:
-        in_seat_order = tuple(name for name in game.state.living if name in pair)
-        await game.append(ConversationStarted(pair=(in_seat_order[0], in_seat_order[1])))
+        await game.append(ConversationStarted(residents=as_seen(pair, game.state.living)))
 
-    said: dict[Pair, list[tuple[ConversationMessagePosted, Decided[ConversationMessage]]]]
-    said = {pair: [] for pair in wave}
+    said: dict[Pair, list[Spoken]] = {pair: [] for pair in wave}
     while speaking := _speakers(said):
         requests = [
-            DecisionRequest(DecisionKind.CONVERSATION_MESSAGE, speaker, (_other(pair, speaker),))
+            DecisionRequest(
+                DecisionKind.CONVERSATION_MESSAGE, speaker, (partner_of(pair, speaker),)
+            )
             for pair, speaker in speaking
         ]
-        pending = [message for messages in said.values() for message, _ in messages]
+        pending = [spoken.message for spoken_so_far in said.values() for spoken in spoken_so_far]
         answers = await game.decide_all(requests, ConversationMessage, pending)
         for (pair, speaker), answer in zip(speaking, answers, strict=True):
             message = ConversationMessagePosted(
                 speaker=speaker,
-                partner=_other(pair, speaker),
+                partner=partner_of(pair, speaker),
                 text=trimmed(answer.decision.text),
                 ends_conversation=answer.decision.end_conversation,
             )
-            said[pair].append((message, answer))
+            said[pair].append(Spoken(message, answer))
 
-    for messages in said.values():
-        for message, answer in messages:
-            await game.append(message, cause=answer)
+    for spoken_so_far in said.values():
+        for spoken in spoken_so_far:
+            await game.append(spoken.message, cause=spoken.cause)
 
 
-def _speakers(
-    said: dict[Pair, list[tuple[ConversationMessagePosted, "Decided[ConversationMessage]"]]],
-) -> list[tuple[Pair, str]]:
+def _speakers(said: dict[Pair, list[Spoken]]) -> list[tuple[Pair, str]]:
     """The next speaker of every Conversation that is still going, in wave order."""
     speaking = []
-    for pair, messages in said.items():
-        ended = bool(messages) and messages[-1][0].ends_conversation
-        if speaker := next_speaker(pair, len(messages), ended):
+    for pair, spoken in said.items():
+        ended = bool(spoken) and spoken[-1].message.ends_conversation
+        if speaker := next_speaker(pair, len(spoken), ended):
             speaking.append((pair, speaker))
     return speaking
-
-
-def _other(pair: Pair, speaker: str) -> str:
-    return pair[1] if speaker == pair[0] else pair[0]

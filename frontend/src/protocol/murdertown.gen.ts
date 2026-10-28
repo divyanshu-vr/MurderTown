@@ -102,7 +102,7 @@ export interface ConversationStarted {
    * @minItems 2
    * @maxItems 2
    */
-  pair: [unknown, unknown];
+  residents: [unknown, unknown];
 }
 /**
  * A decision source could not give a usable answer, so a safe default was used instead.

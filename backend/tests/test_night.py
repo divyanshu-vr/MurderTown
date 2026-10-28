@@ -26,6 +26,7 @@ from mm.engine.state import GameState
 from mm.orchestrator import play_game
 from tests.support import (
     Asked,
+    Delayed,
     Puppet,
     Requests,
     everyone_votes_for,
@@ -300,24 +301,13 @@ async def test_night_events_are_perceived_only_by_the_residents_they_concern() -
                     "resident_investigated", "recap_narrated"}  # fmt: skip
 
 
-class Jittery:
-    """A decision source that takes a varying number of turns of the event loop to answer."""
-
-    def __init__(self, inner: Brain, rng: Random) -> None:
-        self.inner, self.rng = inner, rng
-
-    async def decide(self, request: DecisionRequest, view: Sequence[Event]) -> Answer:
-        for _ in range(self.rng.randrange(4)):
-            await asyncio.sleep(0)
-        return await self.inner.decide(request, view)
-
-
 async def test_the_log_is_the_same_however_long_each_decision_takes() -> None:
     config = GameConfig(seed=7, max_days=3)
     bots = scripted_bots(config.seed)
 
     def jittery(resident: Resident) -> Brain:
-        return Jittery(bots(resident), Random(resident.name))
+        rng = Random(resident.name)
+        return Delayed(bots(resident), lambda: rng.randrange(4))
 
     async def unhurried(event: Event) -> None:
         await asyncio.sleep(0)

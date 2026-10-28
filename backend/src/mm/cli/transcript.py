@@ -94,10 +94,11 @@ def describe(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per 
             return f"{saved or 'Someone'} was attacked in the night, but the Doctor saved them."
         case RecapNarrated(text=text):
             return f"Narrator: {text}"
-        case DuskIntentChosen(resident=resident, activity=activity, partners=partners):
-            talking = f"hopes to talk with {', '.join(partners)}"
-            return f"  ({resident} {talking if partners else f'means to {ACTIVITIES[activity]}'}.)"
-        case ConversationStarted(pair=(one, other)):
+        case DuskIntentChosen(resident=resident, activity="talk", partners=partners):
+            return f"  ({resident} hopes to talk with {', '.join(partners)}.)"
+        case DuskIntentChosen(resident=resident, activity=activity):
+            return f"  ({resident} means to {ACTIVITIES[activity]}.)"
+        case ConversationStarted(residents=(one, other)):
             return f"[Dusk] {one} and {other} slip away to talk."
         case ConversationMessagePosted(speaker=speaker, partner=partner, text=text):
             return f'  [Dusk] {speaker} to {partner}: "{text}"'

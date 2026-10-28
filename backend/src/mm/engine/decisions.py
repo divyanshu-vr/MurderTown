@@ -18,6 +18,8 @@ SKIP = "SKIP"
 
 StatementPart = Literal["opening_round", "open_floor"]
 
+DuskActivity = Literal["talk", "wander", "chore"]
+
 
 class DecisionKind(StrEnum):
     STATEMENT = "statement"
@@ -108,11 +110,11 @@ class DenMessage(Decision):
 
 
 class DuskIntent(Decision):
-    activity: Literal["talk", "wander", "chore"] = Field(
+    activity: DuskActivity = Field(
         description="talk to someone privately, wander the town, or do a chore."
     )
     partners: list[str] = Field(
-        description="If you talk: up to three Residents to talk to, most wanted first."
+        description="If you talk: the Residents you want to talk to, most wanted first."
     )
     topic: str = Field(description="If you talk: what you want to talk about, in a few words.")
 

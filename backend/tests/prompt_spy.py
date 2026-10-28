@@ -34,6 +34,11 @@ DEN_SENTINEL = "DEN-WHISPER"
 CONVERSATION_SENTINEL = "DUSK-MURMUR"
 
 
+def conversation_sentinel(day: int, speaker: str, partner: str) -> str:
+    """Unique to one speaker in one Conversation: a Resident has at most one per Day per partner."""
+    return f"{CONVERSATION_SENTINEL}-{day}-{speaker}-{partner}"
+
+
 @dataclass(frozen=True)
 class Shown:
     resident: str
@@ -75,7 +80,8 @@ class Spy:
             case DecisionKind.DEN_MESSAGE:
                 return Answer(DenMessage(text=f"{DEN_SENTINEL}-{me}", proposed_victim=None))
             case DecisionKind.CONVERSATION_MESSAGE:
-                said = f"{CONVERSATION_SENTINEL}-{me}"
+                day, partner = GameState.fold(view).day, request.options[0]
+                said = conversation_sentinel(day, me, partner)
                 return Answer(ConversationMessage(text=said, end_conversation=False))
             case DecisionKind.BALLOT:
                 ballot = await self.inner.decide(request, view)

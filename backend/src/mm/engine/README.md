@@ -10,7 +10,7 @@ Owns everything that decides what is true in a game: the configuration and its b
 - `perception.py`: `perceived_by(events, resident)`, the only way a Resident learns anything, and what a Resident has perceived since their last reflection.
 - `decisions.py`: what a Resident can be asked (`DecisionRequest`) and the shape of each answer.
 - `rules.py` and `vote.py`: legality of decisions, the word limit on anything a Resident says, filtering the names a Resident gives, the tally, banishment and the verdict.
-- `discussion.py`: who speaks next on the Open floor, when the Open floor is over, and which names a Statement records.
+- `discussion.py`: who speaks next on the Open floor, and when the Open floor is over.
 - `showdown.py`: whether a Sheriff may still fire, at whom, and the deaths a shot causes.
 - `night.py`: whom the Murderers may kill, the Doctor protect and the Detective investigate, how often a Finding is right, and what Dawn announces.
 - `dusk.py`: who talks to whom at Dusk, in which wave, and who speaks next in a Conversation, with every limit.

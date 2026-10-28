@@ -23,7 +23,8 @@ from typing import assert_never
 
 from mm.agents.memory import Memory, remember
 from mm.engine import Role
-from mm.engine.decisions import DecisionKind, DecisionRequest, StatementPart
+from mm.engine.decisions import DecisionKind, DecisionRequest, DuskActivity, StatementPart
+from mm.engine.dusk import MESSAGES_PER_CONVERSATION, PARTNERS_NAMED_AT_MOST
 from mm.engine.events import (
     AttackThwarted,
     BallotCast,
@@ -102,7 +103,11 @@ DEATHS: dict[str, str] = {
     "murdered": "{resident} was found murdered at Dawn on Day {day}. They were a {role}.",
 }
 
-ACTIVITIES = {"talk": "talk", "wander": "wander the town", "chore": "do a chore"}
+ACTIVITIES: dict[DuskActivity, str] = {
+    "talk": "talk",
+    "wander": "wander the town",
+    "chore": "do a chore",
+}
 """How a Dusk activity reads in a sentence: "chose to do a chore"."""
 
 WORDS_ASKED_FOR = {
@@ -258,6 +263,8 @@ def _task(request: DecisionRequest, view: Sequence[Event], known: GameState, rng
         options=", ".join(options),
         moment=MOMENTS[request.part],
         words=WORDS_ASKED_FOR.get(request.kind),
+        most_partners=PARTNERS_NAMED_AT_MOST,
+        most_messages=MESSAGES_PER_CONVERSATION,
     )
     return render(
         "task.md",
@@ -313,7 +320,7 @@ def _line(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per eve
             if activity == "talk":
                 return f"You hoped to talk with {', '.join(partners)} about: {topic}"
             return f"You chose to {ACTIVITIES[activity]} at Dusk."
-        case ConversationStarted(pair=(one, other)):
+        case ConversationStarted(residents=(one, other)):
             return f"{one} and {other} slipped away to talk privately."
         case ConversationMessagePosted(speaker=speaker, partner=partner, text=text):
             return _quoted(speaker, text, f"to {partner}")

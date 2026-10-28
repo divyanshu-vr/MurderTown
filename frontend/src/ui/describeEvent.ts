@@ -54,7 +54,7 @@ export function describeEvent(event: Event): string {
         ? `${payload.resident} hopes to talk with ${payload.partners.join(", ")} about ${payload.topic}.`
         : `${payload.resident} means to ${activityLabel[payload.activity]}.`;
     case "conversation_started":
-      return `${payload.pair[0]} and ${payload.pair[1]} slip away to talk privately.`;
+      return `${payload.residents[0]} and ${payload.residents[1]} slip away to talk privately.`;
     case "conversation_message_posted":
       return `${payload.speaker} to ${payload.partner}: "${payload.text}"`;
     case "reflection_written":

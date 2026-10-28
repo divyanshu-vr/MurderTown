@@ -11,7 +11,7 @@ from hypothesis import strategies as st
 from mm.agents import Brain, scripted_bots
 from mm.engine import GameConfig
 from mm.engine.decisions import Answer, DecisionRequest
-from mm.engine.dusk import MESSAGES_PER_CONVERSATION
+from mm.engine.dusk import APPROACHED_AT_MOST, MESSAGES_PER_CONVERSATION
 from mm.engine.events import (
     BallotCast,
     ConversationMessagePosted,
@@ -83,14 +83,14 @@ def test_every_game_obeys_the_invariants(config: GameConfig) -> None:
 
 def assert_dusk_keeps_its_limits(events: Sequence[Event]) -> None:
     """Per Conversation: at most four messages, taking turns, and only the last ends it.
-    Per Day: each Resident starts at most one Conversation and is approached for at most
+    Per Day: each Resident asks for at most one Conversation and is approached for at most
     two. Conversations that start together have no Resident in common."""
     started = [e for e in events if isinstance(e.payload, ConversationStarted)]
-    initiated: Counter[tuple[int, str]] = Counter()
-    joined: Counter[tuple[int, str]] = Counter()
+    asked: Counter[tuple[int, str]] = Counter()
+    approached: Counter[tuple[int, str]] = Counter()
     for start in started:
         assert isinstance(start.payload, ConversationStarted)
-        pair = set(start.payload.pair)
+        pair = set(start.payload.residents)
         messages = [
             e.payload
             for e in events
@@ -101,16 +101,16 @@ def assert_dusk_keeps_its_limits(events: Sequence[Event]) -> None:
         assert 1 <= len(messages) <= MESSAGES_PER_CONVERSATION
         assert all(a.speaker != b.speaker for a, b in pairwise(messages))
         assert not any(m.ends_conversation for m in messages[:-1])
-        initiator, partner = messages[0].speaker, messages[0].partner
-        initiated[start.day, initiator] += 1
-        joined[start.day, partner] += 1
-    assert max(initiated.values(), default=0) <= 1
-    assert max(joined.values(), default=0) <= 2
+        asker, partner = messages[0].speaker, messages[0].partner
+        asked[start.day, asker] += 1
+        approached[start.day, partner] += 1
+    assert max(asked.values(), default=0) <= 1  # each Resident makes one intent a Day
+    assert max(approached.values(), default=0) <= APPROACHED_AT_MOST
 
     wave: set[str] = set()
     for event in events:
         if isinstance(event.payload, ConversationStarted):
-            assert not wave & set(event.payload.pair)
-            wave |= set(event.payload.pair)
+            assert not wave & set(event.payload.residents)
+            wave |= set(event.payload.residents)
         else:
             wave = set()

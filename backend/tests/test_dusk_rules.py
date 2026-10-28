@@ -11,7 +11,7 @@ from typing import Any
 import pytest
 
 from mm.engine.decisions import DuskIntent
-from mm.engine.dusk import Pair, next_speaker, pair_up, settled, waves
+from mm.engine.dusk import Pair, as_seen, next_speaker, pair_up, partner_of, settled, waves
 from mm.engine.rules import named
 
 
@@ -141,3 +141,13 @@ def test_an_intent_as_the_town_carries_it_out(
     result = settled(intent, ["B", "C", "D", "E"])
 
     assert (result.activity, result.partners) == carried_out
+
+
+def test_the_partner_of_either_resident_is_the_other() -> None:
+    assert (partner_of(("A", "B"), "A"), partner_of(("A", "B"), "B")) == ("B", "A")
+
+
+def test_everyone_sees_a_meeting_in_seat_order_whoever_asked() -> None:
+    living = ["Ava", "Bram", "Cora"]
+
+    assert as_seen(("Cora", "Ava"), living) == as_seen(("Ava", "Cora"), living) == ("Ava", "Cora")
