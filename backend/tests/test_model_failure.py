@@ -193,7 +193,7 @@ async def test_a_failure_at_night_leaves_that_night_empty_and_is_never_perceived
     assert not any(may_perceive(event, resident.name) for resident in residents)
 
 
-async def test_an_abort_mid_conversation_drops_what_that_wave_said() -> None:
+async def test_an_abort_mid_conversation_keeps_what_was_logged_before_it() -> None:
     asked = count()
 
     def the_reply(request: DecisionRequest) -> bool:
@@ -204,7 +204,8 @@ async def test_an_abort_mid_conversation_drops_what_that_wave_said() -> None:
     result = await play_game(CONFIG, failing(the_reply, talks={2: {0: [1]}}, **alive))
 
     assert payloads(result.events, ConversationStarted)
-    assert payloads(result.events, ConversationMessagePosted) == []
+    (first,) = payloads(result.events, ConversationMessagePosted)  # logged when its round ended
+    assert first.speaker == name_at_seat(result.events, 0)  # the asker; the reply never came
     assert unanswered(result.events)[1].kind is DecisionKind.CONVERSATION_MESSAGE
 
 

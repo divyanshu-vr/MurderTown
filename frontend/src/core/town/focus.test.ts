@@ -18,7 +18,8 @@ const wholeTown = { x: 0, y: 0, width: plan.grid.width, height: plan.grid.height
 function at(count: number, shown: readonly Event[] = events) {
   const happened = shown.filter((event) => event.seq <= (events[count - 1]?.seq ?? 0));
   const [view, stage] = [foldEvents(happened), stageOf(happened)];
-  return { view, stage, focus: focusOf(view, stage, plan) };
+  const placed = layoutFor(view, stage, plan);
+  return { view, stage, placed, focus: focusOf(view, stage, plan, placed) };
 }
 
 const holds = (area: Area, { x, y }: Point) => x > area.x && y > area.y && x < area.x + area.width && y < area.y + area.height;
@@ -32,9 +33,27 @@ describe("following the action", () => {
     expect(gathered.every(({ at: spot }) => holds(focus, spot))).toBe(true);
   });
 
-  it("shows the whole town at Dawn and at Dusk", () => {
+  it("shows the whole town at Dawn, and at Dusk until a Conversation talks", () => {
     expect(at(countWhen(events, "dawn", 2)).focus).toEqual(wholeTown);
-    expect(at(countWhen(events, "dusk", 1) + 5).focus).toEqual(wholeTown);
+    const firstWords = present(eventsOf(events, "conversation_message_posted")[0], "a Conversation's first words");
+    expect(at(countOf(events, firstWords) - 1).focus).toEqual(wholeTown);
+  });
+
+  it("frames the Conversation talking at Dusk, one after another", () => {
+    const messages = eventsOf(events, "conversation_message_posted");
+    const nextTalk = present(
+      messages.find(({ day, payload }, i) => {
+        const before = messages[i - 1];
+        return before?.day === day && ![before.payload.speaker, before.payload.partner].includes(payload.speaker);
+      }),
+      "the first words of a Dusk's second Conversation",
+    );
+    const { placed, focus } = at(countOf(events, nextTalk));
+
+    const pair = placed.filter(({ name }) => [nextTalk.payload.speaker, nextTalk.payload.partner].includes(name));
+    expect(pair).toHaveLength(2);
+    expect(pair.every(({ at: spot }) => holds(focus, spot))).toBe(true);
+    expect(focus).not.toEqual(wholeTown);
   });
 
   it("goes to the Den while the Murderers meet there, then to each house visited at Night", () => {

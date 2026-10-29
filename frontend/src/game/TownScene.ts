@@ -74,6 +74,8 @@ export class TownScene extends Phaser.Scene {
   private moments: Moment[] = [];
   private state: TownState | null = null;
   private stage: Stage = stageOf([]);
+  /** Where the layout puts everyone, as of `stage`: where the camera finds the action. */
+  private placed: Placement[] = [];
   /** The latest event the town has seen, so only events after it play as moments. */
   private latestSeq = 0;
   /** What `create` makes, once the art has loaded. */
@@ -134,8 +136,8 @@ export class TownScene extends Phaser.Scene {
     if (snap) this.endMoments();
 
     this.stage = stageOf(state.shown);
-    const layout = layoutFor(state.view, this.stage, this.plan);
-    this.moveEveryone(layout, snap, paceFor(state.view.phase));
+    this.placed = layoutFor(state.view, this.stage, this.plan);
+    this.moveEveryone(this.placed, snap, paceFor(state.view.phase));
     for (const event of state.shown.filter(({ seq }) => seq > this.latestSeq)) {
       if (!blocks(event)) continue;
       if (snap) this.options.onAnimated(event.seq);
@@ -151,7 +153,7 @@ export class TownScene extends Phaser.Scene {
     created.words.announce(this.stage.recap);
     created.lights.set(state.view.phase, this.stage.den.length > 0, snap);
     created.ghosts.haunt(
-      new Map(layout.filter(({ name }) => this.stage.foundMurdered.includes(name)).map(({ name, at }) => [name, at])),
+      new Map(this.placed.filter(({ name }) => this.stage.foundMurdered.includes(name)).map(({ name, at }) => [name, at])),
       snap,
     );
   }
@@ -172,7 +174,7 @@ export class TownScene extends Phaser.Scene {
     created.words.type(gameMs);
     this.drawBallots(created.ballots);
     const moment = this.moments.findLast((each) => each.focus);
-    created.camera.update(realMs, moment?.focus ?? focusOf(state.view, this.stage, this.plan));
+    created.camera.update(realMs, moment?.focus ?? focusOf(state.view, this.stage, this.plan, this.placed));
   }
 
   /** Everyone to where the layout puts them: snapped there, or walking at the Phase's pace. */

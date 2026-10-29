@@ -142,6 +142,24 @@ async def test_conversations_held_at_once_log_the_same_however_fast_each_answers
     assert len(starts) == 2  # each Conversation's messages are together
 
 
+async def test_each_conversation_is_logged_as_it_is_said_once_every_earlier_one_is_over() -> None:
+    asked: Requests = []
+    logged_after: list[int] = []  # for each message logged, how many had been asked for
+
+    async def noted(event: Event) -> None:
+        if isinstance(event.payload, ConversationMessagePosted):
+            kinds = [request.kind for request, _ in asked]
+            logged_after.append(kinds.count(DecisionKind.CONVERSATION_MESSAGE))
+
+    scripted = puppets(
+        talks={2: {0: [1], 2: [3]}}, messages=chatty, **everyone_alive_on_day_two(CONFIG)
+    )
+    await play_game(CONFIG, wrapped(scripted, lambda brain: Asked(brain, asked)), observers=[noted])
+
+    # each round asks both Conversations, then logs the first's message; the second's follow it
+    assert logged_after == [2, 4, 6, 8, 8, 8, 8, 8]
+
+
 async def test_every_view_is_the_start_of_what_the_resident_perceives_in_the_final_log() -> None:
     asked: Requests = []
     scripted = puppets(

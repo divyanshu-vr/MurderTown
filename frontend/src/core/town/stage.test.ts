@@ -1,6 +1,7 @@
 /** Seam 3 (unit): what is said, voted and done on stage, from the recorded game. */
 import { describe, expect, it } from "vitest";
 
+import { eventOf } from "../../../test/events";
 import { present } from "../../../test/present";
 import { eventsOf, recordedGame, siteGame } from "../../../test/recordedGame";
 import type { Event } from "../../protocol";
@@ -85,7 +86,7 @@ describe("what is on stage at Dusk", () => {
     );
   });
 
-  it("holds the Dusk's Conversations, each saying its latest words, and starts afresh at the next Dusk", () => {
+  it("holds the Dusk's Conversations and the words of the one talking, and starts afresh at the next Dusk", () => {
     const firstWords = present(messages[0], "a message");
     const stage = stageAt(firstWords);
 
@@ -93,6 +94,25 @@ describe("what is on stage at Dusk", () => {
     expect(stage.said).toMatchObject([{ speaker: firstWords.payload.speaker, text: firstWords.payload.text }]);
     expect(stageAt(laterDusk).pairs).toEqual([laterDusk.payload.residents]);
     expect(stageAt(laterDusk).said).toEqual([]);
+  });
+
+  // made by hand: in the recorded game, every Conversation talked out without ending is its Dusk's last
+  it("says only the words of the Conversation talking now, while every pair stands together", () => {
+    const met = (residents: [string, string]) => eventOf({ type: "conversation_started", residents });
+    const says = (speaker: string, partner: string) =>
+      eventOf({ type: "conversation_message_posted", speaker, partner, text: `${speaker} here.`, ends_conversation: false });
+    const dusk = [
+      eventOf({ type: "phase_started", day: 2, phase: "dusk" }),
+      met(["Ava", "Bo"]),
+      met(["Cy", "Di"]),
+      ...[0, 1, 2, 3].map((i) => (i % 2 ? says("Bo", "Ava") : says("Ava", "Bo"))), // talked out, never ended
+      says("Cy", "Di"),
+    ];
+
+    const stage = stageOf(dusk);
+
+    expect(stage.said).toMatchObject([{ speaker: "Cy", text: "Cy here." }]);
+    expect(stage.pairs).toHaveLength(2);
   });
 
   it("lets a Conversation that has ended be heard to its last words, then lets its pair go", () => {
@@ -119,6 +139,7 @@ describe("what is on stage at Dusk", () => {
 
     for (const shown of [old, old.filter(isPublic)]) {
       expect(stageAt(metAgain, shown).pairs).toEqual([metAgain.payload.residents]);
+      expect(stageAt(metAgain, shown).said).toEqual([]); // the last wave's words went with it
     }
   });
 

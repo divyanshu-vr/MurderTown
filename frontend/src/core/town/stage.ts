@@ -3,7 +3,7 @@
  * Everything starts afresh with each Phase:
  * - by day, the latest words said (a Statement or Last words), the hands raised this Turn on the
  *   Open floor, and the ballots cast so far in a Vote;
- * - at Dusk, what each Resident chose to do, and the Conversations under way, each with its latest words;
+ * - at Dusk, what each Resident chose to do, the Conversations under way, and the latest words of the one talking;
  * - at Night, the Murderers meeting in the Den and what they say there, then who visits whose house;
  * - at Dawn, who was found murdered, and the Narrator's Recap.
  *
@@ -39,7 +39,7 @@ export interface Visit {
 }
 
 export interface Stage {
-  /** What is being said: one Resident's words by day, each Conversation's latest at Dusk, the Den's latest at Night. */
+  /** What is being said: one Resident's words by day, the talking Conversation's latest at Dusk, the Den's latest at Night. */
   said: Words[];
   /** The Bids above 0 of the Turn under way on the Open floor, by bidder, until someone speaks. */
   hands: Map<string, number>;
@@ -48,7 +48,8 @@ export interface Stage {
   /** How many ballots each Resident has against them so far. */
   counts: Map<string, number>;
   activities: Map<string, DuskActivity>;
-  /** The Conversations under way: the latest wave's, until each has been heard to its end. */
+  /** The Conversations under way: the latest wave's, until each has been heard to its end. Of
+   * those, only the one talking now has words in `said`. */
   pairs: Pair[];
   /** The Murderers meeting in the Den (when there are two or more), until they set out for their Victim. */
   den: readonly string[];
@@ -145,19 +146,25 @@ export function stageOf(events: readonly Event[]): Stage {
  * next words or Conversation, so its last words are heard. (Mystery mode sees no words, so waves
  * with no one in common can run together there.) A Resident is now in one Conversation a Dusk,
  * so a Dusk has one wave; games played under the first rules, like the Replay site's, have more.
+ *
+ * Only the latest words are said: the log holds a Dusk Conversation by Conversation, so the
+ * town plays one at a time, while every pair of the wave stands together.
  */
 class Talks {
-  private wave: { pair: Pair; words: Words | null; ended: boolean }[] = [];
+  private wave: { pair: Pair; ended: boolean }[] = [];
   private spoken = false;
+  /** The words of the Conversation talking now, until the next words, or until it has ended and another starts. */
+  private latest: Words | null = null;
 
   start(pair: Pair): void {
     this.letTheEndedGo();
     const alreadyTalking = this.wave.some((talk) => talk.pair.some((resident) => pair.includes(resident)));
     if (this.spoken || alreadyTalking) {
       this.wave = [];
+      this.latest = null;
       this.spoken = false;
     }
-    this.wave.push({ pair, words: null, ended: false });
+    this.wave.push({ pair, ended: false });
   }
 
   say(words: Omit<Words, "key">, to: string, ends: boolean): void {
@@ -165,7 +172,7 @@ class Talks {
     this.spoken = true;
     const talk = this.wave.find(({ pair }) => pair.includes(words.speaker) && pair.includes(to));
     if (!talk) return;
-    talk.words = { key: keyOf(talk.pair), ...words };
+    this.latest = { key: keyOf(talk.pair), ...words };
     talk.ended = ends;
   }
 
@@ -174,11 +181,12 @@ class Talks {
   }
 
   said(): Words[] {
-    return this.wave.flatMap(({ words }) => (words ? [words] : []));
+    return this.latest ? [this.latest] : [];
   }
 
   private letTheEndedGo(): void {
     this.wave = this.wave.filter(({ ended }) => !ended);
+    if (!this.wave.some(({ pair }) => keyOf(pair) === this.latest?.key)) this.latest = null;
   }
 }
 

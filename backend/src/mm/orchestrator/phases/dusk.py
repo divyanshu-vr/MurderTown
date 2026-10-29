@@ -2,10 +2,13 @@
 
 Every living Resident says what they mean to do. The askers are paired, and all
 the Conversations run at once: each round asks the next speaker of every
-unfinished Conversation together. What they say is held back until every
-Conversation ends, then appended Conversation by Conversation, so the log is
-the same however fast anyone answers. Who met is public as soon as they start;
-what they said reaches only the pair.
+unfinished Conversation together. The log holds them Conversation by
+Conversation, so it is the same however fast anyone answers. At the end of each
+round, a message is appended once its own Conversation's earlier messages and
+every earlier Conversation's are: the first Conversation's round by round, each
+later one's once the one before is over. So Spectators can watch each as it
+goes. Who met is public as soon as they start; what they said reaches only the
+pair.
 """
 
 from typing import TYPE_CHECKING, NamedTuple
@@ -21,7 +24,7 @@ if TYPE_CHECKING:
 
 
 class Spoken(NamedTuple):
-    """A message said at Dusk but not appended yet, with the decision that caused it."""
+    """A message said at Dusk, with the decision that caused it."""
 
     message: ConversationMessagePosted
     cause: "Decided[ConversationMessage]"
@@ -50,11 +53,12 @@ async def run_dusk(game: "Game") -> None:
 
 
 async def _talk(game: "Game", pairs: list[Pair]) -> None:
-    """Run every Conversation together, then append what was said."""
+    """Run every Conversation together, appending what was said once each round ends."""
     for pair in pairs:
         await game.append(ConversationStarted(residents=as_seen(pair, game.state.living)))
 
     said: dict[Pair, list[Spoken]] = {pair: [] for pair in pairs}
+    logged = 0  # how many messages, in the log's order, are in the log
     while speaking := _speakers(said):
         requests = [
             DecisionRequest(
@@ -62,7 +66,7 @@ async def _talk(game: "Game", pairs: list[Pair]) -> None:
             )
             for pair, speaker in speaking
         ]
-        pending = [spoken.message for spoken_so_far in said.values() for spoken in spoken_so_far]
+        pending = [spoken.message for spoken in _in_log_order(said)[logged:]]
         answers = await game.decide_all(requests, ConversationMessage, pending)
         for (pair, speaker), answer in zip(speaking, answers, strict=True):
             message = ConversationMessagePosted(
@@ -72,17 +76,36 @@ async def _talk(game: "Game", pairs: list[Pair]) -> None:
                 ends_conversation=answer.decision.end_conversation,
             )
             said[pair].append(Spoken(message, answer))
-
-    for spoken_so_far in said.values():
-        for spoken in spoken_so_far:
+        loggable = _loggable(said)
+        for spoken in _in_log_order(said)[logged:loggable]:
             await game.append(spoken.message, cause=spoken.cause)
+        logged = loggable
+
+
+def _in_log_order(said: dict[Pair, list[Spoken]]) -> list[Spoken]:
+    """Every message said, Conversation by Conversation, as the log holds them."""
+    return [spoken for so_far in said.values() for spoken in so_far]
+
+
+def _loggable(said: dict[Pair, list[Spoken]]) -> int:
+    """How many of the messages, in the log's order, may be logged by now: every
+    Conversation's, up to and including the first still going."""
+    count = 0
+    for pair, so_far in said.items():
+        count += len(so_far)
+        if _speaks_next(pair, so_far):
+            break
+    return count
 
 
 def _speakers(said: dict[Pair, list[Spoken]]) -> list[tuple[Pair, str]]:
     """The next speaker of every Conversation that is still going, in pairing order."""
-    speaking = []
-    for pair, spoken in said.items():
-        ended = bool(spoken) and spoken[-1].message.ends_conversation
-        if speaker := next_speaker(pair, len(spoken), ended):
-            speaking.append((pair, speaker))
-    return speaking
+    return [
+        (pair, speaker) for pair, so_far in said.items() if (speaker := _speaks_next(pair, so_far))
+    ]
+
+
+def _speaks_next(pair: Pair, so_far: list[Spoken]) -> str | None:
+    """Who speaks next in the Conversation, given what was said so far; None once it is over."""
+    ended = bool(so_far) and so_far[-1].message.ends_conversation
+    return next_speaker(pair, len(so_far), ended)

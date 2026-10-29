@@ -1,20 +1,26 @@
 /**
  * What the camera frames when following the action and no moment is playing: the semicircle
- * while the town gathers in the square; at Night, the house visited last, or the Den while the
- * Murderers meet there; otherwise the whole town. (A moment, such as a fall or the Sheriff's shot,
- * frames its own place: see `areaAround`.)
+ * while the town gathers in the square; at Dusk, the Conversation talking now; at Night, the
+ * house visited last, or the Den while the Murderers meet there; otherwise the whole town. (A
+ * moment, such as a fall or the Sheriff's shot, frames its own place: see `areaAround`.)
  */
 import type { GameView } from "../gameView";
-import { IN_THE_SQUARE, middleOf, type Point } from "./layout";
+import { IN_THE_SQUARE, middleOf, type Placement, type Point } from "./layout";
 import type { Area, TownPlan } from "./plan";
 import type { Stage } from "./stage";
 
-export function focusOf(view: GameView, stage: Stage, plan: TownPlan): Area {
+/** `placed` is where the layout puts everyone, as of the same `stage`. */
+export function focusOf(view: GameView, stage: Stage, plan: TownPlan, placed: readonly Placement[]): Area {
   const { square, well, doors, den } = plan;
   if (IN_THE_SQUARE.has(view.phase)) {
     // the semicircle, with room above it for what is said and below it for the well
     const top = square.y - 2;
     return { x: square.x - 1, y: top, width: square.width + 2, height: well.y + 3 - top };
+  }
+  if (view.phase === "dusk") {
+    const speaker = stage.said[0]?.speaker;
+    const talking = placed.find(({ name }) => name === speaker);
+    if (talking) return areaAround(talking.at);
   }
   if (view.phase === "night") {
     const visited = stage.visits.at(-1)?.target;
