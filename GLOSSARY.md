@@ -274,6 +274,10 @@ _Avoid_: canvas, map, game view, Town (the side)
 How the Town view shows a Bid above 0 on the Open floor: a hand beside the bidder with how urgently, until someone speaks.
 _Avoid_: hand-up, bid badge
 
+**Vote line**:
+How the Town view shows a Vote while its Ballots come in: each Resident voted against heads a line in a row below the well, with their count beside them, and those who voted against them stand behind in the order they voted. A Resident voted against heads their own line, tagged with whom they voted against. The lines break up at the result.
+_Avoid_: queue, tally line
+
 **Visit**:
 How the Town view shows a Night action: the Murderers walking to their Victim's house, the Doctor to the house of whom they protect, the Detective to the house of whom they investigate. One Visit at a time, in that order: the visitors do their deed at the door (strike, keep watch, look) and walk home before the next sets out.
 _Avoid_: attack, trip

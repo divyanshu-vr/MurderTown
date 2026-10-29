@@ -33,6 +33,13 @@ describe("following the action", () => {
     expect(gathered.every(({ at: spot }) => holds(focus, spot))).toBe(true);
   });
 
+  it("frames everyone in a Vote's lines below the well, and in the semicircle", () => {
+    const resolved = present(eventsOf(events, "vote_resolved")[0], "a Vote's result");
+    const { placed, focus } = at(countOf(events, resolved) - 1);
+
+    expect(placed.filter(({ dead }) => !dead).every(({ at: spot }) => holds(focus, spot))).toBe(true);
+  });
+
   it("shows the whole town at Dawn, and at Dusk until a Conversation talks", () => {
     expect(at(countWhen(events, "dawn", 2)).focus).toEqual(wholeTown);
     const firstWords = present(eventsOf(events, "conversation_message_posted")[0], "a Conversation's first words");

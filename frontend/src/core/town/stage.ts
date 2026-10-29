@@ -2,7 +2,7 @@
  * What is happening on stage as of the events shown, for the town to draw over the layout.
  * Everything starts afresh with each Phase:
  * - by day, the latest words said (a Statement or Last words), the hands raised this Turn on the
- *   Open floor, and the ballots cast so far in a Vote;
+ *   Open floor, and a Vote's Ballots until its result;
  * - at Dusk, what each Resident chose to do, the Conversations under way, and the latest words of the one talking;
  * - at Night, the Murderers meeting in the Den and what they say there, then who visits whose
  *   house: one Visit at a time, the Murderers', then the Doctor's, then the Detective's;
@@ -46,7 +46,7 @@ export interface Stage {
   said: Words[];
   /** The Bids above 0 of the Turn under way on the Open floor, by bidder, until someone speaks. */
   hands: Map<string, number>;
-  /** The ballots against someone so far this Phase, in the order cast; a vote to skip draws nothing. */
+  /** The ballots against someone so far in the Vote, in the order cast, until its result; a vote to skip has none. */
   ballots: Ballot[];
   /** How many ballots each Resident has against them so far. */
   counts: Map<string, number>;
@@ -62,6 +62,28 @@ export interface Stage {
   recap: string | null;
   /** How many events this Phase has had so far: how far along it is. */
   eventsThisPhase: number;
+}
+
+/** A Vote line: a Resident voted against, at its head, and who voted against them, in the order they voted. */
+export interface VoteLine {
+  head: string;
+  behind: string[];
+}
+
+/**
+ * The Vote lines so far, in the order each first Ballot came, and the Ballots of the heads: a
+ * Resident voted against heads their own line, so stands in no other, and is tagged with whom they
+ * voted against instead (voter to target).
+ */
+export function voteLinesOf({ ballots }: Stage): { lines: VoteLine[]; tags: Map<string, string> } {
+  const lines = new Map<string, VoteLine>();
+  for (const { target } of ballots) if (!lines.has(target)) lines.set(target, { head: target, behind: [] });
+  const tags = new Map<string, string>();
+  for (const { voter, target } of ballots) {
+    if (lines.has(voter)) tags.set(voter, target);
+    else lines.get(target)?.behind.push(voter);
+  }
+  return { lines: [...lines.values()], tags };
 }
 
 /** Where the day's words are said, and the Den's. */
@@ -101,6 +123,9 @@ export function stageOf(events: readonly Event[]): Stage {
         if (payload.target === null) break;
         stage.ballots.push({ voter: payload.voter, target: payload.target });
         stage.counts.set(payload.target, (stage.counts.get(payload.target) ?? 0) + 1);
+        break;
+      case "vote_resolved":
+        stage.ballots = []; // the lines break up, and everyone hears the result in the semicircle
         break;
       case "dusk_intent_chosen":
         stage.activities.set(payload.resident, payload.activity);

@@ -34,8 +34,8 @@ interface ShownBubble {
  * The town's words, drawn as HTML over the canvas so they stay crisp at any zoom: each living
  * Resident's name over their head, each house's owner over its roof, bubbles typing out what is
  * said (or muffled, when it cannot be heard), a Raised hand for each Bid on the Open floor, the
- * running count of ballots against each Resident, what a Night Visit does at the door, and the
- * Narrator's banner. The scene says where everything is after each frame; the overlay
+ * running count of Ballots against each Resident, whom the head of a Vote line voted against,
+ * what a Night Visit does at the door, and the Narrator's banner. The scene says where everything is after each frame; the overlay
  * moves its labels there without React.
  *
  * Each name carries where its Resident stands (`data-x`, `data-y`, in tiles) so a test can
@@ -47,6 +47,7 @@ export class Overlay {
   private readonly counts = new Map<string, HTMLElement>();
   private readonly hands = new Map<string, HTMLElement>();
   private readonly deeds = new Map<string, HTMLElement>();
+  private readonly tags = new Map<string, HTMLElement>();
   private readonly bubbles = new Map<string, ShownBubble>();
   private readonly banner: HTMLElement;
 
@@ -119,6 +120,16 @@ export class Overlay {
     }
   }
 
+  /** Whom each head of a Vote line voted against, tagged beside them: voter to target. */
+  tag(ballots: ReadonlyMap<string, string>): void {
+    dropAllBut(this.tags, new Set(ballots.keys()));
+    for (const [voter, target] of ballots) {
+      const tag = this.tags.get(voter) ?? this.addTo(this.tags, voter, "rounded bg-amber-300/90 px-1 text-[10px] font-bold text-stone-900");
+      tag.textContent = `→ ${target}`;
+      tag.title = `${voter} voted against ${target}`;
+    }
+  }
+
   /** The Narrator's words across the top, or nothing. */
   announce(text: string | null): void {
     this.banner.hidden = text === null;
@@ -140,8 +151,8 @@ export class Overlay {
   /**
    * Put every label over what it names: names over heads (the dead have none, and nobody does
    * when the town is too small to read them), house names over roofs, bubbles over whoever they
-   * are about, stacked rather than covering one another, ballot counts after names and raised
-   * hands before them.
+   * are about, stacked rather than covering one another, Ballot counts and Visits' deeds after
+   * names, raised hands and the heads' tags before them.
    */
   position(where: {
     zoom: number;
@@ -168,6 +179,7 @@ export class Overlay {
     placeBeside(this.counts, standing, toScreen, 0.9);
     placeBeside(this.hands, standing, toScreen, -0.9);
     placeBeside(this.deeds, standing, toScreen, 0.9);
+    placeBeside(this.tags, standing, toScreen, -0.9);
     const taken: Box[] = [];
     for (const bubble of this.bubbles.values()) {
       const heads = bubble.over.flatMap((name) => standing.get(name) ?? []);

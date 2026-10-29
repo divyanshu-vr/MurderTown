@@ -4,7 +4,8 @@
  * the next, and snaps to it when the view jumps.
  *
  * - In Discussion, the Showdown and the Vote, and once the game has ended, the living stand in a
- *   semicircle behind the well, by seat, facing it.
+ *   semicircle behind the well, by seat, facing it. During the Vote, until its result, its Vote
+ *   lines stand in rows below the well instead.
  * - At Dusk, each pair talking stands side by side about halfway between their homes, facing each
  *   other; those doing a Chore go to a chore spot, facing their work; everyone else wanders from
  *   spot to spot as Dusk goes by.
@@ -22,7 +23,7 @@ import type { Phase } from "../../protocol";
 import type { GameView, ResidentView } from "../gameView";
 import type { Grid, Tile } from "./path";
 import type { ChoreKind, TownPlan } from "./plan";
-import type { Stage } from "./stage";
+import { type Stage, voteLinesOf } from "./stage";
 
 export type Facing = "left" | "right";
 
@@ -61,7 +62,8 @@ const SPREAD = { bySeat: 7, byDay: 3, wanderEvery: 6, wanderLaterBySeat: 2 };
 
 export function layoutFor(view: GameView, stage: Stage, plan: TownPlan): Placement[] {
   const town = new Placing(view.residents, plan);
-  if (IN_THE_SQUARE.has(view.phase)) town.inTheSquare();
+  if (view.phase === "vote") town.atTheVote(stage);
+  else if (IN_THE_SQUARE.has(view.phase)) town.inTheSquare();
   else if (view.phase === "dusk") town.atDusk(view.day, stage);
   else if (view.phase === "night") town.atNight(stage);
   return town.placements();
@@ -99,10 +101,43 @@ class Placing {
 
   inTheSquare(): void {
     const well = middleOf(this.plan.well);
-    for (const { name, seat } of this.living) {
+    for (const { name, seat } of this.unplaced()) {
       const at = this.semicircle[seat] ?? this.home(seat);
       this.poses.set(name, standing(at, at.x > well.x ? "left" : "right"));
     }
+  }
+
+  /**
+   * The Vote lines in rows below the well, like the bars of a chart: each head on the left with
+   * a tile beside them for their count, those who voted against them behind, facing them. Each
+   * line takes the first row with room for it, a tile after the line before (for its head's tag).
+   * Everyone else (who skipped, or has not voted yet) stands in the semicircle.
+   */
+  atTheVote(stage: Stage): void {
+    const room = this.plan.square.width - 2; // tiles a row holds, a tile in from each side
+    const rows: number[] = []; // tiles taken in each row so far
+    for (const { head, behind } of voteLinesOf(stage).lines) {
+      const length = 2 + behind.length; // the head, their count, and whoever stands behind
+      const fits = (taken: number) => (taken > 0 ? taken + 1 : 0) + length <= room;
+      const row = rows.some(fits) ? rows.findIndex(fits) : rows.push(0) - 1;
+      const taken = rows[row] ?? 0;
+      const from = taken > 0 ? taken + 1 : 0;
+      rows[row] = from + length;
+      const spot = (along: number) => ({
+        x: this.plan.square.x + 1.5 + from + along,
+        y: middleOf(this.plan.well).y + 2 + row,
+      });
+      this.stand(head, spot(0), "right");
+      behind.forEach((voter, place) => this.stand(voter, spot(2 + place), "left"));
+    }
+    this.inTheSquare();
+  }
+
+  /** A living Resident on the free tile nearest to `spot`, if there is one. */
+  private stand(name: string, spot: Point, facing: Facing): void {
+    if (!this.seatOf.has(name)) return;
+    const at = this.tiles.nearest(spot);
+    if (at) this.poses.set(name, standing(at, facing));
   }
 
   /** Pairs halfway between their homes, then Chores at chore spots, then everyone else wandering. */

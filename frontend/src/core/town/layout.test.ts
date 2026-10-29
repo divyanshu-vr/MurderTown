@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 
 import town from "../../../assets/town/town.json";
+import { eventOf } from "../../../test/events";
 import { present } from "../../../test/present";
 import { countOf as countAt, countWhen, eventsOf, recordedGame } from "../../../test/recordedGame";
 import type { Event } from "../../protocol";
@@ -63,6 +64,47 @@ describe("where everyone stands by day", () => {
       expect(placements.every((placement) => placement.at.y <= plan.well.y + 0.5)).toBe(true);
       expect(placements.every((placement) => plan.grid.walkable(tileOf(placement).x, tileOf(placement).y))).toBe(true);
     }
+  });
+
+  it("stands each Vote line in a row below the well until the result calls everyone back", () => {
+    const resolved = present(
+      eventsOf(events, "vote_resolved").find(({ payload }) => payload.skips > 0),
+      "a Vote's result, with a skip",
+    );
+    const ballots = eventsOf(events, "ballot_cast").filter(({ day }) => day === resolved.day).map(({ payload }) => payload);
+    const placements = layoutAt(countOf(resolved) - 1); // every Ballot in, the result not yet
+    const votedAgainst = new Set(ballots.flatMap(({ target }) => (target ? [target] : [])));
+    const at = (name: string) => named(placements, name).at;
+
+    for (const name of votedAgainst) expect(at(name).y).toBeGreaterThan(plan.well.y + 1); // each heads a line
+    for (const { voter, target } of ballots) {
+      if (target === null) expect(at(voter).y).toBeLessThanOrEqual(plan.well.y + 0.5); // a skip stays put
+      else if (!votedAgainst.has(voter)) expect(at(voter).y).toBe(at(target).y);
+    }
+    for (const target of votedAgainst) {
+      const line = ballots.filter((ballot) => ballot.target === target && !votedAgainst.has(ballot.voter));
+      const behind = line.map(({ voter }) => at(voter).x - at(target).x);
+      expect(behind).toEqual(line.map((_, place) => place + 2)); // a tile for the count, then in the order they voted
+    }
+    expectATileEach(placements);
+    expect(living(layoutAt(countOf(resolved))).every(({ at: spot }) => spot.y <= plan.well.y + 0.5)).toBe(true);
+  });
+
+  it("gives a Vote line the first row with room for it, so lines never run into one another", () => {
+    const town = townOf(12, "vote");
+    const name = (seat: number) => `Resident ${seat}`;
+    const ballot = (voter: number, target: number) =>
+      eventOf({ type: "ballot_cast", voter: name(voter), target: name(target) });
+    // six against Resident 0, then three against Resident 7: together too long for one row
+    const vote = [1, 2, 3, 4, 5, 6].map((voter) => ballot(voter, 0)).concat([8, 9, 10].map((voter) => ballot(voter, 7)));
+
+    const placements = layoutFor(town, stageOf([eventOf({ type: "phase_started", day: 2, phase: "vote" }), ...vote]), plan);
+
+    const rowOf = (seat: number) => named(placements, name(seat)).at.y;
+    expect([1, 2, 3, 4, 5, 6].map(rowOf)).toEqual(Array(6).fill(rowOf(0)));
+    expect([8, 9, 10].map(rowOf)).toEqual(Array(3).fill(rowOf(7)));
+    expect(rowOf(7)).toBeGreaterThan(rowOf(0));
+    expectATileEach(placements);
   });
 
   it("fits a town of any size into the semicircle, everyone at least a tile apart and able to walk there from home", () => {

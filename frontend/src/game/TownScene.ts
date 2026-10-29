@@ -7,7 +7,7 @@ import { gameTime } from "../core/town/clock";
 import { areaAround, focusOf } from "../core/town/focus";
 import { layoutFor, middleOf, type Placement, type Point } from "../core/town/layout";
 import { type Area, planOf, type TownPlan } from "../core/town/plan";
-import { type Stage, stageOf, type Visit } from "../core/town/stage";
+import { type Stage, stageOf, type Visit, voteLinesOf } from "../core/town/stage";
 import { ARRIVED_MS, DEED_MS } from "../core/town/visit";
 import { paceFor } from "../core/town/walk";
 import type { Event } from "../protocol";
@@ -74,7 +74,7 @@ interface Moment {
 
 /**
  * The town: the map, a Resident on it for everyone in the view, the light of the Phase, and what
- * the stage holds (the words said, ballots so far, the ghosts of those found murdered), with the
+ * the stage holds (the words said, a Vote's lines, the ghosts of those found murdered), with the
  * camera and the words over it. Each new view walks everyone to their place in its layout; the
  * first view, a cut, a step while held or `still` snaps them there instead. Blocking events play
  * out as moments (a fall, the Sheriff's shot, a Vote's result, the ending, at Night the Murderers
@@ -100,7 +100,7 @@ export class TownScene extends Phaser.Scene {
     words: Overlay;
     lights: Lights;
     ghosts: Ghosts;
-    ballots: Phaser.GameObjects.Graphics;
+    rings: Phaser.GameObjects.Graphics;
   } | null = null;
 
   constructor(private readonly options: TownOptions) {
@@ -126,7 +126,7 @@ export class TownScene extends Phaser.Scene {
       words: new Overlay(this.options.overlay),
       lights: new Lights(this, this.plan),
       ghosts: new Ghosts(this),
-      ballots: this.add.graphics().setDepth(1000),
+      rings: this.add.graphics().setDepth(1000),
     };
     this.events.on(Phaser.Scenes.Events.RENDER, () => this.placeWords());
     // destroying the game destroys the scene without shutting it down first
@@ -170,6 +170,7 @@ export class TownScene extends Phaser.Scene {
     created.words.say(bubblesOf(this.stage, state.mystery), snap);
     created.words.count(this.stage.counts);
     created.words.raise(this.stage.hands);
+    created.words.tag(voteLinesOf(this.stage).tags);
     created.words.announce(this.stage.recap);
     created.lights.set(state.view.phase, this.stage.den.length > 0, snap);
     created.ghosts.haunt(
@@ -192,7 +193,7 @@ export class TownScene extends Phaser.Scene {
     created.ghosts.update(gameMs);
     this.playMoments(gameMs);
     created.words.type(gameMs);
-    this.drawBallots(created.ballots);
+    this.drawRings(created.rings);
     const moment = this.moments.findLast((each) => each.focus);
     created.camera.update(realMs, moment?.focus ?? focusOf(state.view, this.stage, this.plan, this.placed));
   }
@@ -340,17 +341,9 @@ export class TownScene extends Phaser.Scene {
     return at ? areaAround(at) : null;
   }
 
-  /** A line from each voter to whom they voted against, and a ring round everyone speaking. */
-  private drawBallots(graphics: Phaser.GameObjects.Graphics): void {
+  /** A ring round everyone speaking. */
+  private drawRings(graphics: Phaser.GameObjects.Graphics): void {
     graphics.clear();
-    for (const { voter, target } of this.stage.ballots) {
-      const from = this.whereIs(voter);
-      const to = this.whereIs(target);
-      if (!from || !to) continue;
-      const [start, end] = [toPixels(from), toPixels(to)];
-      graphics.lineStyle(1, 0xfcd34d, 0.75).lineBetween(start.x, start.y, end.x, end.y);
-      graphics.fillStyle(0xfcd34d, 0.9).fillCircle(end.x, end.y + 5, 1.5);
-    }
     for (const { speaker } of this.stage.said) {
       const at = this.whereIs(speaker);
       if (!at) continue;

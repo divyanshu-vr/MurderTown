@@ -55,6 +55,8 @@ const MOMENTS = {
   "day-3-discussion": countWhen(events, "discussion", 2) + 6,
   /** Day 2's Dusk, the first, with every Conversation of its one wave under way. */
   "day-2-dusk": countOf(events, eventsOf(events, "conversation_message_posted")[0]),
+  /** Day 2's Vote, every Ballot in, each voter in the line of whom they voted against. */
+  "day-2-vote": countOf(events, eventsOf(events, "vote_resolved")[0]) - 1,
   /** Day 1's Night, the game's opening, as the Murderers meet in the Den. */
   "day-1-night-den": countOf(events, eventsOf(events, "den_message_posted")[0]),
   /** Day 1's Night, as the Detective makes the last Visit, the Murderers and the Doctor home again. */

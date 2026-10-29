@@ -6,7 +6,7 @@ import { present } from "../../../test/present";
 import { eventsOf, recordedGame, siteGame } from "../../../test/recordedGame";
 import type { Event } from "../../protocol";
 import { isPublic } from "../gameView";
-import { stageOf } from "./stage";
+import { stageOf, voteLinesOf } from "./stage";
 
 const events = recordedGame();
 const stageAt = ({ seq }: Event, shown: readonly Event[] = events) => stageOf(shown.filter((event) => event.seq <= seq));
@@ -50,7 +50,7 @@ describe("what is on stage by day", () => {
     expect(stageAt(lastWords).said).toMatchObject([{ speaker: lastWords.payload.resident, text: lastWords.payload.text }]);
   });
 
-  it("draws each ballot cast so far in the Vote, counting them up to the Vote's own tally", () => {
+  it("keeps each ballot cast in the Vote until its result, counting them up to the Vote's own tally", () => {
     const resolved = first("vote_resolved");
     const ballots = eventsOf(events, "ballot_cast").filter((ballot) => ballot.seq < resolved.seq);
     const againstSomeone = present(ballots.find((ballot) => ballot.payload.target !== null), "a ballot against someone");
@@ -60,10 +60,27 @@ describe("what is on stage by day", () => {
     expect(early.ballots.at(-1)).toEqual({ voter: againstSomeone.payload.voter, target });
     expect(early.counts.get(target)).toBe(1);
 
-    const atTheEnd = stageAt(resolved);
-    expect(Object.fromEntries(atTheEnd.counts)).toEqual(resolved.payload.tally);
-    expect(atTheEnd.ballots).toHaveLength(ballots.length - resolved.payload.skips);
-    expect(stageAt(nextPhaseAfter(resolved)).ballots).toEqual([]);
+    const lastBallot = present(ballots.at(-1), "the last ballot");
+    expect(stageAt(lastBallot).ballots).toHaveLength(ballots.length - resolved.payload.skips);
+    const atTheResult = stageAt(resolved);
+    expect(Object.fromEntries(atTheResult.counts)).toEqual(resolved.payload.tally);
+    expect(atTheResult.ballots).toEqual([]); // everyone back in the semicircle for the result
+    expect(stageAt(nextPhaseAfter(resolved)).counts.size).toBe(0);
+  });
+});
+
+describe("a Vote's lines", () => {
+  it("put each voter behind whom they voted against, but tag a head with their Ballot instead", () => {
+    const ballot = (voter: string, target: string) => eventOf({ type: "ballot_cast", voter, target });
+    const vote = [eventOf({ type: "phase_started", day: 2, phase: "vote" }), ballot("Ava", "Bo"), ballot("Cy", "Ava"), ballot("Di", "Bo")];
+
+    expect(voteLinesOf(stageOf(vote))).toEqual({
+      lines: [
+        { head: "Bo", behind: ["Di"] },
+        { head: "Ava", behind: ["Cy"] },
+      ],
+      tags: new Map([["Ava", "Bo"]]),
+    });
   });
 });
 

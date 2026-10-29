@@ -13,9 +13,11 @@ import type { Stage } from "./stage";
 export function focusOf(view: GameView, stage: Stage, plan: TownPlan, placed: readonly Placement[]): Area {
   const { square, well, doors, den } = plan;
   if (IN_THE_SQUARE.has(view.phase)) {
-    // the semicircle, with room above it for what is said and below it for the well
+    // the semicircle, with room above it for what is said and below it for the well (and in a
+    // Vote, for the lines below the well)
     const top = square.y - 2;
-    return { x: square.x - 1, y: top, width: square.width + 2, height: well.y + 3 - top };
+    const bottom = stage.ballots.length > 0 ? square.y + square.height + 1 : well.y + 3;
+    return { x: square.x - 1, y: top, width: square.width + 2, height: bottom - top };
   }
   if (view.phase === "dusk") {
     const speaker = stage.said[0]?.speaker;
