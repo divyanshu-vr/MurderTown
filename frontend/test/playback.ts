@@ -9,6 +9,7 @@ export function playbackAt(shown: number, received: number, changes: Partial<Pla
     speed: 1,
     pace: 1,
     catchingUp: false,
+    sinceShown: () => null,
     held: true,
     live: false,
     cuts: 0,

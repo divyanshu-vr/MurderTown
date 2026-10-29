@@ -21,7 +21,7 @@ from mm.orchestrator import GameControls, GameHaltedError, play_game
 from tests.conftest import serving, spectating, start_game, wait_until, wait_until_finished
 from tests.support import keen, payloads, puppets, unhurried_bots, wrapped
 
-CONFIG = GameConfig(residents=6, murderers=1, max_days=2, seed=13)
+CONFIG = GameConfig(residents=6, murderers=1, max_days=2, seed=13, open_floor_seconds=None)
 
 
 class Counting:

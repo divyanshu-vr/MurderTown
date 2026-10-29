@@ -13,7 +13,7 @@ describe("setting up a game", () => {
   it("starts from the server's defaults, with no seed, so the server draws one", () => {
     const config = defaultConfig();
 
-    expect(config).toMatchObject({ residents: 12, murderers: 2, max_days: 10, open_floor_seconds: 300 });
+    expect(config).toMatchObject({ residents: 12, murderers: 2, max_days: 10, open_floor_seconds: 180 });
     expect(config.lineup?.everyone?.provider).toBe("scripted");
     expect(config).not.toHaveProperty("seed");
   });

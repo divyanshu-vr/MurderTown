@@ -37,3 +37,9 @@ def test_a_day_limit_outside_two_to_twenty_is_rejected(max_days: int) -> None:
 
 def test_the_host_may_lengthen_the_game_beyond_the_default_ten_days() -> None:
     assert GameConfig(max_days=20).max_days == 20
+
+
+def test_a_new_game_limits_the_open_floor_to_three_minutes_and_eight_statements() -> None:
+    config = GameConfig()
+
+    assert (config.open_floor_seconds, config.open_floor_statements) == (180, 8)

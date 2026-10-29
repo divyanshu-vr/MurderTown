@@ -92,7 +92,7 @@ class Rules(BaseModel):
     is only a Night, so the first Day with a Discussion is Day 2."""
     open_floor_statements: int = Field(default=8, ge=0, le=20)
     """The most Statements the Open floor allows after the Opening round."""
-    open_floor_seconds: int | None = Field(default=300, ge=10, le=3600)
+    open_floor_seconds: int | None = Field(default=180, ge=10, le=3600)
     """A wall-clock limit on the Open floor, for watched games; None turns it off."""
     sheriff_shoots_at: Literal["showdown", "night"] = "showdown"
     """When the Sheriff may fire: in the Showdown each Day, or at Night instead."""

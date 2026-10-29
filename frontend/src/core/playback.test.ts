@@ -21,6 +21,7 @@ const said = () =>
     accused: [],
     defended: [],
     claimed_role: null,
+    seconds_left: null,
   });
 
 /** A run of Phase starts, each shown for the same time. */
@@ -298,5 +299,28 @@ describe("playing back a game", () => {
     expect(playback.shown).toBe(2);
     playback.tick(PHASE_DWELL - 1);
     expect(playback.shown).toBe(2);
+  });
+
+  it("tells how long ago each event it played on to was shown, quiet spells and all, until the view jumps", () => {
+    const events = phases(2);
+    const playback = new Playback({ live: true });
+    const sinceShown = () => events.map(({ seq }) => playback.sinceShown(seq));
+    playback.receive(events);
+    playback.tick(0);
+    playback.tick(PHASE_DWELL);
+    expect(sinceShown()).toEqual([PHASE_DWELL, 0]);
+
+    for (let i = 0; i < 40; i++) playback.tick(250); // ten quiet seconds
+    events.push(...phases(1));
+    playback.receive(events);
+    playback.tick(0);
+    expect(sinceShown()).toEqual([PHASE_DWELL + 10_000, 10_000, 0]);
+
+    playback.hold();
+    playback.tick(5000);
+    expect(sinceShown()).toEqual([PHASE_DWELL + 10_000, 10_000, 0]);
+
+    playback.seek(2);
+    expect(sinceShown()).toEqual([null, 0, null]);
   });
 });

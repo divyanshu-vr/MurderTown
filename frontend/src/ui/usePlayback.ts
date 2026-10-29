@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
 
-import { Playback, type Speed } from "../core/playback";
+import { Playback, type SinceShown, type Speed } from "../core/playback";
 import type { Event } from "../protocol";
 
 /** Where playback stands, and what the Spectator can do with it. */
@@ -13,6 +13,8 @@ export interface PlaybackView {
   pace: number;
   /** Whether playback goes noticeably faster than chosen, to catch up with live. */
   catchingUp: boolean;
+  /** How long ago, as of now, an event was shown. */
+  sinceShown: SinceShown;
   held: boolean;
   /** Following a game live, rather than replaying it. */
   live: boolean;
@@ -74,6 +76,7 @@ export function usePlayback(events: readonly Event[], live: boolean): PlaybackVi
     speed: playback.speed,
     pace: playback.pace,
     catchingUp: playback.catchingUp,
+    sinceShown: (seq: number) => playback.sinceShown(seq),
     held: playback.held,
     live,
     cuts: playback.cuts,

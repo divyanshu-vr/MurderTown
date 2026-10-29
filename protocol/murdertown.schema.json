@@ -854,7 +854,7 @@
               "type": "null"
             }
           ],
-          "default": 300
+          "default": 180
         },
         "sheriff_shoots_at": {
           "default": "showdown",
@@ -946,7 +946,7 @@
               "type": "null"
             }
           ],
-          "default": 300
+          "default": 180
         },
         "sheriff_shoots_at": {
           "default": "showdown",
@@ -2056,7 +2056,7 @@
               "type": "null"
             }
           ],
-          "default": 300
+          "default": 180
         },
         "sheriff_shoots_at": {
           "default": "showdown",
@@ -2174,7 +2174,7 @@
     },
     "StatementMade": {
       "additionalProperties": false,
-      "description": "A Statement, with what it does: whom it names, accuses and defends, and any role claim.\n`asked` is the living Resident it asks to answer next, also among those it addresses.\n`answering` says its speaker took the Open floor to answer, by Right of reply or a 4\nthat counted, so it starts no answer of its own.",
+      "description": "A Statement, with what it does: whom it names, accuses and defends, and any role claim.\n`asked` is the living Resident it asks to answer next, also among those it addresses.\n`answering` says its speaker took the Open floor to answer, by Right of reply or a 4\nthat counted, so it starts no answer of its own. `seconds_left` is how long the Open\nfloor's time limit had left when it was made, so Spectators' countdowns follow the\nserver's clock; None in the Opening round or without a limit.",
       "properties": {
         "type": {
           "const": "statement_made",
@@ -2240,6 +2240,17 @@
             }
           ],
           "default": null
+        },
+        "seconds_left": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -2252,7 +2263,8 @@
         "answering",
         "accused",
         "defended",
-        "claimed_role"
+        "claimed_role",
+        "seconds_left"
       ],
       "title": "StatementMade",
       "type": "object"

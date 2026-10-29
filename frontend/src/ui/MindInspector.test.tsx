@@ -147,7 +147,7 @@ describe("the Mind inspector", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Mystery mode" }));
 
-    expect(screen.getByRole("banner")).toHaveTextContent("Open floor: 0 of 8 Statements");
+    expect(screen.getByRole("banner")).toHaveTextContent("Vote after 8 more Statements");
   });
 
   it("cannot be opened on a public-scope page, where mystery mode is locked on", () => {

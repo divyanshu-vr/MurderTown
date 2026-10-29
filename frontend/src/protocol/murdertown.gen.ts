@@ -453,7 +453,9 @@ export interface PhaseStarted {
  * A Statement, with what it does: whom it names, accuses and defends, and any role claim.
  * `asked` is the living Resident it asks to answer next, also among those it addresses.
  * `answering` says its speaker took the Open floor to answer, by Right of reply or a 4
- * that counted, so it starts no answer of its own.
+ * that counted, so it starts no answer of its own. `seconds_left` is how long the Open
+ * floor's time limit had left when it was made, so Spectators' countdowns follow the
+ * server's clock; None in the Opening round or without a limit.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "StatementMade".
@@ -469,6 +471,7 @@ export interface StatementMade {
   accused: string[];
   defended: string[];
   claimed_role: Role | null;
+  seconds_left: number | null;
 }
 /**
  * The Open floor's time limit ended it, before its Statement cap or two quiet Turns.

@@ -17,6 +17,7 @@ function statement(text: string): Event {
     accused: [],
     defended: [],
     claimed_role: null,
+    seconds_left: null,
   });
 }
 

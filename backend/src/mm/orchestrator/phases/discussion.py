@@ -57,13 +57,19 @@ async def _open_floor(game: "Game", floor: Floor) -> None:
             continue
         quiet_turns = 0
         answering = floor.answers(speaker, urgency[speaker])
-        floor = floor.after(await _statement(game, speaker, "open_floor", answering))
+        floor = floor.after(await _statement(game, speaker, "open_floor", answering, started))
         statements_made += 1
 
 
 async def _statement(
-    game: "Game", speaker: str, part: StatementPart, answering: bool = False
+    game: "Game",
+    speaker: str,
+    part: StatementPart,
+    answering: bool = False,
+    clock_started: float | None = None,
 ) -> StatementMade:
+    """A Statement; one on the Open floor, whose clock started at `clock_started`, records
+    how long the floor has left once it is said."""
     request = DecisionRequest(DecisionKind.STATEMENT, speaker, part=part)
     said = await game.decide(request, Statement)
     statement = said.decision
@@ -81,6 +87,7 @@ async def _statement(
         accused=named(statement.accused, others),
         defended=named(statement.defended, others),
         claimed_role=statement.claimed_role,
+        seconds_left=None if clock_started is None else game.open_floor_seconds_left(clock_started),
     )
     await game.append(made, cause=said)
     return made

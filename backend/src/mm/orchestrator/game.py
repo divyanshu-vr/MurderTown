@@ -23,6 +23,7 @@ from mm.engine.events import (
     GameEnded,
     OpenFloorTimedOut,
     PhaseStarted,
+    StatementMade,
 )
 from mm.engine.perception import perceived_by
 from mm.engine.rules import Verdict, roles_revealed, verdict, verdict_at_end_of_day, why_illegal
@@ -265,6 +266,17 @@ class Game:
         if upcoming := self.log.upcoming():
             return isinstance(upcoming.payload, OpenFloorTimedOut)
         return self.clock() - started >= limit
+
+    def open_floor_seconds_left(self, started: float) -> float | None:
+        """How long the Open floor's time limit has left since `started`, to the tenth of a
+        second; None without one. A replay reads what the Statement about to be made again
+        recorded instead, since its clock reads differently."""
+        limit = self.config.open_floor_seconds
+        if limit is None:
+            return None
+        if (upcoming := self.log.upcoming()) and isinstance(upcoming.payload, StatementMade):
+            return upcoming.payload.seconds_left
+        return round(max(0.0, limit - (self.clock() - started)), 1)
 
     async def _ask[D: Decision](
         self, request: DecisionRequest, answer: type[D], heard: Sequence[Event] = ()

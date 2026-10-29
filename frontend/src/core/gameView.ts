@@ -21,8 +21,6 @@ export interface GameView {
   residents: ResidentView[];
   day: number;
   phase: Phase;
-  /** Statements made so far on the Open floor, or null while it is not under way. */
-  openFloorStatements: number | null;
   /** How the game ended: a side won, or it was aborted. Null while it is still going. */
   outcome: Outcome | null;
 }
@@ -34,7 +32,6 @@ export const emptyView: GameView = {
   residents: [],
   day: 0,
   phase: "setup",
-  openFloorStatements: null,
   outcome: null,
 };
 
@@ -81,13 +78,7 @@ export function applyEvent(view: GameView, event: Event): GameView {
     case "role_assigned":
       return { ...view, residents: change(view.residents, payload.resident, { role: payload.role }) };
     case "phase_started":
-      return { ...view, day: payload.day, phase: payload.phase, openFloorStatements: null };
-    case "bid_placed": // Residents bid only on the Open floor, so the first bid opens it
-      return { ...view, openFloorStatements: view.openFloorStatements ?? 0 };
-    case "statement_made":
-      return payload.part === "open_floor"
-        ? { ...view, openFloorStatements: (view.openFloorStatements ?? 0) + 1 }
-        : view;
+      return { ...view, day: payload.day, phase: payload.phase };
     case "resident_died":
       return {
         ...view,
@@ -110,7 +101,9 @@ export function applyEvent(view: GameView, event: Event): GameView {
       return { ...view, phase: "ended", outcome: { ended: "won", winner: payload.winner, reason: payload.reason } };
     case "game_aborted":
       return { ...view, phase: "ended", outcome: { ended: "aborted", reason: payload.reason } };
-    case "open_floor_timed_out": // the next Phase ends the Open floor
+    case "bid_placed":
+    case "statement_made":
+    case "open_floor_timed_out":
     case "sheriff_fired": // the deaths that follow change the roster
     case "sheriff_held_fire":
     case "den_message_posted":

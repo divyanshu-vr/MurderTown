@@ -1,5 +1,7 @@
 """Seam 1: the Open floor. Bids, Rights of reply, who speaks, and the three limits that end it."""
 
+from itertools import pairwise
+
 import pytest
 
 from mm.engine import GameConfig, Role
@@ -199,6 +201,28 @@ async def test_the_open_floor_stops_when_its_time_is_up_and_everyone_hears_so() 
     assert len(open_floor(result.events)) == 1
     timed_out = next(e for e in result.events if isinstance(e.payload, OpenFloorTimedOut))
     assert all(may_perceive(timed_out, r.name) for r in result.state.residents)
+
+
+async def test_each_statement_on_a_timed_open_floor_records_the_time_it_has_left() -> None:
+    config = CONFIG.model_copy(update={"open_floor_seconds": 300})
+
+    result = await play_game(config, puppets(bids=keen), controls=GameControls(clock=ticking(10)))
+
+    day_two = payloads(result.events, StatementMade, day=2)
+    opening = [said for said in day_two if said.part == "opening_round"]
+    left = [
+        said.seconds_left for said in day_two if said.part == "open_floor" and said.seconds_left
+    ]
+    assert all(said.seconds_left is None for said in opening)
+    assert len(left) == 8
+    assert all(0 < seconds < 300 for seconds in left)
+    assert all(earlier > later for earlier, later in pairwise(left))
+
+
+async def test_a_statement_on_an_open_floor_without_a_time_limit_records_no_time() -> None:
+    result = await play_game(CONFIG, puppets(bids=keen))
+
+    assert all(statement.seconds_left is None for statement in open_floor(result.events))
 
 
 async def test_each_bid_is_perceived_only_by_its_bidder() -> None:

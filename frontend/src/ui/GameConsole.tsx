@@ -20,6 +20,7 @@ import { Roster } from "./Roster";
 import { SuspicionHeatmap } from "./SuspicionHeatmap";
 import { TownView } from "./TownView";
 import type { PlaybackView } from "./usePlayback";
+import { VoteCountdown } from "./VoteCountdown";
 
 type Tab = "feed" | "residents" | "suspicion" | "review" | "mind";
 
@@ -38,8 +39,8 @@ const tabLabel: Record<Tab, string> = {
  *
  * Mystery mode shows only what the whole town saw and has no inspector; a public-scope
  * page is always in mystery mode. The phase bar reads every event playback has reached,
- * mystery mode or not, so its Open-floor progress does not depend on private bids being
- * shown. The cost meter needs a `cost` source, and the Host's `controls` come from the
+ * mystery mode or not: the Day, the Phase and the countdown to the Vote are the same either
+ * way. The cost meter needs a `cost` source, and the Host's `controls` come from the
  * page: only the Host's has them. The cost meter shows what the game has cost so far,
  * not as of the view: the server adds up calls, not events.
  *
@@ -163,6 +164,7 @@ export function GameConsole({
         onMysteryChange={scope === "full" ? chooseMystery : undefined}
         paused={paused}
         controls={controls}
+        countdown={<VoteCountdown events={reached} playback={playback} />}
         live={playback?.live ?? true}
       />
       {playback && (

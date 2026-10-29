@@ -23,7 +23,7 @@ function statusLabel(connection: ConnectionStatus, view: GameView, live: boolean
 }
 
 /**
- * The Day, the Phase, Open-floor progress, whether the Host has paused the game, and the
+ * The Day, the Phase, the countdown to the Vote, whether the Host has paused the game, and the
  * outcome (a win, or an abort and its reason), plus the Host's controls and the mystery-mode
  * switch. Without `onMysteryChange` the switch is locked, as it is for a public-scope page.
  */
@@ -34,6 +34,7 @@ export function PhaseBar({
   onMysteryChange,
   paused = false,
   controls,
+  countdown,
   live = true,
 }: {
   view: GameView;
@@ -42,6 +43,8 @@ export function PhaseBar({
   onMysteryChange?: ((on: boolean) => void) | undefined;
   paused?: boolean;
   controls?: ReactNode;
+  /** How long until the Vote, shown during the Open floor. */
+  countdown?: ReactNode;
   /** Following live rather than replaying. */
   live?: boolean;
 }) {
@@ -52,11 +55,7 @@ export function PhaseBar({
         {view.day > 0 && <span className="text-stone-400">Day {view.day} · </span>}
         <span className="font-semibold">{phaseLabel[view.phase]}</span>
       </p>
-      {view.rules && view.openFloorStatements !== null && (
-        <p className="text-stone-300">
-          Open floor: {view.openFloorStatements} of {view.rules.open_floor_statements} Statements
-        </p>
-      )}
+      {countdown}
       {paused && (
         <p className="rounded-full bg-amber-300/15 px-3 py-1 text-sm font-semibold text-amber-200">Paused</p>
       )}

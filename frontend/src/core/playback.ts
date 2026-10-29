@@ -52,6 +52,10 @@ export function nextSpeed(speed: Speed, notches: -1 | 1): Speed {
   return SPEEDS[Math.min(Math.max(index, 0), SPEEDS.length - 1)] ?? speed;
 }
 
+/** How long ago, in milliseconds of virtual time, playback showed the event `seq`, if it played
+ * on to it since the view last jumped; null otherwise. */
+export type SinceShown = (seq: number) => number | null;
+
 export interface PlaybackOptions {
   /** Following a game live, so falling behind catches up. A replay starts at the beginning. */
   live: boolean;
@@ -83,6 +87,8 @@ export class Playback {
   private backlog = { from: 0, to: 0, ms: 0 };
   /** When the first events arrived, in virtual time: until then, nothing has. */
   private firstArrival: number | null = null;
+  /** When each event shown since the last jump appeared, by seq, in virtual time. */
+  private appeared = new Map<number, number>();
 
   constructor({ live }: PlaybackOptions) {
     this.detached = !live;
@@ -103,6 +109,12 @@ export class Playback {
   /** Whether playback is going noticeably faster than chosen, to catch up with live. */
   get catchingUp(): boolean {
     return this.pace >= this.speed * NOTICEABLY_FASTER;
+  }
+
+  /** How long ago the event `seq` was shown (see SinceShown). A live game's quiet spells count. */
+  sinceShown(seq: number): number | null {
+    const at = this.appeared.get(seq);
+    return at === undefined ? null : this.now - at;
   }
 
   /** Everything received so far, in order; it only ever grows. */
@@ -177,17 +189,13 @@ export class Playback {
   /** Show one event fewer, then hold. */
   previous(): void {
     this.stayHere();
-    this.cuts += 1;
-    this.shown = Math.max(0, this.shown - 1);
+    this.jumpTo(this.shown - 1);
   }
 
   /** Show the first `count` events. */
   seek(count: number): void {
     this.detached = true;
-    this.cuts += 1;
-    this.animating = null;
-    this.shown = Math.min(Math.max(0, count), this.events.length);
-    this.shownAt = this.now;
+    this.jumpTo(count);
     this.followIfAtTheEdge();
   }
 
@@ -206,10 +214,18 @@ export class Playback {
 
   private jumpToLive(): void {
     this.detached = false;
+    this.jumpTo(this.events.length);
+  }
+
+  /** Show the first `count` events at once, rather than playing on to them: a cut. */
+  private jumpTo(count: number): void {
     this.cuts += 1;
     this.animating = null;
-    this.shown = this.events.length;
+    this.shown = Math.min(Math.max(0, count), this.events.length);
     this.shownAt = this.now;
+    this.appeared.clear();
+    const latest = this.latestShown();
+    if (latest) this.appeared.set(latest.seq, this.now);
   }
 
   private showNext(at: number): void {
@@ -217,6 +233,7 @@ export class Playback {
     if (!next) return;
     this.shown += 1;
     this.shownAt = at;
+    this.appeared.set(next.seq, at);
     this.animatedAt = 0;
     this.animating = this.waitForAnimations && blocks(next) ? next.seq : null;
     this.followIfAtTheEdge();

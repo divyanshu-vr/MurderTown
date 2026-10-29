@@ -77,16 +77,16 @@ describe("the game console", () => {
     }
   });
 
-  it("counts the Open floor's Statements against its cap while it is under way", () => {
+  it("counts down the Statements left before the Vote while the Open floor is under way, in a game with no time limit", () => {
     const isOpenFloor = (e: Event) => e.payload.type === "statement_made" && e.payload.part === "open_floor";
     const firstOnOpenFloor = events.findIndex(isOpenFloor);
     const view = render(<GameConsole events={upTo((i) => i <= firstOnOpenFloor)} connection="live" />);
 
-    expect(screen.getByRole("banner")).toHaveTextContent("Open floor: 1 of 8 Statements");
+    expect(screen.getByRole("banner")).toHaveTextContent("Vote after 7 more Statements");
 
     const nextPhase = events.findIndex((e, i) => i > firstOnOpenFloor && e.payload.type === "phase_started");
     view.rerender(<GameConsole events={upTo((i) => i <= nextPhase)} connection="live" />);
-    expect(screen.getByRole("banner")).not.toHaveTextContent("Open floor");
+    expect(screen.queryByRole("timer", { name: "Until the Vote" })).toBeNull();
   });
 
   it("shows the bids of Residents who want to speak, and leaves out those who only listen", () => {

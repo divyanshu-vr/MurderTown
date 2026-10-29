@@ -18,7 +18,7 @@ from mm.orchestrator import play_game
 from tests.conftest import following, serving, start_game, wait_until_finished
 from tests.support import unhurried_bots
 
-CONFIG = {"residents": 8, "murderers": 2, "max_days": 4, "seed": 4}
+CONFIG = {"residents": 8, "murderers": 2, "max_days": 4, "seed": 4, "open_floor_seconds": None}
 
 
 def expected_log() -> list[dict[str, Any]]:
