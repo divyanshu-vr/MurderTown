@@ -1,11 +1,11 @@
 """A spy that builds the real Agent prompt at every decision point of a scripted game.
 
-Its reflections, Den messages and Conversation messages carry a sentinel unique
-to its Resident, and
-every ballot it casts is reported as a fallback with a sentinel reason, which
-only Spectators may perceive. A prompt that ever shows another Resident's
-reflection sentinel, a Den sentinel outside the Den, or any fallback sentinel,
-has leaked. The narrator is spied on too: it decides like a Resident.
+Its reflections, Den messages, Conversation messages, bid reasons and Dusk topics
+carry a sentinel unique to its Resident, and every ballot it casts is reported as a
+fallback with a sentinel reason, which only Spectators may perceive. A prompt that
+ever shows another Resident's reflection, bid or topic sentinel, a Den sentinel
+outside the Den, or any fallback sentinel, has leaked. The narrator is spied on too: it
+decides like a Resident.
 """
 
 from collections.abc import Sequence
@@ -32,6 +32,8 @@ from mm.orchestrator import play_game
 FALLBACK_SENTINEL = "FALLBACK-SECRET"
 DEN_SENTINEL = "DEN-WHISPER"
 CONVERSATION_SENTINEL = "DUSK-MURMUR"
+BID_SENTINEL = "BID-REASON"
+TOPIC_SENTINEL = "DUSK-TOPIC"
 
 
 def conversation_sentinel(day: int, speaker: str, partner: str) -> str:
@@ -83,6 +85,14 @@ class Spy:
                 day, partner = GameState.fold(view).day, request.options[0]
                 said = conversation_sentinel(day, me, partner)
                 return Answer(ConversationMessage(text=said, end_conversation=False))
+            case DecisionKind.BID | DecisionKind.DUSK_INTENT:
+                answer = await self.inner.decide(request, view)
+                private = (
+                    {"reason": f"{BID_SENTINEL}-{me}-"}
+                    if request.kind is DecisionKind.BID
+                    else {"topic": f"{TOPIC_SENTINEL}-{me}-"}
+                )
+                return Answer(answer.decision.model_copy(update=private))
             case DecisionKind.BALLOT:
                 ballot = await self.inner.decide(request, view)
                 return Answer(ballot.decision, fallback_reason=f"{FALLBACK_SENTINEL}-{me}")

@@ -13,18 +13,22 @@ from mm.agents.prompting import ASKED_OF_EVERYONE, ASKED_OF_THE_ROLE
 from mm.engine import GameConfig, Role
 from mm.engine.decisions import DecisionKind
 from mm.engine.events import (
+    BidPlaced,
     ConversationMessagePosted,
     ConversationStarted,
     DecisionFellBack,
     DenMessagePosted,
+    DuskIntentChosen,
     Event,
     ResidentInvestigated,
     RoleAssigned,
     SheriffFired,
 )
 from tests.prompt_spy import (
+    BID_SENTINEL,
     DEN_SENTINEL,
     FALLBACK_SENTINEL,
+    TOPIC_SENTINEL,
     Shown,
     conversation_sentinel,
     spy_on,
@@ -73,6 +77,22 @@ async def test_what_only_spectators_may_perceive_never_reaches_a_prompt() -> Non
 
     assert payloads(events, DecisionFellBack)
     assert all(FALLBACK_SENTINEL not in seen.text() for seen in shown)
+
+
+async def test_why_a_resident_bids_and_what_they_want_to_talk_about_reach_no_one_else() -> None:
+    shown, events = await spy_on(GameConfig(residents=12, murderers=2, max_days=4, seed=31))
+    residents = [assigned.resident for assigned in payloads(events, RoleAssigned)]
+
+    assert any(BID_SENTINEL in bid.reason for bid in payloads(events, BidPlaced))
+    assert any(TOPIC_SENTINEL in intent.topic for intent in payloads(events, DuskIntentChosen))
+    # a Resident's own topic comes back to them, so a leaked one would show
+    assert any(f"{TOPIC_SENTINEL}-{seen.resident}-" in seen.text() for seen in shown)
+    for seen in shown:
+        text = seen.text()
+        for other in residents:
+            if other != seen.resident:
+                assert f"{BID_SENTINEL}-{other}-" not in text
+                assert f"{TOPIC_SENTINEL}-{other}-" not in text
 
 
 async def test_a_residents_own_notes_come_back_to_them_after_they_reflect() -> None:
