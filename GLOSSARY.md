@@ -129,7 +129,7 @@ What a Resident means to do at Dusk: talk (naming up to three Residents, most wa
 _Avoid_: plan, schedule
 
 **Chore**:
-A small errand a Resident does at Dusk instead of talking.
+A small errand a Resident does at Dusk instead of talking: drawing water at the well, watering the garden or chopping wood.
 _Avoid_: task, job
 
 **Den**:

@@ -10,7 +10,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 4,
- "nextobjectid": 59,
+ "nextobjectid": 62,
  "layers": [
   {
    "id": 1,
@@ -2764,7 +2764,14 @@
      "width": 0,
      "height": 0,
      "rotation": 0,
-     "visible": true
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "draw water"
+      }
+     ]
     },
     {
      "id": 32,
@@ -2776,19 +2783,14 @@
      "width": 0,
      "height": 0,
      "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 33,
-     "name": "chore",
-     "type": "",
-     "point": true,
-     "x": 280.0,
-     "y": 120.0,
-     "width": 0,
-     "height": 0,
-     "rotation": 0,
-     "visible": true
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "draw water"
+      }
+     ]
     },
     {
      "id": 34,
@@ -2800,7 +2802,14 @@
      "width": 0,
      "height": 0,
      "rotation": 0,
-     "visible": true
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "water the garden"
+      }
+     ]
     },
     {
      "id": 35,
@@ -2812,7 +2821,14 @@
      "width": 0,
      "height": 0,
      "rotation": 0,
-     "visible": true
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "water the garden"
+      }
+     ]
     },
     {
      "id": 36,
@@ -2824,7 +2840,14 @@
      "width": 0,
      "height": 0,
      "rotation": 0,
-     "visible": true
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "water the garden"
+      }
+     ]
     },
     {
      "id": 37,
@@ -2836,7 +2859,14 @@
      "width": 0,
      "height": 0,
      "rotation": 0,
-     "visible": true
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "water the garden"
+      }
+     ]
     },
     {
      "id": 38,
@@ -2848,7 +2878,14 @@
      "width": 0,
      "height": 0,
      "rotation": 0,
-     "visible": true
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "water the garden"
+      }
+     ]
     },
     {
      "id": 39,
@@ -2860,7 +2897,71 @@
      "width": 0,
      "height": 0,
      "rotation": 0,
-     "visible": true
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "water the garden"
+      }
+     ]
+    },
+    {
+     "id": 59,
+     "name": "chore",
+     "type": "",
+     "point": true,
+     "x": 24.0,
+     "y": 168.0,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "chop wood"
+      }
+     ]
+    },
+    {
+     "id": 60,
+     "name": "chore",
+     "type": "",
+     "point": true,
+     "x": 24.0,
+     "y": 280.0,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "chop wood"
+      }
+     ]
+    },
+    {
+     "id": 61,
+     "name": "chore",
+     "type": "",
+     "point": true,
+     "x": 616.0,
+     "y": 248.0,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "chop wood"
+      }
+     ]
     },
     {
      "id": 40,

@@ -1,9 +1,10 @@
 import type Phaser from "phaser";
 
 import type { Placement, Point } from "../core/town/layout";
+import type { ChoreKind } from "../core/town/plan";
 import type { Grid } from "../core/town/path";
 import { Walk } from "../core/town/walk";
-import { GRAVESTONE, type Look, lookOf, SHEETS, toPixels } from "./looks";
+import { CHORE_TOOLS, GRAVESTONE, type Look, lookOf, SHEETS, TILE, toPixels, type ToolMotion } from "./looks";
 
 /** How long a fall takes, in game time. */
 export const FALL_MS = 900;
@@ -18,18 +19,29 @@ const STEP_MS = 260;
 const BREATH_MS = 2400;
 const BREATH_HELD_MS = 300;
 const BREATH_OFFSET_MS = 140;
-/** Someone doing a Chore bobs a pixel as they work. */
+/** Someone doing a Chore bobs a pixel as they work, and their tool moves, to this beat. */
 const WORK_MS = 380;
+/** Where a tool is held: this far towards the work and this far below the middle, in tiles. */
+const HELD_AHEAD = 0.55;
+const HELD_LOW = 0.15;
+/** How each motion holds a tool at a point of the beat (0 to 1): its turn towards the work, in degrees, and how far it has gone down, in pixels. */
+const MOTIONS: Record<ToolMotion, (beat: number) => { angle: number; down: number }> = {
+  dip: (beat) => ({ angle: 0, down: Math.round(beat * 3) }), // a bucket let down into the well
+  tip: (beat) => ({ angle: 45 * beat, down: 0 }), // a bucket tipped over the plants
+  swing: (beat) => ({ angle: 90 * beat - 45, down: 0 }), // an axe swung back and down
+};
 
 /**
  * A Resident in town: their picture where they stand, breathing while they stand (or working at
- * a Chore), walking to wherever the layout puts them, and a gravestone once they have died. Everything moves on game
+ * a Chore, their tool in hand), walking to wherever the layout puts them, and a gravestone once they have died. Everything moves on game
  * time, which the scene hands over each frame (none while stopped), so walking and falling keep
  * playback's pace.
  */
 export class Actor {
   readonly name: string;
   readonly sprite: Phaser.GameObjects.Sprite;
+  /** The tool in hand while they do a Chore. */
+  private readonly tool: Phaser.GameObjects.Sprite;
   private readonly look: Look;
   /** Where the layout puts them. */
   private placement: Placement;
@@ -44,6 +56,7 @@ export class Actor {
     this.name = placement.name;
     this.look = lookOf(placement.seat);
     this.sprite = scene.add.sprite(0, 0, SHEETS.people.key, this.look.frame);
+    this.tool = scene.add.sprite(0, 0, SHEETS.town.key, 0).setVisible(false);
     this.placement = placement;
     this.at = placement.at;
     this.lived = placement.seat * BREATH_OFFSET_MS;
@@ -122,13 +135,45 @@ export class Actor {
     }
     const { x, y } = toPixels(this.at);
     sprite.setPosition(x, y - this.lift()).setDepth(this.at.y);
+    const chore = this.working();
+    this.tool.setVisible(chore !== null);
+    if (chore) this.drawTool(chore, x, y);
+  }
+
+  /** Take them out of town, tool and all. */
+  destroy(): void {
+    this.sprite.destroy();
+    this.tool.destroy();
+  }
+
+  /** The Chore they are at, while they stand at it alive. */
+  private working(): ChoreKind | null {
+    return this.walk || this.placement.dead || this.falling !== null ? null : this.placement.chore;
+  }
+
+  /** Where they are in the beat of their work, from 0 to 1. */
+  private workBeat(): number {
+    return Math.abs(Math.sin((Math.PI * this.lived) / WORK_MS));
+  }
+
+  /** The tool in hand, between them and their work, moving to the beat of the Chore. */
+  private drawTool(chore: ChoreKind, x: number, y: number): void {
+    const { frame, motion } = CHORE_TOOLS[chore];
+    const towards = this.placement.facing === "right" ? 1 : -1;
+    const { angle, down } = MOTIONS[motion](this.workBeat());
+    this.tool
+      .setFrame(frame)
+      .setFlipX(towards > 0) // the sheet draws tools facing left
+      .setAngle(towards * angle)
+      .setPosition(x + towards * TILE * HELD_AHEAD, y + TILE * HELD_LOW + down)
+      .setDepth(this.at.y + 0.01); // in front of whoever holds it
   }
 
   /** How far off the ground they are, in pixels: mid-step while walking, at work or mid-breath while standing. */
   private lift(): number {
     if (this.walk) return Math.abs(Math.sin((Math.PI * this.lived) / STEP_MS)) * STEP_HEIGHT;
     if (this.placement.dead || this.falling !== null) return 0;
-    if (this.placement.atChore) return Math.round(Math.abs(Math.sin((Math.PI * this.lived) / WORK_MS)));
+    if (this.working()) return Math.round(this.workBeat());
     return this.lived % BREATH_MS >= BREATH_MS - BREATH_HELD_MS ? 1 : 0;
   }
 }

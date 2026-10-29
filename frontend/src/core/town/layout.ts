@@ -21,7 +21,7 @@
 import type { Phase } from "../../protocol";
 import type { GameView, ResidentView } from "../gameView";
 import type { Grid, Tile } from "./path";
-import type { TownPlan } from "./plan";
+import type { ChoreKind, TownPlan } from "./plan";
 import type { Stage } from "./stage";
 
 export type Facing = "left" | "right";
@@ -38,11 +38,12 @@ export interface Placement {
   at: Point;
   facing: Facing;
   dead: boolean;
-  atChore: boolean;
+  /** The Chore they are doing, if they are at one. */
+  chore: ChoreKind | null;
 }
 
-/** How a Resident stands: where, which way, and whether at a Chore. */
-type Pose = Pick<Placement, "at" | "facing" | "atChore">;
+/** How a Resident stands: where, which way, and at which Chore, if any. */
+type Pose = Pick<Placement, "at" | "facing" | "chore">;
 
 /** The Phases the living spend in the square. */
 export const IN_THE_SQUARE: ReadonlySet<Phase> = new Set(["discussion", "showdown", "vote", "ended"]);
@@ -127,12 +128,15 @@ class Placing {
     const firstSpot = (seat: number) => seat * SPREAD.bySeat + day * SPREAD.byDay;
     for (const { name, seat } of this.unplaced()) {
       if (stage.activities.get(name) !== "chore") continue;
-      const at = this.tiles.firstFree(this.plan.chores, firstSpot(seat));
-      if (at) this.poses.set(name, { at, facing: this.facingTheWork(at), atChore: true });
+      const spot = this.tiles.firstFree(this.plan.chores, firstSpot(seat));
+      if (!spot) continue;
+      const at = middleOf(spot);
+      this.poses.set(name, { at, facing: this.facingTheWork(at), chore: spot.kind });
     }
     for (const { name, seat } of this.unplaced()) {
       const moves = Math.floor((stage.eventsThisPhase + seat * SPREAD.wanderLaterBySeat) / SPREAD.wanderEvery);
-      const at = this.tiles.firstFree(this.plan.wanders, firstSpot(seat) + moves) ?? this.tiles.nearest(this.home(seat));
+      const spot = this.tiles.firstFree(this.plan.wanders, firstSpot(seat) + moves);
+      const at = spot ? middleOf(spot) : this.tiles.nearest(this.home(seat));
       if (at) this.poses.set(name, standing(at));
     }
   }
@@ -170,14 +174,14 @@ class Placing {
     return this.living.filter(({ name }) => !this.poses.has(name));
   }
 
-  /** Towards whatever is beside a chore spot: the well, a bush, the notice board. */
+  /** Towards whatever is beside a chore spot: the well, a bush, the trees. */
   private facingTheWork({ x, y }: Point): Facing {
     return this.plan.grid.walkable(Math.floor(x) - 1, Math.floor(y)) ? "right" : "left";
   }
 }
 
 function standing(at: Point, facing: Facing = "right"): Pose {
-  return { at, facing, atChore: false };
+  return { at, facing, chore: null };
 }
 
 function facingTowards(from: Point, to: Point): Facing {
@@ -222,10 +226,13 @@ class Tiles {
   }
 
   /** Claim the first free spot of `spots`, starting `start` spots in and going round. */
-  firstFree(spots: readonly Tile[], start: number): Point | null {
+  firstFree<S extends Tile>(spots: readonly S[], start: number): S | null {
     for (let step = 0; step < spots.length; step += 1) {
       const spot = spots[(start + step) % spots.length];
-      if (spot && this.free(spot)) return this.take(middleOf(spot));
+      if (spot && this.free(spot)) {
+        this.take(middleOf(spot));
+        return spot;
+      }
     }
     return null;
   }

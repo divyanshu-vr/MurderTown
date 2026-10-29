@@ -6,7 +6,8 @@
  * The map has a `props` layer whose blocking tiles carry the tileset property `collides`, and a
  * `places` object layer: a `square` rectangle; `well`, `hall`, `den` (in front of its door) and
  * `den window` points; a `door` point per seat (the tile in front of the door, with a `seat`
- * property); and as many `lantern`, `chore` and `wander` points as the town has.
+ * property); and as many `lantern`, `chore` and `wander` points as the town has, each `chore`
+ * point with the `kind` of Chore done there.
  */
 import type { Grid, Tile } from "./path";
 
@@ -44,6 +45,15 @@ interface TiledProperty {
   value: unknown;
 }
 
+/** The Chores done in town: water drawn at the well, the garden watered by the bushes, wood chopped by the trees. */
+export const CHORE_KINDS = ["draw water", "water the garden", "chop wood"] as const;
+export type ChoreKind = (typeof CHORE_KINDS)[number];
+
+/** A spot where a Resident does a Chore, and which. */
+export interface ChoreSpot extends Tile {
+  kind: ChoreKind;
+}
+
 /** A rectangle of tiles. */
 export interface Area {
   x: number;
@@ -64,7 +74,7 @@ export interface TownPlan {
   denWindow: Tile;
   lanterns: readonly Tile[];
   /** Where a Resident can do a Chore at Dusk, and where those wandering stop. */
-  chores: readonly Tile[];
+  chores: readonly ChoreSpot[];
   wanders: readonly Tile[];
 }
 
@@ -92,7 +102,7 @@ export function planOf(map: TiledMap): TownPlan {
     den: tileOf(only("den")),
     denWindow: tileOf(only("den window")),
     lanterns: placed("lantern").map(tileOf),
-    chores: placed("chore").map(tileOf),
+    chores: placed("chore").map((spot) => ({ ...tileOf(spot), kind: choreKindOf(spot) })),
     wanders: placed("wander").map(tileOf),
   };
 }
@@ -122,6 +132,12 @@ function layerNamed(map: TiledMap, name: string): TiledLayer {
   const layer = map.layers.find((each) => each.name === name);
   if (!layer) throw new Error(`The town's map has no ${name} layer`);
   return layer;
+}
+
+function choreKindOf(spot: TiledObject): ChoreKind {
+  const kind = CHORE_KINDS.find((each) => each === propertyOf(spot.properties, "kind"));
+  if (!kind) throw new Error(`A chore spot on the town's map has no kind of Chore (${CHORE_KINDS.join(", ")})`);
+  return kind;
 }
 
 function propertyOf(properties: readonly TiledProperty[] | undefined, name: string): unknown {

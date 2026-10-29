@@ -10,7 +10,8 @@ required. We credit them gladly.
 | `tiny-dungeon.png` | Tiny Dungeon 1.0, `Tilemap/tilemap_packed.png` | [kenney.nl/assets/tiny-dungeon](https://kenney.nl/assets/tiny-dungeon), also on [OpenGameArt](https://opengameart.org/content/tiny-dungeon) | CC0 1.0 |
 
 Both sheets are 12 by 11 frames of 16 by 16 pixels, packed with no margin or spacing. The townsfolk,
-the gravestone and (from #16) the ghost come from Tiny Dungeon; everything else from Tiny Town.
+the gravestone and (from #16) the ghost come from Tiny Dungeon; everything else from Tiny Town, the
+tools Residents use at their Chores (two buckets and an axe, from #25) included.
 
 `town.json` is this project's own map, made from Tiny Town's tiles. It is a Tiled map in Tiled's JSON
 format with its tileset embedded, and opens and edits in [Tiled](https://www.mapeditor.org) 1.10 or

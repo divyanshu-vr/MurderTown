@@ -91,8 +91,9 @@ export class TownScene extends Phaser.Scene {
 
   preload(): void {
     this.load.tilemapTiledJSON("town", TOWN_MAP);
-    this.load.image(SHEETS.town.key, SHEETS.town.url);
-    this.load.spritesheet(SHEETS.people.key, SHEETS.people.url, { frameWidth: TILE, frameHeight: TILE });
+    const frames = { frameWidth: TILE, frameHeight: TILE };
+    this.load.spritesheet(SHEETS.town.key, SHEETS.town.url, frames); // its tiles, and its tools by frame
+    this.load.spritesheet(SHEETS.people.key, SHEETS.people.url, frames);
   }
 
   create(): void {
@@ -183,7 +184,7 @@ export class TownScene extends Phaser.Scene {
     }
     for (const [name, actor] of this.actors) {
       if (layout.some((placement) => placement.name === name)) continue;
-      actor.sprite.destroy();
+      actor.destroy();
       this.actors.delete(name);
     }
   }

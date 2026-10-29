@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import town from "../../../assets/town/town.json";
 import { present } from "../../../test/present";
 import { pathBetween } from "./path";
-import { inArea, planOf } from "./plan";
+import { CHORE_KINDS, inArea, planOf } from "./plan";
 
 const plan = planOf(town);
 
@@ -40,6 +40,16 @@ describe("the town's plan", () => {
       expect(pathBetween(plan.grid, spot, { x: plan.square.x, y: plan.square.y })).not.toBeNull();
     }
     expect(plan.grid.walkable(plan.denWindow.x, plan.denWindow.y)).toBe(false);
+  });
+
+  it("has spots for every kind of Chore, water drawn right beside the well", () => {
+    expect(new Set(plan.chores.map(({ kind }) => kind))).toEqual(new Set(CHORE_KINDS));
+    for (const spot of plan.chores.filter(({ kind }) => kind === "draw water")) {
+      expect(Math.abs(spot.x - plan.well.x) + Math.abs(spot.y - plan.well.y)).toBe(1); // right beside it
+    }
+    for (const { x, y } of plan.chores) {
+      expect(plan.grid.walkable(x - 1, y) && plan.grid.walkable(x + 1, y)).toBe(false); // the work, on one side
+    }
   });
 
   it("keeps everyone off houses and trees", () => {

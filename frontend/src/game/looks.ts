@@ -1,12 +1,13 @@
 /**
  * How the town looks: the Tiled map, the Kenney sheets it is drawn with (Tiny Town for the
- * town, Tiny Dungeon for its people, gravestones and ghosts), and which picture each seat wears. Tiny Dungeon has
+ * town and the tools of each Chore, Tiny Dungeon for its people, gravestones and ghosts), and which picture each seat wears. Tiny Dungeon has
  * thirteen townsfolk, so seats 13 and 14 wear the first two again in another colour.
  */
 import peopleSheet from "../../assets/town/tiny-dungeon.png";
 import townSheet from "../../assets/town/tiny-town.png";
 import town from "../../assets/town/town.json";
 import type { Point } from "../core/town/layout";
+import type { ChoreKind } from "../core/town/plan";
 
 export const TOWN_MAP = town;
 
@@ -30,6 +31,16 @@ const SECOND_LOOK = 0xa8c0ff;
 
 export const GRAVESTONE = 65;
 export const GHOST = 121;
+
+/** How a tool moves as the work goes on: lowered and raised, tipped, or swung. */
+export type ToolMotion = "dip" | "tip" | "swing";
+
+/** The tool each Chore is done with, from the town's sheet, and how it moves. */
+export const CHORE_TOOLS: Record<ChoreKind, { frame: number; motion: ToolMotion }> = {
+  "draw water": { frame: 130, motion: "dip" }, // an empty bucket, let down into the well and drawn up again
+  "water the garden": { frame: 131, motion: "tip" }, // a bucket of water, tipped over the plants
+  "chop wood": { frame: 127, motion: "swing" }, // an axe, swung at the trees
+};
 
 export interface Look {
   frame: number;

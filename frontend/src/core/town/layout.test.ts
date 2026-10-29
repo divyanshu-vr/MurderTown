@@ -8,7 +8,7 @@ import type { Event } from "../../protocol";
 import { emptyView, foldEvents, type GameView, isPublic, type ResidentView } from "../gameView";
 import { layoutFor, middleOf, type Placement, type Point } from "./layout";
 import { pathBetween, type Tile } from "./path";
-import { type Area, planOf } from "./plan";
+import { type Area, CHORE_KINDS, planOf } from "./plan";
 import { stageOf } from "./stage";
 
 const plan = planOf(town);
@@ -132,13 +132,20 @@ describe("where everyone stands at Dusk", () => {
     }
   });
 
-  it("sends those doing a Chore to a chore spot and the rest wandering", () => {
+  it("sends those doing a Chore to a chore spot, to do the Chore it is for, and the rest wandering", () => {
     const placements = living(layoutAt(endOfTheFirstWave));
     const talking = new Set(stage.pairs.flat());
 
     for (const placement of placements.filter(({ name }) => !talking.has(name))) {
-      const spots = stage.activities.get(placement.name) === "chore" ? plan.chores : plan.wanders;
-      expect(onSpot(placement, spots)).toBe(true);
+      if (stage.activities.get(placement.name) === "chore") {
+        const at = tileOf(placement);
+        const spot = plan.chores.find(({ x, y }) => x === at.x && y === at.y);
+        expect(spot).toBeDefined();
+        expect(placement.chore).toBe(spot?.kind);
+      } else {
+        expect(onSpot(placement, plan.wanders)).toBe(true);
+        expect(placement.chore).toBeNull();
+      }
     }
     expectATileEach(placements);
   });
@@ -153,8 +160,17 @@ describe("where everyone stands at Dusk", () => {
     }
   });
 
+  it("has every kind of Chore done at some Dusk of the recorded game", () => {
+    const endsOfDusk = eventsOf(events, "phase_started")
+      .filter(({ payload }) => payload.phase === "night")
+      .map((night) => countOf(night) - 1);
+    const done = new Set(endsOfDusk.flatMap((count) => layoutAt(count).map(({ chore }) => chore)));
+
+    expect(done).toEqual(new Set([...CHORE_KINDS, null]));
+  });
+
   it("turns those at a Chore towards what they work at", () => {
-    const atChores = living(layoutAt(endOfTheFirstWave)).filter((placement) => placement.atChore);
+    const atChores = living(layoutAt(endOfTheFirstWave)).filter((placement) => placement.chore !== null);
 
     expect(atChores.length).toBeGreaterThan(0);
     for (const placement of atChores) {
