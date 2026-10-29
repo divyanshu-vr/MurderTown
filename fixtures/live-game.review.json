@@ -11,18 +11,10 @@
   ],
   "lies": [
     {
-      "kind": "false_role",
-      "seq": 30,
-      "speaker": "Silas",
-      "said": "Elsie's gone and I'll say it plain: I walk this square every night and I've seen things that don't add up. Pia, your boat lights were out past midnight. Tess, you're quick with words for someone who keeps her head down. Don't hide behind politeness. Who was out after Dusk?",
-      "claimed_role": "civilian",
-      "true_role": "murderer"
-    },
-    {
       "kind": "accused_trusted",
       "seq": 30,
       "speaker": "Silas",
-      "said": "Elsie's gone and I'll say it plain: I walk this square every night and I've seen things that don't add up. Pia, your boat lights were out past midnight. Tess, you're quick with words for someone who keeps her head down. Don't hide behind politeness. Who was out after Dusk?",
+      "said": "Umar is dead, a Civilian. I walked my round last night and saw nothing useful, only lamps and empty lanes. I won't hang anyone on noise. Pia, you're out on the water at odd hours. Where were you when the bell went?",
       "belief": {
         "resident": "Pia",
         "suspicion": 0,
@@ -31,55 +23,22 @@
     },
     {
       "kind": "accused_trusted",
-      "seq": 30,
-      "speaker": "Silas",
-      "said": "Elsie's gone and I'll say it plain: I walk this square every night and I've seen things that don't add up. Pia, your boat lights were out past midnight. Tess, you're quick with words for someone who keeps her head down. Don't hide behind politeness. Who was out after Dusk?",
-      "belief": {
-        "resident": "Tess",
-        "suspicion": 0,
-        "note": "knows they are no Murderer"
-      }
-    },
-    {
-      "kind": "accused_trusted",
       "seq": 34,
       "speaker": "Hugo",
-      "said": "Elsie taught me long enough to deserve better than gossip. Umar, you asked what I saw: nothing. My schoolhouse shutters were closed by Dusk and the fog hid the lane. You say Silas pointed loud, but a loud word is not evidence. Lay out your reasons point by point before we send anyone to the boat.",
+      "said": "Umar's death is a loss, and I want facts, not fear. My night: I marked copybooks by lamplight until midnight, alone, and heard nothing. Pia, your alibi is nets and fog with no witness, and so is mine, so neither of us can be measured by it yet. Let's test each account against what the Dawn bell told us, not against mood. Pia, did you see anyone on the quay?",
       "belief": {
-        "resident": "Umar",
-        "suspicion": 0,
-        "note": "knows they are no Murderer"
-      }
-    },
-    {
-      "kind": "defended_suspected",
-      "seq": 34,
-      "speaker": "Hugo",
-      "said": "Elsie taught me long enough to deserve better than gossip. Umar, you asked what I saw: nothing. My schoolhouse shutters were closed by Dusk and the fog hid the lane. You say Silas pointed loud, but a loud word is not evidence. Lay out your reasons point by point before we send anyone to the boat.",
-      "belief": {
-        "resident": "Silas",
-        "suspicion": 100,
-        "note": "knows them to be a fellow Murderer"
-      }
-    },
-    {
-      "kind": "accused_trusted",
-      "seq": 44,
-      "speaker": "Silas",
-      "said": "Rosa, nothing passed the bakery after Dusk. I walk that lane and saw no one. Luna, a ledger of answers is paper to hide behind. Tess, your cloth talk is theatre, not evidence. Luna, I want a plain answer: where were you after Dusk?",
-      "belief": {
-        "resident": "Luna",
+        "resident": "Pia",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
     },
     {
       "kind": "accused_trusted",
-      "seq": 44,
+      "seq": 52,
       "speaker": "Silas",
-      "said": "Rosa, nothing passed the bakery after Dusk. I walk that lane and saw no one. Luna, a ledger of answers is paper to hide behind. Tess, your cloth talk is theatre, not evidence. Luna, I want a plain answer: where were you after Dusk?",
+      "said": "Pia, I walked the quay at the second bell. Your lamp was dark, your nets on the steps, and nobody else on the stones. Elsie, you count echoes like a clerk. Who gains if a name goes up fast? Answer plainly: what did you see after dark?",
       "belief": {
-        "resident": "Tess",
+        "resident": "Elsie",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
@@ -87,32 +46,21 @@
     {
       "kind": "accused_trusted",
       "seq": 68,
-      "speaker": "Hugo",
-      "said": "Let's be orderly. Umar's case against Silas rests on tone alone, and I won't hang a man for pointing loudly. Tess and Umar keep trading accusations, and neither has offered a witness. Umar, you're a stranger to the library crowd. Where were you after Dusk, and who saw you paint?",
+      "speaker": "Silas",
+      "said": "Elsie, I passed the quay at the second bell. Pia's lamp was dark, her nets on the steps, and no one else on the stones. You keep asking me the hour, yet from your shelves you saw no one at all. Tess, your window looks onto the square. What did you see after dark?",
       "belief": {
-        "resident": "Umar",
+        "resident": "Elsie",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
     },
     {
-      "kind": "defended_suspected",
-      "seq": 68,
-      "speaker": "Hugo",
-      "said": "Let's be orderly. Umar's case against Silas rests on tone alone, and I won't hang a man for pointing loudly. Tess and Umar keep trading accusations, and neither has offered a witness. Umar, you're a stranger to the library crowd. Where were you after Dusk, and who saw you paint?",
-      "belief": {
-        "resident": "Silas",
-        "suspicion": 100,
-        "note": "knows them to be a fellow Murderer"
-      }
-    },
-    {
       "kind": "accused_trusted",
-      "seq": 92,
-      "speaker": "Hugo",
-      "said": "Let me lay this out point by point, as Elsie would want. First, Tess and Umar both have no witness, so both stand unproven. Second, Tess's velvet talk names no one and dodges the question. Third, Pia's fog account has held up under three questions. Tess, which lane did you walk after Dusk?",
+      "seq": 84,
+      "speaker": "Silas",
+      "said": "Tess, no. My lantern never paused under your window. I keep to the quay and the lanes, and I see what moves there. Elsie, you have asked me the hour three times and given none of your own. Your shelves saw nothing, you say. Convenient, for a clerk who wants a name. Answer me before you ask me again.",
       "belief": {
-        "resident": "Tess",
+        "resident": "Elsie",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
@@ -120,28 +68,23 @@
   ],
   "influence": [
     {
-      "resident": "Luna",
-      "followed": 3,
+      "resident": "Elsie",
+      "followed": 4,
       "ballots": 6
     },
     {
-      "resident": "Tess",
-      "followed": 3,
-      "ballots": 6
-    },
-    {
-      "resident": "Hugo",
-      "followed": 2,
+      "resident": "Rosa",
+      "followed": 4,
       "ballots": 6
     },
     {
       "resident": "Silas",
-      "followed": 2,
+      "followed": 1,
       "ballots": 6
     },
     {
-      "resident": "Umar",
-      "followed": 2,
+      "resident": "Hugo",
+      "followed": 0,
       "ballots": 6
     }
   ]
