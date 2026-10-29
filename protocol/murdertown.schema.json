@@ -2150,7 +2150,7 @@
     },
     "StatementMade": {
       "additionalProperties": false,
-      "description": "A Statement, with what it does: whom it names, accuses and defends, and any role claim.",
+      "description": "A Statement, with what it does: whom it names, accuses and defends, and any role claim.\n`asked` is the living Resident it asks to answer next, also among those it addresses.\n`answering` says its speaker took the Open floor to answer, by Right of reply or a 4\nthat counted, so it starts no answer of its own.",
       "properties": {
         "type": {
           "const": "statement_made",
@@ -2176,6 +2176,21 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "asked": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "answering": {
+          "default": false,
+          "type": "boolean"
         },
         "accused": {
           "default": [],
@@ -2209,6 +2224,8 @@
         "text",
         "part",
         "addressed",
+        "asked",
+        "answering",
         "accused",
         "defended",
         "claimed_role"

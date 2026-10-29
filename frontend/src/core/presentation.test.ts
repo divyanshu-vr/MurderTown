@@ -12,6 +12,8 @@ function statement(text: string): Event {
     text,
     part: "opening_round",
     addressed: [],
+    asked: null,
+    answering: false,
     accused: [],
     defended: [],
     claimed_role: null,

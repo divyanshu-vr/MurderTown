@@ -1,8 +1,8 @@
-"""Seam 1: the Open floor. Bids, who speaks, and the three limits that end it."""
+"""Seam 1: the Open floor. Bids, Rights of reply, who speaks, and the three limits that end it."""
 
 import pytest
 
-from mm.engine import GameConfig
+from mm.engine import GameConfig, Role
 from mm.engine.decisions import DecisionRequest, Statement
 from mm.engine.events import BidPlaced, Event, GameEnded, OpenFloorTimedOut, StatementMade
 from mm.engine.perception import perceived_by
@@ -18,12 +18,15 @@ from tests.support import (
     payloads,
     puppets,
     seat_of,
+    seats_by_role,
     state_before,
     ticking,
 )
 
 CONFIG = GameConfig(residents=8, murderers=2, max_days=2, seed=4, open_floor_seconds=None)
 """Two Days: the game opens with a Night, so Day 2 has its only Discussion."""
+
+ALL_ALIVE = everyone_alive_on_day_two(CONFIG)
 
 
 def open_floor(events: list[Event]) -> list[StatementMade]:
@@ -71,8 +74,6 @@ def last_opening_statement(events: list[Event]) -> StatementMade:
     [
         pytest.param({0: 1, 1: 1, 2: 1, 3: 4}, None, {3}, id="the single highest bid speaks"),
         pytest.param({1: 2, 2: 3}, 1, {2}, id="a higher bid beats being addressed"),
-        pytest.param({1: 3, 2: 3}, None, {1, 2}, id="a tie is won by one of the tied"),
-        pytest.param({1: 3, 2: 3}, 1, {1, 2}, id="an addressed tie is still won by the tied"),
         pytest.param({}, None, set(), id="nobody speaks when every bid is 0"),
     ],
 )
@@ -80,9 +81,8 @@ async def test_who_makes_the_first_statement_on_the_open_floor(
     bids: dict[int, int], addressed: int | None, possible_speakers: set[int]
 ) -> None:
     says = addressing(addressed) if addressed is not None else None
-    nights = everyone_alive_on_day_two(CONFIG)
 
-    result = await play_game(CONFIG, puppets(bids=bidding(bids), says=says, **nights))
+    result = await play_game(CONFIG, puppets(bids=bidding(bids), says=says, **ALL_ALIVE))
 
     if addressed is not None:
         assert last_opening_statement(result.events).addressed == (
@@ -96,31 +96,99 @@ async def test_who_makes_the_first_statement_on_the_open_floor(
         assert statements == []
 
 
-async def share_of_ties_won_by_seat_one(says: StatementRule | None) -> float:
-    """Over 300 seeds, how often seat 1 wins a tie with seat 2 for the first Open-floor turn.
+def asking(seat: int, otherwise: int) -> StatementRule:
+    """Every Statement asks the Resident in `seat` to answer; theirs asks the one in `otherwise`."""
 
-    Only games where the last opening Statement addressed exactly what `says`
-    intended count: seat 1 if `says` addresses it, nobody otherwise.
-    """
-    wins = ties = 0
-    for seed in range(300):
-        config = CONFIG.model_copy(update={"seed": seed})
-        nights = everyone_alive_on_day_two(config)
-        result = await play_game(config, puppets(bids=bidding({1: 3, 2: 3}), says=says, **nights))
-        seat_one = name_at_seat(result.events, 1)
-        if last_opening_statement(result.events).addressed == ((seat_one,) if says else ()):
-            ties += 1
-            wins += open_floor(result.events)[0].speaker == seat_one
-    assert ties > 200
-    return wins / ties
+    def say(request: DecisionRequest, known: GameState) -> Statement:
+        mine = seat_of(known)[request.resident]
+        asked = known.residents[otherwise if mine == seat else seat].name
+        return Statement.plain("Answer me!", asked=asked)
+
+    return say
 
 
-async def test_a_tie_is_won_three_times_in_four_by_whoever_the_last_statement_addressed() -> None:
-    assert 0.67 < await share_of_ties_won_by_seat_one(addressing(1)) < 0.83
+def speakers(events: list[Event]) -> list[str]:
+    return [statement.speaker for statement in open_floor(events)]
 
 
-async def test_a_tie_nobody_was_addressed_in_is_an_even_draw() -> None:
-    assert 0.42 < await share_of_ties_won_by_seat_one(None) < 0.58
+async def test_whoever_the_last_opening_statement_asks_answers_first() -> None:
+    bids = bidding({1: 1, 2: 1, 3: 3, 4: 3})
+
+    result = await play_game(CONFIG, puppets(bids=bids, says=asking(1, otherwise=2), **ALL_ALIVE))
+
+    asked = last_opening_statement(result.events).asked
+    assert asked in {name_at_seat(result.events, seat) for seat in (1, 2)}
+    first = open_floor(result.events)[0]
+    assert (first.speaker, first.answering) == (asked, True)
+
+
+async def test_a_resident_asked_by_every_statement_answers_once_per_open_floor() -> None:
+    bids = bidding({1: 1, 2: 1, 3: 3, 4: 3})
+
+    result = await play_game(CONFIG, puppets(bids=bids, says=asking(1, otherwise=2), **ALL_ALIVE))
+
+    assert speakers(result.events).count(name_at_seat(result.events, 1)) == 1
+
+
+async def test_a_resident_asked_to_answer_may_decline_by_bidding_nothing() -> None:
+    bids = bidding({3: 2, 4: 2})
+
+    result = await play_game(CONFIG, puppets(bids=bids, says=asking(1, otherwise=2), **ALL_ALIVE))
+
+    spoke = speakers(result.events)
+    assert spoke
+    assert not {name_at_seat(result.events, seat) for seat in (1, 2)} & set(spoke)
+
+
+async def test_equal_bids_take_turns_by_who_has_waited_longest() -> None:
+    result = await play_game(CONFIG, puppets(bids=bidding({1: 3, 2: 3}), **ALL_ALIVE))
+
+    one, two = (name_at_seat(result.events, seat) for seat in (1, 2))
+    opening = [s.speaker for s in payloads(result.events, StatementMade, day=2)][:8]
+    first, second = sorted((one, two), key=opening.index)
+    assert speakers(result.events) == [first, second] * 4
+
+
+async def test_two_residents_addressing_each_other_soon_give_way_to_others() -> None:
+    def at_each_other(request: DecisionRequest, known: GameState) -> Statement:
+        other = 2 if seat_of(known)[request.resident] == 1 else 1
+        return Statement.plain("You again!", addressed=[known.residents[other].name])
+
+    bids = bidding({1: 4, 2: 4, 3: 3})
+
+    result = await play_game(CONFIG, puppets(bids=bids, says=at_each_other, **ALL_ALIVE))
+
+    assert name_at_seat(result.events, 3) in speakers(result.events)[:3]
+
+
+async def test_a_keen_bidder_still_gets_the_floor_when_every_statement_asks_someone() -> None:
+    def ask_the_next(request: DecisionRequest, known: GameState) -> Statement:
+        names = [resident.name for resident in known.residents]
+        asked = names[(names.index(request.resident) + 1) % len(names)]
+        return Statement.plain("Your turn to explain.", asked=asked)
+
+    keen_one = bidding({seat: 1 for seat in range(8)} | {3: 3})
+
+    result = await play_game(CONFIG, puppets(bids=keen_one, says=ask_the_next, **ALL_ALIVE))
+
+    statements = open_floor(result.events)
+    assert speakers(result.events).count(name_at_seat(result.events, 3)) >= 3
+    assert sum(statement.answering for statement in statements) >= 2  # questions still answered
+
+
+async def test_a_statement_asks_only_a_living_resident() -> None:
+    roles = seats_by_role(CONFIG)
+    victim, spared = roles[Role.CIVILIAN][:2]
+
+    def ask_the_dead(request: DecisionRequest, known: GameState) -> Statement:
+        return Statement.plain("Speak up!", asked=known.residents[victim].name)
+
+    nights = {"kills": {1: victim}, "protects": {1: spared}}
+    result = await play_game(CONFIG, puppets(says=ask_the_dead, **nights))
+
+    statements = payloads(result.events, StatementMade, day=2)
+    assert statements
+    assert all(statement.asked is None for statement in statements)
 
 
 async def test_the_open_floor_stops_when_its_time_is_up_and_everyone_hears_so() -> None:
@@ -134,7 +202,7 @@ async def test_the_open_floor_stops_when_its_time_is_up_and_everyone_hears_so() 
 
 
 async def test_each_bid_is_perceived_only_by_its_bidder() -> None:
-    result = await play_game(CONFIG, puppets(bids=keen, **everyone_alive_on_day_two(CONFIG)))
+    result = await play_game(CONFIG, puppets(bids=keen, **ALL_ALIVE))
 
     for resident in result.state.residents:
         bids = payloads(perceived_by(result.events, resident.name), BidPlaced)

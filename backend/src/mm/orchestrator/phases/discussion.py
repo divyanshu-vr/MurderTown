@@ -2,15 +2,16 @@
 
 The Opening round comes first: every living Resident makes exactly one
 Statement, in a random order that changes every Day. Then the Open floor: each
-Turn, every living Resident bids, the highest bid speaks, and the Open floor
-ends at its Statement cap, its time limit, or after two quiet Turns in a row.
+Turn, every living Resident bids and the engine's `Floor` says who speaks (a Right
+of reply, then the highest Bid, then whoever waited longest). The Open floor ends at its
+Statement cap, its time limit, or after two quiet Turns in a row.
 """
 
 from typing import TYPE_CHECKING
 
 from mm.engine import Phase
 from mm.engine.decisions import Bid, DecisionKind, DecisionRequest, Statement, StatementPart
-from mm.engine.discussion import open_floor_limit, speaker_for
+from mm.engine.discussion import Floor, addressing, open_floor_limit
 from mm.engine.events import BidPlaced, OpenFloorTimedOut, StatementMade
 from mm.engine.rules import named, trimmed
 
@@ -22,13 +23,13 @@ async def run_discussion(game: "Game") -> None:
     await game.start_phase(Phase.DISCUSSION)
     order = list(game.state.living)
     game.rng.shuffle(order)
-    last: StatementMade | None = None
+    floor = Floor()
     for speaker in order:
-        last = await _statement(game, speaker, "opening_round")
-    await _open_floor(game, last)
+        floor = floor.after(await _statement(game, speaker, "opening_round"))
+    await _open_floor(game, floor)
 
 
-async def _open_floor(game: "Game", last: StatementMade | None) -> None:
+async def _open_floor(game: "Game", floor: Floor) -> None:
     """Turns until a limit is reached. Running out of time is recorded, so a replay of the
     game, whose clock reads differently, runs out at the same point."""
     started = game.clock()
@@ -50,25 +51,33 @@ async def _open_floor(game: "Game", last: StatementMade | None) -> None:
             await game.append(placed, cause=bid)
 
         urgency = {bid.request.resident: bid.decision.urgency for bid in bids}
-        speaker = speaker_for(urgency, last.addressed if last else (), game.rng)
+        speaker = floor.next_speaker(urgency)
         if speaker is None:
             quiet_turns += 1
             continue
         quiet_turns = 0
-        last = await _statement(game, speaker, "open_floor")
+        answering = floor.answers(speaker, urgency[speaker])
+        floor = floor.after(await _statement(game, speaker, "open_floor", answering))
         statements_made += 1
 
 
-async def _statement(game: "Game", speaker: str, part: StatementPart) -> StatementMade:
+async def _statement(
+    game: "Game", speaker: str, part: StatementPart, answering: bool = False
+) -> StatementMade:
     request = DecisionRequest(DecisionKind.STATEMENT, speaker, part=part)
     said = await game.decide(request, Statement)
     statement = said.decision
     others = [resident.name for resident in game.state.residents if resident.name != speaker]
+    addressed, asked = addressing(
+        statement.addressed, statement.asked, others, game.state.others_living(speaker)
+    )
     made = StatementMade(
         speaker=speaker,
         text=trimmed(statement.text),
         part=part,
-        addressed=named(statement.addressed, others),
+        addressed=addressed,
+        asked=asked,
+        answering=answering,
         accused=named(statement.accused, others),
         defended=named(statement.defended, others),
         claimed_role=statement.claimed_role,

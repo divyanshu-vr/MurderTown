@@ -40,8 +40,9 @@ def describe(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per 
             return f"\n=== Day {day}: {phase.capitalize()} ==="
         case events.BidPlaced(resident=resident, urgency=urgency, reason=reason):
             return f"  ({resident} bids {urgency}: {reason})" if urgency else None
-        case events.StatementMade(speaker=speaker, text=text):
-            return f'{speaker}: "{text}"'
+        case events.StatementMade(speaker=speaker, text=text, asked=asked):
+            asks = f" (asks {asked} to answer)" if asked else ""
+            return f'{speaker}: "{text}"{asks}'
         case events.OpenFloorTimedOut():
             return "  (Time is up on the Open floor.)"
         case events.SheriffFired(sheriff=sheriff, target=target):

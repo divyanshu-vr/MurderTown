@@ -17,8 +17,11 @@ export function describeEvent(event: Event): string {
       return payload.urgency > 0
         ? `${payload.resident} bids ${payload.urgency} to speak next: ${payload.reason}`
         : `${payload.resident} bids 0 and listens: ${payload.reason}`;
-    case "statement_made":
-      return `${payload.speaker}: "${payload.text}"`;
+    case "statement_made": {
+      // games recorded before Statements could ask have no `asked` at all
+      const asks = payload.asked ? ` (asks ${payload.asked} to answer)` : "";
+      return `${payload.speaker}: "${payload.text}"${asks}`;
+    }
     case "open_floor_timed_out":
       return "Time is up on the Open floor.";
     case "sheriff_fired":

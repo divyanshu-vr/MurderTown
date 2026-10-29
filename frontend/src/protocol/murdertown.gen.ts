@@ -438,6 +438,9 @@ export interface PhaseStarted {
 }
 /**
  * A Statement, with what it does: whom it names, accuses and defends, and any role claim.
+ * `asked` is the living Resident it asks to answer next, also among those it addresses.
+ * `answering` says its speaker took the Open floor to answer, by Right of reply or a 4
+ * that counted, so it starts no answer of its own.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "StatementMade".
@@ -448,6 +451,8 @@ export interface StatementMade {
   text: string;
   part: "opening_round" | "open_floor";
   addressed: string[];
+  asked: string | null;
+  answering: boolean;
   accused: string[];
   defended: string[];
   claimed_role: Role | null;

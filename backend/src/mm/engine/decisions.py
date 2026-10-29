@@ -69,6 +69,9 @@ class Decision(BaseModel):
 class Statement(Decision):
     text: str = Field(description="What you say to the town, in your own voice.")
     addressed: list[str] = Field(description="Residents you speak to directly by name.")
+    asked: str | None = Field(
+        description="The one Resident you need an answer from next, or null if you ask nobody."
+    )
     accused: list[str] = Field(description="Residents your words cast suspicion on.")
     defended: list[str] = Field(description="Residents your words stand up for.")
     claimed_role: Role | None = Field(
@@ -76,12 +79,19 @@ class Statement(Decision):
     )
 
     @classmethod
-    def plain(cls, text: str, addressed: Sequence[str] = ()) -> Self:
+    def plain(cls, text: str, addressed: Sequence[str] = (), asked: str | None = None) -> Self:
         """A Statement that only says something: it accuses, defends and claims nothing.
 
         The fields have no defaults because a model must fill in every one of them.
         """
-        return cls(text=text, addressed=list(addressed), accused=[], defended=[], claimed_role=None)
+        return cls(
+            text=text,
+            addressed=list(addressed),
+            asked=asked,
+            accused=[],
+            defended=[],
+            claimed_role=None,
+        )
 
 
 class Bid(Decision):
@@ -90,7 +100,7 @@ class Bid(Decision):
         le=4,
         description=(
             "0 listen, 1 general thoughts, 2 a specific point, 3 urgent, "
-            "4 I was addressed and must respond."
+            "4 the last Statement addressed you and you must respond."
         ),
     )
     reason: str = Field(description="Why, in a few words.")

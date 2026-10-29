@@ -6,86 +6,94 @@
     },
     {
       "kind": "event",
-      "seq": 165
+      "seq": 327
     },
     {
       "kind": "event",
-      "seq": 206
+      "seq": 328
+    },
+    {
+      "kind": "event",
+      "seq": 329
+    },
+    {
+      "kind": "event",
+      "seq": 376
     },
     {
       "kind": "swing",
-      "seq": 208,
-      "resident": "Tess",
-      "suspect": "Jonah",
+      "seq": 385,
+      "resident": "Pia",
+      "suspect": "Cyrus",
+      "before": 60,
+      "after": 10
+    },
+    {
+      "kind": "event",
+      "seq": 485
+    },
+    {
+      "kind": "event",
+      "seq": 516
+    },
+    {
+      "kind": "event",
+      "seq": 623
+    },
+    {
+      "kind": "swing",
+      "seq": 629,
+      "resident": "Pia",
+      "suspect": "Tess",
       "before": 75,
       "after": 10
     },
     {
       "kind": "event",
-      "seq": 323
+      "seq": 694
     },
     {
       "kind": "event",
-      "seq": 360
+      "seq": 712
     },
     {
       "kind": "event",
-      "seq": 482
-    },
-    {
-      "kind": "event",
-      "seq": 567
-    },
-    {
-      "kind": "event",
-      "seq": 689
-    },
-    {
-      "kind": "event",
-      "seq": 742
-    },
-    {
-      "kind": "event",
-      "seq": 743
-    },
-    {
-      "kind": "event",
-      "seq": 744
+      "seq": 760
     }
   ],
   "lies": [
     {
       "kind": "false_role",
-      "seq": 40,
-      "speaker": "Elsie",
-      "said": "Hello, I'm Elsie. Keep your eyes open, everyone. I'm just a Civilian.",
+      "seq": 39,
+      "speaker": "Cyrus",
+      "said": "Hello, I'm Cyrus. Keep your eyes open, everyone. I'm just a Civilian.",
       "claimed_role": "civilian",
       "true_role": "murderer"
     },
     {
       "kind": "false_role",
-      "seq": 48,
+      "seq": 45,
       "speaker": "Finn",
-      "said": "Finn here. Let's stay calm and think this through. I'm just a Civilian.",
+      "said": "Hello, I'm Finn. Keep your eyes open, everyone. I'm just a Civilian.",
       "claimed_role": "civilian",
       "true_role": "murderer"
     },
     {
       "kind": "accused_trusted",
-      "seq": 236,
-      "speaker": "Elsie",
-      "said": "I have my doubts about Milo. Finn has my trust.",
+      "seq": 84,
+      "speaker": "Cyrus",
+      "said": "I have my doubts about Vera. Finn has my trust. What do you say, Vera?",
       "belief": {
-        "resident": "Milo",
+        "resident": "Vera",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
     },
     {
       "kind": "defended_suspected",
-      "seq": 236,
-      "speaker": "Elsie",
-      "said": "I have my doubts about Milo. Finn has my trust.",
+      "seq": 84,
+      "speaker": "Cyrus",
+      "said": "I have my doubts about Vera. Finn has my trust. What do you say, Vera?",
       "belief": {
         "resident": "Finn",
         "suspicion": 100,
@@ -94,9 +102,53 @@
     },
     {
       "kind": "accused_trusted",
-      "seq": 267,
+      "seq": 251,
+      "speaker": "Cyrus",
+      "said": "I have my doubts about Luna. Finn has my trust.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 251,
+      "speaker": "Cyrus",
+      "said": "I have my doubts about Luna. Finn has my trust.",
+      "belief": {
+        "resident": "Finn",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 276,
       "speaker": "Finn",
-      "said": "I have my doubts about Tess. Elsie has my trust.",
+      "said": "I have my doubts about Xavi. Cyrus has my trust.",
+      "belief": {
+        "resident": "Xavi",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 276,
+      "speaker": "Finn",
+      "said": "I have my doubts about Xavi. Cyrus has my trust.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 403,
+      "speaker": "Cyrus",
+      "said": "I have my doubts about Tess. Finn has my trust. What do you say, Tess?",
       "belief": {
         "resident": "Tess",
         "suspicion": 0,
@@ -105,66 +157,165 @@
     },
     {
       "kind": "defended_suspected",
-      "seq": 267,
-      "speaker": "Finn",
-      "said": "I have my doubts about Tess. Elsie has my trust.",
+      "seq": 403,
+      "speaker": "Cyrus",
+      "said": "I have my doubts about Tess. Finn has my trust. What do you say, Tess?",
       "belief": {
-        "resident": "Elsie",
+        "resident": "Finn",
         "suspicion": 100,
         "note": "knows them to be a fellow Murderer"
       }
     },
     {
       "kind": "accused_trusted",
-      "seq": 540,
+      "seq": 432,
       "speaker": "Finn",
-      "said": "I have my doubts about Jonah.",
+      "said": "I have my doubts about Elsie. Cyrus has my trust.",
       "belief": {
-        "resident": "Jonah",
+        "resident": "Elsie",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 432,
+      "speaker": "Finn",
+      "said": "I have my doubts about Elsie. Cyrus has my trust.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 546,
+      "speaker": "Cyrus",
+      "said": "I have my doubts about Tess. Finn has my trust. What do you say, Tess?",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 546,
+      "speaker": "Cyrus",
+      "said": "I have my doubts about Tess. Finn has my trust. What do you say, Tess?",
+      "belief": {
+        "resident": "Finn",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 581,
+      "speaker": "Cyrus",
+      "said": "I have my doubts about Pia. Finn has my trust. What do you say, Pia?",
+      "belief": {
+        "resident": "Pia",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 581,
+      "speaker": "Cyrus",
+      "said": "I have my doubts about Pia. Finn has my trust. What do you say, Pia?",
+      "belief": {
+        "resident": "Finn",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 653,
+      "speaker": "Finn",
+      "said": "I have my doubts about Pia. Cyrus has my trust.",
+      "belief": {
+        "resident": "Pia",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 653,
+      "speaker": "Finn",
+      "said": "I have my doubts about Pia. Cyrus has my trust.",
+      "belief": {
+        "resident": "Cyrus",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 659,
+      "speaker": "Pia",
+      "said": "I have my doubts about Tess. What do you say, Tess?",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 10,
+        "note": "my investigation"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 672,
+      "speaker": "Pia",
+      "said": "I have my doubts about Tess.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 10,
+        "note": "my investigation"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 725,
+      "speaker": "Finn",
+      "said": "I have my doubts about Dina.",
+      "belief": {
+        "resident": "Dina",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
     },
     {
       "kind": "accused_trusted",
-      "seq": 631,
+      "seq": 737,
       "speaker": "Finn",
-      "said": "I have my doubts about Milo.",
+      "said": "I have my doubts about Pia.",
       "belief": {
-        "resident": "Milo",
+        "resident": "Pia",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
     },
     {
       "kind": "accused_trusted",
-      "seq": 643,
+      "seq": 745,
       "speaker": "Finn",
-      "said": "I have my doubts about Jonah.",
+      "said": "I have my doubts about Dina.",
       "belief": {
-        "resident": "Jonah",
+        "resident": "Dina",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
     },
     {
       "kind": "accused_trusted",
-      "seq": 714,
+      "seq": 753,
       "speaker": "Finn",
-      "said": "I have my doubts about Jonah.",
+      "said": "I have my doubts about Dina.",
       "belief": {
-        "resident": "Jonah",
-        "suspicion": 0,
-        "note": "knows they are no Murderer"
-      }
-    },
-    {
-      "kind": "accused_trusted",
-      "seq": 730,
-      "speaker": "Finn",
-      "said": "I have my doubts about Milo.",
-      "belief": {
-        "resident": "Milo",
+        "resident": "Dina",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
@@ -172,54 +323,54 @@
   ],
   "influence": [
     {
-      "resident": "Zane",
+      "resident": "Tess",
+      "followed": 9,
+      "ballots": 26
+    },
+    {
+      "resident": "Finn",
       "followed": 5,
-      "ballots": 24
+      "ballots": 21
+    },
+    {
+      "resident": "Dina",
+      "followed": 7,
+      "ballots": 36
+    },
+    {
+      "resident": "Pia",
+      "followed": 4,
+      "ballots": 29
     },
     {
       "resident": "Xavi",
       "followed": 2,
+      "ballots": 19
+    },
+    {
+      "resident": "Vera",
+      "followed": 1,
       "ballots": 10
-    },
-    {
-      "resident": "Finn",
-      "followed": 3,
-      "ballots": 17
-    },
-    {
-      "resident": "Jonah",
-      "followed": 4,
-      "ballots": 25
     },
     {
       "resident": "Elsie",
+      "followed": 2,
+      "ballots": 25
+    },
+    {
+      "resident": "Cyrus",
       "followed": 1,
-      "ballots": 8
+      "ballots": 30
     },
     {
-      "resident": "Umar",
-      "followed": 4,
-      "ballots": 33
-    },
-    {
-      "resident": "Tess",
-      "followed": 3,
-      "ballots": 29
-    },
-    {
-      "resident": "Milo",
-      "followed": 1,
-      "ballots": 33
-    },
-    {
-      "resident": "Nell",
+      "resident": "Ava",
       "followed": 0,
-      "ballots": 10
+      "ballots": 17
     },
     {
-      "resident": "Dina",
+      "resident": "Luna",
       "followed": 0,
-      "ballots": 6
+      "ballots": 9
     }
   ]
 }

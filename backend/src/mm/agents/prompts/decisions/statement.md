@@ -2,6 +2,7 @@ It is Day $day: $moment. Make your Statement to the town square in your own voic
 
 Besides the words themselves, report what your Statement does:
 - addressed: the Residents you speak to by name;
+- asked: the one Resident you need an answer from next, or null. Ask only when you need that Resident's answer: they may get to answer next;
 - accused: the Residents your words cast suspicion on;
 - defended: the Residents your words stand up for;
 - claimed_role: the role your words claim you have, or null if they claim none (a claim may be a bluff);

@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { eventsInGameFile } from "../src/core/gameFile";
 import type { Event, Mind, PayloadOf, Phase, Review } from "../src/protocol";
 
-/** The scripted game the backend records with `mm play --seed 147 --out ../fixtures/scripted-game.ndjson`, chosen because it shows every kind of event, every way to die, every kind of lie and a swing in suspicion. */
+/** The scripted game the backend records with `mm play --seed 207 --out ../fixtures/scripted-game.ndjson`, chosen because it shows every kind of event, every way to die, every kind of lie, a swing in suspicion, a lone Murderer and a Right of reply. */
 export function recordedGame(): Event[] {
   return eventsInGameFile(readFileSync(resolve(process.cwd(), "../fixtures/scripted-game.ndjson"), "utf-8"));
 }

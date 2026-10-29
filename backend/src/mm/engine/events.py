@@ -117,13 +117,18 @@ class BidPlaced(Payload):
 
 
 class StatementMade(Payload):
-    """A Statement, with what it does: whom it names, accuses and defends, and any role claim."""
+    """A Statement, with what it does: whom it names, accuses and defends, and any role claim.
+    `asked` is the living Resident it asks to answer next, also among those it addresses.
+    `answering` says its speaker took the Open floor to answer, by Right of reply or a 4
+    that counted, so it starts no answer of its own."""
 
     type: Literal["statement_made"] = "statement_made"
     speaker: str
     text: str
     part: StatementPart
     addressed: tuple[str, ...] = ()
+    asked: str | None = None
+    answering: bool = False
     accused: tuple[str, ...] = ()
     defended: tuple[str, ...] = ()
     claimed_role: Role | None = None

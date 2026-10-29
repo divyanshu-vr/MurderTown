@@ -9,7 +9,7 @@ Run after any change to an event, a decision answer or an API model:
 ```
 cd backend
 uv run mm schema
-uv run mm play --seed 147 --quiet --out ../fixtures/scripted-game.ndjson
+uv run mm play --seed 207 --quiet --out ../fixtures/scripted-game.ndjson
 uv run mm minds
 cd ../frontend
 pnpm gen:types

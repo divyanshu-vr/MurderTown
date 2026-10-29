@@ -27,6 +27,7 @@ from mm.agents.answers import answer_formats
 from mm.agents.memory import Memory, remember
 from mm.engine import Role
 from mm.engine.decisions import DecisionKind, DecisionRequest, DuskActivity, StatementPart
+from mm.engine.discussion import Floor
 from mm.engine.dusk import MESSAGES_PER_CONVERSATION, PARTNERS_NAMED_AT_MOST
 from mm.engine.events import (
     AttackThwarted,
@@ -299,6 +300,7 @@ def _task(request: DecisionRequest, view: Sequence[Event], known: GameState, rng
         day=known.day,
         options=", ".join(options),
         moment=MOMENTS[request.part],
+        standing=_standing(request.resident, view, known.day),
         words=WORDS_ASKED_FOR.get(request.kind),
         most_partners=PARTNERS_NAMED_AT_MOST,
         most_messages=MESSAGES_PER_CONVERSATION,
@@ -309,6 +311,20 @@ def _task(request: DecisionRequest, view: Sequence[Event], known: GameState, rng
         recent="\n".join(recent) or "(nothing yet)",
         instructions=instructions,
     )
+
+
+def _standing(resident: str, view: Sequence[Event], day: int) -> str:
+    """What the last Statement means for a Resident's Bid: a Right of reply, or a 4 that counts."""
+    floor = Floor.of(
+        event.payload
+        for event in view
+        if isinstance(event.payload, StatementMade) and event.day == day
+    )
+    if floor.may_reply == resident:
+        return "The last Statement asked you to answer: Bid 1 or more and you speak next."
+    if floor.addressed(resident):
+        return "The last Statement addressed you by name: a 4 counts."
+    return ""
 
 
 def _facts(view: Sequence[Event], known: GameState) -> list[str]:
@@ -340,8 +356,9 @@ def _line(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per eve
     match event.payload:
         case PhaseStarted(day=day, phase=phase):
             return f"[Day {day}: {phase.capitalize()}]"
-        case StatementMade(speaker=speaker, text=text):
-            return _quoted(speaker, text)
+        case StatementMade(speaker=speaker, text=text, asked=asked):
+            question = f" {speaker} asks {asked} to answer." if asked else ""
+            return _quoted(speaker, text) + question
         case BallotCast(voter=voter, target=target):
             return f"{voter} voted for {target}." if target else f"{voter} voted to skip."
         case LastWordsSpoken(resident=resident, text=text):

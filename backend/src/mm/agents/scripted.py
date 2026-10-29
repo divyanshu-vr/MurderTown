@@ -39,6 +39,7 @@ from mm.engine.decisions import (
     Suspicion,
     Target,
 )
+from mm.engine.discussion import ADDRESSED_BID
 from mm.engine.dusk import PARTNERS_NAMED_AT_MOST
 from mm.engine.events import (
     AttackThwarted,
@@ -62,6 +63,9 @@ OPENING_LINES = (
 
 QUIET_BIDS = (0, 0, 0, 1, 1, 2, 3)
 """Mostly listening, sometimes wanting a word."""
+
+ASKS_WHOM_THEY_DOUBT = 0.5
+"""How often a bot's Open-floor Statement asks the Resident it doubts to answer."""
 
 SHERIFF_FIRES_ONE_DAY_IN = 5
 
@@ -98,7 +102,8 @@ class ScriptedBot:
             case DecisionKind.STATEMENT:
                 return self._statement(request, GameState.fold(view))
             case DecisionKind.BID:
-                urgency = 4 if _addressed_last(view, me) else self.rng.choice(QUIET_BIDS)
+                addressed = _addressed_last(view, me)
+                urgency = ADDRESSED_BID if addressed else self.rng.choice(QUIET_BIDS)
                 return Bid(urgency=urgency, reason="a hunch")
             case DecisionKind.SHOWDOWN:
                 if self.rng.randrange(SHERIFF_FIRES_ONE_DAY_IN) == 0:
@@ -165,6 +170,7 @@ class ScriptedBot:
             return Statement(
                 text=f"{line} I'm just a Civilian.",
                 addressed=[],
+                asked=None,
                 accused=[],
                 defended=[],
                 claimed_role=Role.CIVILIAN,
@@ -173,9 +179,12 @@ class ScriptedBot:
         mates = [name for name in known.others_living(me) if known.roles.get(name) is Role.MURDERER]
         defended = [mate for mate in mates if mate != doubted][:1] if murderer else []
         trusted = f" {defended[0]} has my trust." if defended else ""
+        asked = doubted if self.rng.random() < ASKS_WHOM_THEY_DOUBT else None
+        question = f" What do you say, {doubted}?" if asked else ""
         return Statement(
-            text=f"I have my doubts about {doubted}.{trusted}",
+            text=f"I have my doubts about {doubted}.{trusted}{question}",
             addressed=[doubted],
+            asked=asked,
             accused=[doubted],
             defended=defended,
             claimed_role=None,

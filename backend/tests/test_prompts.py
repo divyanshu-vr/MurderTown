@@ -11,7 +11,7 @@ import pytest
 
 from mm.agents.prompting import ASKED_OF_EVERYONE, ASKED_OF_THE_ROLE
 from mm.engine import GameConfig, Role
-from mm.engine.decisions import DecisionKind
+from mm.engine.decisions import DecisionKind, DecisionRequest, Statement
 from mm.engine.events import (
     BidPlaced,
     ConversationMessagePosted,
@@ -23,7 +23,9 @@ from mm.engine.events import (
     ResidentInvestigated,
     RoleAssigned,
     SheriffFired,
+    StatementMade,
 )
+from mm.engine.state import GameState
 from tests.prompt_spy import (
     BID_SENTINEL,
     DEN_SENTINEL,
@@ -206,6 +208,24 @@ async def test_after_a_shot_every_prompt_names_the_sheriff_who_fired() -> None:
     assert ballots
     fact = f"Day 2: {shot.sheriff}, the Sheriff, fired at {shot.target}."
     assert all(fact in seen.prompt.task for seen in ballots)
+
+
+async def test_the_one_asked_is_told_so_when_they_bid_and_everyone_hears_who_was_asked() -> None:
+    config = GameConfig(residents=8, murderers=2, max_days=2, seed=9)
+
+    def ask_the_next(request: DecisionRequest, known: GameState) -> Statement:
+        names = [resident.name for resident in known.residents]
+        asked = names[(names.index(request.resident) + 1) % len(names)]
+        return Statement.plain("Your turn to explain.", asked=asked)
+
+    scripted = puppets(says=ask_the_next, **everyone_alive_on_day_two(config))
+    shown, events = await spy_on(config, inner=scripted)
+
+    last = [s for s in payloads(events, StatementMade, day=2) if s.part == "opening_round"][-1]
+    first_turn = [s for s in shown if s.request.kind is DecisionKind.BID][: config.residents]
+    told = {s.resident for s in first_turn if "asked you to answer" in s.prompt.task}
+    assert told == {last.asked}
+    assert all(f"{last.speaker} asks {last.asked} to answer." in s.prompt.task for s in first_turn)
 
 
 async def test_den_words_reach_only_the_other_murderers() -> None:

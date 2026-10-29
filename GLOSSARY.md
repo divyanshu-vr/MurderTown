@@ -84,8 +84,12 @@ _Avoid_: round (on its own), introductions
 The part of Discussion after the Opening round, in which Residents Bid for the next Statement.
 
 **Turn**:
-One cycle of the Open floor: every living Resident Bids, then the highest Bid makes a Statement, unless every Bid was to listen.
+One cycle of the Open floor: every living Resident Bids, then one of them makes a Statement: whoever has a Right of reply, or else the highest Bid, and among equal Bids whoever has waited longest since they last spoke. Nobody speaks if every Bid was to listen.
 _Avoid_: round (on the Open floor)
+
+**Right of reply**:
+The claim to make the next Statement of a Resident whom the last Statement asked to answer, if they Bid above 0. Each Resident has it once per Open floor. A Statement made by Right of reply, or on a 4 that counted, is an answer, and an answer gives nobody a Right of reply.
+_Avoid_: rebuttal, priority
 
 **Showdown**:
 The Phase in which the Sheriff may fire their bullet.
