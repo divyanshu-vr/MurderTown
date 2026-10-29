@@ -18,8 +18,8 @@ export default defineConfig(
         {
           patterns: [
             {
-              group: ["react", "react-dom", "phaser", "**/ui/**", "**/net/**", "**/game/**"],
-              message: "core/ stays pure: no React, Phaser, UI, game or network code.",
+              group: ["react", "react-dom", "phaser", "**/ui/**", "**/net/**", "**/game/**", "**/sound/**"],
+              message: "core/ stays pure: no React, Phaser, UI, game, sound or network code.",
             },
           ],
         },
@@ -49,6 +49,22 @@ export default defineConfig(
       "no-restricted-imports": [
         "error",
         { patterns: [{ group: ["**/ui/**", "**/net/**"], message: "game/ draws what it is given: no UI or network code." }] },
+      ],
+    },
+  },
+  {
+    files: ["src/sound/**"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["react", "react-dom", "phaser", "**/ui/**", "**/net/**", "**/game/**"],
+              message: "sound/ plays what core decides: no React, Phaser, UI, game or network code.",
+            },
+          ],
+        },
       ],
     },
   },

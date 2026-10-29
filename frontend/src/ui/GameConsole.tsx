@@ -20,6 +20,7 @@ import { Roster } from "./Roster";
 import { SuspicionHeatmap } from "./SuspicionHeatmap";
 import { TownView } from "./TownView";
 import type { PlaybackView } from "./usePlayback";
+import { useSound } from "./useSound";
 import { VoteCountdown } from "./VoteCountdown";
 
 type Tab = "feed" | "residents" | "suspicion" | "review" | "mind";
@@ -154,6 +155,7 @@ export function GameConsole({
   }, []);
   const toggleMystery = useCallback(() => chooseMystery(!mysteryChosen), [chooseMystery, mysteryChosen]);
   usePlaybackKeys(playback, scope === "full" ? toggleMystery : undefined);
+  const sound = useSound(shownEvents, shownView, playback, mystery);
 
   return (
     <div className="flex h-dvh flex-col bg-stone-950 text-stone-100">
@@ -172,6 +174,7 @@ export function GameConsole({
           playback={playback}
           received={events.length}
           replayUrl={view.outcome ? replayUrl : undefined}
+          sound={sound}
         />
       )}
       {withTownView ? (

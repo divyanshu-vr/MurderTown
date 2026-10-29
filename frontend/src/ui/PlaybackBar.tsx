@@ -2,24 +2,27 @@ import { useEffect } from "react";
 
 import { isShortcut } from "../core/keys";
 import { nextSpeed, SPEEDS, type Speed } from "../core/playback";
-import { pillStyle } from "./styles";
+import { pillStyle, toggleStyle } from "./styles";
 import type { PlaybackView } from "./usePlayback";
+import type { SoundControls } from "./useSound";
 
 
 /**
  * Playback's controls: hold or play, move an event back or forward, the speed, a timeline to scrub,
  * how far behind what has arrived the view is (and how much faster it plays to catch up with
- * live), and a way back to live (or to a replay's end).
+ * live), and a way back to live (or to a replay's end), then the sound and its volume.
  * Once a game is over, a link to share its replay.
  */
 export function PlaybackBar({
   playback,
   received,
   replayUrl,
+  sound,
 }: {
   playback: PlaybackView;
   received: number;
   replayUrl?: string | undefined;
+  sound: SoundControls;
 }) {
   const { shown, behind, pace, catchingUp, speed, held, live } = playback;
   return (
@@ -70,6 +73,26 @@ export function PlaybackBar({
       <button type="button" className={pillStyle} title="L" disabled={behind === 0} onClick={playback.skipToLive}>
         {live ? "Skip to live" : "Skip to the end"}
       </button>
+      <button
+        type="button"
+        aria-pressed={sound.on}
+        title="Music, voices and stings, from your first click"
+        className={toggleStyle}
+        onClick={() => sound.setOn(!sound.on)}
+      >
+        Sound
+      </button>
+      <input
+        type="range"
+        aria-label="Volume"
+        className="w-20 accent-amber-300"
+        min={0}
+        max={1}
+        step={0.05}
+        value={sound.volume}
+        disabled={!sound.on}
+        onChange={(event) => sound.setVolume(Number(event.target.value))}
+      />
       {replayUrl && (
         <a href={replayUrl} className="text-amber-200 hover:underline">
           Replay link

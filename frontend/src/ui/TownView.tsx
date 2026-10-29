@@ -2,7 +2,7 @@ import { Component, lazy, type ReactNode, Suspense, useMemo, useState } from "re
 
 import type { GameView } from "../core/gameView";
 import type { Event } from "../protocol";
-import { prefersReducedMotion } from "./motion";
+import { deterministic, prefersReducedMotion } from "./motion";
 import type { PlaybackView } from "./usePlayback";
 
 /** Phaser comes with the town, in a chunk of its own, loaded only when the town is drawn. */
@@ -52,12 +52,7 @@ export function TownView({
   playback: PlaybackView;
   mystery: boolean;
 }) {
-  const still = useMemo(
-    () =>
-      new URLSearchParams(window.location.search).get("deterministic") === "1" ||
-      prefersReducedMotion(),
-    [],
-  );
+  const still = useMemo(() => deterministic() || prefersReducedMotion(), []);
   return (
     // the map's shape, 40 by 28 tiles (town.spec.ts checks it against the map, which the console does not load)
     <section
