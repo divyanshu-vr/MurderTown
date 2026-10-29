@@ -194,7 +194,7 @@ test("the Host's replay shows the suspicion heatmap as it goes, and the review a
   await page.route(`${API}/games/abc/cost`, (route) => route.abort());
 
   await page.goto("/games/abc/replay");
-  await page.keyboard.press("Space");
+  await playback(page).getByRole("button", { name: "Hold" }).click(); // once the replay is ready, unlike a key press
   await playback(page).getByRole("slider", { name: "Timeline" }).fill("300");
   await page.getByRole("tab", { name: "Suspicion" }).click();
   await expect(page.getByRole("table", { name: /^Suspicion at the start of Day/ })).toBeVisible();
