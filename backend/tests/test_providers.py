@@ -342,7 +342,7 @@ def first_ballots_unusable_dusk_refused(request: ModelRequest) -> ModelReply:
 async def test_a_game_replayed_from_its_recorded_calls_makes_the_same_log_without_the_model() -> (
     None
 ):
-    config = GameConfig(residents=6, murderers=1, max_days=2, seed=3)
+    config = GameConfig(residents=6, murderers=1, max_days=2, seed=3, open_floor_seconds=None)
     model, calls = FakeModel(first_ballots_unusable_dusk_refused), []
 
     async def record(call: ModelCall) -> None:

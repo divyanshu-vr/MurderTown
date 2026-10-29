@@ -9,7 +9,7 @@ from tests.support import payloads
 
 
 async def test_the_same_seed_and_decisions_produce_an_identical_event_log() -> None:
-    config = GameConfig(seed=42)
+    config = GameConfig(seed=42, open_floor_seconds=None)
 
     first = await play_game(config, scripted_bots(seed=42))
     second = await play_game(config, scripted_bots(seed=42))

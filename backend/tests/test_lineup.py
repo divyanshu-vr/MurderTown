@@ -75,7 +75,7 @@ async def test_each_side_and_one_seat_can_have_their_own_model_and_the_narrator_
 
 
 async def test_a_lineup_of_scripted_residents_plays_as_scripted_bots_and_calls_no_model() -> None:
-    config = GameConfig(residents=6, murderers=1, max_days=2, seed=4)
+    config = GameConfig(residents=6, murderers=1, max_days=2, seed=4, open_floor_seconds=None)
 
     by_lineup = await play_game(config, lineup_brains(config, providers(), unrecorded))
 

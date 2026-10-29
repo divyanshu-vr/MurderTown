@@ -307,7 +307,7 @@ async def test_night_events_are_perceived_only_by_the_residents_they_concern() -
 
 
 async def test_the_log_is_the_same_however_long_each_decision_takes() -> None:
-    config = GameConfig(seed=7, max_days=3)
+    config = GameConfig(seed=7, max_days=3, open_floor_seconds=None)
     bots = scripted_bots(config.seed)
 
     def jittery(resident: Resident) -> Brain:
