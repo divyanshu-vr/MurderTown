@@ -46,6 +46,12 @@ describe("watching at one's own pace", () => {
     expect(controls()).toHaveTextContent(`${events.length - 12} events behind`);
   });
 
+  it("says when it plays faster to catch up with live, and how much faster", () => {
+    render(<GameConsole events={events} connection="live" playback={playbackAt(12, events.length, { speed: 1, pace: 2.4, catchingUp: true })} />);
+
+    expect(controls()).toHaveTextContent("catching up at 2.4×");
+  });
+
   it("holds, moves an event at a time, changes speed, seeks and skips to live from its controls", () => {
     const steered = playback(12);
     render(<GameConsole events={events} connection="live" playback={steered} />);

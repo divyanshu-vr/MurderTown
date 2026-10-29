@@ -1,6 +1,6 @@
 /**
  * The town's clock. Everything in town (walks, falls, typing, moments) runs on game time: real
- * time at playback's speed, slower while the Sheriff's shot plays, and none at all while
+ * time at playback's pace (its speed, quickened while catching up with live), slower while the Sheriff's shot plays, and none at all while
  * playback holds or the town stands still. So a walk takes half as long at double speed and
  * stops where it is when held.
  */

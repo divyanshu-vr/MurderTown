@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 
 import type { GameView } from "../core/gameView";
-import type { Speed } from "../core/playback";
 import { blocks } from "../core/presentation";
 import { bubblesOf } from "../core/town/bubbles";
 import { gameTime } from "../core/town/clock";
@@ -24,7 +23,8 @@ export interface TownState {
   shown: readonly Event[];
   /** The latest event playback has reached, shown or not: a moment the town does not show is over at once. */
   reached: number;
-  speed: Speed;
+  /** How fast game time runs: playback's pace, quicker than the speed chosen while catching up. */
+  pace: number;
   held: boolean;
   cuts: number;
   /** Showing only what the whole town saw: Conversations are muffled. */
@@ -147,6 +147,7 @@ export class TownScene extends Phaser.Scene {
     created.words.setResidents(state.view.residents);
     created.words.say(bubblesOf(this.stage, state.mystery), snap);
     created.words.count(this.stage.counts);
+    created.words.raise(this.stage.hands);
     created.words.announce(this.stage.recap);
     created.lights.set(state.view.phase, this.stage.den.length > 0, snap);
     created.ghosts.haunt(
@@ -160,7 +161,7 @@ export class TownScene extends Phaser.Scene {
     const state = this.state;
     if (!created || !state) return;
     const gameMs = gameTime(realMs, {
-      speed: state.speed,
+      speed: state.pace,
       stopped: state.held || this.options.still,
       slowMotion: this.moments.some((moment) => moment.slows),
     });

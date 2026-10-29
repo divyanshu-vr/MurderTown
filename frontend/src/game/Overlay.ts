@@ -1,9 +1,7 @@
 import type { ResidentView } from "../core/gameView";
 import type { Bubble } from "../core/town/bubbles";
 import type { Point } from "../core/town/layout";
-
-/** How fast words appear in their bubble, in characters a second of game time. */
-const TYPING_PER_SECOND = 45;
+import { typedAfter } from "../core/presentation";
 
 /** What a Conversation sounds like to those who cannot hear it. */
 const MUFFLED = "· · ·";
@@ -35,8 +33,8 @@ interface ShownBubble {
 /**
  * The town's words, drawn as HTML over the canvas so they stay crisp at any zoom: each living
  * Resident's name over their head, each house's owner over its roof, bubbles typing out what is
- * said (or muffled, when it cannot be heard), the running count of ballots against each Resident,
- * and the Narrator's banner. The scene says where everything is after each frame; the overlay
+ * said (or muffled, when it cannot be heard), a Raised hand for each Bid on the Open floor, the
+ * running count of ballots against each Resident, and the Narrator's banner. The scene says where everything is after each frame; the overlay
  * moves its labels there without React.
  *
  * Each name carries where its Resident stands (`data-x`, `data-y`, in tiles) so a test can
@@ -46,6 +44,7 @@ export class Overlay {
   private readonly names = new Map<string, HTMLElement>();
   private readonly houses = new Map<string, HTMLElement>();
   private readonly counts = new Map<string, HTMLElement>();
+  private readonly hands = new Map<string, HTMLElement>();
   private readonly bubbles = new Map<string, ShownBubble>();
   private readonly banner: HTMLElement;
 
@@ -98,6 +97,16 @@ export class Overlay {
     }
   }
 
+  /** A Raised hand beside each Resident who Bid this Turn, with how urgently. */
+  raise(hands: ReadonlyMap<string, number>): void {
+    dropAllBut(this.hands, new Set(hands.keys()));
+    for (const [name, urgency] of hands) {
+      const hand = this.hands.get(name) ?? this.addTo(this.hands, name, "rounded bg-sky-200 px-1 text-[10px] font-bold text-stone-900");
+      hand.textContent = `✋${urgency}`;
+      hand.title = `${name} Bids ${urgency} to speak next`;
+    }
+  }
+
   /** The Narrator's words across the top, or nothing. */
   announce(text: string | null): void {
     this.banner.hidden = text === null;
@@ -107,7 +116,7 @@ export class Overlay {
   /** Type on for `gameMs` of game time. */
   type(gameMs: number): void {
     for (const bubble of this.bubbles.values()) {
-      bubble.typed = Math.min(bubble.text.length, bubble.typed + (gameMs * TYPING_PER_SECOND) / 1000);
+      bubble.typed = typedAfter(bubble.typed, gameMs, bubble.text.length);
       const showing = Math.ceil(bubble.typed);
       if (showing === bubble.showing) continue;
       bubble.showing = showing;
@@ -119,7 +128,8 @@ export class Overlay {
   /**
    * Put every label over what it names: names over heads (the dead have none, and nobody does
    * when the town is too small to read them), house names over roofs, bubbles over whoever they
-   * are about, stacked rather than covering one another, and counts beside names.
+   * are about, stacked rather than covering one another, ballot counts after names and raised
+   * hands before them.
    */
   position(where: {
     zoom: number;
@@ -143,11 +153,8 @@ export class Overlay {
       label.hidden = !roof;
       if (roof) place(label, toScreen(roof));
     }
-    for (const [name, label] of this.counts) {
-      const at = standing.get(name);
-      label.hidden = !at;
-      if (at) place(label, toScreen({ x: at.x + 0.9, y: at.y - 0.2 }));
-    }
+    placeBeside(this.counts, standing, toScreen, 0.9);
+    placeBeside(this.hands, standing, toScreen, -0.9);
     const taken: Box[] = [];
     for (const bubble of this.bubbles.values()) {
       const heads = bubble.over.flatMap((name) => standing.get(name) ?? []);
@@ -224,6 +231,20 @@ function dropAllBut(labels: Map<string, HTMLElement | { element: HTMLElement }>,
 }
 
 /** Sit a label's bottom middle on a point of the canvas. */
+/** Each label beside whom it names, `dx` tiles to the right (or left); hidden for anyone not in town. */
+function placeBeside(
+  labels: ReadonlyMap<string, HTMLElement>,
+  standing: ReadonlyMap<string, Point>,
+  toScreen: ToScreen,
+  dx: number,
+): void {
+  for (const [name, label] of labels) {
+    const at = standing.get(name);
+    label.hidden = !at;
+    if (at) place(label, toScreen({ x: at.x + dx, y: at.y - 0.2 }));
+  }
+}
+
 function place(label: HTMLElement, { x, y }: { x: number; y: number }): void {
   label.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(-50%, -100%)`;
 }

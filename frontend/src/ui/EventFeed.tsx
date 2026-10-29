@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import {
   chosenLines,
@@ -9,10 +9,14 @@ import {
   flipKind,
   isFiltered,
 } from "../core/feedFilter";
+import { MAX_FRAME_MS } from "../core/playback";
+import { typedAfter, typesOut } from "../core/presentation";
 import type { Event } from "../protocol";
 import { describeEvent, inFeed } from "./describeEvent";
 import { feedKindLabel } from "./labels";
+import { prefersReducedMotion } from "./motion";
 import { inputStyle, pillStyle, toggleStyle } from "./styles";
+import type { PlaybackView } from "./usePlayback";
 
 const toneByKind: Partial<Record<Event["payload"]["type"], string>> = {
   phase_started: "mt-4 font-semibold text-amber-200",
@@ -48,7 +52,8 @@ const FOLLOW_THRESHOLD = 80;
  * The town feed: a line for each event, filtered by kind of line and by Resident as the
  * Spectator chooses (the console keeps the `filter`, so it lasts while another tab is open).
  * Every line stays in the page, so the log reads whole to a screen reader, but the browser lays
- * out and paints only the lines on screen, and a new event renders only its own line.
+ * out and paints only the lines on screen, and a new event renders only its own line. With
+ * `typing`, the newest words said type out at playback's pace, standing still while held.
  */
 export function EventFeed({
   events,
@@ -56,6 +61,7 @@ export function EventFeed({
   kinds,
   filter,
   onFilterChange,
+  typing,
 }: {
   events: readonly Event[];
   residents: readonly string[];
@@ -63,6 +69,7 @@ export function EventFeed({
   kinds: readonly FeedKind[];
   filter: FeedFilter;
   onFilterChange(filter: FeedFilter): void;
+  typing?: Typing | undefined;
 }) {
   const scroller = useRef<HTMLDivElement>(null);
   const following = useRef(true);
@@ -108,7 +115,7 @@ export function EventFeed({
       >
         <ol className="space-y-1">
           {shown.map((event) => (
-            <FeedLine key={event.seq} event={event} />
+            <FeedLine key={event.seq} event={event} typing={event === shown.at(-1) && typesOut(event) ? typing : undefined} />
           ))}
         </ol>
       </div>
@@ -117,16 +124,63 @@ export function EventFeed({
 }
 
 /** One line. A line off screen is neither laid out nor painted, and keeps its last size meanwhile. */
-const FeedLine = memo(function FeedLine({ event }: { event: Event }) {
+const FeedLine = memo(function FeedLine({ event, typing }: { event: Event; typing?: Typing | undefined }) {
+  // a line that came in typing keeps that shape, so a screen reader is not read it again once it is whole
+  const [typed] = useState(typing !== undefined);
   return (
     <li
       data-kind={event.payload.type}
       className={`[contain-intrinsic-size:auto_1.5rem] [content-visibility:auto] motion-safe:animate-[appear_300ms_ease-out] ${toneByKind[event.payload.type] ?? ""}`}
     >
-      {describeEvent(event)}
+      {typed ? <TypedWords text={describeEvent(event)} typing={typing} /> : describeEvent(event)}
     </li>
   );
 });
+
+/** How words type out in the feed: at playback's pace, and not at all while held. */
+export type Typing = Pick<PlaybackView, "pace" | "held">;
+
+/**
+ * Words appearing a letter at a time, at the pace given and standing still while held; whole
+ * once `typing` is gone (a newer line came) or if they appeared while held (stepped to, sought).
+ * A screen reader is given them whole at once; what is not typed yet keeps its place on screen.
+ */
+function TypedWords({ text, typing }: { text: string; typing: Typing | undefined }) {
+  const [typed, setTyped] = useState(() => (canAnimate() && typing && !typing.held ? 0 : text.length));
+  const done = typed >= text.length || typing === undefined;
+  const pace = typing?.pace ?? 1;
+  const held = typing?.held ?? false;
+
+  useEffect(() => {
+    if (held || done) return;
+    let frame = 0;
+    let last = performance.now();
+    const step = (time: number) => {
+      const gameMs = Math.min(time - last, MAX_FRAME_MS) * pace; // taken now: React runs the update later
+      last = time;
+      setTyped((now) => typedAfter(now, gameMs, text.length));
+      frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [text.length, pace, held, done]);
+
+  const showing = done ? text.length : Math.ceil(typed);
+  return (
+    <>
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true">
+        {text.slice(0, showing)}
+        <span className="invisible">{text.slice(showing)}</span>
+      </span>
+    </>
+  );
+}
+
+/** Whether words may type out: the page can animate, and the Spectator has not asked for less motion. */
+function canAnimate(): boolean {
+  return typeof requestAnimationFrame === "function" && !prefersReducedMotion();
+}
 
 /** The kinds of line the feed holds, each shown or not, one Resident to follow, and a way back to everything. */
 function FeedFilters({

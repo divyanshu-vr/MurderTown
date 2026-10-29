@@ -9,6 +9,10 @@ export interface PlaybackView {
   shown: number;
   behind: number;
   speed: Speed;
+  /** How fast game time runs: the speed chosen, quickened while catching up with live. */
+  pace: number;
+  /** Whether playback goes noticeably faster than chosen, to catch up with live. */
+  catchingUp: boolean;
   held: boolean;
   /** Following a game live, rather than replaying it. */
   live: boolean;
@@ -68,6 +72,8 @@ export function usePlayback(events: readonly Event[], live: boolean): PlaybackVi
     shown: playback.shown,
     behind: playback.behind,
     speed: playback.speed,
+    pace: playback.pace,
+    catchingUp: playback.catchingUp,
     held: playback.held,
     live,
     cuts: playback.cuts,

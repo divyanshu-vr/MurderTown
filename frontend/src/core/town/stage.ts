@@ -1,7 +1,8 @@
 /**
  * What is happening on stage as of the events shown, for the town to draw over the layout.
  * Everything starts afresh with each Phase:
- * - by day, the latest words said (a Statement or Last words) and the ballots cast so far in a Vote;
+ * - by day, the latest words said (a Statement or Last words), the hands raised this Turn on the
+ *   Open floor, and the ballots cast so far in a Vote;
  * - at Dusk, what each Resident chose to do, and the Conversations under way, each with its latest words;
  * - at Night, the Murderers meeting in the Den and what they say there, then who visits whose house;
  * - at Dawn, who was found murdered, and the Narrator's Recap.
@@ -40,6 +41,8 @@ export interface Visit {
 export interface Stage {
   /** What is being said: one Resident's words by day, each Conversation's latest at Dusk, the Den's latest at Night. */
   said: Words[];
+  /** The Bids above 0 of the Turn under way on the Open floor, by bidder, until someone speaks. */
+  hands: Map<string, number>;
   /** The ballots against someone so far this Phase, in the order cast; a vote to skip draws nothing. */
   ballots: Ballot[];
   /** How many ballots each Resident has against them so far. */
@@ -66,6 +69,7 @@ export function stageOf(events: readonly Event[]): Stage {
   const phase = events.slice(start + 1);
   const stage: Stage = {
     said: [],
+    hands: new Map(),
     ballots: [],
     counts: new Map(),
     activities: new Map(),
@@ -79,8 +83,12 @@ export function stageOf(events: readonly Event[]): Stage {
   const talks = new Talks();
   for (const { seq, payload } of phase) {
     switch (payload.type) {
+      case "bid_placed":
+        if (payload.urgency > 0) stage.hands.set(payload.resident, payload.urgency);
+        break;
       case "statement_made":
         stage.said = [{ key: SQUARE, seq, speaker: payload.speaker, text: payload.text }];
+        stage.hands = new Map();
         break;
       case "last_words_spoken":
         stage.said = [{ key: SQUARE, seq, speaker: payload.resident, text: payload.text }];

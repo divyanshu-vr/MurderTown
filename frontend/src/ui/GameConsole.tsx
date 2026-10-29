@@ -123,6 +123,7 @@ export function GameConsole({
         kinds={offeredKinds(mystery)}
         filter={feedFilter}
         onFilterChange={setFeedFilter}
+        typing={playback && { pace: playback.pace, held: playback.held }}
       />
     ),
     residents: (

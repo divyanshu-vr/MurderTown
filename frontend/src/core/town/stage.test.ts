@@ -17,6 +17,21 @@ const first = <T extends Event["payload"]["type"]>(type: T) => present(eventsOf(
 describe("what is on stage by day", () => {
   const [firstStatement, secondStatement] = eventsOf(events, "statement_made");
 
+  it("raises the hands of a Turn's Bids above 0 until someone speaks", () => {
+    const end = events.findIndex(
+      (event, i) => event.payload.type === "bid_placed" && events[i + 1]?.payload.type === "statement_made",
+    );
+    let start = end;
+    while (events[start - 1]?.payload.type === "bid_placed") start -= 1;
+    const turn = eventsOf(events.slice(start, end + 1), "bid_placed");
+    const raised = turn.filter(({ payload }) => payload.urgency > 0).map(({ payload }) => [payload.resident, payload.urgency]);
+    const lastBid = present(turn.at(-1), "a Turn's last Bid");
+
+    expect(raised.length).toBeGreaterThan(0);
+    expect(Object.fromEntries(stageAt(lastBid).hands)).toEqual(Object.fromEntries(raised));
+    expect(stageAt(after(lastBid, () => true, "the Statement")).hands.size).toBe(0);
+  });
+
   it("shows the latest words said until someone else speaks or the Phase ends", () => {
     const statement = present(firstStatement, "a Statement");
     const next = present(secondStatement, "a second Statement");

@@ -42,7 +42,7 @@ function playback(page: Page) {
   return page.getByRole("group", { name: "Playback" });
 }
 
-test("a Spectator holds, moves an event at a time and speeds up a game as it streams in, and is caught up when far behind", async ({
+test("a Spectator holds, moves an event at a time and speeds up a game as it streams in, and catches up when far behind", async ({
   page,
 }) => {
   await page.clock.install();
@@ -76,7 +76,11 @@ test("a Spectator holds, moves an event at a time and speeds up a game as it str
   stream(seen.slice(6)); // the rest of the game at once: far more than a minute behind
   await page.clock.runFor(100);
   // the page reads a thousand events as they arrive, which a busy CI runner takes a while to do
-  await expect(page.getByRole("banner")).toContainText("Game over", { timeout: 15_000 });
+  await expect(playback(page)).toContainText("catching up at 24.0×", { timeout: 30_000 }); // three times 8×
+  await expect(feedLines(page)).not.toHaveCount(6);
+
+  await playback(page).getByRole("button", { name: "Skip to live" }).click();
+  await expect(page.getByRole("banner")).toContainText("Game over");
 });
 
 test("a finished game replays from its start, steered from the keyboard, with a link to share it", async ({

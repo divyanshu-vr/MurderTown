@@ -3,20 +3,39 @@ import { describe, expect, it } from "vitest";
 
 import { eventOf } from "../../test/events";
 import type { Event } from "../protocol";
-import { ANIMATION_TIMEOUT_MS, CATCH_UP_MS, MAX_FRAME_MS, nextSpeed, Playback } from "./playback";
-import { dwellOf } from "./presentation";
+import { ANIMATION_TIMEOUT_MS, CATCH_UP_MS, JOINING_MS, MAX_CATCH_UP, MAX_FRAME_MS, nextSpeed, Playback } from "./playback";
+import { dwellOf, HANDS_UP_MS } from "./presentation";
 
 const phase = () => eventOf({ type: "phase_started", day: 1, phase: "discussion" });
 const died = () => eventOf({ type: "resident_died", resident: "Ava", cause: "banished", role: "civilian" });
+const bid = (resident: string) => eventOf({ type: "bid_placed", resident, urgency: 2, reason: "a point" });
+const said = () =>
+  eventOf({
+    type: "statement_made",
+    speaker: "Ava",
+    text: "I saw nothing.",
+    part: "open_floor",
+    addressed: [],
+    asked: null,
+    answering: false,
+    accused: [],
+    defended: [],
+    claimed_role: null,
+  });
 
 /** A run of Phase starts, each shown for the same time. */
 function phases(count: number): Event[] {
   return Array.from({ length: count }, phase);
 }
 
+/** Whether counts of events shown never went up by more than one from one frame to the next. */
+function oneAtATime(counts: readonly number[]): boolean {
+  return counts.every((shown, i) => i === 0 || shown - (counts[i - 1] ?? 0) <= 1);
+}
+
 const PHASE_DWELL = dwellOf(phase());
 
-/** More Phase starts than a minute of watching: far enough behind to jump to live. */
+/** More Phase starts than a minute of watching: far enough behind to catch up at full pace. */
 const PAST_A_MINUTE = CATCH_UP_MS / PHASE_DWELL + 2;
 
 describe("playing back a game", () => {
@@ -141,12 +160,24 @@ describe("playing back a game", () => {
     playback.skipToLive();
     expect(cuts()).toBe(3);
 
-    events.push(...phases(PAST_A_MINUTE)); // falling far behind while following live jumps to live
+    events.push(...phases(PAST_A_MINUTE)); // falling far behind plays faster rather than jumping
     playback.receive(events);
-    expect(cuts()).toBe(4);
+    expect(cuts()).toBe(3);
   });
 
-  it("jumps to live when a live game is far behind, but plays a replay from the start", () => {
+  it("shows a Turn's Bids together, then the raised hands a moment before the Statement", () => {
+    const playback = new Playback({ live: false });
+    playback.receive([bid("Ava"), bid("Bo"), bid("Cy"), said()]);
+
+    playback.tick(0);
+    expect(playback.shown).toBe(3);
+    playback.tick(HANDS_UP_MS - 1);
+    expect(playback.shown).toBe(3);
+    playback.tick(1);
+    expect(playback.shown).toBe(4);
+  });
+
+  it("starts a live game joined far along at its live edge, but a replay at its start", () => {
     const backlog = phases(PAST_A_MINUTE);
     const live = new Playback({ live: true });
     const replay = new Playback({ live: false });
@@ -156,6 +187,48 @@ describe("playing back a game", () => {
 
     expect(live.shown).toBe(PAST_A_MINUTE);
     expect(replay.shown).toBe(0);
+  });
+
+  it("starts at the live edge of a game joined far along whose backlog arrives an event at a time", () => {
+    const backlog = phases(PAST_A_MINUTE);
+    const live = new Playback({ live: true });
+
+    for (let count = 1; count <= backlog.length; count++) {
+      live.receive(backlog.slice(0, count));
+      live.tick(1);
+    }
+
+    expect(live.shown).toBe(PAST_A_MINUTE);
+    expect(live.cuts).toBe(1);
+  });
+
+  it("takes a Spectator who skipped to live before anything arrived to the live edge once it does", () => {
+    const live = new Playback({ live: true });
+    live.skipToLive();
+
+    live.receive(phases(PAST_A_MINUTE));
+
+    expect(live.shown).toBe(PAST_A_MINUTE);
+  });
+
+  it("plays faster to catch up when a live game falls behind, up to a limit, and shows everything", () => {
+    const events = phases(1);
+    const playback = new Playback({ live: true });
+    playback.receive(events);
+    playback.tick(JOINING_MS); // a game watched for a while, not one just joined
+
+    events.push(...phases(PAST_A_MINUTE));
+    playback.receive(events);
+    expect(playback.shown).toBe(1);
+    expect(playback.pace).toBe(MAX_CATCH_UP);
+
+    const seen = [playback.shown];
+    while (playback.behind > 0) {
+      playback.tick(MAX_FRAME_MS);
+      seen.push(playback.shown);
+    }
+    expect(oneAtATime(seen)).toBe(true);
+    expect(playback.pace).toBe(1);
   });
 
   it("leaves the Spectator's own pace alone until they skip to live", () => {
@@ -168,12 +241,13 @@ describe("playing back a game", () => {
     playback.receive(events);
     expect(playback.shown).toBe(0);
     expect(playback.behind).toBe(PAST_A_MINUTE + 5);
+    expect(playback.pace).toBe(playback.speed);
 
     playback.skipToLive();
     expect([playback.shown, playback.behind, playback.held]).toEqual([PAST_A_MINUTE + 5, 0, false]);
   });
 
-  it("follows live again once playing at the live edge, however it got there", () => {
+  it("catches up with live again once playing at the live edge, however it got there", () => {
     const reached = [
       (playback: Playback) => {
         playback.setSpeed(2);
@@ -196,7 +270,7 @@ describe("playing back a game", () => {
       events.push(...phases(PAST_A_MINUTE));
       playback.receive(events);
 
-      expect(playback.shown).toBe(PAST_A_MINUTE + 2);
+      expect(playback.pace).toBeGreaterThan(playback.speed);
     }
   });
 

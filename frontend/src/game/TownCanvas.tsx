@@ -19,7 +19,7 @@ export default function TownCanvas({
   view,
   shown,
   reached,
-  speed,
+  pace,
   held,
   cuts,
   mystery,
@@ -56,8 +56,8 @@ export default function TownCanvas({
   }, [scene, still, setWaitForAnimations]);
 
   useEffect(() => {
-    scene?.show({ view, shown, reached, speed, held, cuts, mystery });
-  }, [scene, view, shown, reached, speed, held, cuts, mystery]);
+    scene?.show({ view, shown, reached, pace, held, cuts, mystery });
+  }, [scene, view, shown, reached, pace, held, cuts, mystery]);
 
   return (
     <div className="relative h-full w-full overflow-hidden">

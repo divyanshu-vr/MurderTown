@@ -8,7 +8,8 @@ import type { PlaybackView } from "./usePlayback";
 
 /**
  * Playback's controls: hold or play, move an event back or forward, the speed, a timeline to scrub,
- * how far behind what has arrived the view is, and a way back to live (or to a replay's end).
+ * how far behind what has arrived the view is (and how much faster it plays to catch up with
+ * live), and a way back to live (or to a replay's end).
  * Once a game is over, a link to share its replay.
  */
 export function PlaybackBar({
@@ -20,7 +21,7 @@ export function PlaybackBar({
   received: number;
   replayUrl?: string | undefined;
 }) {
-  const { shown, behind, speed, held, live } = playback;
+  const { shown, behind, pace, catchingUp, speed, held, live } = playback;
   return (
     <div
       role="group"
@@ -63,6 +64,7 @@ export function PlaybackBar({
       {behind > 0 && (
         <span className="text-stone-400">
           {behind} {behind === 1 ? "event" : "events"} behind
+          {catchingUp && `, catching up at ${pace.toFixed(1)}×`}
         </span>
       )}
       <button type="button" className={pillStyle} title="L" disabled={behind === 0} onClick={playback.skipToLive}>

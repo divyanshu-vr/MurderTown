@@ -270,6 +270,10 @@ _Avoid_: dump, save file
 The town drawn as a place beside the console, as of the moment being watched: every Resident where the Phase takes them (home, the Square, a Conversation, a Chore, the Den or a Visit), the dead as gravestones where they died, and what is said and voted over their heads.
 _Avoid_: canvas, map, game view, Town (the side)
 
+**Raised hand**:
+How the Town view shows a Bid above 0 on the Open floor: a hand beside the bidder with how urgently, until someone speaks.
+_Avoid_: hand-up, bid badge
+
 **Visit**:
 How the Town view shows a Night action: the Murderers walking to their Victim's house, the Doctor to the house of whom they protect, the Detective to the house of whom they investigate.
 _Avoid_: attack, trip

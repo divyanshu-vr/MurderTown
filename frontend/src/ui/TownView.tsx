@@ -2,6 +2,7 @@ import { Component, lazy, type ReactNode, Suspense, useMemo, useState } from "re
 
 import type { GameView } from "../core/gameView";
 import type { Event } from "../protocol";
+import { prefersReducedMotion } from "./motion";
 import type { PlaybackView } from "./usePlayback";
 
 /** Phaser comes with the town, in a chunk of its own, loaded only when the town is drawn. */
@@ -54,7 +55,7 @@ export function TownView({
   const still = useMemo(
     () =>
       new URLSearchParams(window.location.search).get("deterministic") === "1" ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      prefersReducedMotion(),
     [],
   );
   return (
@@ -70,7 +71,7 @@ export function TownView({
             view={view}
             shown={shown}
             reached={reached}
-            speed={playback.speed}
+            pace={playback.pace}
             held={playback.held}
             cuts={playback.cuts}
             mystery={mystery}
