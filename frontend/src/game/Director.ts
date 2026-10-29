@@ -14,6 +14,10 @@ const CATCH_UP_MS = 300;
 /** How far a press moves before it is a drag rather than a click, in screen pixels. */
 const DRAG_FROM = 4;
 const PAN_KEYS: Record<string, Point> = { w: { x: 0, y: -1 }, a: { x: -1, y: 0 }, s: { x: 0, y: 1 }, d: { x: 1, y: 0 } };
+/** E zooms in a step, Q out: beside W, A, S and D, since minus and equals change playback's speed. */
+const ZOOM_KEYS: Record<string, 1 | -1> = { e: 1, q: -1 };
+/** How far two fingers must spread (or close) for a pinch to zoom a step. */
+const PINCH_STEP = 1.25;
 
 type Following = { kind: "action" } | { kind: "resident"; name: string } | { kind: "nothing" };
 
@@ -26,18 +30,20 @@ export interface Cast {
 
 /**
  * Where the town's camera looks. It follows the action unless the Spectator takes it: a drag or
- * W, A, S and D pan, the wheel zooms in whole steps (or to the whole town on a small screen), a
- * click on a Resident follows them, and F follows the action again. Following the action frames
+ * W, A, S and D pan, the wheel, E and Q, or a pinch zoom in whole steps (or to the whole town on a
+ * small screen), a click on a Resident follows them, and F follows the action again. Following the action frames
  * the area the scene asks for, as closely as a whole zoom step allows. The zoom jumps from step to
  * step, never resting between them, while the view glides; when `still`, the view jumps too. A
  * minimap in the corner shows the whole town and the part in view.
  */
 export class Director {
   private following: Following = { kind: "action" };
-  /** The zoom the Spectator chose with the wheel, kept until they press F. */
+  /** The zoom the Spectator chose, kept until they press F. */
   private chosenZoom: number | null = null;
   private readonly panning = new Set<string>();
   private press: { x: number; y: number; scrollX: number; scrollY: number; dragging: boolean } | null = null;
+  /** How far apart two fingers were when the pinch last zoomed, while two are down. */
+  private pinchedAt: number | null = null;
   private readonly minimap: Phaser.Cameras.Scene2D.Camera;
   private readonly inView: Phaser.GameObjects.Graphics;
   private readonly world: { width: number; height: number };
@@ -57,10 +63,19 @@ export class Director {
     scene.scale.on("resize", ({ width, height }: { width: number; height: number }) => this.fit(width, height));
 
     scene.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
-      this.press = { x: pointer.x, y: pointer.y, scrollX: main.scrollX, scrollY: main.scrollY, dragging: false };
+      const fingers = this.fingers();
+      if (fingers) {
+        this.press = null; // two fingers pinch, never drag or click
+        this.pinchedAt = apart(...fingers);
+      } else {
+        this.press = { x: pointer.x, y: pointer.y, scrollX: main.scrollX, scrollY: main.scrollY, dragging: false };
+      }
     });
-    scene.input.on("pointermove", (pointer: Phaser.Input.Pointer) => this.drag(pointer));
-    scene.input.on("pointerup", (pointer: Phaser.Input.Pointer) => this.release(pointer));
+    scene.input.on("pointermove", (pointer: Phaser.Input.Pointer) => (this.pinchedAt === null ? this.drag(pointer) : this.pinch()));
+    scene.input.on("pointerup", (pointer: Phaser.Input.Pointer) => {
+      this.pinchedAt = null;
+      this.release(pointer);
+    });
     scene.input.on("wheel", (_pointer: unknown, _over: unknown, _dx: number, dy: number) => this.zoomStep(dy < 0 ? 1 : -1));
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("keyup", this.onKeyUp);
@@ -128,12 +143,30 @@ export class Director {
     return [...(whole < 1 ? [whole] : []), ...Array.from({ length: MOST_ZOOM }, (_, step) => step + 1)];
   }
 
-  private zoomStep(notches: 1 | -1): void {
+  /** Zoom one step in (1) or out (-1), as the wheel, the keys and a pinch all do. */
+  private zoomStep(direction: 1 | -1): void {
     const zoom = this.scene.cameras.main.zoom;
     const steps = this.zoomSteps();
-    const next = notches > 0 ? steps.find((step) => step > zoom + 0.01) : steps.findLast((step) => step < zoom - 0.01);
+    const next = direction > 0 ? steps.find((step) => step > zoom + 0.01) : steps.findLast((step) => step < zoom - 0.01);
     this.chosenZoom = next ?? this.chosenZoom ?? zoom;
     if (this.following.kind === "nothing") this.scene.cameras.main.setZoom(this.chosenZoom);
+  }
+
+  /** The two fingers on a touch screen, while both are down. */
+  private fingers(): [Phaser.Input.Pointer, Phaser.Input.Pointer] | null {
+    const { pointer1, pointer2 } = this.scene.input;
+    return pointer1.isDown && pointer2.isDown ? [pointer1, pointer2] : null;
+  }
+
+  /** Zoom a step each time the fingers spread (or close) far enough from where the last step left them. */
+  private pinch(): void {
+    const fingers = this.fingers();
+    if (!fingers || this.pinchedAt === null) return;
+    const now = apart(...fingers);
+    const spread = now / this.pinchedAt;
+    if (spread < PINCH_STEP && spread > 1 / PINCH_STEP) return; // not far enough yet
+    this.zoomStep(spread > 1 ? 1 : -1);
+    this.pinchedAt = now;
   }
 
   private drag(pointer: Phaser.Input.Pointer): void {
@@ -170,9 +203,12 @@ export class Director {
   private readonly onKeyDown = (event: KeyboardEvent) => {
     if (!isShortcut(event)) return;
     const key = event.key.toLowerCase();
+    const zoom = ZOOM_KEYS[key];
     if (key in PAN_KEYS) {
       this.panning.add(key);
       this.following = { kind: "nothing" };
+    } else if (zoom) {
+      this.zoomStep(zoom);
     } else if (key === "f") {
       this.following = { kind: "action" };
       this.chosenZoom = null;
@@ -197,4 +233,8 @@ export class Director {
     this.minimap.setViewport(width - across - 8, height - down - 8, across, down).setZoom(zoom);
     this.minimap.centerOn(this.world.width / 2, this.world.height / 2);
   }
+}
+
+function apart(one: Phaser.Input.Pointer, other: Phaser.Input.Pointer): number {
+  return Math.hypot(one.x - other.x, one.y - other.y);
 }

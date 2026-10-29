@@ -328,7 +328,7 @@ export function startTown(parent: HTMLElement, options: TownOptions): Phaser.Gam
     backgroundColor: "#0c0a09",
     banner: false,
     audio: { noAudio: true },
-    input: { keyboard: false },
+    input: { keyboard: false, activePointers: 2 }, // two fingers, for a pinch
     scale: { mode: Phaser.Scale.RESIZE, width: parent.clientWidth, height: parent.clientHeight },
     scene: new TownScene(options),
   });

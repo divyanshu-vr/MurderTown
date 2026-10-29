@@ -140,6 +140,202 @@ test.describe("on a phone", () => {
   });
 });
 
+// The camera, as a Spectator sees it: where the names over the Residents' heads land on screen.
+
+/** The town standing still at Day 2's Discussion, everyone alive in the square; the two furthest apart, to watch. */
+async function theSquare(page: Page): Promise<[string, string]> {
+  const living = (await standStillAt(page, countWhen(events, "discussion", 2) + 1)).sort((a, b) => a.x - b.x);
+  const [one, other] = [living[0], living.at(-1)];
+  if (!one || !other || one.x === other.x) throw new Error("Expected Residents across the square");
+  return [one.name, other.name];
+}
+
+/** Where a Resident's name is on screen: the middle of its bottom edge, just over their head. */
+async function nameAt(page: Page, name: string): Promise<{ x: number; y: number }> {
+  const box = await page.locator(`[data-resident="${name}"]`).boundingBox();
+  if (!box) throw new Error(`${name}'s name is not drawn`);
+  return { x: box.x + box.width / 2, y: box.y + box.height };
+}
+
+/** How far apart two names are on screen, which grows as the camera zooms in. */
+async function apart(page: Page, one: string, other: string): Promise<number> {
+  const [a, b] = [await nameAt(page, one), await nameAt(page, other)];
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+async function townViewBox(page: Page): Promise<{ x: number; y: number; width: number; height: number }> {
+  const box = await page.getByRole("region", { name: "Town view" }).boundingBox();
+  if (!box) throw new Error("The town is not drawn");
+  return box;
+}
+
+async function middleOfTheTown(page: Page): Promise<{ x: number; y: number }> {
+  const box = await townViewBox(page);
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+}
+
+/** The minimap's amber frame round the part of the town in view: how many of its pixels show in the Town view's bottom right corner, where the minimap sits, and how far across their middle is. */
+async function theFrameInView(page: Page): Promise<{ pixels: number; across: number }> {
+  const town = await townViewBox(page);
+  const corner = { x: town.x + town.width - 200, y: town.y + town.height - 150, width: 200, height: 150 };
+  const png = (await page.screenshot({ clip: corner })).toString("base64");
+  return page.evaluate(async (data) => {
+    const image = new Image();
+    image.src = `data:image/png;base64,${data}`;
+    await image.decode();
+    const canvas = document.createElement("canvas");
+    [canvas.width, canvas.height] = [image.width, image.height];
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("No 2D canvas to read the screenshot with");
+    context.drawImage(image, 0, 0);
+    const rgba = context.getImageData(0, 0, image.width, image.height).data;
+    let [pixels, across] = [0, 0];
+    for (let i = 0; i < rgba.length; i += 4) {
+      if (rgba[i] === 0xfc && rgba[i + 1] === 0xd3 && rgba[i + 2] === 0x4d) {
+        pixels += 1;
+        across += (i / 4) % image.width;
+      }
+    }
+    return { pixels, across: pixels ? across / pixels : Number.NaN };
+  }, png);
+}
+
+/** Hold a key down a moment, as a Spectator panning does. */
+async function hold(page: Page, key: string): Promise<void> {
+  await page.keyboard.down(key);
+  await page.waitForTimeout(300);
+  await page.keyboard.up(key);
+}
+
+/** Touch the screen with one finger or more, move them through `path`, and lift them. */
+async function touch(page: Page, path: { x: number; y: number }[][]): Promise<void> {
+  const [first, ...rest] = path;
+  const screen = await page.context().newCDPSession(page);
+  await screen.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: first ?? [] });
+  for (const fingers of rest) await screen.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: fingers });
+  await screen.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+}
+
+test.describe("the camera", () => {
+  test("a drag or W, A, S and D pan the view, and F frames the action again", async ({ page }) => {
+    const [one] = await theSquare(page);
+    const framed = await nameAt(page, one);
+    const middle = await middleOfTheTown(page);
+
+    await page.mouse.move(middle.x, middle.y);
+    await page.mouse.down();
+    await page.mouse.move(middle.x - 120, middle.y + 40, { steps: 6 });
+    await page.mouse.up();
+    await expect.poll(async () => (await nameAt(page, one)).x).toBeCloseTo(framed.x - 120, 0);
+    await page.keyboard.press("f");
+    await expect.poll(() => nameAt(page, one)).toEqual(framed);
+
+    await hold(page, "d");
+    expect((await nameAt(page, one)).x).toBeLessThan(framed.x - 20);
+    await page.keyboard.press("f");
+    await expect.poll(() => nameAt(page, one)).toEqual(framed);
+  });
+
+  test("the wheel, E and Q zoom in whole steps, and F frames the action again", async ({ page }) => {
+    const [one, other] = await theSquare(page);
+    const framed = await apart(page, one, other);
+    const middle = await middleOfTheTown(page);
+
+    await page.mouse.move(middle.x, middle.y);
+    await page.mouse.wheel(0, -100);
+    await expect.poll(() => apart(page, one, other)).toBeGreaterThan(framed * 1.2);
+    const closer = await apart(page, one, other);
+    await page.keyboard.press("q");
+    await expect.poll(() => apart(page, one, other)).toBeCloseTo(framed, 0);
+    await page.keyboard.press("e");
+    await expect.poll(() => apart(page, one, other)).toBeCloseTo(closer, 0);
+
+    await page.keyboard.press("f");
+    await expect.poll(() => apart(page, one, other)).toBeCloseTo(framed, 0);
+
+    await page.getByRole("combobox", { name: "Resident" }).focus(); // keys there choose, they do not zoom
+    await page.keyboard.press("e");
+    await page.waitForTimeout(300); // a few frames, in which a zoom would have shown
+    expect(await apart(page, one, other)).toBeCloseTo(framed, 0);
+  });
+
+  test("a click on a Resident follows them, and F frames the action again", async ({ page }) => {
+    const [one, other] = await theSquare(page);
+    const framed = await nameAt(page, one);
+    const spots = new Map((await standing(page)).map(({ name, x }) => [name, x]));
+    const tilesApart = Math.abs((spots.get(one) ?? 0) - (spots.get(other) ?? 0));
+    const perTile = Math.abs(framed.x - (await nameAt(page, other)).x) / tilesApart;
+    const middle = await middleOfTheTown(page);
+
+    await page.mouse.click(framed.x, framed.y + perTile / 2); // the middle of the Resident under the name
+
+    // the view centres on them (as far as the town's edge lets it, which the square is far from)
+    await expect.poll(async () => Math.abs((await nameAt(page, one)).x - middle.x)).toBeLessThan(perTile);
+    await page.keyboard.press("f");
+    await expect.poll(() => nameAt(page, one)).toEqual(framed);
+  });
+
+  test("the minimap frames the part of the town in view, wherever the view goes", async ({ page }) => {
+    await theSquare(page);
+    const framed = await theFrameInView(page);
+    expect(framed.pixels).toBeGreaterThan(0);
+
+    await hold(page, "a"); // the view goes left, and its frame on the minimap with it
+    await expect.poll(async () => (await theFrameInView(page)).across).toBeLessThan(framed.across - 1);
+
+    await page.keyboard.press("f");
+    await expect.poll(() => theFrameInView(page)).toEqual(framed);
+  });
+
+  test.describe("on a touch screen", () => {
+    test.use({ hasTouch: true });
+
+    /** Two fingers, `from` apart, moving to `to` apart, about the middle of the town. */
+    async function pinch(page: Page, from: number, to: number): Promise<void> {
+      const { x, y } = await middleOfTheTown(page);
+      const steps = [0, 0.25, 0.5, 0.75, 1].map((done) => (from + (to - from) * done) / 2);
+      await touch(
+        page,
+        steps.map((half) => [
+          { x: x - half, y },
+          { x: x + half, y },
+        ]),
+      );
+    }
+
+    test("a pinch zooms a step at a time, as far as a notch of the wheel, out as well as in", async ({ page }) => {
+      const [one, other] = await theSquare(page);
+      const framed = await apart(page, one, other);
+      const { x, y } = await middleOfTheTown(page);
+      await page.mouse.move(x, y);
+      await page.mouse.wheel(0, -100);
+      await expect.poll(() => apart(page, one, other)).toBeGreaterThan(framed * 1.1);
+      const aNotch = await apart(page, one, other);
+      await page.keyboard.press("f");
+      await expect.poll(() => apart(page, one, other)).toBeCloseTo(framed, 0);
+
+      await pinch(page, 80, 104); // spread by 1.3: one step
+      await expect.poll(() => apart(page, one, other)).toBeCloseTo(aNotch, 0);
+
+      await pinch(page, 104, 80); // and back
+      await expect.poll(() => apart(page, one, other)).toBeCloseTo(framed, 0);
+    });
+
+    test("a one-finger drag pans", async ({ page }) => {
+      const [one] = await theSquare(page);
+      const framed = await nameAt(page, one);
+      const { x, y } = await middleOfTheTown(page);
+
+      await touch(
+        page,
+        [0, 30, 60, 90, 120].map((moved) => [{ x: x - moved, y }]),
+      );
+
+      await expect.poll(async () => (await nameAt(page, one)).x).toBeCloseTo(framed.x - 120, 0);
+    });
+  });
+});
+
 test("without WebGL, the console plays on alone and never downloads the town", async ({ page }) => {
   await withoutWebGL(page);
   const asked: string[] = [];

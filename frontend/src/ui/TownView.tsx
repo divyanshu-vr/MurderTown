@@ -25,6 +25,10 @@ export function useCanDrawTownView(): boolean {
   return drawable;
 }
 
+/** How to move the camera, shown over the town as the playback controls show their keys. */
+const CAMERA_CONTROLS =
+  "Drag or W, A, S, D to pan; the wheel, E and Q, or a pinch to zoom; click a Resident to follow them; F to follow the action again";
+
 /**
  * The Town view as of the view, played back with the console. It keeps the map's shape on a
  * narrow screen, with the panels below it, and fills the space beside them on a wide one. If the
@@ -57,6 +61,7 @@ export function TownView({
     // the map's shape, 40 by 28 tiles (town.spec.ts checks it against the map, which the console does not load)
     <section
       aria-label="Town view"
+      title={CAMERA_CONTROLS}
       className="relative aspect-[40/28] w-full shrink-0 bg-stone-950 md:aspect-auto md:min-h-0 md:flex-1"
     >
       <WhenTheTownFails>
