@@ -19,6 +19,7 @@ from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
+    Path,
     Query,
     Request,
     WebSocket,
@@ -26,12 +27,13 @@ from fastapi import (
 )
 from pydantic import BaseModel
 
-from mm.agents import Cost, ModelCall
+from mm.agents import CallSummary, Cost, ModelCall
 from mm.agents.memory import Mind, mind_of
 from mm.api.live_games import Control, ControlRefusedError, LiveGames
 from mm.api.rate_limit import RateLimit
 from mm.engine import GameConfig, Phase, Side
 from mm.engine.config import SCRIPTED_PROVIDER
+from mm.engine.decisions import DECISION_ID, decision_number
 from mm.engine.events import Event, ends_the_game
 from mm.llm.prices import priced_models
 from mm.llm.providers import NAMES
@@ -109,6 +111,10 @@ class SetupChoices(BaseModel):
 
 class EventPage(BaseModel):
     events: list[Event]
+
+
+class CallPage(BaseModel):
+    calls: list[CallSummary]
 
 
 class Explanation(BaseModel):
@@ -281,6 +287,39 @@ async def explain(game_id: str, seq: int, services: ServicesDep) -> Explanation:
         attempts=await store.calls(game_id, event.decision_id),
         fallback_reason=await store.fallback_reason(game_id, event.decision_id),
     )
+
+
+@router.get("/games/{game_id}/model-calls", dependencies=[HostOnly])
+async def list_model_calls(
+    game_id: str,
+    services: ServicesDep,
+    resident: str | None = None,
+    after: Annotated[str | None, Query(pattern=DECISION_ID)] = None,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+) -> CallPage:
+    """A page of a game's model calls (or one Resident's), without their words: every attempt
+    at the `limit` decisions asked after decision `after`. The next page is after the last
+    call's decision (`GameStore.call_page`)."""
+    await stored_game(services, game_id)
+    calls = await services.store.call_page(
+        game_id, resident=resident, after=decision_number(after) if after else 0, decisions=limit
+    )
+    return CallPage(calls=calls)
+
+
+@router.get("/games/{game_id}/model-calls/{decision_id}/{attempt}", dependencies=[HostOnly])
+async def get_model_call(
+    game_id: str,
+    decision_id: Annotated[str, Path(pattern=DECISION_ID)],
+    attempt: Annotated[int, Path(ge=1)],
+    services: ServicesDep,
+) -> ModelCall:
+    """One model call, whole: the prompt it was given, what came back, and any problem with it."""
+    await stored_game(services, game_id)
+    call = await services.store.call(game_id, decision_id, attempt)
+    if call is None:
+        raise HTTPException(status_code=404, detail=f"No attempt {attempt} at {decision_id}")
+    return call
 
 
 @router.get("/games/{game_id}/cost", dependencies=[HostOnly])

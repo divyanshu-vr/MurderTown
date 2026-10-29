@@ -12,7 +12,7 @@ from typing import Any, ClassVar, Literal, Self
 from opentelemetry.trace import Span
 from pydantic import BaseModel, ConfigDict, computed_field
 
-from mm.engine.decisions import DecisionKind
+from mm.engine.decisions import DecisionKind, decision_number
 from mm.llm import Effort, ModelReply, Outcome, Usage
 from mm.observability import tracing
 
@@ -20,7 +20,11 @@ CallOutcome = Outcome | Literal["invalid"]
 """What came of one attempt: the provider's outcome, or an answer the game could not use."""
 
 
-class ModelCall(BaseModel):
+class CallSummary(BaseModel):
+    """One model call without its words: whose decision, which attempt, how it went and what it
+    took. What a list of many calls shows; the whole `ModelCall` adds the prompt and the answer,
+    and why an answer could not be used."""
+
     model_config = ConfigDict(frozen=True)
 
     decision_id: str
@@ -31,13 +35,7 @@ class ModelCall(BaseModel):
     model: str
     effort: Effort
     prompt_version: str
-    system: str
-    prompt: str
     outcome: CallOutcome
-    problem: str | None
-    """Why the answer could not be used, when it could not."""
-    raw_text: str
-    answer: dict[str, Any] | None
     input_tokens: int
     output_tokens: int
     cache_read_tokens: int
@@ -54,6 +52,22 @@ class ModelCall(BaseModel):
     def key(self) -> tuple[str, int]:
         """Which attempt at which decision this was: unique within a game."""
         return self.decision_id, self.attempt
+
+    @property
+    def decision_number(self) -> int:
+        """Where its decision stands among the game's, in the order they were asked."""
+        return decision_number(self.decision_id)
+
+
+class ModelCall(CallSummary):
+    """One attempt at one decision, whole: the prompt it was given and what came back."""
+
+    system: str
+    prompt: str
+    raw_text: str
+    answer: dict[str, Any] | None
+    problem: str | None
+    """Why the answer could not be used, when it could not (it may quote the answer)."""
 
     def as_reply(self) -> ModelReply:
         """The reply this call recorded, to answer a resumed or replayed game again without the

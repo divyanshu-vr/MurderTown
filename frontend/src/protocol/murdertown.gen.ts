@@ -1,14 +1,6 @@
 /* Generated from protocol/murdertown.schema.json by 'pnpm gen:types'. Do not edit. */
 
 /**
- * What the Host may do to a game being played: hold it before its next batch of
- * decisions, let one more batch through a held game, or let it run on.
- *
- * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
- * via the `definition` "Control".
- */
-export type Control = "pause" | "step" | "resume";
-/**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "DecisionKind".
  */
@@ -33,6 +25,14 @@ export type DecisionKind =
  * via the `definition` "Effort".
  */
 export type Effort = "low" | "medium" | "high" | "max";
+/**
+ * What the Host may do to a game being played: hold it before its next batch of
+ * decisions, let one more batch through a held game, or let it run on.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Control".
+ */
+export type Control = "pause" | "step" | "resume";
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "Phase".
@@ -92,6 +92,40 @@ export interface BidPlaced {
   resident: string;
   urgency: number;
   reason: string;
+}
+/**
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "CallPage".
+ */
+export interface CallPage {
+  calls: CallSummary[];
+}
+/**
+ * One model call without its words: whose decision, which attempt, how it went and what it
+ * took. What a list of many calls shows; the whole `ModelCall` adds the prompt and the answer,
+ * and why an answer could not be used.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "CallSummary".
+ */
+export interface CallSummary {
+  decision_id: string;
+  resident: string;
+  kind: DecisionKind;
+  attempt: number;
+  provider: string;
+  model: string;
+  effort: Effort;
+  prompt_version: string;
+  outcome: ("ok" | "refusal" | "timeout" | "error") | "invalid";
+  input_tokens: number;
+  output_tokens: number;
+  cache_read_tokens: number;
+  cache_write_tokens: number;
+  cache_write_1h_tokens?: number;
+  cost_usd: number;
+  latency_ms: number;
+  trace_id: string | null;
 }
 /**
  * One message in a Conversation, heard only by the two Residents in it.
@@ -635,6 +669,8 @@ export interface Explanation {
   fallback_reason: string | null;
 }
 /**
+ * One attempt at one decision, whole: the prompt it was given and what came back.
+ *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
  * via the `definition` "ModelCall".
  */
@@ -647,14 +683,7 @@ export interface ModelCall {
   model: string;
   effort: Effort;
   prompt_version: string;
-  system: string;
-  prompt: string;
   outcome: ("ok" | "refusal" | "timeout" | "error") | "invalid";
-  problem: string | null;
-  raw_text: string;
-  answer: {
-    [k: string]: unknown;
-  } | null;
   input_tokens: number;
   output_tokens: number;
   cache_read_tokens: number;
@@ -663,6 +692,13 @@ export interface ModelCall {
   cost_usd: number;
   latency_ms: number;
   trace_id: string | null;
+  system: string;
+  prompt: string;
+  raw_text: string;
+  answer: {
+    [k: string]: unknown;
+  } | null;
+  problem: string | null;
 }
 /**
  * A Statement claiming a role that is not the speaker's.

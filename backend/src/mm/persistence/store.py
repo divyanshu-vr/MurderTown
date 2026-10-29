@@ -8,7 +8,7 @@ from uuid import uuid4
 from sqlalchemy import Select, and_, func, select, text, update
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
-from mm.agents import Cost, ModelCall
+from mm.agents import CallSummary, Cost, ModelCall
 from mm.engine import GameConfig, Phase, Side
 from mm.engine.events import Event
 from mm.persistence.tables import EventRow, GameRow, ModelCallRow
@@ -179,6 +179,38 @@ class GameStore:
         async with self._sessions() as session:
             rows = (await session.scalars(query.order_by(ModelCallRow.attempt))).all()
         return [ModelCall.model_validate(row, from_attributes=True) for row in rows]
+
+    async def call(self, game_id: str, decision_id: str, attempt: int) -> ModelCall | None:
+        """One model attempt, whole, or None if the game made no such attempt."""
+        query = select(ModelCallRow).where(
+            ModelCallRow.game_id == game_id,
+            ModelCallRow.decision_id == decision_id,
+            ModelCallRow.attempt == attempt,
+        )
+        async with self._sessions() as session:
+            row = await session.scalar(query)
+        return ModelCall.model_validate(row, from_attributes=True) if row else None
+
+    async def call_page(
+        self, game_id: str, *, resident: str | None, after: int, decisions: int
+    ) -> list[CallSummary]:
+        """A page of a game's model calls, or one Resident's, without their words: every attempt
+        at the `decisions` decisions asked after the `after`th, in the order they were asked, so
+        a page never splits a decision. While a game plays, decisions asked at once may still add
+        attempts before the end of a page already read; once it has ended, the pages are whole."""
+        columns = [getattr(ModelCallRow, field) for field in CallSummary.model_fields]
+        query = select(*columns).where(ModelCallRow.game_id == game_id)
+        if resident is not None:
+            query = query.where(ModelCallRow.resident == resident)
+        async with self._sessions() as session:
+            rows = (await session.execute(query)).all()
+        summaries = [CallSummary.model_validate(dict(row._mapping)) for row in rows]
+        later = [call for call in summaries if call.decision_number > after]
+        kept = sorted({call.decision_number for call in later})[:decisions]
+        if not kept:
+            return []
+        page = [call for call in later if call.decision_number <= kept[-1]]
+        return sorted(page, key=lambda call: (call.decision_number, call.attempt))
 
     async def cost(self, game_id: str) -> dict[str, Cost]:
         """What each caller's model calls cost in one game: each Resident's, and the narrator's."""

@@ -1,11 +1,13 @@
-"""Fixtures and helpers shared by the tests: quiet logs, and the API driven like a browser would."""
+"""Fixtures and helpers shared by the tests: quiet logs, the API driven like a browser would, and
+a served game played by Agents whose model calls are recorded."""
 
 import asyncio
 import io
+import json
 import logging
 import os
 import time
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -15,12 +17,16 @@ from fastapi.testclient import TestClient
 from sqlalchemy import text
 from starlette.testclient import WebSocketTestSession
 
+from mm.agents import BrainFactory, CallRecorder, ModelCall, llm_agents
 from mm.api import Settings, create_app
 from mm.api.live_games import BrainsFor
 from mm.api.routes import HOST_TOKEN_HEADER
-from mm.llm import ModelProvider
+from mm.engine import GameConfig, PlayedBy
+from mm.engine.decisions import DecisionKind
+from mm.llm import ModelProvider, ModelReply, ModelRequest, Usage
 from mm.observability.logs import configure_logging
 from mm.persistence import open_database
+from tests.support import FakeModel, answer_kind, sensible_answer
 
 HOST_TOKEN = "the-host-token-for-tests"
 
@@ -121,3 +127,45 @@ def wait_until_finished(client: TestClient, game_id: str) -> None:
         return client.get(f"/games/{game_id}").json()["status"] in ("finished", "aborted", "failed")
 
     wait_until(over, "finished")
+
+
+# A served game played by Agents, its model calls recorded
+
+
+def varied_usage(request: ModelRequest) -> ModelReply:
+    """Sensible answers whose tokens differ by decision kind, with both kinds of cache write.
+    Every first ballot is unusable and every Dusk intent refused, so retries and refusals count."""
+    kind = answer_kind(request)
+    n = list(DecisionKind).index(kind) + 1
+    usage = Usage(
+        input_tokens=10 * n,
+        output_tokens=3 * n,
+        cache_read_tokens=5 * n,
+        cache_write_5m_tokens=n % 2,
+        cache_write_1h_tokens=2 * n,
+    )
+    if kind is DecisionKind.DUSK_INTENT:
+        return ModelReply(outcome="refusal", data=None, text="", usage=usage, error="declined")
+    if kind is DecisionKind.BALLOT and "could not be used" not in request.prompt:
+        answer: dict[str, object] = {"target": "Nobody", "reason": "a hunch"}
+    else:
+        answer = sensible_answer(request).data or {}
+    return ModelReply(outcome="ok", data=answer, text=json.dumps(answer), usage=usage)
+
+
+@pytest.fixture
+def recorded(database_url: str) -> Iterator[tuple[TestClient, list[ModelCall]]]:
+    """An API whose games are played by Agents, plus every model call they recorded."""
+    calls: list[ModelCall] = []
+
+    def agents(
+        config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
+    ) -> BrainFactory:
+        async def keep(call: ModelCall) -> None:
+            calls.append(call)
+            await record(call)
+
+        return llm_agents(FakeModel(varied_usage), PlayedBy(), keep, config.seed)
+
+    with serving(database_url, agents) as client:
+        yield client, calls

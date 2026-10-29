@@ -6,19 +6,17 @@ Code's own `total_cost_usd` for those calls (measured 2026-10-28).
 """
 
 import json
-from collections.abc import Iterator, Sequence
 
 import pytest
 from fastapi.testclient import TestClient
 
-from mm.agents import BrainFactory, CallRecorder, Cost, ModelCall, llm_agents
+from mm.agents import Cost, ModelCall, llm_agents
 from mm.engine import GameConfig, PlayedBy
-from mm.engine.decisions import DecisionKind
 from mm.llm import ModelReply, ModelRequest, Usage
 from mm.llm.prices import _configured, equivalent_cost
 from mm.orchestrator.narrator import NARRATOR
-from tests.conftest import serving, start_game, wait_until_finished
-from tests.support import FakeModel, answer_kind, played_by, sensible_answer
+from tests.conftest import start_game, wait_until_finished
+from tests.support import FakeModel, played_by, sensible_answer
 
 CONFIG = GameConfig(residents=6, murderers=1, max_days=1, seed=13)
 
@@ -78,45 +76,6 @@ def test_agents_refuse_a_model_with_no_price_before_the_game_starts() -> None:
 
     with pytest.raises(ValueError, match="claude-imaginary-1"):
         llm_agents(FakeModel(), PlayedBy(model="claude-imaginary-1"), record, seed=1)
-
-
-def varied_usage(request: ModelRequest) -> ModelReply:
-    """Sensible answers whose tokens differ by decision kind, with both kinds of cache write.
-    Every first ballot is unusable and every Dusk intent refused, so retries and refusals count."""
-    kind = answer_kind(request)
-    n = list(DecisionKind).index(kind) + 1
-    usage = Usage(
-        input_tokens=10 * n,
-        output_tokens=3 * n,
-        cache_read_tokens=5 * n,
-        cache_write_5m_tokens=n % 2,
-        cache_write_1h_tokens=2 * n,
-    )
-    if kind is DecisionKind.DUSK_INTENT:
-        return ModelReply(outcome="refusal", data=None, text="", usage=usage, error="declined")
-    if kind is DecisionKind.BALLOT and "could not be used" not in request.prompt:
-        answer: dict[str, object] = {"target": "Nobody", "reason": "a hunch"}
-    else:
-        answer = sensible_answer(request).data or {}
-    return ModelReply(outcome="ok", data=answer, text=json.dumps(answer), usage=usage)
-
-
-@pytest.fixture
-def recorded(database_url: str) -> Iterator[tuple[TestClient, list[ModelCall]]]:
-    """An API whose games are played by Agents, plus every model call they recorded."""
-    calls: list[ModelCall] = []
-
-    def agents(
-        config: GameConfig, record: CallRecorder, replay: Sequence[ModelCall]
-    ) -> BrainFactory:
-        async def keep(call: ModelCall) -> None:
-            calls.append(call)
-            await record(call)
-
-        return llm_agents(FakeModel(varied_usage), PlayedBy(), keep, config.seed)
-
-    with serving(database_url, agents) as client:
-        yield client, calls
 
 
 def summed(calls: list[ModelCall]) -> object:

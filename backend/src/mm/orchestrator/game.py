@@ -13,7 +13,7 @@ from structlog.contextvars import bind_contextvars, bound_contextvars
 from mm.agents import Brain, BrainFactory, ModelFailureError
 from mm.engine import GameConfig, Phase
 from mm.engine.casting import cast
-from mm.engine.decisions import Decision, DecisionRequest
+from mm.engine.decisions import Decision, DecisionRequest, nth_decision_id
 from mm.engine.events import (
     DecisionFellBack,
     DecisionUnanswered,
@@ -244,7 +244,7 @@ class Game:
 
     def _stamp(self, request: DecisionRequest) -> DecisionRequest:
         self._decisions_asked += 1
-        return replace(request, id=f"d{self._decisions_asked}")
+        return replace(request, id=nth_decision_id(self._decisions_asked))
 
     def open_floor_out_of_time(self, started: float) -> bool:
         """Whether the Open floor's time limit has passed since `started`. A replay follows

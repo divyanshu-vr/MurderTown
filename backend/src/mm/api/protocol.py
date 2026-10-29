@@ -10,6 +10,7 @@ from pydantic.json_schema import models_json_schema
 
 from mm.agents.memory import Mind
 from mm.api.routes import (
+    CallPage,
     CostReport,
     EventPage,
     Explanation,
@@ -47,6 +48,7 @@ def protocol_schema() -> dict[str, Any]:
             (Mind, "serialization"),
             (Explanation, "serialization"),
             (CostReport, "serialization"),
+            (CallPage, "serialization"),
             (Review, "serialization"),
             (GameConfig, "validation"),
         ],

@@ -48,6 +48,20 @@ class DecisionRequest:
     """Stamped by the game when it asks, so model calls can be linked to the events they caused."""
 
 
+DECISION_ID = r"^d[1-9][0-9]*$"
+"""A game numbers its decisions d1, d2 and on, in the order it asks them."""
+
+
+def nth_decision_id(number: int) -> str:
+    """The id of a game's `number`th decision."""
+    return f"d{number}"
+
+
+def decision_number(id_: str) -> int:
+    """Where a decision stands among its game's, in the order they were asked."""
+    return int(id_.removeprefix("d"))
+
+
 class Decision(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
