@@ -5,4 +5,4 @@ $facts
 $recent
 
 # Now
-It is Dawn on Day $day. Recap for the town what has happened since the previous Dawn, ending with this Dawn's news, in two or three sentences and at most $words words.
+It is Dawn on Day $day. Recap for the town what has happened since the previous Dawn, ending with this Dawn's news, in two or three sentences and at most $words words. Tell only what the town saw above; invent nothing.

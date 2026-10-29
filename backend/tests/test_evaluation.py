@@ -47,9 +47,10 @@ def tiny(**changes: Any) -> Matrix:
 
 
 def on_claude(**changes: Any) -> Matrix:
-    """The tiny matrix, one Day long, with Agents on Claude in every seat."""
+    """The tiny matrix, two Days long (the opening Night, then one full Day), with Agents on
+    Claude in every seat."""
     lineup = {"everyone": {"provider": "claude"}}
-    return tiny(base={"residents": 6, "murderers": 1, "max_days": 1, "lineup": lineup}, **changes)
+    return tiny(base={"residents": 6, "murderers": 1, "max_days": 2, "lineup": lineup}, **changes)
 
 
 def all_games(report: str) -> dict[str, list[str]]:
@@ -109,14 +110,14 @@ def test_a_matrix_is_read_from_toml(tmp_path: Path) -> None:
     file = tmp_path / "matrix.toml"
     file.write_text(
         'name = "tiny"\ngames_per_cell = 2\n[base]\nresidents = 6\nmurderers = 1\n'
-        '[base.lineup.seats.0]\nprovider = "prober"\n[axes]\nmax_days = [1, 2]\n'
+        '[base.lineup.seats.0]\nprovider = "prober"\n[axes]\nmax_days = [2, 3]\n'
         "[caps]\ngames_per_batch = 3\npause_seconds = 1.5\n",
         encoding="utf-8",
     )
 
     matrix = Matrix.read(file)
 
-    assert [cell.config(seed=1).max_days for cell in matrix.cells()] == [1, 2]
+    assert [cell.config(seed=1).max_days for cell in matrix.cells()] == [2, 3]
     assert matrix.cells()[0].config(seed=1).lineup.seats == {0: PROBER}
     assert (matrix.caps.games_per_batch, matrix.caps.pause_seconds) == (3, 1.5)
 

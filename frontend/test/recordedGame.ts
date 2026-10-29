@@ -4,9 +4,14 @@ import { resolve } from "node:path";
 import { eventsInGameFile } from "../src/core/gameFile";
 import type { Event, Mind, PayloadOf, Phase, Review } from "../src/protocol";
 
-/** The scripted game the backend records with `mm play --seed 2 --out ../fixtures/scripted-game.ndjson`, chosen because it shows every kind of event, every kind of lie and a swing in suspicion. */
+/** The scripted game the backend records with `mm play --seed 147 --out ../fixtures/scripted-game.ndjson`, chosen because it shows every kind of event, every way to die, every kind of lie and a swing in suspicion. */
 export function recordedGame(): Event[] {
   return eventsInGameFile(readFileSync(resolve(process.cwd(), "../fixtures/scripted-game.ndjson"), "utf-8"));
+}
+
+/** A live game on the Replay site. These were played under the first rules: Day 1 began with a Discussion, and a Resident could be in up to three Conversations a Dusk. */
+export function siteGame(name: string): Event[] {
+  return eventsInGameFile(readFileSync(resolve(process.cwd(), `public/site/games/${name}.ndjson`), "utf-8"));
 }
 
 /** How many of `events` have happened once the `nth` Phase named `phase` has started (counting from 1). */

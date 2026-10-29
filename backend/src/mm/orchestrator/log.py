@@ -71,8 +71,8 @@ class EventLog:
             self.replay = ()
 
     def unlogged(self, payload: EventPayload) -> Event:
-        """Something already heard but not in the log yet, such as a Dusk message whose
-        wave has not finished. Its sequence number is 0 until it is appended."""
+        """Something already heard but not in the log yet, such as a Dusk message said
+        while other Conversations are still going. Its sequence number is 0 until it is appended."""
         return self._stamped(payload, seq=0, decision_id=None)
 
     def _stamped(self, payload: EventPayload, seq: int, decision_id: str | None) -> Event:

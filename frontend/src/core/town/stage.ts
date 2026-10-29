@@ -135,7 +135,8 @@ export function stageOf(events: readonly Event[]): Stage {
  * speaks, and nobody is in two at once, so a Conversation starting after words were said, or with
  * someone already talking, starts the next wave. A Conversation that has ended stays until the
  * next words or Conversation, so its last words are heard. (Mystery mode sees no words, so waves
- * with no one in common can run together there.)
+ * with no one in common can run together there.) A Resident is now in one Conversation a Dusk,
+ * so a Dusk has one wave; games played under the first rules, like the Replay site's, have more.
  */
 class Talks {
   private wave: { pair: Pair; words: Words | null; ended: boolean }[] = [];

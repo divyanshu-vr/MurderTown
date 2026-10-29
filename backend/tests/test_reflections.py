@@ -14,7 +14,7 @@ from mm.engine.events import (
 )
 from mm.engine.perception import perceived_by
 from mm.orchestrator import play_game
-from tests.support import payloads, puppets, seats_by_role, state_before
+from tests.support import everyone_alive_on_day_two, payloads, puppets, seats_by_role, state_before
 
 CONFIG = GameConfig(residents=8, murderers=2, max_days=3, seed=21)
 
@@ -45,20 +45,19 @@ async def test_every_living_resident_reflects_after_each_vote() -> None:
         assert sorted(writers) == sorted(after_vote.living)
 
 
-async def test_nobody_reflects_at_the_first_dawn_but_everyone_does_after_a_night() -> None:
+async def test_nobody_reflects_on_the_opening_night_but_everyone_does_at_the_first_dawn() -> None:
     result = await play_game(CONFIG, scripted_bots(seed=21))
+    reflections = [event for event in result.events if isinstance(event.payload, ReflectionWritten)]
 
-    def writers_at_dawn(day: int) -> list[str]:
-        return sorted(
-            event.payload.resident
-            for event in result.events
-            if isinstance(event.payload, ReflectionWritten)
-            and (event.day, event.phase) == (day, Phase.DAWN)
-        )
-
-    assert writers_at_dawn(1) == []
+    assert not [event for event in reflections if event.day == 1]  # no news yet to reflect on
+    first_dawn = sorted(
+        event.payload.resident
+        for event in reflections
+        if isinstance(event.payload, ReflectionWritten)
+        and (event.day, event.phase) == (2, Phase.DAWN)
+    )
     after_the_news = state_before(result.events, phase_start(2, Phase.DISCUSSION))
-    assert writers_at_dawn(2) == sorted(after_the_news.living)
+    assert first_dawn == sorted(after_the_news.living)
 
 
 async def test_a_reflection_is_perceived_only_by_its_writer() -> None:
@@ -86,10 +85,13 @@ async def test_every_event_a_decision_caused_names_that_decision() -> None:
 
 async def test_nobody_reflects_once_the_game_is_decided() -> None:
     six = GameConfig(residents=6, murderers=1, max_days=3, seed=2)
-    (murderer,) = seats_by_role(six)[Role.MURDERER]
+    roles = seats_by_role(six)
+    (murderer,) = roles[Role.MURDERER]
     banish_the_murderer = {seat: murderer for seat in range(6) if seat != murderer}
 
-    result = await play_game(six, puppets({1: banish_the_murderer}))
+    result = await play_game(
+        six, puppets({2: banish_the_murderer}, **everyone_alive_on_day_two(six))
+    )
 
     death = next(i for i, e in enumerate(result.events) if isinstance(e.payload, ResidentDied))
     assert not [e for e in result.events[death:] if isinstance(e.payload, ReflectionWritten)]

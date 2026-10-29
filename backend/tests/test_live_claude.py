@@ -22,7 +22,7 @@ pytestmark = pytest.mark.skipif(
 
 async def first_two_decisions() -> tuple[Shown, Shown]:
     """One Resident's first Statement and the ballot they cast next."""
-    shown, _ = await spy_on(GameConfig(residents=8, murderers=2, max_days=1, seed=31))
+    shown, _ = await spy_on(GameConfig(residents=8, murderers=2, max_days=2, seed=31))
     statement = next(s for s in shown if s.request.kind is DecisionKind.STATEMENT)
     ballot = next(
         s

@@ -1,4 +1,4 @@
-"""Table tests for the rules of Dusk: who pairs with whom, in which wave, and who speaks next.
+"""Table tests for the rules of Dusk: who pairs with whom, and who speaks next.
 
 `pair_up` takes the talkers in a random order. These tables use a stand-in random
 source that keeps the order given (or reverses it), so each row has one answer.
@@ -11,7 +11,7 @@ from typing import Any
 import pytest
 
 from mm.engine.decisions import DuskIntent
-from mm.engine.dusk import Pair, as_seen, next_speaker, pair_up, partner_of, settled, waves
+from mm.engine.dusk import Pair, as_seen, next_speaker, pair_up, partner_of, settled
 from mm.engine.rules import named
 
 
@@ -34,24 +34,29 @@ class Reversed(Random):
     [
         pytest.param({"A": ["B", "C"]}, [("A", "B")], id="a talker gets their first preference"),
         pytest.param(
-            {"A": ["X"], "B": ["X"], "C": ["X", "D"]},
-            [("A", "X"), ("B", "X"), ("C", "D")],
-            id="a Resident approached twice is unavailable to a third",
+            {"A": ["X"], "B": ["X", "D"]},
+            [("A", "X"), ("B", "D")],
+            id="a Resident already approached is skipped for the next preference",
         ),
         pytest.param(
-            {"A": ["X"], "B": ["X"], "C": ["X"]},
-            [("A", "X"), ("B", "X")],
+            {"A": ["B"], "C": ["A", "D"]},
+            [("A", "B"), ("C", "D")],
+            id="a Resident who asked is not approached",
+        ),
+        pytest.param(
+            {"A": ["X"], "B": ["X", "A"], "C": ["X"]},
+            [("A", "X")],
             id="a talker whose every preference is taken talks to nobody",
         ),
         pytest.param(
             {"A": ["B"], "B": ["A", "C"]},
-            [("A", "B"), ("B", "C")],
-            id="two already paired are not paired again",
+            [("A", "B")],
+            id="two who name each other talk once",
         ),
         pytest.param(
-            {"A": ["X"], "B": ["X"], "X": ["C"]},
-            [("A", "X"), ("B", "X"), ("X", "C")],
-            id="a Resident approached twice may still start their own",
+            {"A": ["X"], "X": ["C"]},
+            [("A", "X")],
+            id="a Resident already approached does not start their own",
         ),
         pytest.param({"A": ["W"]}, [("A", "W")], id="a wanderer can be approached"),
         pytest.param({}, [], id="nobody wants to talk"),
@@ -64,7 +69,7 @@ def test_pairing(wanted: dict[str, list[str]], pairs: list[Pair]) -> None:
 def test_the_order_the_talkers_come_in_decides_who_gets_a_busy_resident() -> None:
     wanted = {"A": ["X"], "B": ["X"], "C": ["X"]}
 
-    assert pair_up(wanted, Reversed()) == [("C", "X"), ("B", "X")]
+    assert pair_up(wanted, Reversed()) == [("C", "X")]
 
 
 def test_pairing_nobody_draws_nothing_from_the_random_source() -> None:
@@ -74,29 +79,6 @@ def test_pairing_nobody_draws_nothing_from_the_random_source() -> None:
     pair_up({}, rng)
 
     assert rng.getstate() == before
-
-
-@pytest.mark.parametrize(
-    ("pairs", "expected"),
-    [
-        pytest.param(
-            [("A", "B"), ("C", "D")], [[("A", "B"), ("C", "D")]], id="disjoint pairs share a wave"
-        ),
-        pytest.param(
-            [("A", "B"), ("B", "C"), ("C", "D")],
-            [[("A", "B"), ("C", "D")], [("B", "C")]],
-            id="a pair waits for a busy Resident, and later pairs may go first",
-        ),
-        pytest.param(
-            [("A", "B"), ("A", "C"), ("A", "D")],
-            [[("A", "B")], [("A", "C")], [("A", "D")]],
-            id="one Resident's Conversations each get a wave",
-        ),
-        pytest.param([], [], id="no pairs, no waves"),
-    ],
-)
-def test_waves(pairs: list[Pair], expected: list[list[Pair]]) -> None:
-    assert waves(pairs) == expected
 
 
 @pytest.mark.parametrize(

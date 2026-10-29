@@ -22,6 +22,7 @@ from tests.support import (
     Delayed,
     Puppet,
     Requests,
+    everyone_alive_on_day_two,
     name_at_seat,
     payloads,
     puppets,
@@ -29,7 +30,8 @@ from tests.support import (
     wrapped,
 )
 
-CONFIG = GameConfig(residents=8, murderers=2, max_days=1, seed=4, open_floor_seconds=None)
+CONFIG = GameConfig(residents=8, murderers=2, max_days=2, seed=4, open_floor_seconds=None)
+"""The first Night's Victim is saved, so all eight meet at the first Dusk, Day 2's."""
 
 
 def chatty(request: DecisionRequest, known: GameState) -> ConversationMessage:
@@ -41,18 +43,23 @@ def seats_met(events: list[Event]) -> list[set[int]]:
     return [{seats[name] for name in p.residents} for p in payloads(events, ConversationStarted)]
 
 
-async def test_a_resident_is_approached_for_at_most_two_conversations() -> None:
-    talks = {1: {0: [5], 1: [5], 2: [5, 6]}}
+async def test_a_resident_is_in_at_most_one_conversation_a_dusk() -> None:
+    talks = {2: {0: [5], 1: [5], 2: [5, 6]}}
 
-    result = await play_game(CONFIG, puppets(talks=talks, messages=chatty))
+    result = await play_game(
+        CONFIG, puppets(talks=talks, messages=chatty, **everyone_alive_on_day_two(CONFIG))
+    )
 
     met = seats_met(result.events)
-    assert sum(5 in pair for pair in met) == 2
+    assert sum(5 in pair for pair in met) == 1
     assert all(pair in ({0, 5}, {1, 5}, {2, 5}, {2, 6}) for pair in met)
+    assert max(Counter(seat for pair in met for seat in pair).values()) == 1
 
 
 async def test_the_asker_speaks_first_then_they_take_turns_for_at_most_four_messages() -> None:
-    result = await play_game(CONFIG, puppets(talks={1: {0: [1]}}, messages=chatty))
+    result = await play_game(
+        CONFIG, puppets(talks={2: {0: [1]}}, messages=chatty, **everyone_alive_on_day_two(CONFIG))
+    )
 
     messages = payloads(result.events, ConversationMessagePosted)
     asker, asked = name_at_seat(result.events, 0), name_at_seat(result.events, 1)
@@ -64,7 +71,11 @@ async def test_either_resident_may_end_the_conversation_early() -> None:
         ending = seat_of(known)[request.resident] == 1
         return ConversationMessage(text="Enough.", end_conversation=ending)
 
-    result = await play_game(CONFIG, puppets(talks={1: {0: [1]}}, messages=asked_ends_it))
+    scripted = puppets(
+        talks={2: {0: [1]}}, messages=asked_ends_it, **everyone_alive_on_day_two(CONFIG)
+    )
+
+    result = await play_game(CONFIG, scripted)
 
     messages = payloads(result.events, ConversationMessagePosted)
     assert [m.ends_conversation for m in messages] == [False, True]
@@ -90,8 +101,11 @@ async def test_wanting_to_talk_only_to_strangers_means_wandering() -> None:
 
 
 async def test_who_met_is_public_but_what_they_said_reaches_only_the_pair() -> None:
-    result = await play_game(CONFIG, puppets(talks={1: {0: [1]}}, messages=chatty))
+    result = await play_game(
+        CONFIG, puppets(talks={2: {0: [1]}}, messages=chatty, **everyone_alive_on_day_two(CONFIG))
+    )
 
+    assert payloads(result.events, ConversationMessagePosted)
     for event in result.events:
         match event.payload:
             case DuskIntentChosen(resident=resident):
@@ -107,7 +121,9 @@ async def test_conversations_held_at_once_log_the_same_however_fast_each_answers
         ending = seat_of(known)[request.resident] == 0
         return ConversationMessage(text="Hm.", end_conversation=ending)
 
-    scripted = puppets(talks={1: {0: [1], 2: [3]}}, messages=zero_ends_at_once)
+    scripted = puppets(
+        talks={2: {0: [1], 2: [3]}}, messages=zero_ends_at_once, **everyone_alive_on_day_two(CONFIG)
+    )
 
     def slow(resident: Resident) -> Brain:  # the lower the seat, the later the answer
         return Delayed(scripted(resident), lambda: 10 - max(resident.seat, 0))
@@ -128,7 +144,9 @@ async def test_conversations_held_at_once_log_the_same_however_fast_each_answers
 
 async def test_every_view_is_the_start_of_what_the_resident_perceives_in_the_final_log() -> None:
     asked: Requests = []
-    scripted = puppets(talks={1: {0: [1], 2: [3]}}, messages=chatty)
+    scripted = puppets(
+        talks={2: {0: [1], 2: [3]}}, messages=chatty, **everyone_alive_on_day_two(CONFIG)
+    )
 
     result = await play_game(CONFIG, wrapped(scripted, lambda brain: Asked(brain, asked)))
 

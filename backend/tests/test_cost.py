@@ -18,7 +18,7 @@ from mm.orchestrator.narrator import NARRATOR
 from tests.conftest import start_game, wait_until_finished
 from tests.support import FakeModel, played_by, sensible_answer
 
-CONFIG = GameConfig(residents=6, murderers=1, max_days=1, seed=13)
+CONFIG = GameConfig(residents=6, murderers=1, max_days=2, seed=13)
 
 FIRST_LIVE_CALL = Usage(input_tokens=2, output_tokens=513, cache_write_1h_tokens=2634)
 """A live Haiku Statement from ticket #8: Claude Code put its cost at $0.0007835."""

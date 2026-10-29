@@ -14,7 +14,7 @@ from mm.observability.logs import configure_logging
 from mm.orchestrator import play_game
 from tests.support import FakeModel
 
-CONFIG = GameConfig(residents=6, murderers=1, max_days=1, seed=13)
+CONFIG = GameConfig(residents=6, murderers=1, max_days=2, seed=13)
 
 
 @pytest.fixture
@@ -40,6 +40,6 @@ async def test_every_line_says_which_game_day_phase_and_resident_it_is_about(
     assert all({"game", "day", "phase", "resident", "decision"} <= set(line) for line in calls)
     assert {line["game"] for line in lines} == {"game-one"}
     starts = {(line["day"], line["phase"]) for line in lines if line["event"] == "phase started"}
-    assert {(1, "dawn"), (1, "vote"), (1, "dusk"), (1, "night")} <= starts
+    assert {(1, "night"), (2, "dawn"), (2, "vote"), (2, "dusk"), (2, "night")} <= starts
     statements = [line for line in calls if line["kind"] == "statement"]
-    assert len({line["resident"] for line in statements}) == CONFIG.residents
+    assert len({line["resident"] for line in statements}) == CONFIG.residents - 1  # one murdered

@@ -54,9 +54,11 @@ function expectATileEach(placements: readonly Placement[]) {
 describe("where everyone stands by day", () => {
   it("has the living in a semicircle behind the well, each on a walkable spot of their own", () => {
     for (const phase of ["discussion", "showdown", "vote"] as const) {
-      const placements = living(layoutWhen(phase));
+      const count = countWhen(events, phase, 1);
+      const placements = living(layoutAt(count));
+      const alive = foldEvents(events.slice(0, count)).residents.filter(({ fate }) => fate === null);
 
-      expect(placements).toHaveLength(12);
+      expect(placements).toHaveLength(alive.length);
       expect(placements.every((placement) => within(plan.square, placement))).toBe(true);
       expect(placements.every((placement) => placement.at.y <= plan.well.y + 0.5)).toBe(true);
       expect(placements.every((placement) => plan.grid.walkable(tileOf(placement).x, tileOf(placement).y))).toBe(true);
@@ -93,15 +95,17 @@ describe("where everyone stands by day", () => {
   });
 
   it("leaves the dead where they died: in the square if banished or shot, at their door if murdered", () => {
-    const daySpots = new Map(layoutWhen("discussion").map((placement) => [placement.name, placement.at]));
     const end = layoutAt(events.length);
+    const deaths = eventsOf(events, "resident_died");
 
-    for (const name of ["Ezra", "Bram", "Greta"]) {
-      expect(named(end, name)).toMatchObject({ dead: true, at: daySpots.get(name) });
+    expect(new Set(deaths.map(({ payload }) => payload.cause))).toEqual(new Set(["banished", "shot", "backfire", "murdered"]));
+    for (const death of deaths) {
+      const { resident, cause } = death.payload;
+      const lying = named(end, resident);
+      expect(lying.dead).toBe(true);
+      if (cause === "murdered") expect(tileOf(lying)).toEqual(doorOf(lying.seat));
+      else expect(lying.at).toEqual(named(layoutAt(countOf(death) - 1), resident).at); // where they stood as they died
     }
-    const vera = named(end, "Vera");
-    expect(vera.dead).toBe(true);
-    expect(tileOf(vera)).toEqual(doorOf(vera.seat));
   });
 
   it("gathers the living in the square once the game has ended", () => {
@@ -113,12 +117,14 @@ describe("where everyone stands by day", () => {
 });
 
 describe("where everyone stands at Dusk", () => {
-  const [, , , secondWave] = eventsOf(events, "conversation_started");
-  const endOfTheFirstWave = countOf(present(secondWave, "a second wave")) - 1;
-  const stage = stageOf(events.slice(0, endOfTheFirstWave));
+  // the first Dusk under way: every Conversation of its one wave has started, and the first words are said
+  const firstWords = present(eventsOf(events, "conversation_message_posted")[0], "a Conversation");
+  const duskUnderWay = countOf(firstWords);
+  const endOfTheFirstDusk = countWhen(events, "night", 2) - 1; // Day 1 is only a Night
+  const stage = stageOf(events.slice(0, duskUnderWay));
 
   it("puts each pair side by side about halfway between their homes, facing each other", () => {
-    const placements = layoutAt(endOfTheFirstWave);
+    const placements = layoutAt(duskUnderWay);
 
     expect(stage.pairs.length).toBeGreaterThan(1);
     for (const [one, other] of stage.pairs) {
@@ -133,7 +139,7 @@ describe("where everyone stands at Dusk", () => {
   });
 
   it("sends those doing a Chore to a chore spot, to do the Chore it is for, and the rest wandering", () => {
-    const placements = living(layoutAt(endOfTheFirstWave));
+    const placements = living(layoutAt(duskUnderWay));
     const talking = new Set(stage.pairs.flat());
 
     for (const placement of placements.filter(({ name }) => !talking.has(name))) {
@@ -151,7 +157,7 @@ describe("where everyone stands at Dusk", () => {
   });
 
   it("keeps pairs off the chore and wander spots, and everyone off the lanterns", () => {
-    const placements = living(layoutAt(endOfTheFirstWave));
+    const placements = living(layoutAt(duskUnderWay));
     const talking = new Set(stage.pairs.flat());
 
     for (const placement of placements) {
@@ -160,17 +166,17 @@ describe("where everyone stands at Dusk", () => {
     }
   });
 
-  it("has every kind of Chore done at some Dusk of the recorded game", () => {
-    const endsOfDusk = eventsOf(events, "phase_started")
-      .filter(({ payload }) => payload.phase === "night")
-      .map((night) => countOf(night) - 1);
-    const done = new Set(endsOfDusk.flatMap((count) => layoutAt(count).map(({ chore }) => chore)));
+  it("has every kind of Chore done when the whole town is at work", () => {
+    const town = townOf(15, "dusk"); // more Residents than chore spots
+    const atWork = { ...stageOf([]), activities: new Map(town.residents.map(({ name }) => [name, "chore" as const])) };
 
-    expect(done).toEqual(new Set([...CHORE_KINDS, null]));
+    const done = new Set(layoutFor(town, atWork, plan).map(({ chore }) => chore));
+
+    expect(done).toEqual(new Set([...CHORE_KINDS, null])); // and those left over wander
   });
 
   it("turns those at a Chore towards what they work at", () => {
-    const atChores = living(layoutAt(endOfTheFirstWave)).filter((placement) => placement.chore !== null);
+    const atChores = living(layoutAt(duskUnderWay)).filter((placement) => placement.chore !== null);
 
     expect(atChores.length).toBeGreaterThan(0);
     for (const placement of atChores) {
@@ -181,7 +187,7 @@ describe("where everyone stands at Dusk", () => {
 
   it("moves the wanderers on as Dusk goes by", () => {
     const early = layoutAt(countWhen(events, "dusk", 1) + 1);
-    const later = layoutAt(endOfTheFirstWave);
+    const later = layoutAt(endOfTheFirstDusk);
     const wanderers = [...stage.activities].filter(([, activity]) => activity === "wander").map(([name]) => name);
     const moved = (name: string) => named(early, name).at.x !== named(later, name).at.x || named(early, name).at.y !== named(later, name).at.y;
 

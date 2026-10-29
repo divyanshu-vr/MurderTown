@@ -53,6 +53,10 @@ DAY: tuple[PhaseRunner, ...] = (
 """One Day, in order, with a check for a winner after each Phase. A Phase in which
 someone dies checks `Game.decided` itself, so nobody acts once the game is won."""
 
+FIRST_DAY: tuple[PhaseRunner, ...] = (run_night,)
+"""Day 1 is only a Night: with nothing yet to talk about, the town hears its first news at
+Day 2's Dawn, and only then discusses, votes and meets at Dusk."""
+
 
 INTERNAL_ERROR = "the game stopped on an internal error"
 """What Spectators are told when the game crashes; the details stay in the server's logs."""
@@ -112,6 +116,11 @@ class Game:
         """Whether a side has already won, so nobody should be asked anything more."""
         return verdict(self.state) is not None
 
+    @property
+    def before_day_one(self) -> bool:
+        """Whether no Day has started yet, so the next Phase is Day 1's Night."""
+        return self.state.day == 0
+
     async def play(self) -> None:
         with (
             bound_contextvars(game=self.game_id, day=0, phase=Phase.SETUP),
@@ -134,7 +143,7 @@ class Game:
         everyone = (*self.state.residents, NARRATOR)
         self.brains = {resident.name: self.brain_for(resident) for resident in everyone}
         while True:
-            for run_phase in DAY:
+            for run_phase in FIRST_DAY if self.before_day_one else DAY:
                 await run_phase(self)
                 if outcome := verdict(self.state):
                     return await self.end(outcome)
@@ -193,7 +202,8 @@ class Game:
         return event
 
     async def start_phase(self, phase: Phase) -> None:
-        day = self.state.day + 1 if phase is Phase.DAWN else self.state.day
+        """Start a Phase. A Day starts with its Dawn, and the game's first with its Night."""
+        day = self.state.day + 1 if phase is Phase.DAWN or self.before_day_one else self.state.day
         bind_contextvars(day=day, phase=phase)
         await self.append(PhaseStarted(day=day, phase=phase))
         logger.info("phase started")

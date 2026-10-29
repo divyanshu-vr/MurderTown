@@ -70,14 +70,16 @@ async def test_each_step_lets_one_whole_batch_of_decisions_through() -> None:
     game = asyncio.create_task(play_game(CONFIG, counting(asked), controls=controls))
 
     after_each_step = []
-    for _ in range(8):
+    for _ in range(10):
         controls.step()
         await settle()
         after_each_step.append(len(asked))
 
-    # The Opening round asks one Resident at a time; the Open floor's first Turn asks for all
-    # six bids at once, then for one Statement.
-    assert after_each_step == [1, 2, 3, 4, 5, 6, 12, 13]
+    # The first Night asks for its three choices at once. Day 2's Dawn asks the narrator for
+    # the recap, then the five still alive to reflect at once. The Opening round asks one
+    # Resident at a time; the Open floor's first Turn asks for all five bids at once, then for
+    # one Statement.
+    assert after_each_step == [3, 4, 9, 10, 11, 12, 13, 14, 19, 20]
     controls.resume()
     assert (await game).events == await left_alone()
 

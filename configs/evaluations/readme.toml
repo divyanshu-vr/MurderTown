@@ -9,7 +9,7 @@ first_seed = 1
 [base]
 residents = 8
 murderers = 2
-max_days = 4
+max_days = 5
 
 [base.lineup.everyone]
 provider = "claude"

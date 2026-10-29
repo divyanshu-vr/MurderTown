@@ -42,7 +42,7 @@ A cassette is a recorded game's model calls, played back with no model and no ne
 
 CI replays `fixtures/live-game.ndjson`, a short live Claude game, and checks that the replay makes exactly the recorded log (`tests/test_providers.py`).
 
-Each recorded call answers only the very same request: the same model, effort, briefing, prompt and answer schema. So **any change to the prompts** (templates, personas, rendering, schemas) makes the replay miss, and CI fails saying to re-record. Re-record on the subscription (about 180 Haiku calls, a few minutes):
+Each recorded call answers only the very same request: the same model, effort, briefing, prompt and answer schema. So **any change to the prompts** (templates, personas, rendering, schemas) makes the replay miss, and CI fails saying to re-record. Re-record on the subscription (about 120 Haiku calls, a few minutes):
 
 ```
 cd backend

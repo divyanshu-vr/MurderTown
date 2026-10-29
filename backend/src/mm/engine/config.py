@@ -87,8 +87,9 @@ class Rules(BaseModel):
     doctor: bool = True
     detective: bool = True
     sheriff: bool = True
-    max_days: int = Field(default=10, ge=1, le=20)
-    """If the Murderers survive this many Days, they win. Capped to bound a game's cost."""
+    max_days: int = Field(default=10, ge=2, le=20)
+    """If the Murderers survive this many Days, they win. Capped to bound a game's cost. Day 1
+    is only a Night, so the first Day with a Discussion is Day 2."""
     open_floor_statements: int = Field(default=8, ge=0, le=20)
     """The most Statements the Open floor allows after the Opening round."""
     open_floor_seconds: int | None = Field(default=300, ge=10, le=3600)

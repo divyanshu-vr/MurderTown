@@ -221,11 +221,12 @@ def serve(host: str = "127.0.0.1", port: int = 8000, reload: bool = False, web: 
 
 @app.command()
 def rerecord(out: Path = LIVE_GAME) -> None:
-    """Record again, on your Claude subscription, the live game CI replays (about 180 Haiku calls).
+    """Record again, on your Claude subscription, the live game CI replays (about 120 Haiku calls).
 
-    Needed after any change to the prompts: the old recording no longer answers them.
+    Needed after any change to the prompts: the old recording no longer answers them. Two
+    Murderers, so banishing one on Day 2 leaves the game going on to its Dusk and second Night.
     """
-    play(provider="claude", residents=6, murderers=1, max_days=2, seed=3, quiet=True, out=out)
+    play(provider="claude", residents=8, murderers=2, max_days=2, seed=3, quiet=True, out=out)
 
 
 @app.command()

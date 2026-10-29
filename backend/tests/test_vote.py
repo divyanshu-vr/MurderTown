@@ -17,9 +17,16 @@ from mm.engine.events import (
 )
 from mm.engine.state import GameState
 from mm.orchestrator import IllegalDecisionError, play_game
-from tests.support import Puppet, name_at_seat, payloads, puppets
+from tests.support import (
+    Puppet,
+    everyone_alive_on_day_two,
+    name_at_seat,
+    payloads,
+    puppets,
+)
 
-SIX_RESIDENTS = GameConfig(residents=6, murderers=1, max_days=1, seed=1)
+SIX_RESIDENTS = GameConfig(residents=6, murderers=1, max_days=2, seed=1)
+"""The Doctor saves the first Night's Victim, so all six are alive for the first Vote, on Day 2."""
 
 
 @pytest.mark.parametrize(
@@ -34,7 +41,9 @@ SIX_RESIDENTS = GameConfig(residents=6, murderers=1, max_days=1, seed=1)
 async def test_the_vote_banishes_the_plurality_only_when_it_beats_skip(
     ballots: dict[int, int | None], banished_seat: int | None
 ) -> None:
-    result = await play_game(SIX_RESIDENTS, puppets({1: ballots}))
+    result = await play_game(
+        SIX_RESIDENTS, puppets({2: ballots}, **everyone_alive_on_day_two(SIX_RESIDENTS))
+    )
 
     (outcome,) = payloads(result.events, VoteResolved)
 
@@ -43,7 +52,10 @@ async def test_the_vote_banishes_the_plurality_only_when_it_beats_skip(
 
 
 async def test_a_banished_resident_dies_and_their_role_is_revealed() -> None:
-    result = await play_game(SIX_RESIDENTS, puppets({1: {0: 4, 1: 4, 2: 4, 3: 4}}))
+    result = await play_game(
+        SIX_RESIDENTS,
+        puppets({2: {0: 4, 1: 4, 2: 4, 3: 4}}, **everyone_alive_on_day_two(SIX_RESIDENTS)),
+    )
     banished = name_at_seat(result.events, 4)
     (assignment,) = [a for a in payloads(result.events, RoleAssigned) if a.resident == banished]
 
@@ -64,7 +76,7 @@ async def test_every_ballot_is_cast_without_seeing_another_ballot_from_the_same_
                 )
             return await super().decide(request, view)
 
-    await play_game(SIX_RESIDENTS.model_copy(update={"max_days": 2}), lambda _: Peeking({}))
+    await play_game(SIX_RESIDENTS.model_copy(update={"max_days": 3}), lambda _: Peeking({}))
 
     assert len(ballots_seen_today) > 6  # both Days' Votes were watched
     assert set(ballots_seen_today) == {0}
@@ -85,7 +97,9 @@ async def test_a_ballot_for_someone_who_is_not_an_option_is_rejected() -> None:
 
 
 async def test_skips_are_counted_apart_from_the_ballots_against_residents() -> None:
-    result = await play_game(SIX_RESIDENTS, puppets({1: {0: 5, 1: 5, 2: 3}}))
+    result = await play_game(
+        SIX_RESIDENTS, puppets({2: {0: 5, 1: 5, 2: 3}}, **everyone_alive_on_day_two(SIX_RESIDENTS))
+    )
 
     (outcome,) = payloads(result.events, VoteResolved)
 
@@ -94,7 +108,10 @@ async def test_skips_are_counted_apart_from_the_ballots_against_residents() -> N
 
 
 async def test_a_banished_resident_says_last_words_before_their_role_is_revealed() -> None:
-    result = await play_game(SIX_RESIDENTS, puppets({1: {0: 4, 1: 4, 2: 4, 3: 4}}))
+    result = await play_game(
+        SIX_RESIDENTS,
+        puppets({2: {0: 4, 1: 4, 2: 4, 3: 4}}, **everyone_alive_on_day_two(SIX_RESIDENTS)),
+    )
     banished = name_at_seat(result.events, 4)
 
     kinds = [type(e.payload).__name__ for e in result.events]

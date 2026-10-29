@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from tests.conftest import serving, spectating, start_game, wait_until_finished
 from tests.support import FakeModel, agents_on
 
-CONFIG = {"residents": 6, "murderers": 1, "max_days": 1, "seed": 4}
+CONFIG = {"residents": 6, "murderers": 1, "max_days": 2, "seed": 4}
 
 
 def listed(client: TestClient) -> list[dict[str, Any]]:

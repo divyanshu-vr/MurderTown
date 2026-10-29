@@ -63,11 +63,11 @@ _Avoid_: vigilante, hunter
 ### Time
 
 **Day**:
-One full cycle of the game, from Dawn to the end of Night.
+One full cycle of the game, from Dawn to the end of Night. The game opens with a Night: Day 1 is only that Night, and the first Dawn is Day 2's.
 _Avoid_: round, turn
 
 **Phase**:
-One of the six stages of a Day: Dawn, Discussion, Showdown, Vote, Dusk and Night.
+One of the six stages of a Day: Dawn, Discussion, Showdown, Vote, Dusk and Night. Day 1 has only its Night.
 _Avoid_: stage, step
 
 **Dawn**:
@@ -121,7 +121,7 @@ The Sheriff's own death after shooting a Resident who is not a Murderer.
 _Avoid_: misfire, recoil
 
 **Conversation**:
-A private exchange of at most four messages between two Residents during Dusk. The one who asked speaks first; either may end it sooner. Everyone sees that the two met; only they hear what is said.
+A private exchange of at most four messages between two Residents during Dusk; each Resident is in one at most each Dusk. The one who asked speaks first; either may end it sooner. Everyone sees that the two met; only they hear what is said.
 _Avoid_: chat, DM, whisper
 
 **Dusk intent**:

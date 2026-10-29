@@ -42,7 +42,9 @@ from tests.support import (
     statement_answer,
 )
 
-CONFIG = GameConfig(residents=6, murderers=1, max_days=1, seed=13)
+CONFIG = GameConfig(residents=6, murderers=1, max_days=2, seed=13)
+"""Two Days, since Day 1 is only a Night. At this seed its Victim is the Doctor, so the Sheriff
+is alive for Day 2's Showdown."""
 NIGHTS = GameConfig(residents=8, murderers=2, max_days=2, seed=13)
 """Two Days, so two Murderers talk in the Den and the narrator recaps a Dawn."""
 

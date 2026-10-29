@@ -31,7 +31,7 @@ def arena(**changes: Any) -> Matrix:
     matrix: dict[str, Any] = {
         "name": "arena",
         "games_per_cell": 2,
-        "base": {"residents": 8, "murderers": 2, "max_days": 1},
+        "base": {"residents": 8, "murderers": 2, "max_days": 2},
         "contenders": [HAIKU, SONNET],
     }
     return Matrix.model_validate(matrix | changes)

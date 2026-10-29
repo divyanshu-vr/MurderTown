@@ -13,7 +13,7 @@ Owns everything that decides what is true in a game: the configuration and its b
 - `discussion.py`: who speaks next on the Open floor, and when the Open floor is over.
 - `showdown.py`: whether a Sheriff may still fire, at whom, and the deaths a shot causes.
 - `night.py`: whom the Murderers may kill, the Doctor protect and the Detective investigate, how often a Finding is right, and what Dawn announces.
-- `dusk.py`: who talks to whom at Dusk, in which wave, and who speaks next in a Conversation, with every limit.
+- `dusk.py`: who talks to whom at Dusk, and who speaks next in a Conversation, with every limit.
 - `tally.py`: the top choice with a tie drawn by the game's seed, shared by the Open floor and the kill vote.
 - `casting.py`: names, seats, personas and roles, all drawn from the game's seeded random source; `seated_roles(config)` tells the role at each seat before the game starts.
 - `config.py`: `GameConfig`, everything the Host chooses, with its bounds: the `Rules` everyone in town knows, plus the seed and the `Lineup` of who plays each Resident (`PlayedBy`: a provider, a model and an `Effort`). Casting follows from the seed, so no Resident may know it and only full scope shows it: a game's log opens with `GameConfigured`, which no Resident perceives, then `GameStarted`, which carries only the rules.

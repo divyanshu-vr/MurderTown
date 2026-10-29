@@ -33,7 +33,7 @@ from tests.support import (
     sensible_answer,
 )
 
-CONFIG = {"residents": 8, "murderers": 2, "max_days": 2, "seed": 4}
+CONFIG = {"residents": 8, "murderers": 2, "max_days": 3, "seed": 4}
 
 
 def finished_game(client: TestClient, config: dict[str, Any] = CONFIG) -> tuple[str, list[Event]]:

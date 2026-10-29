@@ -1,8 +1,8 @@
 """Dawn: a new Day begins with the Night's news, the narrator's recap, then reflection.
 
 Dawn announces the Night's murder, or that the Doctor saved the Victim. If that
-death decides the game, nobody says anything more. The first Dawn follows no
-Night, so it has no news and no recap.
+death decides the game, nobody says anything more. The game opens with a Night,
+so even the first Dawn, Day 2's, has news to tell.
 """
 
 from typing import TYPE_CHECKING
@@ -21,9 +21,6 @@ if TYPE_CHECKING:
 
 async def run_dawn(game: "Game") -> None:
     await game.start_phase(Phase.DAWN)
-    if game.state.day == 1:
-        await reflect(game)
-        return
     for news in dawn_news(game.state):
         await game.append(news)
     if game.decided:

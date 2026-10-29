@@ -13,7 +13,7 @@ from tests.support import may_perceive, payloads, wrapped
 
 
 async def test_the_roles_dealt_match_the_configuration() -> None:
-    config = GameConfig(residents=12, murderers=2, seed=11, max_days=1)
+    config = GameConfig(residents=12, murderers=2, seed=11, max_days=2)
     result = await play_game(config, scripted_bots(seed=11))
 
     dealt = Counter(assignment.role for assignment in payloads(result.events, RoleAssigned))
@@ -28,7 +28,7 @@ async def test_the_roles_dealt_match_the_configuration() -> None:
 
 
 async def test_each_resident_perceives_only_their_own_role_assignment() -> None:
-    result = await play_game(GameConfig(seed=11, max_days=1), scripted_bots(seed=11))
+    result = await play_game(GameConfig(seed=11, max_days=2), scripted_bots(seed=11))
 
     for resident in result.state.residents:
         perceived = payloads(perceived_by(result.events, resident.name), RoleAssigned)
@@ -36,7 +36,7 @@ async def test_each_resident_perceives_only_their_own_role_assignment() -> None:
 
 
 async def test_murderers_learn_their_teammates_and_nobody_else_learns_any() -> None:
-    config = GameConfig(residents=15, murderers=3, seed=5, max_days=1)
+    config = GameConfig(residents=15, murderers=3, seed=5, max_days=2)
     result = await play_game(config, scripted_bots(seed=5))
     assignments = payloads(result.events, RoleAssigned)
     murderers = {a.resident for a in assignments if a.role is Role.MURDERER}
@@ -49,7 +49,7 @@ async def test_murderers_learn_their_teammates_and_nobody_else_learns_any() -> N
 
 
 async def test_no_resident_learns_the_seed_or_the_lineup_since_the_seed_tells_every_role() -> None:
-    config = GameConfig(seed=11, max_days=1, lineup=Lineup(murderers=SCRIPTED))
+    config = GameConfig(seed=11, max_days=2, lineup=Lineup(murderers=SCRIPTED))
     result = await play_game(config, scripted_bots(seed=11))
 
     (configured,) = [e for e in result.events if isinstance(e.payload, GameConfigured)]

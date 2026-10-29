@@ -12,18 +12,19 @@ SIX_RESIDENTS = GameConfig(residents=6, murderers=1, max_days=5, seed=2)
 async def test_the_town_wins_the_moment_the_last_murderer_is_banished() -> None:
     (murderer,) = seats_by_role(SIX_RESIDENTS)[Role.MURDERER]
 
-    result = await play_game(SIX_RESIDENTS, puppets({1: everyone_votes_for(murderer)}))
+    result = await play_game(SIX_RESIDENTS, puppets({2: everyone_votes_for(murderer)}))
 
     (ending,) = payloads(result.events, GameEnded)
     assert ending.winner is Side.TOWN
-    assert max(start.day for start in payloads(result.events, PhaseStarted)) == 1
+    assert max(start.day for start in payloads(result.events, PhaseStarted)) == 2
 
 
 async def test_the_murderers_win_once_they_equal_the_rest_of_the_town() -> None:
     (murderer,) = seats_by_role(SIX_RESIDENTS)[Role.MURDERER]
     town = [seat for seat in range(6) if seat != murderer]
-    banish: Script = {1: everyone_votes_for(town[0]), 2: everyone_votes_for(town[2])}
-    nights = {"kills": {1: town[1], 2: town[3]}, "protects": {1: murderer, 2: town[4]}}
+    banish: Script = {2: everyone_votes_for(town[0]), 3: everyone_votes_for(town[2])}
+    nights = {"kills": {1: town[0], 2: town[1], 3: town[3]},  # the first Victim is saved
+              "protects": {1: town[0], 2: murderer, 3: town[4]}}  # fmt: skip
 
     result = await play_game(SIX_RESIDENTS, puppets(banish, **nights))
 
@@ -45,7 +46,7 @@ async def test_the_murderers_win_when_the_town_runs_out_of_days() -> None:
 async def test_as_a_side_wins_every_resident_learns_every_role() -> None:
     (murderer,) = seats_by_role(SIX_RESIDENTS)[Role.MURDERER]
 
-    result = await play_game(SIX_RESIDENTS, puppets({1: everyone_votes_for(murderer)}))
+    result = await play_game(SIX_RESIDENTS, puppets({2: everyone_votes_for(murderer)}))
 
     *_, reveal, ending = result.events
     assert isinstance(ending.payload, GameEnded)

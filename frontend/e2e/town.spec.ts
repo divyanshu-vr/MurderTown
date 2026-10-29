@@ -51,11 +51,11 @@ const firstMurder = eventsOf(events, "resident_died").find(({ payload }) => payl
 
 /** Moments to stand still at, by how many events have happened. */
 const MOMENTS = {
-  /** Day 3's Discussion, a few words in: one Resident banished in the square, one murdered at home. */
-  "day-3-discussion": countWhen(events, "discussion", 3) + 6,
-  /** Day 1's Dusk, at the end of its first wave of Conversations. */
-  "day-1-dusk": countOf(events, eventsOf(events, "conversation_started")[3]) - 1,
-  /** Day 1's Night, as the Murderers meet in the Den. */
+  /** Day 3's Discussion (the second, since Day 1 is only a Night), a few words in, the dead where they fell. */
+  "day-3-discussion": countWhen(events, "discussion", 2) + 6,
+  /** Day 2's Dusk, the first, with every Conversation of its one wave under way. */
+  "day-2-dusk": countOf(events, eventsOf(events, "conversation_message_posted")[0]),
+  /** Day 1's Night, the game's opening, as the Murderers meet in the Den. */
   "day-1-night-den": countOf(events, eventsOf(events, "den_message_posted")[0]),
   /** Day 1's Night, once the Murderers, the Doctor and the Detective have all made their visits. */
   "day-1-night": countOf(events, eventsOf(events, "resident_investigated")[0]),
@@ -100,7 +100,7 @@ test("mystery mode keeps the Den and the visits out of the town", async ({ page 
 });
 
 test("mystery mode muffles every Conversation at Dusk", async ({ page }) => {
-  const count = MOMENTS["day-1-dusk"];
+  const count = MOMENTS["day-2-dusk"];
   const heard = stageOf(events.slice(0, count).filter(isPublic));
   await standStillAt(page, count);
   const town = page.getByRole("region", { name: "Town view" });
@@ -142,7 +142,7 @@ test.describe("on a phone", () => {
 
 // The camera, as a Spectator sees it: where the names over the Residents' heads land on screen.
 
-/** The town standing still at Day 2's Discussion, everyone alive in the square; the two furthest apart, to watch. */
+/** The town standing still at Day 3's Discussion, everyone alive in the square; the two furthest apart, to watch. */
 async function theSquare(page: Page): Promise<[string, string]> {
   const living = (await standStillAt(page, countWhen(events, "discussion", 2) + 1)).sort((a, b) => a.x - b.x);
   const [one, other] = [living[0], living.at(-1)];

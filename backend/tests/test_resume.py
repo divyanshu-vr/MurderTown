@@ -40,6 +40,7 @@ from tests.support import (
     FakeModel,
     agents_on,
     answer_kind,
+    everyone_alive_on_day_two,
     keen,
     model_answer,
     puppets,
@@ -111,7 +112,7 @@ def first_seq_of(kind: str, events: Sequence[Event]) -> int:
 
 SOURCES: dict[str, Callable[[], BrainFactory]] = {
     "scripted bots": lambda: scripted_bots(CONFIG.seed),
-    "puppets": lambda: puppets(talks={1: {0: [1]}}),
+    "puppets": lambda: puppets(talks={2: {0: [1]}}, **everyone_alive_on_day_two(CONFIG)),
 }
 
 CRASHED_IN = ["statement_made", "ballot_cast", "conversation_message_posted", "kill_vote_cast"]
@@ -174,7 +175,7 @@ async def test_a_replay_that_differs_from_the_stored_log_is_aborted_right_after_
     assert abort.payload.reason == "resuming the game did not reproduce its log"
 
 
-KEEN = GameConfig(residents=6, murderers=1, max_days=1, seed=4, open_floor_seconds=300)
+KEEN = GameConfig(residents=6, murderers=1, max_days=2, seed=4, open_floor_seconds=300)
 
 
 async def test_an_open_floor_that_ran_out_of_time_does_so_again_when_resumed() -> None:

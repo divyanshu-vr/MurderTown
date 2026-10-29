@@ -21,7 +21,7 @@ from mm.observability import tracing
 from mm.orchestrator import GameResult, play_game
 from tests.support import FakeModel, answer_kind, model_answer, sensible_answer
 
-CONFIG = GameConfig(residents=6, murderers=1, max_days=1, seed=13)
+CONFIG = GameConfig(residents=6, murderers=1, max_days=2, seed=13)
 
 
 @pytest.fixture
@@ -110,8 +110,8 @@ async def test_a_generation_carries_the_model_its_words_usage_cost_and_metadata(
     }
     assert json.loads(str(attribute(generation, tracing.COST))) == {"total": call.cost_usd}
     assert attribute(generation, tracing.USER) == call.resident
-    assert call.kind is DecisionKind.STATEMENT  # Day 1 opens with Discussion, not reflections
-    assert attribute(generation, tracing.TAGS) == ("discussion", "statement", "fake")
+    assert call.kind is DecisionKind.KILL_VOTE  # the game opens with a Night
+    assert attribute(generation, tracing.TAGS) == ("night", "kill_vote", "fake")
     assert attribute(generation, tracing.METADATA + "attempt") == 1
     assert attribute(generation, tracing.METADATA + "outcome") == "ok"
     sequence = attribute(decision, tracing.METADATA + "sequence")

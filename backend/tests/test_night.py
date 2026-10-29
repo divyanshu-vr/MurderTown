@@ -30,9 +30,11 @@ from tests.support import (
     Delayed,
     Puppet,
     Requests,
+    everyone_alive_on_day_two,
     everyone_votes_for,
     name_at_seat,
     payloads,
+    play_opening_night,
     puppets,
     seats_by_role,
     wrapped,
@@ -81,11 +83,11 @@ async def test_murderers_speak_in_the_den_one_after_another_each_hearing_the_las
 
 
 async def test_a_lone_murderer_is_not_asked_to_speak_in_the_den_but_simply_picks() -> None:
-    asked, events = await requests_and_log(SIX.model_copy(update={"max_days": 1}), puppets())
+    asked, events = await requests_and_log(SIX.model_copy(update={"max_days": 2}), puppets())
 
     assert of_kind(asked, DecisionKind.DEN_MESSAGE) == []
-    (vote,) = payloads(events, KillVoteCast)
-    (chosen,) = payloads(events, VictimChosen)
+    (vote,) = payloads(events, KillVoteCast, day=1)
+    (chosen,) = payloads(events, VictimChosen, day=1)
     assert chosen.victim == vote.target
 
 
@@ -105,31 +107,31 @@ class SplitDen(Puppet):
 
 
 async def test_the_most_chosen_resident_becomes_the_victim() -> None:
-    config = GameConfig(residents=12, murderers=3, max_days=1, seed=4, open_floor_seconds=None)
+    config = GameConfig(residents=12, murderers=3, seed=4, open_floor_seconds=None)
     roles = seats_by_role(config)
     one, two, three = roles[Role.MURDERER]
     first, second = roles[Role.CIVILIAN][:2]
     split = SplitDen(kill_by_murderer={one: first, two: first, three: second})
 
-    result = await play_game(config, lambda _: split)
+    events = await play_opening_night(config, lambda _: split)
 
-    (chosen,) = payloads(result.events, VictimChosen)
-    assert chosen.victim == name_at_seat(result.events, first)
+    (chosen,) = payloads(events, VictimChosen)
+    assert chosen.victim == name_at_seat(events, first)
 
 
 async def test_a_tied_kill_vote_is_drawn_the_same_way_for_the_same_seed() -> None:
     winners: set[int] = set()
     for seed in range(40):
-        config = CONFIG.model_copy(update={"seed": seed, "max_days": 1})
+        config = CONFIG.model_copy(update={"seed": seed})
         roles = seats_by_role(config)
         one, two = roles[Role.MURDERER]
         candidates = roles[Role.CIVILIAN][:2]
         split = SplitDen(kill_by_murderer={one: candidates[0], two: candidates[1]})
 
-        played = [await play_game(config, lambda _, s=split: s) for _ in range(2)]
+        played = [await play_opening_night(config, lambda _, s=split: s) for _ in range(2)]
 
-        chosen = [payloads(result.events, VictimChosen)[0].victim for result in played]
-        names = [name_at_seat(played[0].events, seat) for seat in candidates]
+        chosen = [payloads(events, VictimChosen)[0].victim for events in played]
+        names = [name_at_seat(played[0], seat) for seat in candidates]
         assert chosen[0] == chosen[1]
         winners.add(names.index(chosen[0]))
     assert winners == {0, 1}  # over many seeds, each side of the tie wins sometimes
@@ -197,8 +199,8 @@ async def investigated_wrongly(config: GameConfig, target_role: Role, games: int
     for seed in range(games):
         seeded = config.model_copy(update={"seed": seed})
         target = seats_by_role(seeded)[target_role][0]
-        result = await play_game(seeded, puppets(investigations={1: target}))
-        (found,) = payloads(result.events, ResidentInvestigated)
+        events = await play_opening_night(seeded, puppets(investigations={1: target}))
+        (found,) = payloads(events, ResidentInvestigated)
         wrong += found.found_murderer != (target_role is Role.MURDERER)
     return wrong / games
 
@@ -208,7 +210,7 @@ async def investigated_wrongly(config: GameConfig, target_role: Role, games: int
 async def test_the_detective_is_wrong_about_as_often_as_the_configured_accuracy_says(
     accuracy: float, target_role: Role
 ) -> None:
-    config = SIX.model_copy(update={"max_days": 1, "detective_accuracy": accuracy})
+    config = SIX.model_copy(update={"detective_accuracy": accuracy})
 
     error = await investigated_wrongly(config, target_role, games=400)
 
@@ -216,7 +218,7 @@ async def test_the_detective_is_wrong_about_as_often_as_the_configured_accuracy_
 
 
 async def test_a_detective_with_perfect_accuracy_is_never_wrong() -> None:
-    config = SIX.model_copy(update={"max_days": 1, "detective_accuracy": 1.0})
+    config = SIX.model_copy(update={"detective_accuracy": 1.0})
 
     assert await investigated_wrongly(config, Role.MURDERER, games=30) == 0
 
@@ -236,15 +238,16 @@ async def test_dawn_announces_the_news_then_the_recap_then_residents_reflect() -
 
 async def test_a_murder_that_decides_the_game_ends_it_at_once() -> None:
     murderer, doctor, detective, sheriff, first, second = await six_seats()
-    ballots = {1: everyone_votes_for(first), 2: everyone_votes_for(sheriff)}
-    nights = {"kills": {1: second, 2: detective}, "protects": {1: detective, 2: murderer}}
+    ballots = {2: everyone_votes_for(first), 3: everyone_votes_for(sheriff)}
+    nights = {"kills": {1: first, 2: second, 3: detective},  # the first Victim is saved
+              "protects": {1: first, 2: detective, 3: murderer}}  # fmt: skip
 
     result = await play_game(SIX, puppets(ballots, **nights))
 
-    murder = next(e for e in result.events if isinstance(e.payload, ResidentDied) and e.day == 3)
+    murder = next(e for e in result.events if isinstance(e.payload, ResidentDied) and e.day == 4)
     after = [type(event.payload) for event in result.events[murder.seq :]]
     assert after == [RolesRevealed, GameEnded]  # the very next events
-    assert payloads(result.events, RecapNarrated, day=3) == []
+    assert payloads(result.events, RecapNarrated, day=4) == []
     assert result.state.winner is Side.MURDERERS
     assert name_at_seat(result.events, doctor) in result.state.living
 
@@ -253,11 +256,11 @@ async def test_a_night_shot_that_kills_the_last_murderer_ends_the_game_before_an
     config = SIX.model_copy(update={"sheriff_shoots_at": "night"})
     murderer, *_ = await six_seats()
 
-    result = await play_game(config, puppets(shots={1: murderer}))
+    result = await play_game(config, puppets(shots={2: murderer}, **everyone_alive_on_day_two(SIX)))
 
     assert result.state.winner is Side.TOWN
-    assert payloads(result.events, KillVoteCast) == []
-    assert payloads(result.events, ResidentProtected) == []
+    assert payloads(result.events, KillVoteCast, day=2) == []
+    assert payloads(result.events, ResidentProtected, day=2) == []
     assert isinstance(result.events[-3].payload, ResidentDied)  # then every role, and the end
 
 
@@ -266,7 +269,7 @@ async def test_a_night_backfire_that_leaves_the_murderers_level_ends_the_game_at
     _, doctor, detective, _, first, second = await six_seats()
     nights = {"kills": {1: second}, "protects": {1: detective}, "shots": {2: doctor}}
 
-    result = await play_game(config, puppets({1: everyone_votes_for(first)}, **nights))
+    result = await play_game(config, puppets({2: everyone_votes_for(first)}, **nights))
 
     assert result.state.winner is Side.MURDERERS
     assert payloads(result.events, KillVoteCast, day=2) == []

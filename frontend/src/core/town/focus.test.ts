@@ -28,7 +28,8 @@ describe("following the action", () => {
     const { view, stage, focus } = at(countWhen(events, "discussion", 1));
 
     expect(focus).not.toEqual(wholeTown);
-    expect(layoutFor(view, stage, plan).every(({ at: spot }) => holds(focus, spot))).toBe(true);
+    const gathered = layoutFor(view, stage, plan).filter(({ dead }) => !dead); // the first Night's Victim lies at home
+    expect(gathered.every(({ at: spot }) => holds(focus, spot))).toBe(true);
   });
 
   it("shows the whole town at Dawn and at Dusk", () => {

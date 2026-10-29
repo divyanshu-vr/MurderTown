@@ -11,20 +11,23 @@ from mm.orchestrator import GameControls, play_game
 from tests.support import (
     BidRule,
     StatementRule,
+    everyone_alive_on_day_two,
     keen,
     may_perceive,
     name_at_seat,
     payloads,
     puppets,
     seat_of,
+    state_before,
     ticking,
 )
 
-CONFIG = GameConfig(residents=8, murderers=2, max_days=1, seed=4, open_floor_seconds=None)
+CONFIG = GameConfig(residents=8, murderers=2, max_days=2, seed=4, open_floor_seconds=None)
+"""Two Days: the game opens with a Night, so Day 2 has its only Discussion."""
 
 
 def open_floor(events: list[Event]) -> list[StatementMade]:
-    return [s for s in payloads(events, StatementMade, day=1) if s.part == "open_floor"]
+    return [s for s in payloads(events, StatementMade, day=2) if s.part == "open_floor"]
 
 
 async def test_the_open_floor_stops_at_its_statement_cap() -> None:
@@ -36,8 +39,9 @@ async def test_the_open_floor_stops_at_its_statement_cap() -> None:
 async def test_the_open_floor_ends_after_two_turns_in_which_nobody_bids() -> None:
     result = await play_game(CONFIG, puppets())
 
+    bidding_starts = state_before(result.events, lambda event: isinstance(event.payload, BidPlaced))
     assert open_floor(result.events) == []
-    assert len(payloads(result.events, BidPlaced, day=1)) == 2 * CONFIG.residents
+    assert len(payloads(result.events, BidPlaced, day=2)) == 2 * len(bidding_starts.living)
 
 
 def bidding(by_seat: dict[int, int]) -> BidRule:
@@ -59,7 +63,7 @@ def addressing(seat: int) -> StatementRule:
 
 
 def last_opening_statement(events: list[Event]) -> StatementMade:
-    return [s for s in payloads(events, StatementMade, day=1) if s.part == "opening_round"][-1]
+    return [s for s in payloads(events, StatementMade, day=2) if s.part == "opening_round"][-1]
 
 
 @pytest.mark.parametrize(
@@ -76,8 +80,9 @@ async def test_who_makes_the_first_statement_on_the_open_floor(
     bids: dict[int, int], addressed: int | None, possible_speakers: set[int]
 ) -> None:
     says = addressing(addressed) if addressed is not None else None
+    nights = everyone_alive_on_day_two(CONFIG)
 
-    result = await play_game(CONFIG, puppets(bids=bidding(bids), says=says))
+    result = await play_game(CONFIG, puppets(bids=bidding(bids), says=says, **nights))
 
     if addressed is not None:
         assert last_opening_statement(result.events).addressed == (
@@ -100,7 +105,8 @@ async def share_of_ties_won_by_seat_one(says: StatementRule | None) -> float:
     wins = ties = 0
     for seed in range(300):
         config = CONFIG.model_copy(update={"seed": seed})
-        result = await play_game(config, puppets(bids=bidding({1: 3, 2: 3}), says=says))
+        nights = everyone_alive_on_day_two(config)
+        result = await play_game(config, puppets(bids=bidding({1: 3, 2: 3}), says=says, **nights))
         seat_one = name_at_seat(result.events, 1)
         if last_opening_statement(result.events).addressed == ((seat_one,) if says else ()):
             ties += 1
@@ -128,7 +134,7 @@ async def test_the_open_floor_stops_when_its_time_is_up_and_everyone_hears_so() 
 
 
 async def test_each_bid_is_perceived_only_by_its_bidder() -> None:
-    result = await play_game(CONFIG, puppets(bids=keen))
+    result = await play_game(CONFIG, puppets(bids=keen, **everyone_alive_on_day_two(CONFIG)))
 
     for resident in result.state.residents:
         bids = payloads(perceived_by(result.events, resident.name), BidPlaced)

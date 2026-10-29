@@ -2,141 +2,167 @@
   "turning_points": [
     {
       "kind": "event",
-      "seq": 84
+      "seq": 20
     },
     {
       "kind": "event",
-      "seq": 124
+      "seq": 113
     }
   ],
   "lies": [
     {
-      "kind": "false_role",
-      "seq": 11,
-      "speaker": "Rosa",
-      "said": "Rosa, night watchman. I walk this square after dark and see everything that moves. Nothing out of place yet, but killers hide in plain sight. Hugo, you said little at Dawn. Speak up, and let's hear from everyone before we vote.",
-      "claimed_role": "civilian",
-      "true_role": "murderer"
+      "kind": "accused_trusted",
+      "seq": 30,
+      "speaker": "Silas",
+      "said": "Umar is dead. Bad business. I walk the lanes after dark and see more than most. Nothing I'll name yet. Elsie, you were quick to say nothing at Dusk. Why? Rosa, same question. Speak up, both of you. Silence looks like guilt to me.",
+      "belief": {
+        "resident": "Elsie",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
     },
     {
       "kind": "accused_trusted",
-      "seq": 72,
-      "speaker": "Rosa",
-      "said": "Rosa, night watchman. Hugo, I saw a lantern bobbing along the harbour road near midnight, and it wasn't yours, you say you were abed. Silas and Elsie answered plainly. Luna, your ledgers are no alibi without a witness. Hugo, explain the harbour road, or I'll weigh your silence at the vote.",
+      "seq": 34,
+      "speaker": "Hugo",
+      "said": "Umar's death is a loss, and we should weigh evidence, not gossip. Three points. First, Tess, a buttoned coat is a tailoring remark, not a clue. Second, Silas asked fair questions, but silence at Dusk proves little. Third, Pia is right that the loud voices should not carry the day. I will hold my suspicions until we have facts. Who saw Umar last, and where?",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 44,
+      "speaker": "Silas",
+      "said": "Tess, a tailor's eye for buttons is a cheap shot, and you're the loudest against me. Funny how that works. I walk the lanes after dark and I saw nothing that points at Hugo. Hugo talks sense. Luna, you asked him where he was. Answer for yourself too. Stop chasing coats and watch who pushes hardest.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 44,
+      "speaker": "Silas",
+      "said": "Tess, a tailor's eye for buttons is a cheap shot, and you're the loudest against me. Funny how that works. I walk the lanes after dark and I saw nothing that points at Hugo. Hugo talks sense. Luna, you asked him where he was. Answer for yourself too. Stop chasing coats and watch who pushes hardest.",
       "belief": {
         "resident": "Hugo",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 52,
+      "speaker": "Hugo",
+      "said": "Let's weigh evidence, not coats. Tess accused Silas and Rosa in one breath, yet offers no proof. Rosa dodged Silas's question with flour on her hands. Luna demanded my whereabouts but gave none of her own. Elsie praises listening but names no one. I was at my hearth, alone, and I'll answer anything plainly. Watch who never answers.",
+      "belief": {
+        "resident": "Tess",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
     },
     {
       "kind": "accused_trusted",
-      "seq": 132,
-      "speaker": "Rosa",
-      "said": "Silas, you're quick to hang lanterns on me. Luna met you at dusk, not me. Tess and I discussed nothing worth hiding. Luna was the Detective, and her death silences the best checker in town. Ask who gains. I watch harbour road at night and I say what I see. Elsie, you pressed Hugo early. What do you make of Silas?",
-      "belief": {
-        "resident": "Silas",
-        "suspicion": 0,
-        "note": "knows they are no Murderer"
-      }
-    },
-    {
-      "kind": "accused_trusted",
-      "seq": 139,
-      "speaker": "Rosa",
-      "said": "Silas, you'd rather question me than answer. Luna met you at dusk and was dead by dawn. Give us the plain answer you owe. Elsie, keep pressing him. I watch the roads after dark, and nothing I've seen clears you, Silas. Tess, did you see any light last night?",
-      "belief": {
-        "resident": "Silas",
-        "suspicion": 0,
-        "note": "knows they are no Murderer"
-      }
-    },
-    {
-      "kind": "accused_trusted",
-      "seq": 144,
-      "speaker": "Tess",
-      "said": "Tess here, kneading my thoughts. Silas, you've dodged twice now. Luna met you at dusk and was dead by dawn. Tell us plainly what passed between you, no more wood knocking. Rosa, your lantern still has no witness. Name one, or it stays a crumb. Elsie, keep your questions coming. They're fair bread.",
-      "belief": {
-        "resident": "Silas",
-        "suspicion": 25,
-        "note": "Privately met Luna at Dusk, the Detective who was then killed; need to hear what passed."
-      }
-    },
-    {
-      "kind": "accused_trusted",
-      "seq": 149,
-      "speaker": "Rosa",
-      "said": "Report, plain. Silas asks me who saw my lantern, yet he won't say what Luna told him at dusk. Luna was the Detective, and she died by dawn. Silas, answer that. Elsie, Tess, press his dusk meeting, not my lantern. My watch stands. His silence doesn't.",
-      "belief": {
-        "resident": "Silas",
-        "suspicion": 0,
-        "note": "knows they are no Murderer"
-      }
-    },
-    {
-      "kind": "accused_trusted",
-      "seq": 154,
-      "speaker": "Tess",
-      "said": "Tess here. Silas, you've dodged the dusk question twice. Plain bread, please: what did Luna say? Luna was no Murderer, and a dead Detective is a loss to us all. Rosa, your lantern still has no witness. Give us a name or it stays a crumb. Elsie, your questions are good bread.",
-      "belief": {
-        "resident": "Silas",
-        "suspicion": 25,
-        "note": "Privately met Luna at Dusk, the Detective who was then killed; need to hear what passed."
-      }
-    },
-    {
-      "kind": "accused_trusted",
-      "seq": 159,
-      "speaker": "Elsie",
-      "said": "Silas, answer it. What did Luna tell you at dusk? Plain words, no wood knocking. Rosa, your lantern still has no witness, and you keep steering us at Silas. Tess, you follow the loudest voice. Speak for yourself. Luna was our Detective, and she is dead. I want answers today.",
+      "seq": 52,
+      "speaker": "Hugo",
+      "said": "Let's weigh evidence, not coats. Tess accused Silas and Rosa in one breath, yet offers no proof. Rosa dodged Silas's question with flour on her hands. Luna demanded my whereabouts but gave none of her own. Elsie praises listening but names no one. I was at my hearth, alone, and I'll answer anything plainly. Watch who never answers.",
       "belief": {
         "resident": "Rosa",
-        "suspicion": 30,
-        "note": "Unverified lantern claim; I protected her, so not a kill target Night 1; met Luna too."
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
       }
     },
     {
       "kind": "accused_trusted",
-      "seq": 169,
-      "speaker": "Rosa",
-      "said": "Report, plain. Silas has dodged the dusk question three times. Luna met him, and by dawn she was dead. I watch harbour road after dark, and I saw his lamp near the mill last night. Elsie, Tess, press him on Luna, not on my watch. Answer it, Silas.",
+      "seq": 52,
+      "speaker": "Hugo",
+      "said": "Let's weigh evidence, not coats. Tess accused Silas and Rosa in one breath, yet offers no proof. Rosa dodged Silas's question with flour on her hands. Luna demanded my whereabouts but gave none of her own. Elsie praises listening but names no one. I was at my hearth, alone, and I'll answer anything plainly. Watch who never answers.",
       "belief": {
-        "resident": "Silas",
+        "resident": "Luna",
         "suspicion": 0,
         "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 52,
+      "speaker": "Hugo",
+      "said": "Let's weigh evidence, not coats. Tess accused Silas and Rosa in one breath, yet offers no proof. Rosa dodged Silas's question with flour on her hands. Luna demanded my whereabouts but gave none of her own. Elsie praises listening but names no one. I was at my hearth, alone, and I'll answer anything plainly. Watch who never answers.",
+      "belief": {
+        "resident": "Elsie",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 68,
+      "speaker": "Silas",
+      "said": "Tess, you've hounded me since Dusk and offered no proof. Coats are not evidence. Hugo answered plainly, and I back him. Luna wants answers but gives none of her own. Rosa, you dodged me too. Watch the loudest voice, Tess.",
+      "belief": {
+        "resident": "Tess",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 68,
+      "speaker": "Silas",
+      "said": "Tess, you've hounded me since Dusk and offered no proof. Coats are not evidence. Hugo answered plainly, and I back him. Luna wants answers but gives none of her own. Rosa, you dodged me too. Watch the loudest voice, Tess.",
+      "belief": {
+        "resident": "Luna",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "accused_trusted",
+      "seq": 68,
+      "speaker": "Silas",
+      "said": "Tess, you've hounded me since Dusk and offered no proof. Coats are not evidence. Hugo answered plainly, and I back him. Luna wants answers but gives none of her own. Rosa, you dodged me too. Watch the loudest voice, Tess.",
+      "belief": {
+        "resident": "Rosa",
+        "suspicion": 0,
+        "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 68,
+      "speaker": "Silas",
+      "said": "Tess, you've hounded me since Dusk and offered no proof. Coats are not evidence. Hugo answered plainly, and I back him. Luna wants answers but gives none of her own. Rosa, you dodged me too. Watch the loudest voice, Tess.",
+      "belief": {
+        "resident": "Hugo",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
       }
     }
   ],
   "influence": [
     {
-      "resident": "Elsie",
-      "followed": 7,
-      "ballots": 8
-    },
-    {
-      "resident": "Tess",
-      "followed": 7,
-      "ballots": 8
-    },
-    {
-      "resident": "Luna",
-      "followed": 4,
-      "ballots": 5
-    },
-    {
-      "resident": "Rosa",
-      "followed": 5,
-      "ballots": 8
+      "resident": "Hugo",
+      "followed": 3,
+      "ballots": 6
     },
     {
       "resident": "Silas",
-      "followed": 5,
-      "ballots": 8
+      "followed": 3,
+      "ballots": 6
     },
     {
-      "resident": "Hugo",
-      "followed": 0,
-      "ballots": 5
+      "resident": "Luna",
+      "followed": 2,
+      "ballots": 6
+    },
+    {
+      "resident": "Tess",
+      "followed": 2,
+      "ballots": 6
     }
   ]
 }

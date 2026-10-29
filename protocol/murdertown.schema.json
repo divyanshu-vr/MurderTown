@@ -810,7 +810,7 @@
         "max_days": {
           "default": 10,
           "maximum": 20,
-          "minimum": 1,
+          "minimum": 2,
           "type": "integer"
         },
         "open_floor_statements": {
@@ -902,7 +902,7 @@
         "max_days": {
           "default": 10,
           "maximum": 20,
-          "minimum": 1,
+          "minimum": 2,
           "type": "integer"
         },
         "open_floor_statements": {
@@ -2012,7 +2012,7 @@
         "max_days": {
           "default": 10,
           "maximum": 20,
-          "minimum": 1,
+          "minimum": 2,
           "type": "integer"
         },
         "open_floor_statements": {

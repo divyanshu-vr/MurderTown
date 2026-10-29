@@ -1,6 +1,8 @@
 """Night: the town sleeps while the Murderers choose a Victim and the Doctor and Detective act.
 
-In order: the Sheriff's shot, if the game is set up for it at Night; then, if
+In order: the Sheriff's shot, if the game is set up for it at Night, from Night 2
+on, once the town has had a Day to talk (the opening Night gives nothing to go
+on); then, if
 more than one Murderer is alive, each posts one message in the Den, one after
 another so each hears the last; then every kill vote, the Doctor's protection
 and the Detective's investigation are asked for at once. Their events follow in
@@ -37,7 +39,8 @@ if TYPE_CHECKING:
 
 async def run_night(game: "Game") -> None:
     await game.start_phase(Phase.NIGHT)
-    if game.config.sheriff_shoots_at == "night" and (sheriff := armed_sheriff(game.state)):
+    shoots_tonight = game.config.sheriff_shoots_at == "night" and game.state.day > 1
+    if shoots_tonight and (sheriff := armed_sheriff(game.state)):
         await sheriff_decides(game, sheriff)
         if game.decided:
             return

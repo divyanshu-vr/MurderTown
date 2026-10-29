@@ -1,6 +1,7 @@
 """Helpers shared by the seam-1 tests: reading an event log the way a test needs to."""
 
 import asyncio
+import contextlib
 import json
 import re
 from collections.abc import Callable, Mapping, Sequence
@@ -12,7 +13,7 @@ from typing import Any
 from mm.agents import Brain, BrainFactory, CallRecorder, ModelCall, llm_agents, scripted_bots
 from mm.agents.scripted import ScriptedBot
 from mm.api.live_games import BrainsFor
-from mm.engine import GameConfig, PlayedBy, Resident, Role
+from mm.engine import GameConfig, Phase, PlayedBy, Resident, Role
 from mm.engine.casting import seated_roles
 from mm.engine.decisions import (
     SKIP,
@@ -26,10 +27,10 @@ from mm.engine.decisions import (
     Statement,
     Target,
 )
-from mm.engine.events import Event, Payload, payloads_of
+from mm.engine.events import Event, Payload, PhaseStarted, payloads_of
 from mm.engine.state import GameState
 from mm.llm import ModelReply, ModelRequest, Usage
-from mm.orchestrator import play_game
+from mm.orchestrator import GameControls, GameHaltedError, play_game
 
 
 def payloads[P: Payload](
@@ -239,6 +240,30 @@ def puppets(
         return puppet
 
     return make
+
+
+def everyone_alive_on_day_two(config: GameConfig) -> dict[str, dict[int, int]]:
+    """Night scripts for `puppets` in which the Murderers' first Victim is the first Civilian and
+    the Doctor saves them, so everyone is still alive for Day 2, the first Day with a Discussion
+    (the game opens with a Night)."""
+    civilian = seats_by_role(config)[Role.CIVILIAN][0]
+    return {"kills": {1: civilian}, "protects": {1: civilian}}
+
+
+async def play_opening_night(config: GameConfig, brain_for: BrainFactory) -> list[Event]:
+    """The log of a game played through its opening Night and no further: it halts once Day
+    2's Dawn has told the news, before anyone is asked anything more."""
+    controls = GameControls()
+    events: list[Event] = []
+
+    async def heard(event: Event) -> None:
+        events.append(event)
+        if isinstance(event.payload, PhaseStarted) and event.payload.phase is Phase.DAWN:
+            controls.halt()
+
+    with contextlib.suppress(GameHaltedError):
+        await play_game(config, brain_for, observers=[heard], controls=controls)
+    return events
 
 
 def name_at_seat(events: Sequence[Event], seat: int) -> str:

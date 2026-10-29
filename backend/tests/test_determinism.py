@@ -23,8 +23,8 @@ async def test_a_different_seed_casts_a_different_town() -> None:
         roles = {a.resident: a.role for a in payloads(events, RoleAssigned)}
         return tuple((r.name, roles[r.name]) for r in started.residents)
 
-    first = await play_game(GameConfig(seed=1, max_days=1), scripted_bots(seed=1))
-    second = await play_game(GameConfig(seed=2, max_days=1), scripted_bots(seed=2))
+    first = await play_game(GameConfig(seed=1, max_days=2), scripted_bots(seed=1))
+    second = await play_game(GameConfig(seed=2, max_days=2), scripted_bots(seed=2))
 
     assert town(first.events) != town(second.events)
 

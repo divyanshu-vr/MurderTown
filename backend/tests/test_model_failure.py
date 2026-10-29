@@ -44,6 +44,7 @@ from tests.support import (
     FakeModel,
     agents_on,
     answer_kind,
+    everyone_alive_on_day_two,
     may_perceive,
     model_answer,
     name_at_seat,
@@ -198,7 +199,9 @@ async def test_an_abort_mid_conversation_drops_what_that_wave_said() -> None:
     def the_reply(request: DecisionRequest) -> bool:
         return request.kind is DecisionKind.CONVERSATION_MESSAGE and next(asked) == 1
 
-    result = await play_game(CONFIG, failing(the_reply, talks={1: {0: [1]}}))
+    alive = everyone_alive_on_day_two(CONFIG)
+
+    result = await play_game(CONFIG, failing(the_reply, talks={2: {0: [1]}}, **alive))
 
     assert payloads(result.events, ConversationStarted)
     assert payloads(result.events, ConversationMessagePosted) == []

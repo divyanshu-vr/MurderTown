@@ -50,7 +50,7 @@ A Lie is a Statement that says what its speaker privately does not believe, so t
 
 ## Evaluation
 
-Ten live games, every Resident played by Claude Haiku 5.5 at low effort: eight Residents, two Murderers, a Doctor, a Detective and a Sheriff, at most four Days, in two cells on the same five seeds, with a Detective right four times in five or always ([the matrix](configs/evaluations/readme.toml)). Four of them are on the Replay site.
+Ten live games, every Resident played by Claude Haiku 5.5 at low effort: eight Residents, two Murderers, a Doctor, a Detective and a Sheriff, at most four Days, in two cells on the same five seeds, with a Detective right four times in five or always ([the matrix](configs/evaluations/readme.toml)). Four of them are on the Replay site. They were played under the first rules, before the game opened with a Night (#27): Day 1 began with a Discussion, and a Resident could be in up to three Conversations a Dusk. The matrix now allows five Days, so a game played again still has up to four Discussions.
 
 ![Town win rate by Detective accuracy: 4 of 5 games at 0.8 and 2 of 5 at 1.0, with intervals that overlap almost entirely](docs/images/town-win-rate-by-detective-accuracy.svg)
 

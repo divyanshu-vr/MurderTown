@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 
 import { present } from "../../../test/present";
-import { eventsOf, recordedGame } from "../../../test/recordedGame";
+import { eventsOf, recordedGame, siteGame } from "../../../test/recordedGame";
 import type { Event } from "../../protocol";
 import { isPublic } from "../gameView";
 import { stageOf } from "./stage";
@@ -52,9 +52,13 @@ describe("what is on stage by day", () => {
 });
 
 describe("what is on stage at Dusk", () => {
-  const [firstWave, , , secondWave] = eventsOf(events, "conversation_started");
-  const conversationStarted = present(firstWave, "a Conversation");
-  const laterWave = present(secondWave, "a later Conversation");
+  const conversations = eventsOf(events, "conversation_started");
+  const conversationStarted = present(conversations[0], "a Conversation");
+  const firstDusk = conversations.filter(({ day }) => day === conversationStarted.day);
+  const laterDusk = present(
+    conversations.find(({ day }) => day > conversationStarted.day),
+    "a Conversation at a later Dusk",
+  );
   const messages = eventsOf(events, "conversation_message_posted");
   const isTalk = ({ payload }: Event) => payload.type === "conversation_message_posted" || payload.type === "conversation_started";
 
@@ -66,14 +70,14 @@ describe("what is on stage at Dusk", () => {
     );
   });
 
-  it("holds the latest wave's Conversations, each saying its latest words", () => {
+  it("holds the Dusk's Conversations, each saying its latest words, and starts afresh at the next Dusk", () => {
     const firstWords = present(messages[0], "a message");
     const stage = stageAt(firstWords);
 
-    expect(stage.pairs).toHaveLength(3);
+    expect(stage.pairs).toHaveLength(firstDusk.length);
     expect(stage.said).toMatchObject([{ speaker: firstWords.payload.speaker, text: firstWords.payload.text }]);
-    expect(stageAt(laterWave).pairs).toEqual([laterWave.payload.residents]);
-    expect(stageAt(laterWave).said).toEqual([]);
+    expect(stageAt(laterDusk).pairs).toEqual([laterDusk.payload.residents]);
+    expect(stageAt(laterDusk).said).toEqual([]);
   });
 
   it("lets a Conversation that has ended be heard to its last words, then lets its pair go", () => {
@@ -88,10 +92,25 @@ describe("what is on stage at Dusk", () => {
     expect(stageAt(next).pairs.some(pairOf(ending.payload))).toBe(false);
   });
 
+  it("in a game played under the first rules, holds one wave of a Dusk's Conversations at a time", () => {
+    const old = siteGame("never-wrong");
+    const started = eventsOf(old, "conversation_started");
+    const metAgain = present(
+      started.find(({ seq, day, payload }) =>
+        started.some((earlier) => earlier.seq < seq && earlier.day === day && earlier.payload.residents.some((one) => payload.residents.includes(one))),
+      ),
+      "a Resident's second Conversation of a Dusk",
+    );
+
+    for (const shown of [old, old.filter(isPublic)]) {
+      expect(stageAt(metAgain, shown).pairs).toEqual([metAgain.payload.residents]);
+    }
+  });
+
   it("in mystery mode still sees who is talking, but not what they say or chose to do", () => {
     const seen = stageAt(present(messages[0], "a message"), events.filter(isPublic));
 
-    expect(seen.pairs).toHaveLength(3);
+    expect(seen.pairs).toHaveLength(firstDusk.length);
     expect(seen.said).toEqual([]);
     expect(seen.activities.size).toBe(0);
   });
@@ -149,7 +168,10 @@ describe("what is on stage at Dawn", () => {
       eventsOf(events, "resident_died").find(({ payload }) => payload.cause === "murdered"),
       "a murder",
     );
-    const banished = first("resident_died");
+    const banished = present(
+      eventsOf(events, "resident_died").find(({ payload }) => payload.cause === "banished"),
+      "a banishment",
+    );
 
     expect(stageAt(murder).foundMurdered).toEqual([murder.payload.resident]);
     expect(stageAt(banished).foundMurdered).toEqual([]);
