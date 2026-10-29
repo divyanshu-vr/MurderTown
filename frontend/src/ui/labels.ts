@@ -142,6 +142,11 @@ export function dollars(amount: number): string {
   return `$${amount.toFixed(4)}`;
 }
 
+/** An expected cost, to the cent: an estimate is no more precise than that. */
+export function aboutDollars(amount: number): string {
+  return amount > 0 && amount < 0.005 ? "under $0.01" : `$${amount.toFixed(2)}`;
+}
+
 /** The kinds of line the feed can be filtered by. */
 export const feedKindLabel: Record<FeedKind, string> = {
   public: "Public",

@@ -243,6 +243,19 @@ export interface DuskIntentChosen {
   topic: string;
 }
 /**
+ * A game's Expected cost, by model, and how many Days the paper game ran.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "Estimate".
+ */
+export interface Estimate {
+  usd: number;
+  by_model: {
+    [k: string]: number;
+  };
+  days: number;
+}
+/**
  * One entry in a game's log: a payload stamped with its place in the game.
  *
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema

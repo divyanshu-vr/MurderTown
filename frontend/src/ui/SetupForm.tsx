@@ -1,13 +1,17 @@
-import { type FormEvent, type ReactNode, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 
 import { boundsOf, defaultConfig, type NumberField, problemsWith } from "../core/setup";
 import { failure } from "../net/fetchJson";
-import type { GameConfigInput, LineupInput, PlayedByInput, SetupChoices, Side } from "../protocol";
-import { numberLabel, sheriffFiresLabel, sideLabel } from "./labels";
+import type { Estimator } from "../net/games";
+import type { Estimate, GameConfigInput, LineupInput, PlayedByInput, SetupChoices, Side } from "../protocol";
+import { aboutDollars, numberLabel, sheriffFiresLabel, sideLabel } from "./labels";
 import { PlayedByFields } from "./PlayedByFields";
 import { fieldStyle, inputStyle } from "./styles";
 
 const DEFAULTS = defaultConfig();
+
+/** How long the setup must stay unchanged before its Expected cost is asked for again. */
+export const ESTIMATE_AFTER_MS = 300;
 
 const SIDES: readonly { side: Side; label: string }[] = [
   { side: "murderers", label: "The Murderers play differently" },
@@ -23,18 +27,23 @@ interface SeatChoice {
  * The Host's setup form: the town, its rules, the seed and who plays each Resident.
  * Numbers are bounded as the protocol says and checked before a game is started; the
  * server stays the authority, and its reasons for refusing are shown as they come.
- * A seed left empty is drawn by the server: a known seed would tell every role.
+ * A seed left empty is drawn by the server: a known seed would tell every role. Below the
+ * form, the server's estimate of what the setup would cost, asked for again once the setup
+ * settles, and never while it has a problem.
  */
 export function SetupForm({
   choices,
   onStart,
+  estimate,
 }: {
   choices: SetupChoices | null;
   onStart: (config: GameConfigInput) => Promise<void>;
+  estimate: Estimator;
 }) {
   const [config, setConfig] = useState<GameConfigInput>(() => structuredClone(DEFAULTS));
   const [seed, setSeed] = useState("");
   const [refusal, setRefusal] = useState<string | null>(null);
+  const [cost, setCost] = useState<Priced | null>(null);
 
   const change = (update: Partial<GameConfigInput>) => setConfig((now) => ({ ...now, ...update }));
   const lineup: LineupInput = config.lineup ?? {};
@@ -55,12 +64,30 @@ export function SetupForm({
     ([name, problem]) => `${numberLabel[name as NumberField]}: ${problem}`,
   );
   if (seed.trim() !== "" && !Number.isInteger(Number(seed))) problems.push("Seed: a whole number");
+  const chosen = seed.trim() === "" ? {} : { seed: Number(seed) };
+  // the setup to price, as text so that the effect sees a change in its contents, not a new object
+  const setup = JSON.stringify(problems.length > 0 ? null : { ...config, ...chosen });
+
+  useEffect(() => {
+    const priced = JSON.parse(setup) as GameConfigInput | null;
+    if (priced === null) return;
+    let current = true; // a slower answer to an older setup must not replace a newer one
+    const timer = setTimeout(() => {
+      estimate(priced).then(
+        (expected) => current && setCost({ setup, expected }),
+        (error: unknown) => current && setCost({ setup, refused: failure(error) }),
+      );
+    }, ESTIMATE_AFTER_MS);
+    return () => {
+      current = false;
+      clearTimeout(timer);
+    };
+  }, [setup, estimate]);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (problems.length > 0) return;
     setRefusal(null);
-    const chosen = seed.trim() === "" ? {} : { seed: Number(seed) };
     onStart({ ...config, ...chosen }).catch((error: unknown) =>
       setRefusal(failure(error)),
     );
@@ -215,6 +242,7 @@ export function SetupForm({
           ))}
         </ul>
       )}
+      {cost?.setup === setup && <ExpectedCost cost={cost} />}
       {refusal && (
         <p role="alert" className="text-sm text-rose-300">
           {refusal}
@@ -224,6 +252,28 @@ export function SetupForm({
         Start the game
       </button>
     </form>
+  );
+}
+
+/** The setup's expected equivalent cost, with each model's share. */
+/** The Expected cost of a setup, or why the server could not work it out. */
+type Priced = { setup: string } & ({ expected: Estimate } | { refused: string });
+
+/** The setup's Expected cost, with each model's share, or the server's reason for none. */
+function ExpectedCost({ cost }: { cost: Priced }) {
+  return (
+    <p role="status" aria-label="Expected cost" className="max-w-xl text-sm text-stone-300">
+      {"refused" in cost ? `No estimate: ${cost.refused}` : describe(cost.expected)}
+    </p>
+  );
+}
+
+function describe({ usd, by_model, days }: Estimate): string {
+  const shares = Object.entries(by_model).map(([model, share]) => `${model} ${aboutDollars(share)}`);
+  if (shares.length === 0) return "Costs nothing: every Resident is scripted.";
+  return (
+    `About ${aboutDollars(usd)} equivalent for a game of ${days} Days: ${shares.join(" · ")}. ` +
+    "On your Claude subscription that costs nothing extra but uses its quota; on an API key it is about what you pay."
   );
 }
 

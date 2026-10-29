@@ -60,7 +60,9 @@ class Played:
         return [call for call in self.calls if call.kind is kind]
 
 
-async def play_with(model: FakeModel, config: GameConfig = CONFIG) -> Played:
+async def play_with(
+    model: FakeModel, config: GameConfig = CONFIG, played_by: PlayedBy | None = None
+) -> Played:
     calls: list[ModelCall] = []
     timeline: list[str] = []
 
@@ -72,7 +74,7 @@ async def play_with(model: FakeModel, config: GameConfig = CONFIG) -> Played:
         if event.decision_id:
             timeline.append(f"event {event.decision_id}")
 
-    agents = llm_agents(model, PlayedBy(), record, seed=config.seed)
+    agents = llm_agents(model, played_by or PlayedBy(), record, seed=config.seed)
     result = await play_game(config, agents, observers=[observe])
     return Played(result, calls, timeline)
 
@@ -109,6 +111,13 @@ async def test_each_call_records_its_prompt_usage_cost_and_prompt_version() -> N
     assert call.cost_usd == pytest.approx(0.0000103)  # 40 in, 12 out, 30 read from cache
     assert call.prompt_version == prompt_version()
     assert call.provider == "fake"
+
+
+async def test_a_bid_is_asked_at_low_effort_whatever_the_residents_own() -> None:
+    played = await play_with(FakeModel(), played_by=PlayedBy(effort="high"))
+
+    assert {call.effort for call in played.calls_for(DecisionKind.BID)} == {"low"}
+    assert {call.effort for call in played.calls_for(DecisionKind.STATEMENT)} == {"high"}
 
 
 async def test_an_invalid_answer_is_retried_once_with_the_problem_quoted() -> None:

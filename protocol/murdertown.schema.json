@@ -515,6 +515,30 @@
       "title": "Effort",
       "type": "string"
     },
+    "Estimate": {
+      "description": "A game's Expected cost, by model, and how many Days the paper game ran.",
+      "properties": {
+        "usd": {
+          "type": "number"
+        },
+        "by_model": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "type": "object"
+        },
+        "days": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "usd",
+        "by_model",
+        "days"
+      ],
+      "title": "Estimate",
+      "type": "object"
+    },
     "Event": {
       "description": "One entry in a game's log: a payload stamped with its place in the game.",
       "properties": {

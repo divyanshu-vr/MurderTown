@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { setupChoices, startGame } from "../net/games";
+import { estimator, setupChoices, startGame } from "../net/games";
 import type { SetupChoices } from "../protocol";
 import { Page } from "./Page";
 import { SetupForm } from "./SetupForm";
@@ -8,6 +8,7 @@ import { SetupForm } from "./SetupForm";
 /** Where the Host sets up a game, then watches it once the server has started it. */
 export function SetupPage({ hostToken }: { hostToken: string | null }) {
   const [choices, setChoices] = useState<SetupChoices | null>(null);
+  const estimate = useMemo(() => (hostToken ? estimator(hostToken) : null), [hostToken]);
 
   useEffect(() => {
     setupChoices().then(setChoices, () => undefined); // the form still offers what is already chosen
@@ -15,9 +16,10 @@ export function SetupPage({ hostToken }: { hostToken: string | null }) {
 
   return (
     <Page title="New game">
-      {hostToken ? (
+      {hostToken && estimate ? (
         <SetupForm
           choices={choices}
+          estimate={estimate}
           onStart={async (config) => {
             const gameId = await startGame(config, hostToken);
             window.location.assign(`/games/${gameId}`);

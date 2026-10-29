@@ -1,5 +1,5 @@
 /** Asks the server about games: the list, one game at a glance, and, as the Host, starting and controlling them. */
-import type { Control, GameConfigInput, GameCreated, GameList, GameSummary, SetupChoices } from "../protocol";
+import type { Control, Estimate, GameConfigInput, GameCreated, GameList, GameSummary, SetupChoices } from "../protocol";
 import { API_URL, fetchJson } from "./fetchJson";
 
 export async function listGames(hostToken: string | null, apiUrl = API_URL): Promise<GameSummary[]> {
@@ -25,6 +25,14 @@ export async function startGame(config: GameConfigInput, hostToken: string, apiU
     hostToken,
   });
   return started.id;
+}
+
+export type Estimator = (config: GameConfigInput) => Promise<Estimate>;
+
+/** An `Estimator` that asks the server a setup's Expected cost. Only the Host may ask. */
+export function estimator(hostToken: string, apiUrl = API_URL): Estimator {
+  return (config) =>
+    fetchJson<Estimate>(`${apiUrl}/estimates`, "estimate the game's cost", { method: "POST", body: config, hostToken });
 }
 
 export function setupChoices(apiUrl = API_URL): Promise<SetupChoices> {

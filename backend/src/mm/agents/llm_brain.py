@@ -56,6 +56,7 @@ class LLMBrain:
         prompt = build_prompt(request, view, self.rng)
         assigned = assignment(view, request.resident)  # the narrator has no role
         own_role = assigned.role if assigned else None
+        effort = ANSWERS[request.kind].effort or self.played_by.effort
         problem: str | None = None
         for attempt in range(1, ATTEMPTS + 1):
             asked = ModelRequest(
@@ -64,7 +65,7 @@ class LLMBrain:
                 task=retry_task(prompt, problem) if problem else prompt.task,
                 schema=answer_schema(request.kind),
                 model=self.played_by.model,
-                effort=self.played_by.effort,
+                effort=effort,
             )
             if recorded := self.recorded.get((request.id, attempt)):
                 # made before the game stopped, so not asked again; its problem was worked out
@@ -91,8 +92,7 @@ class LLMBrain:
             call = self._call(
                 request=request,
                 attempt=attempt,
-                system=asked.system,
-                prompt=asked.prompt,
+                asked=asked,
                 reply=reply,
                 outcome=outcome,
                 problem=problem,
@@ -115,8 +115,7 @@ class LLMBrain:
         *,
         request: DecisionRequest,
         attempt: int,
-        system: str,
-        prompt: str,
+        asked: ModelRequest,
         reply: ModelReply,
         outcome: CallOutcome,
         problem: str | None,
@@ -128,11 +127,11 @@ class LLMBrain:
             kind=request.kind,
             attempt=attempt,
             provider=self.provider.name,
-            model=self.played_by.model,
-            effort=self.played_by.effort,
+            model=asked.model,
+            effort=asked.effort,
             prompt_version=prompt_version(),
-            system=system,
-            prompt=prompt,
+            system=asked.system,
+            prompt=asked.prompt,
             outcome=outcome,
             problem=problem,
             raw_text=scrubbed(reply.text),

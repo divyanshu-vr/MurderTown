@@ -13,7 +13,7 @@ from typing import Any, cast
 
 from pydantic import Field, ValidationError
 
-from mm.engine import Role
+from mm.engine import Effort, Role
 from mm.engine.decisions import (
     SKIP,
     Bid,
@@ -60,11 +60,15 @@ class AnswerSpec:
     """Silence, a bid of 0, holding fire, a vote to skip, no last words, an empty
     reflection that changes nothing, a random legal Night choice, wandering at
     Dusk, or ending the Conversation."""
+    effort: Effort | None = None
+    """The effort the decision is asked at whatever the Resident's own, or None for theirs."""
 
 
 ANSWERS: dict[DecisionKind, AnswerSpec] = {
     DecisionKind.STATEMENT: AnswerSpec(StatementAnswer, always(Statement.plain("(stays silent)"))),
-    DecisionKind.BID: AnswerSpec(Bid, always(Bid(urgency=0, reason="(no answer)"))),
+    DecisionKind.BID: AnswerSpec(  # a number from 0 to 4 needs little thought
+        Bid, always(Bid(urgency=0, reason="(no answer)")), effort=Effort.LOW
+    ),
     DecisionKind.SHOWDOWN: AnswerSpec(
         Showdown, always(Showdown(fire=False, target=None, reason="(no answer)"))
     ),

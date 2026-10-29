@@ -9,7 +9,7 @@ from itertools import pairwise
 
 import pytest
 
-from mm.agents.prompting import ASKED_OF_EVERYONE, ASKED_OF_THE_ROLE
+from mm.agents.prompting import ASKED_OF_EVERYONE, ASKED_OF_THE_ROLE, BID_STATEMENTS_SHOWN
 from mm.engine import GameConfig, Role
 from mm.engine.decisions import DecisionKind, DecisionRequest, Statement
 from mm.engine.events import (
@@ -114,6 +114,28 @@ async def test_a_residents_own_notes_come_back_to_them_after_they_reflect() -> N
         assert f"SECRET-{seen.resident}-notebook" in seen.prompt.memory
 
 
+async def test_a_bid_weighs_only_what_was_said_since_the_bidder_last_spoke() -> None:
+    shown, events = await spy_on(GameConfig(residents=8, murderers=2, max_days=3, seed=31))
+    placed = {e.decision_id: i for i, e in enumerate(events) if isinstance(e.payload, BidPlaced)}
+
+    bids = [s for s in shown if s.request.kind is DecisionKind.BID]
+    assert bids
+    for seen in bids:
+        before = events[: placed[seen.request.id]]
+        today = [
+            e.payload
+            for e in before
+            if isinstance(e.payload, StatementMade) and e.day == before[-1].day
+        ]
+        mine = max(i for i, statement in enumerate(today) if statement.speaker == seen.resident)
+        since = [statement.speaker for statement in today[mine + 1 :]][-BID_STATEMENTS_SHOWN:]
+        assert re.findall(r'<statement speaker="([^"]+)">', seen.prompt.task) == since
+        assert f"SECRET-{seen.resident}-notebook" not in seen.prompt.memory + seen.prompt.task
+    detectives = [s for s in bids if s.role is Role.DETECTIVE]
+    assert detectives  # yet what only their role has told them stays
+    assert all("your investigation of" in s.prompt.memory for s in detectives)
+
+
 async def test_the_system_briefing_is_identical_for_a_resident_all_game() -> None:
     shown, _ = await spy_on(GameConfig(residents=8, murderers=2, max_days=4, seed=31))
 
@@ -161,11 +183,12 @@ def test_every_kind_of_decision_is_someones_to_answer() -> None:
     assert asked | {DecisionKind.RECAP} == set(DecisionKind)  # the narrator answers the recap
 
 
-async def test_every_prompt_carries_the_game_masters_facts() -> None:
+async def test_every_prompt_but_a_bids_carries_the_game_masters_facts() -> None:
     shown, _ = await spy_on(GameConfig(residents=8, murderers=2, max_days=3, seed=31))
+    deciding = [s for s in shown if s.request.kind is not DecisionKind.BID]
 
-    assert all("Facts kept by the game master" in s.prompt.task for s in shown)
-    assert all("Day 2 Vote:" in s.prompt.task for s in shown if "It is Day 3." in s.prompt.task)
+    assert all("Facts kept by the game master" in s.prompt.task for s in deciding)
+    assert all("Day 2 Vote:" in s.prompt.task for s in deciding if "It is Day 3." in s.prompt.task)
 
 
 async def test_words_from_another_resident_cannot_pose_as_markup_or_instructions() -> None:
@@ -225,7 +248,8 @@ async def test_the_one_asked_is_told_so_when_they_bid_and_everyone_hears_who_was
     first_turn = [s for s in shown if s.request.kind is DecisionKind.BID][: config.residents]
     told = {s.resident for s in first_turn if "asked you to answer" in s.prompt.task}
     assert told == {last.asked}
-    assert all(f"{last.speaker} asks {last.asked} to answer." in s.prompt.task for s in first_turn)
+    others = [s for s in first_turn if s.resident != last.speaker]  # the speaker said it
+    assert all(f"{last.speaker} asks {last.asked} to answer." in s.prompt.task for s in others)
 
 
 async def test_den_words_reach_only_the_other_murderers() -> None:

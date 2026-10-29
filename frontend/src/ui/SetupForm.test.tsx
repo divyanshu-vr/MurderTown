@@ -1,17 +1,26 @@
 /** The setup form: the Host chooses a game's rules, seed and lineup, within the protocol's bounds. */
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { defaultConfig } from "../core/setup";
-import type { GameConfigInput, SetupChoices } from "../protocol";
-import { SetupForm } from "./SetupForm";
+import type { Estimate, GameConfigInput, SetupChoices } from "../protocol";
+import { ESTIMATE_AFTER_MS, SetupForm } from "./SetupForm";
 
 const choices: SetupChoices = {
   providers: ["scripted", "claude", "anthropic"],
   models: ["claude-haiku-5-5", "claude-sonnet-5-5"],
 };
 
-function setUp(onStart: (config: GameConfigInput) => Promise<void> = () => Promise.resolve()) {
+const SONNET_MURDERERS: Estimate = {
+  usd: 0.7571,
+  by_model: { "claude-haiku-5-5": 0.1684, "claude-sonnet-5-5": 0.5887 },
+  days: 3,
+};
+
+function setUp(
+  onStart: (config: GameConfigInput) => Promise<void> = () => Promise.resolve(),
+  estimate: (config: GameConfigInput) => Promise<Estimate> = () => Promise.resolve(SONNET_MURDERERS),
+) {
   const started: GameConfigInput[] = [];
   render(
     <SetupForm
@@ -20,6 +29,7 @@ function setUp(onStart: (config: GameConfigInput) => Promise<void> = () => Promi
         started.push(config);
         return onStart(config);
       }}
+      estimate={estimate}
     />,
   );
   return started;
@@ -102,5 +112,46 @@ describe("the setup form", () => {
     start();
 
     expect(await screen.findByRole("alert")).toHaveTextContent(refusal);
+  });
+
+  it("shows what the setup is expected to cost, and each model's share", async () => {
+    setUp();
+
+    const cost = await screen.findByRole("status", { name: "Expected cost" });
+    expect(cost).toHaveTextContent("About $0.76 equivalent for a game of 3 Days");
+    expect(cost).toHaveTextContent("claude-haiku-5-5 $0.17 · claude-sonnet-5-5 $0.59");
+    expect(cost).toHaveTextContent("costs nothing extra but uses its quota");
+  });
+
+  it("says why there is no estimate when the server refuses the setup", async () => {
+    setUp(undefined, () => Promise.reject(new Error("3 Murderers is more than a quarter of 12 Residents")));
+
+    const cost = await screen.findByRole("status", { name: "Expected cost" });
+    expect(cost).toHaveTextContent("No estimate: 3 Murderers is more than a quarter of 12 Residents");
+  });
+
+  it("says a scripted setup costs nothing", async () => {
+    setUp(undefined, () => Promise.resolve({ usd: 0, by_model: {}, days: 5 }));
+
+    const cost = await screen.findByRole("status", { name: "Expected cost" });
+    expect(cost).toHaveTextContent("Costs nothing: every Resident is scripted.");
+    expect(cost).not.toHaveTextContent("quota");
+  });
+
+  it("asks again when the setup changes, but not while it has a problem", async () => {
+    const asked: GameConfigInput[] = [];
+    setUp(undefined, (config) => {
+      asked.push(config);
+      return Promise.resolve(SONNET_MURDERERS);
+    });
+    const residents = screen.getByRole("spinbutton", { name: "Residents" });
+
+    fireEvent.change(residents, { target: { value: "8" } });
+    await waitFor(() => expect(asked.at(-1)?.residents).toBe(8));
+    fireEvent.change(residents, { target: { value: "20" } });
+
+    await new Promise((resolve) => setTimeout(resolve, ESTIMATE_AFTER_MS * 2));
+    expect(asked.map((config) => config.residents)).not.toContain(20);
+    expect(screen.queryByRole("status", { name: "Expected cost" })).toBeNull();
   });
 });

@@ -1,3 +1,7 @@
+# What has been said since you last spoke
+$recent
+
+# Now
 It is Day $day, on the Open floor. How urgently do you want to make the next Statement?
 - 0: you would rather listen for now;
 - 1: you have general thoughts to share;

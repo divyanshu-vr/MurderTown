@@ -28,6 +28,7 @@ from fastapi import (
 from pydantic import BaseModel
 
 from mm.agents import CallSummary, Cost, ModelCall
+from mm.agents.estimate import Estimate, estimate
 from mm.agents.memory import Mind, mind_of
 from mm.api.live_games import Control, ControlRefusedError, LiveGames
 from mm.api.rate_limit import RateLimit
@@ -191,6 +192,15 @@ async def create_game(config: GameConfig, services: ServicesDep) -> GameCreated:
     except ValueError as cannot_play:
         services.new_games.give_back()
         raise HTTPException(status_code=422, detail=str(cannot_play)) from cannot_play
+
+
+@router.post("/estimates", dependencies=[HostOnly])
+async def estimate_cost(config: GameConfig) -> Estimate:
+    """A setup's Expected cost, before the Host starts it; a model with no price is refused."""
+    try:
+        return estimate(config, seeded="seed" in config.model_fields_set)
+    except ValueError as unpriced:
+        raise HTTPException(status_code=422, detail=str(unpriced)) from unpriced
 
 
 @router.get("/setup-choices")

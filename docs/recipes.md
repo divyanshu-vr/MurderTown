@@ -32,7 +32,8 @@ pnpm gen:types
 4. Give LLM Agents what they need: an `AnswerSpec` with its safe default in `ANSWERS` (`agents/answers.py`), either `always(...)` one decision or a function of the request such as `any_option`, and an instructions template in `agents/prompts/decisions/`, listed in `DECISION_TEMPLATES` (`agents/prompting.py`). Say who is asked it, in `ASKED_OF_EVERYONE` or a role's `ASKED_OF_THE_ROLE` (`agents/prompting.py`), so their briefing lists its answer format: on the subscription that is the only place a model learns it (`test_every_kind_of_decision_is_someones_to_answer` fails until you do). If the answer picks a Resident from a list, reuse the `Target` shape and its legality rule.
 5. Ask for it from the Phase with `game.decide` (one Resident) or `game.decide_all` (several at once, answers in the order asked), and append the event it causes with `cause=` so the event names the decision. Every decision causes at least one event, even one that changes nothing (a Sheriff holding fire causes `SheriffHeldFire`), so the Mind inspector can list and explain it. The event's payload names the Resident who decided. Do not ask a Resident whose options are empty.
 6. Add its label to `decisionLabel` (`frontend/src/ui/labels.ts`); the `Record` type will not compile until you do.
-7. Write seam-1 tests that script the answers with a `Puppet`-style test decision source, and seam-2 tests with `FakeModel` for its fallback.
+7. Give the Expected cost its measured tokens in `MEASURED` (`agents/estimate.py`), from a live game's calls, and count its calls in `PaperGame` (`test_every_decision_kind_has_measured_tokens_to_price_it_by` fails until you do).
+8. Write seam-1 tests that script the answers with a `Puppet`-style test decision source, and seam-2 tests with `FakeModel` for its fallback.
 
 ## Add a role
 

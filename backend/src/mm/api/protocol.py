@@ -8,6 +8,7 @@ from typing import Any
 
 from pydantic.json_schema import models_json_schema
 
+from mm.agents.estimate import Estimate
 from mm.agents.memory import Mind
 from mm.api.routes import (
     CallPage,
@@ -44,6 +45,7 @@ def protocol_schema() -> dict[str, Any]:
             (GameSummary, "serialization"),
             (GameList, "serialization"),
             (SetupChoices, "serialization"),
+            (Estimate, "serialization"),
             (GameCreated, "serialization"),
             (Mind, "serialization"),
             (Explanation, "serialization"),

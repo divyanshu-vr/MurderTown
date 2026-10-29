@@ -11,12 +11,20 @@
   ],
   "lies": [
     {
+      "kind": "false_role",
+      "seq": 30,
+      "speaker": "Silas",
+      "said": "Luna is dead, a Detective, killed at Dawn. That is the Town's loss and I want it said plainly. I walk the lanes after dark and saw nothing that explains this. Elsie, you have said little since we gathered. Where were you last night, and who can vouch for it?",
+      "claimed_role": "civilian",
+      "true_role": "murderer"
+    },
+    {
       "kind": "accused_trusted",
       "seq": 30,
       "speaker": "Silas",
-      "said": "Umar is dead, a Civilian. I walked my round last night and saw nothing useful, only lamps and empty lanes. I won't hang anyone on noise. Pia, you're out on the water at odd hours. Where were you when the bell went?",
+      "said": "Luna is dead, a Detective, killed at Dawn. That is the Town's loss and I want it said plainly. I walk the lanes after dark and saw nothing that explains this. Elsie, you have said little since we gathered. Where were you last night, and who can vouch for it?",
       "belief": {
-        "resident": "Pia",
+        "resident": "Elsie",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
@@ -25,9 +33,9 @@
       "kind": "accused_trusted",
       "seq": 34,
       "speaker": "Hugo",
-      "said": "Umar's death is a loss, and I want facts, not fear. My night: I marked copybooks by lamplight until midnight, alone, and heard nothing. Pia, your alibi is nets and fog with no witness, and so is mine, so neither of us can be measured by it yet. Let's test each account against what the Dawn bell told us, not against mood. Pia, did you see anyone on the quay?",
+      "said": "With Luna gone, we must reason in order, not by mood. First, Umar has offered only impressions: fog, bells, paint. Second, he has pressed Elsie and Tess without naming one fact against either. Umar, what do you actually know, beyond colour? I will weigh your answer before I weigh anyone else's.",
       "belief": {
-        "resident": "Pia",
+        "resident": "Umar",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
@@ -35,10 +43,10 @@
     {
       "kind": "accused_trusted",
       "seq": 52,
-      "speaker": "Silas",
-      "said": "Pia, I walked the quay at the second bell. Your lamp was dark, your nets on the steps, and nobody else on the stones. Elsie, you count echoes like a clerk. Who gains if a name goes up fast? Answer plainly: what did you see after dark?",
+      "speaker": "Hugo",
+      "said": "Umar, you asked where I was. I was alone at my schoolroom desk, marking sums until the lamp guttered out. I heard nothing I can prove, as with Elsie and Tess. You have named three of us and proven none. Where were you last night, and who saw you there?",
       "belief": {
-        "resident": "Elsie",
+        "resident": "Umar",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
@@ -47,9 +55,9 @@
       "kind": "accused_trusted",
       "seq": 68,
       "speaker": "Silas",
-      "said": "Elsie, I passed the quay at the second bell. Pia's lamp was dark, her nets on the steps, and no one else on the stones. You keep asking me the hour, yet from your shelves you saw no one at all. Tess, your window looks onto the square. What did you see after dark?",
+      "said": "Umar, you have pressed Elsie, Tess and Hugo and proven none of it. Your answer about your easel is no alibi. I walk these lanes after dark and saw no lamp at your window. Hugo asked where you were and who saw you. Answer plainly, with a name, or the Town should weigh your fog accordingly.",
       "belief": {
-        "resident": "Elsie",
+        "resident": "Umar",
         "suspicion": 0,
         "note": "knows they are no Murderer"
       }
@@ -57,33 +65,44 @@
     {
       "kind": "accused_trusted",
       "seq": 84,
-      "speaker": "Silas",
-      "said": "Tess, no. My lantern never paused under your window. I keep to the quay and the lanes, and I see what moves there. Elsie, you have asked me the hour three times and given none of your own. Your shelves saw nothing, you say. Convenient, for a clerk who wants a name. Answer me before you ask me again.",
+      "speaker": "Hugo",
+      "said": "Umar, I'll take your points in order. One: you have pressed Elsie, Tess, Hugo and Silas, yet named no fact against any of them. Two: your alibi is a lamp behind shutters, which no one saw. Three: you dodge Silas's question with another question. Answer plainly: what did you actually see last night?",
       "belief": {
-        "resident": "Elsie",
+        "resident": "Umar",
         "suspicion": 0,
         "note": "knows they are no Murderer"
+      }
+    },
+    {
+      "kind": "defended_suspected",
+      "seq": 84,
+      "speaker": "Hugo",
+      "said": "Umar, I'll take your points in order. One: you have pressed Elsie, Tess, Hugo and Silas, yet named no fact against any of them. Two: your alibi is a lamp behind shutters, which no one saw. Three: you dodge Silas's question with another question. Answer plainly: what did you actually see last night?",
+      "belief": {
+        "resident": "Silas",
+        "suspicion": 100,
+        "note": "knows them to be a fellow Murderer"
       }
     }
   ],
   "influence": [
     {
-      "resident": "Elsie",
-      "followed": 4,
+      "resident": "Hugo",
+      "followed": 5,
       "ballots": 6
     },
     {
-      "resident": "Rosa",
-      "followed": 4,
+      "resident": "Pia",
+      "followed": 5,
       "ballots": 6
     },
     {
       "resident": "Silas",
-      "followed": 1,
+      "followed": 5,
       "ballots": 6
     },
     {
-      "resident": "Hugo",
+      "resident": "Umar",
       "followed": 0,
       "ballots": 6
     }

@@ -156,6 +156,10 @@ WORDS_ASKED_FOR = {
 engine only ever cuts a runaway answer."""
 
 
+BID_STATEMENTS_SHOWN = 8
+"""The most Statements a Bid's prompt quotes: the latest of those since the bidder last spoke."""
+
+
 @dataclass(frozen=True)
 class Prompt:
     system: str
@@ -186,6 +190,8 @@ def build_prompt(request: DecisionRequest, view: Sequence[Event], rng: Random) -
     known = GameState.fold(view)
     if request.kind is DecisionKind.RECAP:
         prompt = _recap_prompt(view, known)
+    elif request.kind is DecisionKind.BID:
+        prompt = _bid_prompt(request.resident, view, known)
     else:
         prompt = Prompt(
             system=_system(known, briefing(view, request.resident)),
@@ -288,6 +294,30 @@ def _recap_prompt(view: Sequence[Event], known: GameState) -> Prompt:
     )
 
 
+def _bid_prompt(resident: str, view: Sequence[Event], known: GameState) -> Prompt:
+    """A Bid's prompt: the same briefing as every decision, so it is read from the cache, then
+    only what their role alone has told them, the Statements since they last spoke and where
+    they stand. Their notes and the rest of the Day stay out: deciding how urgently to speak
+    needs neither, and a Bid is asked of every Resident every Turn."""
+    today = [
+        (event, said)
+        for event in view
+        if isinstance(said := event.payload, StatementMade) and event.day == known.day
+    ]
+    spoke = max((i for i, (_, said) in enumerate(today) if said.speaker == resident), default=-1)
+    since = [event for event, _ in today[spoke + 1 :]][-BID_STATEMENTS_SHOWN:]
+    return Prompt(
+        system=_system(known, briefing(view, resident)),
+        memory=render("bid_memory.md", private="\n".join(_private_knowledge(view)) or "(nothing)"),
+        task=render(
+            DECISION_TEMPLATES[DecisionKind.BID],
+            day=known.day,
+            recent="\n".join(line for event in since if (line := _line(event))) or "(nothing yet)",
+            standing=_standing(resident, Floor.of(said for _, said in today)),
+        ),
+    )
+
+
 def _task(request: DecisionRequest, view: Sequence[Event], known: GameState, rng: Random) -> str:
     recent = [
         line
@@ -300,7 +330,6 @@ def _task(request: DecisionRequest, view: Sequence[Event], known: GameState, rng
         day=known.day,
         options=", ".join(options),
         moment=MOMENTS[request.part],
-        standing=_standing(request.resident, view, known.day),
         words=WORDS_ASKED_FOR.get(request.kind),
         most_partners=PARTNERS_NAMED_AT_MOST,
         most_messages=MESSAGES_PER_CONVERSATION,
@@ -313,13 +342,8 @@ def _task(request: DecisionRequest, view: Sequence[Event], known: GameState, rng
     )
 
 
-def _standing(resident: str, view: Sequence[Event], day: int) -> str:
+def _standing(resident: str, floor: Floor) -> str:
     """What the last Statement means for a Resident's Bid: a Right of reply, or a 4 that counts."""
-    floor = Floor.of(
-        event.payload
-        for event in view
-        if isinstance(event.payload, StatementMade) and event.day == day
-    )
     if floor.may_reply == resident:
         return "The last Statement asked you to answer: Bid 1 or more and you speak next."
     if floor.addressed(resident):

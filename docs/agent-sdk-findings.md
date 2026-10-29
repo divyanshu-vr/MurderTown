@@ -79,6 +79,21 @@ A game now reads more tokens from the cache than it writes (1.10 and 1.19 times 
 
 **Every provider gets the longer briefing.** The answer formats add about 1,000 tokens to it. The Anthropic API marks the briefing for caching, and OpenAI-compatible servers that cache a prompt's beginning reuse it too; one that caches nothing pays about 18% more per call (this layout with caching off, against the old one). A server that refuses the answer schema option sees the schema twice: in the briefing, and in the prompt.
 
+## Cheaper Bids
+
+Bids were half of a game's calls and, in a 12-Resident game with Sonnet Murderers (2026-10-29), 47% of its equivalent cost (the Sonnet Murderers' Bids alone, 40%): each re-read the Resident's whole prompt, about 6,000 tokens, to answer a number from 0 to 4. Since #30 a Bid is asked at low effort, whatever the Resident's own, and its message holds only what the Resident's role alone has told them, the Statements since they last spoke (at most 8) and where they stand, without their notes or the rest of the Day. The briefing is unchanged, so it is still read from the cache.
+
+| A Bid, on average | Before | After |
+|---|---|---|
+| Haiku: written to the cache, output | 3,886, 410 tokens | 1,439, 378 tokens |
+| Haiku: equivalent cost | $0.00072 | $0.00040 (44% less) |
+| Sonnet: written to the cache, output | 3,798, 98 tokens | 1,305, 105 tokens |
+| Sonnet: equivalent cost | $0.0111 | $0.0050 (55% less) |
+
+Measured on a 12-Resident game with two Sonnet Murderers and Haiku at medium effort elsewhere, 3 Days (164 Bids). A Sonnet Bid now costs less than half what it did; a Haiku Bid does not quite (56%). Haiku still thinks about 350 tokens at low effort, and its thinking cannot be turned off, so half of a Haiku Bid's cost is now its thinking; most of the rest is Claude Code's own text, about 1,000 tokens written with every session. Sonnet answered 4 of its 32 first Bids nested one level down, and their second tries count against it: a Sonnet Bid decision costs 51% less, retries included.
+
+The same game's calls give the token counts `mm.agents.estimate` prices a setup with (`MEASURED`). Its estimates came within 10% of that game and of a 12-Resident Haiku game played before the cheaper Bids, and 30% above the 8-Resident game CI replays, which plays at low effort where the counts were measured at medium. For a 12-Resident, 3-Murderer setup its paper game runs 6 Days and makes 75 Statements; the owner's game of that setup ran 6 Days and made 74.
+
 ## What Claude Code adds to every session
 
 Even with a custom system prompt, about 1,000 tokens of scaffolding reach the model:
