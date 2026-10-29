@@ -29,8 +29,7 @@ function feedItems(kind: Kind) {
 }
 
 describe("the game console", () => {
-  // renders the whole recorded game twice, which jsdom takes a few seconds to do beside other test files
-  it("can start in mystery mode, which the Spectator can still leave", { timeout: 20_000 }, () => {
+  it("can start in mystery mode, which the Spectator can still leave", () => {
     render(<GameConsole events={events} connection="live" startsInMystery />);
 
     const mystery = screen.getByRole("button", { name: "Mystery mode" });
@@ -157,8 +156,7 @@ describe("the game console", () => {
     expect(roster).not.toHaveTextContent("secret");
   });
 
-  // renders the whole recorded game twice, which jsdom takes a few seconds to do
-  it("shows Dusk and the Night in full, and in mystery mode only what the whole town saw", { timeout: 20_000 }, () => {
+  it("shows Dusk and the Night in full, and in mystery mode only what the whole town saw", () => {
     render(<GameConsole events={events} connection="ended" />);
     const secret: Kind[] = [
       "den_message_posted",

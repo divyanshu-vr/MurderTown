@@ -15,5 +15,7 @@ export default defineConfig(({ mode }) => ({
     environment: "jsdom",
     include: ["src/**/*.test.{ts,tsx}"],
     setupFiles: ["test/setup.ts"],
+    // many tests render the whole recorded game, which takes jsdom a few seconds beside other test files
+    testTimeout: 20_000,
   },
 }));

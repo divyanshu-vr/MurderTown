@@ -1,5 +1,6 @@
 import { type ReactNode, useCallback, useMemo, useState } from "react";
 
+import { EVERYTHING, type FeedFilter, offeredKinds } from "../core/feedFilter";
 import { foldEvents, isPublic } from "../core/gameView";
 import { heatAt } from "../core/heat";
 import { mindOf } from "../core/mind";
@@ -85,6 +86,7 @@ export function GameConsole({
   const [mysteryChosen, setMysteryChosen] = useState(startsInMystery);
   const [inspected, setInspected] = useState<string | null>(null);
   const [chosenTab, setChosenTab] = useState<Tab | null>(null);
+  const [feedFilter, setFeedFilter] = useState<FeedFilter>(EVERYTHING);
   const mystery = scope === "public" || mysteryChosen;
 
   const count = playback?.shown ?? events.length;
@@ -96,6 +98,7 @@ export function GameConsole({
   const mind = useMemo(() => (inspected ? mindOf(reached, inspected) : null), [reached, inspected]);
   const report = useCost(cost, events.length);
   const heat = useMemo(() => (mystery ? null : heatAt(reached)), [mystery, reached]);
+  const names = useMemo(() => shownView.residents.map((resident) => resident.name), [shownView.residents]);
   const ending = shownView.outcome;
   const fullReview = mystery ? null : (review ?? null);
   const withTownView = townView && playback !== undefined;
@@ -113,7 +116,15 @@ export function GameConsole({
     if (withTownView) setChosenTab("residents");
   }, [withTownView]);
   const panels: Partial<Record<Tab, ReactNode>> = {
-    feed: <EventFeed events={shownEvents} />,
+    feed: (
+      <EventFeed
+        events={shownEvents}
+        residents={names}
+        kinds={offeredKinds(mystery)}
+        filter={feedFilter}
+        onFilterChange={setFeedFilter}
+      />
+    ),
     residents: (
       <div className="min-h-0 overflow-y-auto">
         <Roster residents={shownView.residents} inspected={inspected} onInspect={mystery ? undefined : inspect} />
@@ -137,6 +148,7 @@ export function GameConsole({
   const chooseMystery = useCallback((on: boolean) => {
     setMysteryChosen(on);
     if (on) setInspected(null);
+    setFeedFilter((filter) => ({ ...filter, kinds: EVERYTHING.kinds })); // the kinds on offer change
   }, []);
   const toggleMystery = useCallback(() => chooseMystery(!mysteryChosen), [chooseMystery, mysteryChosen]);
   usePlaybackKeys(playback, scope === "full" ? toggleMystery : undefined);

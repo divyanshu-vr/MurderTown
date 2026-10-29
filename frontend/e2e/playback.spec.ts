@@ -9,6 +9,7 @@ import { expect, type Page, test, type WebSocketRoute } from "@playwright/test";
 
 import { isPublic } from "../src/core/gameView";
 import type { GameSummary } from "../src/protocol";
+import { NIGHT_LINES } from "../test/feedLines";
 import { recordedGame, recordedReview } from "../test/recordedGame";
 import { API, serveTheGameFile, withoutWebGL } from "./gameFile";
 
@@ -124,6 +125,65 @@ test("a game file replays with no server at all, ending with the review beside i
   await expect(page.getByRole("region", { name: "Post-game review" })).toContainText("Lies told");
   await page.getByRole("list", { name: "Residents" }).getByRole("button").first().click();
   await expect(page.getByRole("complementary", { name: /^Mind of / })).toBeVisible(); // folded from the file alone
+});
+
+/** The lines whose drawing the browser is skipping, as it reports them. */
+interface Skipping {
+  skipped: Set<Element>;
+}
+
+test("a long game's feed filters by Resident and by kind, and shows everything again", async ({ page }) => {
+  await page.addInitScript(() => {
+    const skipping = window as unknown as Skipping;
+    skipping.skipped = new Set();
+    const note = (event: Event) => {
+      const line = event.target as Element;
+      if ((event as Event & { skipped: boolean }).skipped) skipping.skipped.add(line);
+      else skipping.skipped.delete(line);
+    };
+    document.addEventListener("contentvisibilityautostatechange", note, true);
+  });
+  const resident = recordedGame().find((event) => event.payload.type === "role_assigned");
+  if (resident?.payload.type !== "role_assigned") throw new Error("The recorded game has no roles");
+  const name = resident.payload.resident;
+  await page.goto(await serveTheGameFile(page));
+  await expect(feedLines(page).first()).toBeVisible();
+  await page.keyboard.press("l");
+  await expect(page.getByRole("banner")).toContainText("Game over");
+  await page.getByRole("tab", { name: "Feed" }).click(); // the review opens by itself at the end
+  const everything = await feedLines(page).count();
+
+  // following the end, the newest line is wholly in view, and the browser skips drawing lines far above
+  const log = await page.getByRole("log", { name: "Town feed" }).boundingBox();
+  const bottomOf = async () => {
+    const line = await feedLines(page).last().boundingBox();
+    return line ? line.y + line.height : Infinity;
+  };
+  await expect.poll(bottomOf).toBeLessThanOrEqual((log?.y ?? 0) + (log?.height ?? 0));
+  const skipped = (line: Element) => (window as unknown as Skipping).skipped.has(line);
+  await expect.poll(() => feedLines(page).first().evaluate(skipped)).toBe(true);
+  expect(await feedLines(page).last().evaluate(skipped)).toBe(false);
+
+  await page.getByRole("combobox", { name: "Resident" }).selectOption(name);
+  // every line names them, but the headings and the reveal, which tells everyone's role
+  const followed = await feedLines(page).evaluateAll((lines) =>
+    lines
+      .filter((line) => line.dataset.kind !== "phase_started" && line.dataset.kind !== "roles_revealed")
+      .map((line) => line.textContent ?? ""),
+  );
+  expect(followed.length).toBeGreaterThan(0);
+  expect(followed.every((line) => line.includes(name))).toBe(true);
+
+  await page.getByRole("button", { name: "Show everything" }).click();
+  const show = page.getByRole("group", { name: "Show" });
+  for (const kind of ["Public", "Private", "System"]) await show.getByRole("button", { name: kind }).click();
+  const kinds = await feedLines(page).evaluateAll((lines) =>
+    lines.map((line) => line.dataset.kind).filter((kind) => kind !== "phase_started"),
+  );
+  expect(new Set(kinds)).toEqual(new Set(NIGHT_LINES));
+
+  await page.getByRole("button", { name: "Show everything" }).click();
+  await expect(feedLines(page)).toHaveCount(everything);
 });
 
 test("the Host's replay shows the suspicion heatmap as it goes, and the review at the end", async ({ page }) => {

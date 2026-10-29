@@ -7,8 +7,9 @@
  * a reflection with an empty notebook keeps the previous one, empty journal
  * entries are skipped, and the latest suspicion about each Resident wins.
  */
-import type { Event, JournalEntry, Mind, Payload, PayloadOf, Suspicion } from "../protocol";
+import type { Event, JournalEntry, Mind, PayloadOf, Suspicion } from "../protocol";
 import type { ResidentView } from "./gameView";
+import { decider } from "./involved";
 
 /** One decision the Resident made: the event it caused, and why it fell back, if it did. */
 export interface DecisionView {
@@ -86,49 +87,4 @@ export function dossierRows(mind: MindView, residents: readonly ResidentView[]):
   return residents
     .filter((resident) => resident.name !== mind.resident)
     .map(({ name, fate }) => ({ name, dead: fate !== null, suspicion: latest.get(name) ?? null }));
-}
-
-/** The Resident whose decision an event records, or null for events no Resident decided. */
-export function decider(payload: Payload): string | null {
-  switch (payload.type) {
-    case "bid_placed":
-    case "last_words_spoken":
-    case "reflection_written":
-    case "decision_fell_back":
-    case "decision_unanswered":
-      return payload.resident;
-    case "statement_made":
-      return payload.speaker;
-    case "sheriff_fired":
-    case "sheriff_held_fire":
-      return payload.sheriff;
-    case "den_message_posted":
-    case "kill_vote_cast":
-      return payload.murderer;
-    case "resident_protected":
-      return payload.doctor;
-    case "resident_investigated":
-      return payload.detective;
-    case "dusk_intent_chosen":
-      return payload.resident;
-    case "conversation_message_posted":
-      return payload.speaker;
-    case "ballot_cast":
-      return payload.voter;
-    case "game_configured":
-    case "game_started":
-    case "role_assigned":
-    case "phase_started":
-    case "vote_resolved":
-    case "resident_died":
-    case "victim_chosen":
-    case "attack_thwarted":
-    case "conversation_started":
-    case "open_floor_timed_out":
-    case "recap_narrated": // the narrator is not a Resident
-    case "roles_revealed":
-    case "game_ended":
-    case "game_aborted":
-      return null;
-  }
 }

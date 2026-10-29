@@ -1,4 +1,5 @@
 /** Every name the interface shows for a domain value, in one place. Vocabulary follows GLOSSARY.md. */
+import type { FeedKind } from "../core/feedFilter";
 import type { NumberField } from "../core/setup";
 import type {
   Control,
@@ -140,6 +141,14 @@ export function residentName(name: string, dead: boolean): string {
 export function dollars(amount: number): string {
   return `$${amount.toFixed(4)}`;
 }
+
+/** The kinds of line the feed can be filtered by. */
+export const feedKindLabel: Record<FeedKind, string> = {
+  public: "Public",
+  private: "Private",
+  night: "Night",
+  system: "System",
+};
 
 /** How a Dusk activity reads after "means to". */
 export const activityLabel: Record<PayloadOf<"dusk_intent_chosen">["activity"], string> = {

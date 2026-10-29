@@ -2,10 +2,9 @@ import { useEffect } from "react";
 
 import { isShortcut } from "../core/keys";
 import { nextSpeed, SPEEDS, type Speed } from "../core/playback";
+import { pillStyle } from "./styles";
 import type { PlaybackView } from "./usePlayback";
 
-const button =
-  "rounded-full border border-stone-700 px-3 py-1 text-stone-200 enabled:hover:border-amber-300 disabled:opacity-50";
 
 /**
  * Playback's controls: hold or play, move an event back or forward, the speed, a timeline to scrub,
@@ -28,13 +27,13 @@ export function PlaybackBar({
       aria-label="Playback"
       className="flex flex-wrap items-center gap-3 border-b border-stone-800 px-6 py-2 text-sm"
     >
-      <button type="button" className={button} title="←" onClick={playback.previous}>
+      <button type="button" className={pillStyle} title="←" onClick={playback.previous}>
         Previous event
       </button>
-      <button type="button" className={button} title="Space" onClick={held ? playback.play : playback.hold}>
+      <button type="button" className={pillStyle} title="Space" onClick={held ? playback.play : playback.hold}>
         {held ? "Play" : "Hold"}
       </button>
-      <button type="button" className={button} title="→" onClick={playback.next}>
+      <button type="button" className={pillStyle} title="→" onClick={playback.next}>
         Next event
       </button>
       <label className="flex items-center gap-2 text-stone-400">
@@ -66,7 +65,7 @@ export function PlaybackBar({
           {behind} {behind === 1 ? "event" : "events"} behind
         </span>
       )}
-      <button type="button" className={button} title="L" disabled={behind === 0} onClick={playback.skipToLive}>
+      <button type="button" className={pillStyle} title="L" disabled={behind === 0} onClick={playback.skipToLive}>
         {live ? "Skip to live" : "Skip to the end"}
       </button>
       {replayUrl && (

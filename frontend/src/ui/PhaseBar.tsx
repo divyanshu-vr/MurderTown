@@ -4,6 +4,7 @@ import type { GameView } from "../core/gameView";
 import type { ConnectionStatus } from "../net/sources";
 import { phaseLabel } from "./labels";
 import { OutcomeText } from "./Outcome";
+import { toggleStyle } from "./styles";
 
 const connectionLabel: Record<ConnectionStatus, string> = {
   connecting: "Connecting",
@@ -77,7 +78,7 @@ export function PhaseBar({
           disabled={!onMysteryChange}
           title="Show only what the whole town saw"
           onClick={() => onMysteryChange?.(!mystery)}
-          className="rounded-full border border-stone-700 px-3 py-1 text-sm text-stone-300 enabled:hover:border-amber-300 aria-pressed:bg-stone-800 aria-pressed:text-amber-200 disabled:opacity-70"
+          className={`${toggleStyle} text-sm`}
         >
           Mystery mode
         </button>
