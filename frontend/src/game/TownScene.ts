@@ -7,7 +7,8 @@ import { gameTime } from "../core/town/clock";
 import { areaAround, focusOf } from "../core/town/focus";
 import { layoutFor, middleOf, type Placement, type Point } from "../core/town/layout";
 import { type Area, planOf, type TownPlan } from "../core/town/plan";
-import { type Stage, stageOf } from "../core/town/stage";
+import { type Stage, stageOf, type Visit } from "../core/town/stage";
+import { ARRIVED_MS, DEED_MS } from "../core/town/visit";
 import { paceFor } from "../core/town/walk";
 import type { Event } from "../protocol";
 import { Actor, FALL_MS } from "./Actor";
@@ -46,8 +47,18 @@ const SHOT_MS = 500;
 const VOTE_MS = 900;
 /** The ending takes a beat to sink in. */
 const BEAT_MS = 1500;
-/** Once whoever is going somewhere at Night has arrived, a moment to see them there. */
-const ARRIVED_MS = 300;
+
+/** What each Night action's visitors do at the door: a mark beside them, and what it means. */
+const DEEDS: Partial<Record<Event["payload"]["type"], Deed>> = {
+  victim_chosen: { mark: "🗡️", meaning: "strikes" },
+  resident_protected: { mark: "✚", meaning: "keeps watch over the house" },
+  resident_investigated: { mark: "🔍", meaning: "looks into who lives here" },
+};
+
+interface Deed {
+  mark: string;
+  meaning: string;
+}
 
 /** A blocking moment playing out: how much game time it has left, what to look at, and what to draw as it goes. */
 interface Moment {
@@ -57,6 +68,8 @@ interface Moment {
   slows: boolean;
   draw?(left: number): void;
   end?(): void;
+  /** What plays next, if anything, before the event is over: unless the view snaps. */
+  then?(): Moment;
 }
 
 /**
@@ -64,9 +77,10 @@ interface Moment {
  * the stage holds (the words said, ballots so far, the ghosts of those found murdered), with the
  * camera and the words over it. Each new view walks everyone to their place in its layout; the
  * first view, a cut, a step while held or `still` snaps them there instead. Blocking events play
- * out as moments (a fall, the Sheriff's shot, a Vote's result, the ending, and at Night everyone
- * arriving at the Den or a house they visit), and each tells playback when it is done. All of it
- * runs on game time (clock.ts), so holding playback stops the town where it is.
+ * out as moments (a fall, the Sheriff's shot, a Vote's result, the ending, at Night the Murderers
+ * arriving at the Den, and each Visit: there, a deed at the door, and home), and each tells
+ * playback when it is done. All of it runs on game time (clock.ts), so holding playback stops
+ * the town where it is.
  */
 export class TownScene extends Phaser.Scene {
   private readonly plan: TownPlan = planOf(TOWN_MAP);
@@ -74,6 +88,8 @@ export class TownScene extends Phaser.Scene {
   private moments: Moment[] = [];
   private state: TownState | null = null;
   private stage: Stage = stageOf([]);
+  /** The Visit (by the event that made it) whose visitors have done their deed and gone home. */
+  private visitOver: number | null = null;
   /** Where the layout puts everyone, as of `stage`: where the camera finds the action. */
   private placed: Placement[] = [];
   /** The latest event the town has seen, so only events after it play as moments. */
@@ -131,12 +147,16 @@ export class TownScene extends Phaser.Scene {
       this.options.still ||
       this.state === null ||
       state.cuts !== this.state.cuts ||
+      state.mystery !== this.state.mystery || // a Visit under way must not play on into mystery mode
       (state.held && latest !== this.latestSeq);
     this.state = state;
-    if (snap) this.endMoments();
+    if (snap) {
+      this.endMoments();
+      this.visitOver = null; // a jump shows the latest Visit at its door, as its layout says
+    }
 
     this.stage = stageOf(state.shown);
-    this.placed = layoutFor(state.view, this.stage, this.plan);
+    this.placed = this.layout();
     this.moveEveryone(this.placed, snap, paceFor(state.view.phase));
     for (const event of state.shown.filter(({ seq }) => seq > this.latestSeq)) {
       if (!blocks(event)) continue;
@@ -195,6 +215,11 @@ export class TownScene extends Phaser.Scene {
   /** Start the moment a blocking event just shown plays out. */
   private play({ seq, payload }: Event): void {
     const moment = (left: number, focus: Area | null = null): Moment => ({ seq, left, focus, slows: false });
+    const deed = DEEDS[payload.type];
+    if (deed) {
+      this.moments.push(this.visit(seq, deed, payload.type === "victim_chosen"));
+      return;
+    }
     switch (payload.type) {
       case "resident_died":
         this.actors.get(payload.resident)?.fallDown();
@@ -210,11 +235,52 @@ export class TownScene extends Phaser.Scene {
         this.moments.push(moment(BEAT_MS));
         return;
       default: {
-        // the Den and the Visits: until whoever is on their way has arrived
-        const arriving = Math.max(0, ...[...this.actors.values()].map((actor) => actor.arrivingIn));
-        this.moments.push(moment(arriving + ARRIVED_MS));
+        // the Murderers making for the Den: until they have arrived
+        this.moments.push(moment(this.arrivingIn([...this.actors.keys()]) + ARRIVED_MS));
       }
     }
+  }
+
+  /**
+   * A Visit: its visitors walk to the door, do their deed there, then walk home; only then is the
+   * Night's next action shown. A strike flashes the screen red.
+   */
+  private visit(seq: number, deed: Deed, strikes: boolean): Moment {
+    const visitors = this.stage.visits.filter((visit) => visit.seq === seq).map(({ visitor }) => visitor);
+    const words = this.created?.words;
+    let done = false;
+    return {
+      seq,
+      left: this.arrivingIn(visitors) + DEED_MS,
+      focus: null,
+      slows: false,
+      draw: (left) => {
+        if (done || left > DEED_MS) return;
+        done = true;
+        words?.markDeeds(visitors, deed.mark, deed.meaning);
+        if (strikes && !this.options.still) this.cameras.main.flash(200, 150, 20, 20);
+      },
+      end: () => words?.markDeeds([], "", ""),
+      then: () => {
+        this.visitOver = seq;
+        this.placed = this.layout();
+        this.moveEveryone(this.placed, false, paceFor(this.state?.view.phase ?? "night"));
+        return { seq, left: this.arrivingIn(visitors) + ARRIVED_MS, focus: null, slows: false };
+      },
+    };
+  }
+
+  /** How long until the last of `names` arrives where they are going, in game time. */
+  private arrivingIn(names: readonly string[]): number {
+    return Math.max(0, ...names.map((name) => this.actors.get(name)?.arrivingIn ?? 0));
+  }
+
+  /** Where everyone goes as of the stage, the Visit that is over sending its visitors home. */
+  private layout(): Placement[] {
+    const state = this.state;
+    if (!state) return [];
+    const going = (visit: Visit) => visit.seq !== this.visitOver;
+    return layoutFor(state.view, { ...this.stage, visits: this.stage.visits.filter(going) }, this.plan);
   }
 
   /** The Sheriff's shot: a trail from the Sheriff to the target, slowing the whole town, and a flash as it lands. */
@@ -251,16 +317,22 @@ export class TownScene extends Phaser.Scene {
     for (const moment of over) this.endMoment(moment);
   }
 
-  /** End every moment at once, as a snap does. */
+  /** End every moment at once, as a snap does: nothing they would play next is played. */
   private endMoments(): void {
     const all = this.moments;
     this.moments = [];
-    for (const moment of all) this.endMoment(moment);
+    for (const moment of all) {
+      moment.end?.();
+      this.options.onAnimated(moment.seq);
+    }
   }
 
+  /** A moment is over: what it plays next, if anything, or else its event is done. */
   private endMoment(moment: Moment): void {
     moment.end?.();
-    this.options.onAnimated(moment.seq);
+    const next = moment.then?.();
+    if (next) this.moments.push(next);
+    else this.options.onAnimated(moment.seq);
   }
 
   private areaAround(name: string | null): Area | null {

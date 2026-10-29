@@ -198,8 +198,10 @@ describe("where everyone stands at Dusk", () => {
 describe("where everyone stands at Night", () => {
   const denMessage = present(eventsOf(events, "den_message_posted")[0], "a Den message");
   const investigated = present(eventsOf(events, "resident_investigated")[0], "an investigation");
-  const victim = present(eventsOf(events, "victim_chosen")[0], "a Victim").payload;
-  const protectedOne = present(eventsOf(events, "resident_protected")[0], "a protection").payload;
+  const victimChosen = present(eventsOf(events, "victim_chosen")[0], "a Victim");
+  const protectedEvent = present(eventsOf(events, "resident_protected")[0], "a protection");
+  const victim = victimChosen.payload;
+  const protectedOne = protectedEvent.payload;
 
   it("has the Murderers meet at the Den while everyone else is at home", () => {
     const placements = layoutAt(countOf(denMessage));
@@ -211,20 +213,22 @@ describe("where everyone stands at Night", () => {
     expectATileEach(placements);
   });
 
-  it("sends the Murderers, the Doctor and the Detective each to the house of whom they chose", () => {
-    const placements = layoutAt(countOf(investigated));
-    const visiting = new Map([
-      ...victim.den.map((murderer) => [murderer, victim.victim] as const),
-      [protectedOne.doctor, protectedOne.target],
-      [investigated.payload.detective, investigated.payload.target],
-    ]);
+  it("sends the Murderers, then the Doctor, then the Detective to the house of whom they chose, the others at home", () => {
+    const visits: [Event, ReadonlyMap<string, string>][] = [
+      [victimChosen, new Map(victim.den.map((murderer) => [murderer, victim.victim]))],
+      [protectedEvent, new Map([[protectedOne.doctor, protectedOne.target]])],
+      [investigated, new Map([[investigated.payload.detective, investigated.payload.target]])],
+    ];
 
-    for (const placement of living(placements)) {
-      const target = visiting.get(placement.name);
-      if (target) expect(near(placement.at, doorOf(named(placements, target).seat), 1.5)).toBe(true);
-      else expect(tileOf(placement)).toEqual(doorOf(placement.seat));
+    for (const [event, visiting] of visits) {
+      const placements = layoutAt(countOf(event));
+      for (const placement of living(placements)) {
+        const target = visiting.get(placement.name);
+        if (target) expect(near(placement.at, doorOf(named(placements, target).seat), 1.5)).toBe(true);
+        else expect(tileOf(placement)).toEqual(doorOf(placement.seat));
+      }
+      expectATileEach(placements);
     }
-    expectATileEach(placements);
   });
 
   it("keeps a Doctor who protects themselves at home", () => {

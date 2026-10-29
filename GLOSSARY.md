@@ -275,7 +275,7 @@ How the Town view shows a Bid above 0 on the Open floor: a hand beside the bidde
 _Avoid_: hand-up, bid badge
 
 **Visit**:
-How the Town view shows a Night action: the Murderers walking to their Victim's house, the Doctor to the house of whom they protect, the Detective to the house of whom they investigate.
+How the Town view shows a Night action: the Murderers walking to their Victim's house, the Doctor to the house of whom they protect, the Detective to the house of whom they investigate. One Visit at a time, in that order: the visitors do their deed at the door (strike, keep watch, look) and walk home before the next sets out.
 _Avoid_: attack, trip
 
 **Square**:

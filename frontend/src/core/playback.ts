@@ -39,8 +39,9 @@ export const CATCH_UP_FROM_MS = 10_000;
 /** How much faster than chosen counts as catching up, for the Spectator to be told. */
 const NOTICEABLY_FASTER = 1.1;
 
-/** The longest a blocking moment waits for its animation. */
-export const ANIMATION_TIMEOUT_MS = 4000;
+/** The longest a blocking moment waits for its animation: well past a Night Visit across town and
+ * back (visit.test.ts measures the longest), in case the town's clock runs behind playback's. */
+export const ANIMATION_TIMEOUT_MS = 12_000;
 
 /** The most real time one animation frame counts, so a tab left hidden does not leap ahead. */
 export const MAX_FRAME_MS = 250;

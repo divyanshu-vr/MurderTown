@@ -36,14 +36,14 @@ function standing(page: Page): Promise<Standing[]> {
 
 const inTheSquare = (resident: Standing) => inArea(plan.square, resident);
 
-const atTheirDoor = ({ name, x, y }: Standing) => {
-  const door = plan.doors[seats.get(name) ?? -1];
-  return door !== undefined && x === middleOf(door).x && y === middleOf(door).y;
-};
+/** The middle of a Resident's own door. */
+const doorOf = (name: string) => middleOf(plan.doors[seats.get(name) ?? -1] ?? { x: -1, y: -1 });
+const atTheirDoor = ({ name, x, y }: Standing) => x === doorOf(name).x && y === doorOf(name).y;
+const playback = (page: Page) => page.getByRole("group", { name: "Playback" });
 
 /** Hold playback and show the first `count` events. */
 async function showTheFirst(page: Page, count: number): Promise<void> {
-  await page.getByRole("group", { name: "Playback" }).getByRole("button", { name: "Hold" }).click();
+  await playback(page).getByRole("button", { name: "Hold" }).click();
   await page.getByRole("slider", { name: "Timeline" }).fill(String(count));
 }
 
@@ -57,7 +57,7 @@ const MOMENTS = {
   "day-2-dusk": countOf(events, eventsOf(events, "conversation_message_posted")[0]),
   /** Day 1's Night, the game's opening, as the Murderers meet in the Den. */
   "day-1-night-den": countOf(events, eventsOf(events, "den_message_posted")[0]),
-  /** Day 1's Night, once the Murderers, the Doctor and the Detective have all made their visits. */
+  /** Day 1's Night, as the Detective makes the last Visit, the Murderers and the Doctor home again. */
   "day-1-night": countOf(events, eventsOf(events, "resident_investigated")[0]),
   /** The Dawn of the first murder, with the Victim's ghost over their grave and the Narrator's Recap. */
   "first-murder-dawn": countOf(events, eventsOf(events, "recap_narrated").find(({ seq }) => seq > (firstMurder?.seq ?? Infinity))),
@@ -92,11 +92,41 @@ for (const [moment, count] of Object.entries(MOMENTS)) {
 test("mystery mode keeps the Den and the visits out of the town", async ({ page }) => {
   const living = await standStillAt(page, MOMENTS["day-1-night"]);
   const livingNow = async () => (await standing(page)).filter((resident) => !resident.dead);
-  expect(living.every(atTheirDoor)).toBe(false); // the Murderers, the Doctor and the Detective are out
+  expect(living.every(atTheirDoor)).toBe(false); // the Detective is out
 
   await page.keyboard.press("m");
 
   await expect.poll(async () => (await livingNow()).every(atTheirDoor)).toBe(true);
+});
+
+test("Night plays one Visit at a time: the Murderers strike and come home before the Doctor sets out", async ({ page }) => {
+  const protection = eventsOf(events, "resident_protected").find(({ payload }) => payload.doctor !== payload.target);
+  const victim = eventsOf(events, "victim_chosen").findLast(({ seq }) => seq < (protection?.seq ?? 0));
+  if (!protection || !victim) throw new Error("the recorded game has a Night whose Doctor protects someone else");
+  const near = (resident: Standing | undefined, door: { x: number; y: number }) =>
+    resident !== undefined && Math.abs(resident.x - door.x) <= 1.5 && Math.abs(resident.y - door.y) <= 1.5;
+  const { den, victim: target } = victim.payload;
+  const { doctor, target: protectedOne } = protection.payload;
+
+  await page.goto(await serveTheGameFile(page));
+  await expect(page.locator("[data-resident]")).toHaveCount(12);
+  await showTheFirst(page, countOf(events, victim) - 1);
+  await playback(page).getByRole("combobox", { name: "Speed" }).selectOption("8");
+  await playback(page).getByRole("button", { name: "Play" }).click();
+
+  const samples: Standing[][] = [];
+  const named = (sample: Standing[], name: string) => sample.find((resident) => resident.name === name);
+  for (let tries = 0; tries < 300; tries++) {
+    const sample = await standing(page);
+    samples.push(sample);
+    if (near(named(sample, doctor), doorOf(protectedOne))) break;
+    await page.waitForTimeout(100);
+  }
+
+  expect(samples.some((sample) => den.every((murderer) => near(named(sample, murderer), doorOf(target))))).toBe(true);
+  const doctorOut = samples.filter((sample) => !near(named(sample, doctor), doorOf(doctor)));
+  expect(doctorOut.length).toBeGreaterThan(0);
+  expect(doctorOut.every((sample) => den.every((murderer) => near(named(sample, murderer), doorOf(murderer))))).toBe(true);
 });
 
 test("mystery mode muffles every Conversation at Dusk", async ({ page }) => {

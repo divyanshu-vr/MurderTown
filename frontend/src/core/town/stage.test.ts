@@ -166,13 +166,14 @@ describe("what is on stage at Night", () => {
     expect(stage.visits).toEqual([]);
   });
 
-  it("sends the Murderers to their Victim's house, then the Doctor and the Detective to theirs", () => {
-    const murderers = victimChosen.payload.den.map((visitor) => ({ visitor, target: victimChosen.payload.victim }));
-    const doctor = { visitor: protectedOne.payload.doctor, target: protectedOne.payload.target };
-    const detective = { visitor: investigated.payload.detective, target: investigated.payload.target };
+  it("sends the Murderers to their Victim's house, then the Doctor, then the Detective, one Visit at a time", () => {
+    const murderers = victimChosen.payload.den.map((visitor) => ({ visitor, target: victimChosen.payload.victim, seq: victimChosen.seq }));
+    const doctor = { visitor: protectedOne.payload.doctor, target: protectedOne.payload.target, seq: protectedOne.seq };
+    const detective = { visitor: investigated.payload.detective, target: investigated.payload.target, seq: investigated.seq };
 
     expect(stageAt(victimChosen)).toMatchObject({ den: [], said: [], visits: murderers });
-    expect(stageAt(investigated).visits).toEqual([...murderers, doctor, detective]);
+    expect(stageAt(protectedOne).visits).toEqual([doctor]);
+    expect(stageAt(investigated).visits).toEqual([detective]);
   });
 
   it("sends a lone Murderer straight to their Victim, with no Den to meet in", () => {
@@ -183,7 +184,7 @@ describe("what is on stage at Night", () => {
     const vote = present(eventsOf(events, "kill_vote_cast").findLast(({ seq }) => seq < alone.seq), "their kill vote");
 
     expect(stageAt(vote).den).toEqual([]);
-    expect(stageAt(alone).visits).toEqual([{ visitor: alone.payload.den[0], target: alone.payload.victim }]);
+    expect(stageAt(alone).visits).toEqual([{ visitor: alone.payload.den[0], target: alone.payload.victim, seq: alone.seq }]);
   });
 
   it("in mystery mode shows no Den and no visits", () => {

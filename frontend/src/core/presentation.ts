@@ -72,7 +72,7 @@ const DWELL: { [T in Payload["type"]]: Dwell<T> } = {
 /**
  * The moments a watcher should see play out, so the next event waits for their animation: a death,
  * the Sheriff's shot, a Vote's result and the ending, and at Night the Murderers making for the
- * Den and every Visit, until whoever is going there arrives.
+ * Den and every Visit, until its visitors are home again.
  */
 const BLOCKING: ReadonlySet<Payload["type"]> = new Set([
   "sheriff_fired",

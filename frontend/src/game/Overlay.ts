@@ -34,7 +34,8 @@ interface ShownBubble {
  * The town's words, drawn as HTML over the canvas so they stay crisp at any zoom: each living
  * Resident's name over their head, each house's owner over its roof, bubbles typing out what is
  * said (or muffled, when it cannot be heard), a Raised hand for each Bid on the Open floor, the
- * running count of ballots against each Resident, and the Narrator's banner. The scene says where everything is after each frame; the overlay
+ * running count of ballots against each Resident, what a Night Visit does at the door, and the
+ * Narrator's banner. The scene says where everything is after each frame; the overlay
  * moves its labels there without React.
  *
  * Each name carries where its Resident stands (`data-x`, `data-y`, in tiles) so a test can
@@ -45,6 +46,7 @@ export class Overlay {
   private readonly houses = new Map<string, HTMLElement>();
   private readonly counts = new Map<string, HTMLElement>();
   private readonly hands = new Map<string, HTMLElement>();
+  private readonly deeds = new Map<string, HTMLElement>();
   private readonly bubbles = new Map<string, ShownBubble>();
   private readonly banner: HTMLElement;
 
@@ -107,6 +109,16 @@ export class Overlay {
     }
   }
 
+  /** What `visitors` do at the door on a Night Visit, marked beside each of them; none for no one. */
+  markDeeds(visitors: readonly string[], mark: string, meaning: string): void {
+    dropAllBut(this.deeds, new Set(visitors));
+    for (const name of visitors) {
+      const deed = this.deeds.get(name) ?? this.addTo(this.deeds, name, "text-base drop-shadow motion-safe:animate-bounce");
+      deed.textContent = mark;
+      deed.title = `${name} ${meaning}`;
+    }
+  }
+
   /** The Narrator's words across the top, or nothing. */
   announce(text: string | null): void {
     this.banner.hidden = text === null;
@@ -155,6 +167,7 @@ export class Overlay {
     }
     placeBeside(this.counts, standing, toScreen, 0.9);
     placeBeside(this.hands, standing, toScreen, -0.9);
+    placeBeside(this.deeds, standing, toScreen, 0.9);
     const taken: Box[] = [];
     for (const bubble of this.bubbles.values()) {
       const heads = bubble.over.flatMap((name) => standing.get(name) ?? []);

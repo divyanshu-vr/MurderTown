@@ -4,7 +4,8 @@
  * - by day, the latest words said (a Statement or Last words), the hands raised this Turn on the
  *   Open floor, and the ballots cast so far in a Vote;
  * - at Dusk, what each Resident chose to do, the Conversations under way, and the latest words of the one talking;
- * - at Night, the Murderers meeting in the Den and what they say there, then who visits whose house;
+ * - at Night, the Murderers meeting in the Den and what they say there, then who visits whose
+ *   house: one Visit at a time, the Murderers', then the Doctor's, then the Detective's;
  * - at Dawn, who was found murdered, and the Narrator's Recap.
  *
  * Mystery mode shows the town only what everyone saw, so its stage has no Den, no visits, no Dusk
@@ -36,6 +37,8 @@ export interface Ballot {
 export interface Visit {
   visitor: string;
   target: string;
+  /** The event that made it, so the town can play it out and send its visitors home. */
+  seq: number;
 }
 
 export interface Stage {
@@ -53,7 +56,7 @@ export interface Stage {
   pairs: Pair[];
   /** The Murderers meeting in the Den (when there are two or more), until they set out for their Victim. */
   den: readonly string[];
-  /** Night actions so far, in the order they happened. */
+  /** The latest Night action's Visit (the Murderers make theirs together); those before it are over. */
   visits: Visit[];
   foundMurdered: string[];
   recap: string | null;
@@ -120,13 +123,13 @@ export function stageOf(events: readonly Event[]): Stage {
       case "victim_chosen":
         stage.den = [];
         stage.said = [];
-        stage.visits.push(...payload.den.map((visitor) => ({ visitor, target: payload.victim })));
+        stage.visits = payload.den.map((visitor) => ({ visitor, target: payload.victim, seq }));
         break;
       case "resident_protected":
-        stage.visits.push({ visitor: payload.doctor, target: payload.target });
+        stage.visits = [{ visitor: payload.doctor, target: payload.target, seq }];
         break;
       case "resident_investigated":
-        stage.visits.push({ visitor: payload.detective, target: payload.target });
+        stage.visits = [{ visitor: payload.detective, target: payload.target, seq }];
         break;
       case "resident_died":
         if (payload.cause === "murdered") stage.foundMurdered.push(payload.resident);
