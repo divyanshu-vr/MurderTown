@@ -36,6 +36,7 @@ from mm.engine.events import (
     ResidentInvestigated,
     ResidentProtected,
     RoleAssigned,
+    RolesRevealed,
     SheriffFired,
     SheriffHeldFire,
     StatementMade,
@@ -71,7 +72,7 @@ class GameState:
             state.apply(event.payload)
         return state
 
-    def apply(self, payload: EventPayload) -> None:  # noqa: C901 - one case per event type
+    def apply(self, payload: EventPayload) -> None:  # noqa: C901, PLR0912 - one case per event type
         match payload:
             case GameStarted(rules=rules, residents=residents):
                 self.rules, self.residents = rules, residents
@@ -91,6 +92,8 @@ class GameState:
                 self.protections[self.day] = target
             case ResidentInvestigated(target=target):
                 self.investigated.add(target)
+            case RolesRevealed(roles=roles):
+                self.roles.update(roles)
             case GameEnded(winner=winner):
                 self.winner, self.phase = winner, Phase.ENDED
             case GameAborted():

@@ -86,6 +86,8 @@ def describe(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per 
             return f"  ({resident} writes privately: {entry})"
         case events.DecisionFellBack(resident=resident, kind=kind, reason=reason):
             return f"  [fallback] {resident}'s {kind} used a safe default: {reason}"
+        case events.RolesRevealed():
+            return "\nEvery role is revealed."
         case events.GameEnded(winner=winner, reason=reason):
             return f"\n*** {VICTORY[winner]} {reason} ***"
         case events.DecisionUnanswered(resident=resident, kind=kind, reason=reason):

@@ -52,6 +52,11 @@ export function endsTheGame(event: Event): boolean {
   return event.payload.type === "game_ended" || event.payload.type === "game_aborted";
 }
 
+/** Whether the view knows every Resident's role: always in full scope, and once a side wins in mystery mode. */
+export function everyRoleKnown(residents: readonly ResidentView[]): boolean {
+  return residents.every((resident) => resident.role !== null);
+}
+
 /** Whether the whole town perceived an event. Mystery mode shows only these. */
 export function isPublic(event: Event): boolean {
   return event.visibility.scope === "everyone";
@@ -91,6 +96,15 @@ export function applyEvent(view: GameView, event: Event): GameView {
           revealed: true,
           fate: payload.cause,
         }),
+      };
+    case "roles_revealed":
+      return {
+        ...view,
+        residents: view.residents.map((resident) => ({
+          ...resident,
+          role: payload.roles[resident.name] ?? resident.role,
+          revealed: true,
+        })),
       };
     case "game_ended":
       return { ...view, phase: "ended", outcome: { ended: "won", winner: payload.winner, reason: payload.reason } };

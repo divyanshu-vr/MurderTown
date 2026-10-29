@@ -14,6 +14,7 @@ from mm.engine.decisions import (
     Statement,
     Target,
 )
+from mm.engine.events import RolesRevealed
 from mm.engine.roles import Role, Side
 from mm.engine.state import GameState
 
@@ -90,6 +91,13 @@ def verdict(state: GameState) -> Verdict | None:
     if murderers >= len(state.living) - murderers:
         return Verdict(Side.MURDERERS, "The Murderers now equal the rest of the town.")
     return None
+
+
+def roles_revealed(state: GameState) -> RolesRevealed:
+    """Every Resident's role, in seat order, as the whole town learns it once a side wins."""
+    return RolesRevealed(
+        roles={resident.name: state.roles[resident.name] for resident in state.residents}
+    )
 
 
 def verdict_at_end_of_day(state: GameState) -> Verdict | None:

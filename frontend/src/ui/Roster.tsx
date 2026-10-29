@@ -14,30 +14,45 @@ export function Roster({
   return (
     <aside className="px-6 py-4">
       <h2 className="mb-3 text-sm uppercase tracking-wider text-stone-400">Residents</h2>
-      <ul aria-label="Residents" className="space-y-2">
-        {residents.map((resident) => (
-          <li
-            key={resident.name}
-            aria-label={resident.name}
-            className={`flex items-baseline justify-between gap-3 ${resident.fate ? "text-stone-500" : ""}`}
-          >
-            <span>
-              <Name resident={resident} inspected={inspected === resident.name} onInspect={onInspect} />
-              <span className="ml-2 text-xs text-stone-500">{resident.occupation}</span>
-            </span>
-            <span className="text-sm">
-              {resident.role && (
-                <span className={resident.revealed ? "text-stone-300" : "text-stone-500 italic"}>
-                  {roleLabel[resident.role]}
-                  {!resident.revealed && " (secret)"}
-                </span>
-              )}
-              <span className="ml-2">{resident.fate ? fateLabel[resident.fate] : "Alive"}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
+      <ResidentList residents={residents} inspected={inspected} onInspect={onInspect} />
     </aside>
+  );
+}
+
+/** Each Resident with their role, as far as the view knows it, and whether they live. */
+export function ResidentList({
+  residents,
+  inspected = null,
+  onInspect,
+}: {
+  residents: readonly ResidentView[];
+  inspected?: string | null;
+  onInspect?: ((name: string) => void) | undefined;
+}) {
+  return (
+    <ul aria-label="Residents" className="space-y-2">
+      {residents.map((resident) => (
+        <li
+          key={resident.name}
+          aria-label={resident.name}
+          className={`flex items-baseline justify-between gap-3 ${resident.fate ? "text-stone-500" : ""}`}
+        >
+          <span>
+            <Name resident={resident} inspected={inspected === resident.name} onInspect={onInspect} />
+            <span className="ml-2 text-xs text-stone-500">{resident.occupation}</span>
+          </span>
+          <span className="text-sm">
+            {resident.role && (
+              <span className={resident.revealed ? "text-stone-300" : "text-stone-500 italic"}>
+                {roleLabel[resident.role]}
+                {!resident.revealed && " (secret)"}
+              </span>
+            )}
+            <span className="ml-2">{resident.fate ? fateLabel[resident.fate] : "Alive"}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 

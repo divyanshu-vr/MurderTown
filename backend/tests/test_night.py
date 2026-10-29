@@ -20,6 +20,7 @@ from mm.engine.events import (
     ResidentDied,
     ResidentInvestigated,
     ResidentProtected,
+    RolesRevealed,
     VictimChosen,
 )
 from mm.engine.state import GameState
@@ -241,7 +242,8 @@ async def test_a_murder_that_decides_the_game_ends_it_at_once() -> None:
     result = await play_game(SIX, puppets(ballots, **nights))
 
     murder = next(e for e in result.events if isinstance(e.payload, ResidentDied) and e.day == 3)
-    assert isinstance(result.events[murder.seq].payload, GameEnded)  # the very next event
+    after = [type(event.payload) for event in result.events[murder.seq :]]
+    assert after == [RolesRevealed, GameEnded]  # the very next events
     assert payloads(result.events, RecapNarrated, day=3) == []
     assert result.state.winner is Side.MURDERERS
     assert name_at_seat(result.events, doctor) in result.state.living
@@ -256,7 +258,7 @@ async def test_a_night_shot_that_kills_the_last_murderer_ends_the_game_before_an
     assert result.state.winner is Side.TOWN
     assert payloads(result.events, KillVoteCast) == []
     assert payloads(result.events, ResidentProtected) == []
-    assert isinstance(result.events[-2].payload, ResidentDied)
+    assert isinstance(result.events[-3].payload, ResidentDied)  # then every role, and the end
 
 
 async def test_a_night_backfire_that_leaves_the_murderers_level_ends_the_game_at_once() -> None:
@@ -268,8 +270,8 @@ async def test_a_night_backfire_that_leaves_the_murderers_level_ends_the_game_at
 
     assert result.state.winner is Side.MURDERERS
     assert payloads(result.events, KillVoteCast, day=2) == []
-    last = [type(e.payload).__name__ for e in result.events[-3:]]
-    assert last == ["ResidentDied", "ResidentDied", "GameEnded"]
+    last = [type(e.payload).__name__ for e in result.events[-4:]]
+    assert last == ["ResidentDied", "ResidentDied", "RolesRevealed", "GameEnded"]
 
 
 # --- Who perceives the Night, and determinism ---------------------------------------------

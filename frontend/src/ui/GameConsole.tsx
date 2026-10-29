@@ -42,9 +42,10 @@ const tabLabel: Record<Tab, string> = {
  * page: only the Host's has them. The cost meter shows what the game has cost so far,
  * not as of the view: the server adds up calls, not events.
  *
- * Outside mystery mode, a Suspicion tab shows the heatmap as of the view, and once the view
- * reaches the game's end the `review` opens in a Review tab. Both tell private beliefs, so
- * mystery mode (and so a public page) has neither.
+ * Once the view reaches the end of a game a side won, a Review tab tells who won and who everyone
+ * was. Outside mystery mode, a Suspicion tab shows the heatmap as of the view, and the Review tab
+ * also holds the server's full-scope `review` (of an aborted game too) and opens by itself. The heatmap and the server's review
+ * tell private beliefs, so mystery mode (and so a public page) shows neither.
  *
  * With the `townView` (and playback to play it), the Town view takes the main space and every
  * panel becomes a tab beside it, or below it on a narrow screen: the feed, the Residents with the
@@ -95,7 +96,8 @@ export function GameConsole({
   const mind = useMemo(() => (inspected ? mindOf(reached, inspected) : null), [reached, inspected]);
   const report = useCost(cost, events.length);
   const heat = useMemo(() => (mystery ? null : heatAt(reached)), [mystery, reached]);
-  const ending = mystery ? null : view.outcome;
+  const ending = shownView.outcome;
+  const fullReview = mystery ? null : (review ?? null);
   const withTownView = townView && playback !== undefined;
 
   // beside the Town view, the Mind inspector is a tab of its own, opened from the Residents tab
@@ -119,13 +121,17 @@ export function GameConsole({
       </div>
     ),
     ...(heat && { suspicion: <SuspicionHeatmap heat={heat} residents={view.residents} /> }),
-    ...(review && ending && { review: <PostGameReview review={review} events={reached} outcome={ending} /> }),
+    ...(ending && (ending.ended === "won" || fullReview) && {
+      review: (
+        <PostGameReview review={fullReview} residents={shownView.residents} events={reached} outcome={ending} />
+      ),
+    }),
     ...(mind && { mind: <MindInspector mind={mind} residents={view.residents} explain={explain} onClose={closeMind} /> }),
   };
   const tabs = (
     withTownView ? (["feed", "residents", "suspicion", "review", "mind"] as const) : (["feed", "suspicion", "review"] as const)
   ).filter((name) => panels[name]);
-  const tab = chosenTab && tabs.includes(chosenTab) ? chosenTab : tabs.includes("review") ? "review" : "feed";
+  const tab = chosenTab && tabs.includes(chosenTab) ? chosenTab : ending && fullReview ? "review" : "feed";
   const tabList = tabs.length > 1 && <TabList tabs={tabs} chosen={tab} onChoose={setChosenTab} />;
 
   const chooseMystery = useCallback((on: boolean) => {

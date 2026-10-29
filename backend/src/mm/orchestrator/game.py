@@ -25,7 +25,7 @@ from mm.engine.events import (
     PhaseStarted,
 )
 from mm.engine.perception import perceived_by
-from mm.engine.rules import Verdict, verdict, verdict_at_end_of_day, why_illegal
+from mm.engine.rules import Verdict, roles_revealed, verdict, verdict_at_end_of_day, why_illegal
 from mm.engine.state import GameState
 from mm.observability import tracing
 from mm.orchestrator.controls import GameControls, GameHaltedError
@@ -142,6 +142,7 @@ class Game:
                 return await self.end(outcome)
 
     async def end(self, outcome: Verdict) -> None:
+        await self.append(roles_revealed(self.state))
         await self.append(GameEnded(winner=outcome.winner, reason=outcome.reason))
         logger.info("game ended", winner=outcome.winner, reason=outcome.reason)
 

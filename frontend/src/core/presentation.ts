@@ -40,6 +40,7 @@ const DWELL: { [T in Payload["type"]]: Dwell<T> } = {
   conversation_started: 1000,
   decision_fell_back: 600,
   decision_unanswered: 1000,
+  roles_revealed: 4000,
   game_ended: 3000,
   game_aborted: 3000,
 };

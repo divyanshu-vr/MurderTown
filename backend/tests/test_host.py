@@ -64,7 +64,9 @@ def test_a_spectator_is_sent_only_what_the_whole_town_saw(client: TestClient) ->
     assert seen == public(everything)
     assert "game_configured" not in {event["payload"]["type"] for event in seen}  # nor the seed
     assert page == [event for event in seen if event["seq"] > 3][:5]  # pages stay full
-    assert seen[-1]["payload"]["type"] == "game_ended"
+    reveal, ending = (event["payload"] for event in seen[-2:])
+    assert (reveal["type"], ending["type"]) == ("roles_revealed", "game_ended")
+    assert len(reveal["roles"]) == CONFIG["residents"]  # as the game ends, every role
 
 
 def test_a_wrong_host_token_is_refused_not_given_less(client: TestClient) -> None:

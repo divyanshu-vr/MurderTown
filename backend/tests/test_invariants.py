@@ -18,6 +18,9 @@ from mm.engine.events import (
     ConversationStarted,
     Event,
     GameEnded,
+    RoleAssigned,
+    RolesRevealed,
+    payloads_of,
 )
 from mm.engine.state import GameState
 from mm.orchestrator import GameResult, play_game
@@ -66,6 +69,8 @@ def test_every_game_obeys_the_invariants(config: GameConfig) -> None:
 
     endings = [i for i, event in enumerate(events) if isinstance(event.payload, GameEnded)]
     assert endings == [len(events) - 1]
+    reveals = [i for i, event in enumerate(events) if isinstance(event.payload, RolesRevealed)]
+    assert reveals == [len(events) - 2]
 
     state, living_counts = GameState(), []
     for event in events:
@@ -76,6 +81,8 @@ def test_every_game_obeys_the_invariants(config: GameConfig) -> None:
         living_counts.append(len(state.living))
     after_casting = living_counts[1:]
     assert all(before >= after for before, after in pairwise(after_casting))
+    assigned = {role.resident: role.role for role in payloads_of(events, RoleAssigned)}
+    assert events[-2].payload == RolesRevealed(roles=assigned)  # every role, as assigned
 
     assert asked_while_dead == []
     assert_dusk_keeps_its_limits(events)

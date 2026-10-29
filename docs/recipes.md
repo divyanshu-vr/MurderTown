@@ -57,7 +57,7 @@ The post-game review is computed once, in `backend/src/mm/review/review.py`; the
 2. Render it from a component in `frontend/src/ui` and mount it in `GameConsole`.
 3. Write a seam-3 test: render from the recorded fixture and assert what a Spectator sees, by role and accessible name.
 
-Panels read what playback has reached (the `events` up to `playback.shown`), not everything received, and a panel that tells private beliefs (the suspicion heatmap, the post-game review) is left out of mystery mode.
+Panels read what playback has reached (the `events` up to `playback.shown`), not everything received, and what tells private beliefs (the suspicion heatmap, the server's post-game review) is left out of mystery mode. The post-game review's own panel stays, telling only who won and who everyone was.
 
 A panel that shows what the events do not hold gets it from the server, only on the Host's page, since only the Host may ask. Two ways, by how often it changes: the cost meter, asked again as events arrive, takes a source function from `frontend/src/net` (`costSource`, like `explainer`), and its seam-3 test passes a stub source; the post-game review, asked once the game has ended, is fetched by `GamePage` (`useReview`, from the server or from beside a game file) and passed in as data, and its seam-3 test passes the recorded review (`fixtures/scripted-game.review.json`).
 

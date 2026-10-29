@@ -213,4 +213,5 @@
 {"seq":213,"day":2,"phase":"night","visibility":{"scope":"residents","residents":["Rosa"]},"decision_id":"d179","payload":{"den":["Rosa"],"type":"kill_vote_cast","murderer":"Rosa","target":"Silas"}}
 {"seq":214,"day":2,"phase":"night","visibility":{"scope":"residents","residents":["Rosa"]},"decision_id":null,"payload":{"den":["Rosa"],"type":"victim_chosen","victim":"Silas"}}
 {"seq":215,"day":2,"phase":"night","visibility":{"scope":"residents","residents":["Elsie"]},"decision_id":"d180","payload":{"type":"resident_protected","doctor":"Elsie","target":"Elsie"}}
-{"seq":216,"day":2,"phase":"ended","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"game_ended","winner":"murderers","reason":"The town ran out of days."}}
+{"seq":216,"day":2,"phase":"night","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"roles_revealed","roles":{"Hugo":"civilian","Silas":"civilian","Rosa":"murderer","Elsie":"doctor","Luna":"detective","Tess":"sheriff"}}}
+{"seq":217,"day":2,"phase":"ended","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"game_ended","winner":"murderers","reason":"The town ran out of days."}}

@@ -34,6 +34,17 @@ export function eventsOf<T extends Event["payload"]["type"]>(events: readonly Ev
   return events.filter((event): event is Event & { payload: PayloadOf<T> } => event.payload.type === type);
 }
 
+/** The events up to the moment a side wins, just before every role is revealed. */
+export function beforeTheReveal(events: readonly Event[]): Event[] {
+  return events.slice(0, events.findIndex((event) => event.payload.type === "roles_revealed"));
+}
+
+/** Everyone `events` leaves alive, with the role each was secretly assigned. */
+export function livingRoles(events: readonly Event[]) {
+  const dead = new Set(payloadsOf(events, "resident_died").map((death) => death.resident));
+  return payloadsOf(events, "role_assigned").filter(({ resident }) => !dead.has(resident));
+}
+
 /** A JSON file the backend writes beside the recorded game. */
 function beside<T>(name: string): T {
   return JSON.parse(readFileSync(resolve(process.cwd(), `../fixtures/scripted-game.${name}.json`), "utf-8")) as T;

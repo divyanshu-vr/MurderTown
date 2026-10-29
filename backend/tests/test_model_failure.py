@@ -30,6 +30,7 @@ from mm.engine.events import (
     KillVoteCast,
     PhaseStarted,
     ResidentProtected,
+    RolesRevealed,
     VictimChosen,
     Visibility,
 )
@@ -139,6 +140,7 @@ async def test_a_failed_decision_aborts_the_game_and_only_spectators_learn_whose
     assert abort.reason == NO_ANSWER
     assert event.visibility == Visibility.everyone()  # the whole town sees the game stop
     assert payloads(result.events, BallotCast) == []
+    assert payloads(result.events, RolesRevealed) == []  # no side won, so the roles stay secret
     assert result.state.phase is Phase.ENDED
     assert result.state.winner is None
     assert result.state.aborted

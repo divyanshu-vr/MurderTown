@@ -223,7 +223,7 @@ _Avoid_: tick, advance
 ### Watching
 
 **Post-game review**:
-In full scope, what a Spectator sees once a game is over: who won, its Turning points, every Lie beside the speaker's private belief, and each Resident's Influence.
+What a Spectator sees once a game is over: who won and every Resident's role, which the whole town learns as a side wins. In full scope also its Turning points, every Lie beside the speaker's private belief, and each Resident's Influence.
 _Avoid_: summary, report
 
 **Suspicion heatmap**:

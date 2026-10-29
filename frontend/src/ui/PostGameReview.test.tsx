@@ -3,7 +3,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { playbackAt } from "../../test/playback";
-import { recordedGame, recordedReview } from "../../test/recordedGame";
+import { payloadsOf, recordedGame, recordedReview } from "../../test/recordedGame";
 import { GameConsole } from "./GameConsole";
 import { roleLabel, victoryLabel } from "./labels";
 import type { PlaybackView } from "./usePlayback";
@@ -47,13 +47,26 @@ describe("the post-game review", () => {
     expect(screen.queryByRole("region", { name: "Post-game review" })).toBeNull();
   });
 
-  it("is not shown in mystery mode, nor on a public page, since it tells private beliefs", () => {
-    const { unmount } = render(<GameConsole events={events} connection="ended" review={review} scope="public" />);
-    expect(screen.queryByRole("tab", { name: "Review" })).toBeNull();
-    unmount();
+  it.each([
+    ["on a public page", "public", false],
+    ["in mystery mode", "full", true],
+  ] as const)(
+    "%s, tells only who won and who everyone was, since the rest tells private beliefs",
+    (_, scope, choosesMystery) => {
+      render(<GameConsole events={events} connection="ended" review={review} scope={scope} />);
+      if (choosesMystery) fireEvent.click(screen.getByRole("button", { name: "Mystery mode" }));
+      fireEvent.click(screen.getByRole("tab", { name: "Review" })); // with no full review, the feed stays open
 
-    render(<GameConsole events={events} connection="ended" review={review} />);
-    fireEvent.click(screen.getByRole("button", { name: "Mystery mode" }));
-    expect(screen.queryByRole("region", { name: "Post-game review" })).toBeNull();
-  });
+      const shown = screen.getByRole("region", { name: "Post-game review" });
+      const [ending] = payloadsOf(events, "game_ended");
+      expect(shown).toHaveTextContent(victoryLabel[ending?.winner ?? "town"]);
+      const cast = within(shown).getByRole("list", { name: "Residents" });
+      for (const { resident, role } of payloadsOf(events, "role_assigned")) {
+        expect(within(cast).getByRole("listitem", { name: resident })).toHaveTextContent(roleLabel[role]);
+      }
+      expect(within(shown).queryByRole("listitem", { name: /^Turning point/ })).toBeNull();
+      expect(within(shown).queryByRole("table", { name: "Lies told" })).toBeNull();
+      expect(within(shown).queryByRole("list", { name: "Influence" })).toBeNull();
+    },
+  );
 });

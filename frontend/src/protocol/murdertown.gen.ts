@@ -246,6 +246,7 @@ export interface Event {
     | ConversationMessagePosted
     | ReflectionWritten
     | DecisionFellBack
+    | RolesRevealed
     | GameEnded
     | DecisionUnanswered
     | GameAborted;
@@ -577,6 +578,20 @@ export interface Suspicion {
    * Why, in a few words.
    */
   note: string;
+}
+/**
+ * As a side wins, every role becomes public, so the story ends for every Spectator and
+ * for the town. Only the roles: the Den, the Night actions and private Conversations stay
+ * as hidden as they were.
+ *
+ * This interface was referenced by `MurderTownProtocol`'s JSON-Schema
+ * via the `definition` "RolesRevealed".
+ */
+export interface RolesRevealed {
+  type: "roles_revealed";
+  roles: {
+    [k: string]: Role;
+  };
 }
 /**
  * This interface was referenced by `MurderTownProtocol`'s JSON-Schema

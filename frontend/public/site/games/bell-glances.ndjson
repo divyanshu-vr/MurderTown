@@ -279,4 +279,5 @@
 {"seq":279,"day":2,"phase":"night","visibility":{"scope":"residents","residents":["Iris","Umar"]},"decision_id":null,"payload":{"den":["Iris","Umar"],"type":"victim_chosen","victim":"Tess"}}
 {"seq":280,"day":3,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"phase_started","day":3,"phase":"dawn"}}
 {"seq":281,"day":3,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"resident_died","resident":"Tess","cause":"murdered","role":"sheriff"}}
-{"seq":282,"day":3,"phase":"ended","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"game_ended","winner":"murderers","reason":"The Murderers now equal the rest of the town."}}
+{"seq":282,"day":3,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"roles_revealed","roles":{"Tess":"sheriff","Iris":"murderer","Xavi":"civilian","Luna":"civilian","Zane":"civilian","Wren":"detective","Cyrus":"doctor","Umar":"murderer"}}}
+{"seq":283,"day":3,"phase":"ended","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"game_ended","winner":"murderers","reason":"The Murderers now equal the rest of the town."}}

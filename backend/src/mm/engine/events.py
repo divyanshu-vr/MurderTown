@@ -360,6 +360,19 @@ class DecisionFellBack(Payload):
         return Visibility.spectators()
 
 
+class RolesRevealed(Payload):
+    """As a side wins, every role becomes public, so the story ends for every Spectator and
+    for the town. Only the roles: the Den, the Night actions and private Conversations stay
+    as hidden as they were."""
+
+    type: Literal["roles_revealed"] = "roles_revealed"
+    roles: dict[str, Role]
+    """Every Resident's role, by name, in seat order."""
+
+    def visibility(self) -> Visibility:
+        return Visibility.everyone()
+
+
 class GameEnded(Payload):
     type: Literal["game_ended"] = "game_ended"
     winner: Side
@@ -421,6 +434,7 @@ EventPayload = Annotated[
     | ConversationMessagePosted
     | ReflectionWritten
     | DecisionFellBack
+    | RolesRevealed
     | GameEnded
     | DecisionUnanswered
     | GameAborted,

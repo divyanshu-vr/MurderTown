@@ -1,5 +1,5 @@
 /** One line for each event, in the words the feed and the Mind inspector use. */
-import type { Event } from "../protocol";
+import type { Event, Role } from "../protocol";
 import { activityLabel, deathLabel, decisionLabel, phaseLabel, roleLabel, victoryLabel } from "./labels";
 
 export function describeEvent(event: Event): string {
@@ -55,16 +55,18 @@ export function describeEvent(event: Event): string {
       return `Narrator: ${payload.text}`;
     case "dusk_intent_chosen":
       return payload.activity === "talk"
-        ? `${payload.resident} hopes to talk with ${payload.partners.join(", ")} about ${payload.topic}.`
+        ? `${payload.resident} hopes to talk with ${listed(payload.partners, "or")} about ${payload.topic}.`
         : `${payload.resident} means to ${activityLabel[payload.activity]}.`;
     case "conversation_started":
-      return `${payload.residents[0]} and ${payload.residents[1]} slip away to talk privately.`;
+      return `${listed(payload.residents)} slip away to talk privately.`;
     case "conversation_message_posted":
       return `${payload.speaker} to ${payload.partner}: "${payload.text}"`;
     case "reflection_written":
       return `${payload.resident} writes a reflection.`;
     case "decision_fell_back":
       return `${payload.resident}'s ${decisionLabel[payload.kind]} ${fellBack(payload.reason)}`;
+    case "roles_revealed":
+      return `Every role is revealed: ${whoWasWho(payload.roles)}.`;
     case "game_ended":
       return `${victoryLabel[payload.winner]}. ${payload.reason}`;
     case "decision_unanswered":
@@ -86,6 +88,25 @@ export function inFeed(event: Event): boolean {
     payload.type === "reflection_written" ||
     (payload.type === "bid_placed" && payload.urgency === 0)
   );
+}
+
+/** Names as a sentence lists them: "Cora", "Cora and Rosa", "Cora, Rosa and Kit" (or "or"). */
+function listed(names: readonly string[], conjunction: "and" | "or" = "and"): string {
+  return names.length > 1 ? `${names.slice(0, -1).join(", ")} ${conjunction} ${names.at(-1)}` : (names[0] ?? "");
+}
+
+/**
+ * Who held each role: the Murderers first, then the holder of every other role in the order
+ * `roleLabel` lists them, then the Civilians, unnamed.
+ */
+function whoWasWho(roles: Readonly<Record<string, Role>>): string {
+  const holders = (role: Role) => Object.keys(roles).filter((name) => roles[name] === role);
+  const murderers = holders("murderer");
+  const others = (Object.keys(roleLabel) as Role[])
+    .filter((role) => role !== "murderer" && role !== "civilian")
+    .flatMap((role) => holders(role).map((name) => `${name} the ${roleLabel[role]}`));
+  const told = [`${listed(murderers)} ${murderers.length > 1 ? "were the Murderers" : "was the Murderer"}`, ...others];
+  return `${listed(told)}${holders("civilian").length > 0 ? "; the rest were Civilians" : ""}`;
 }
 
 /** How every view words a Fallback. */

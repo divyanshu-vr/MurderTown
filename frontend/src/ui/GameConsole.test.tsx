@@ -3,8 +3,9 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import type { Event } from "../protocol";
-import { payloadsOf, recordedGame } from "../../test/recordedGame";
+import { beforeTheReveal, livingRoles, payloadsOf, recordedGame } from "../../test/recordedGame";
 import { GameConsole } from "./GameConsole";
+import { roleLabel } from "./labels";
 
 const events = recordedGame();
 
@@ -28,7 +29,8 @@ function feedItems(kind: Kind) {
 }
 
 describe("the game console", () => {
-  it("can start in mystery mode, which the Spectator can still leave", () => {
+  // renders the whole recorded game twice, which jsdom takes a few seconds to do beside other test files
+  it("can start in mystery mode, which the Spectator can still leave", { timeout: 20_000 }, () => {
     render(<GameConsole events={events} connection="live" startsInMystery />);
 
     const mystery = screen.getByRole("button", { name: "Mystery mode" });
@@ -127,6 +129,32 @@ describe("the game console", () => {
     const phaseBar = screen.getByRole("banner");
     expect(phaseBar).toHaveTextContent(ending?.winner === "town" ? "The Town wins" : "The Murderers win");
     expect(phaseBar).toHaveTextContent(ending?.reason ?? "");
+  });
+
+  it("keeps the living's roles from a public page until a side wins", () => {
+    const untilTheEnd = beforeTheReveal(events);
+    render(<GameConsole events={untilTheEnd} connection="live" scope="public" />);
+
+    const roster = screen.getByRole("list", { name: "Residents" });
+    const living = livingRoles(untilTheEnd);
+    expect(living.length).toBeGreaterThan(0);
+    for (const { resident, role } of living) {
+      expect(within(roster).getByRole("listitem", { name: resident })).not.toHaveTextContent(roleLabel[role]);
+    }
+    expect(screen.queryByRole("tab", { name: "Review" })).toBeNull();
+  });
+
+  it("tells a public page every role as the game ends, in the feed and the roster", () => {
+    render(<GameConsole events={events} connection="ended" scope="public" />);
+
+    const [reveal] = feedItems("roles_revealed");
+    const roster = screen.getByRole("list", { name: "Residents" });
+    for (const { resident, role } of payloadsOf(events, "role_assigned")) {
+      if (role !== "civilian") expect(reveal).toHaveTextContent(resident);
+      expect(within(roster).getByRole("listitem", { name: resident })).toHaveTextContent(roleLabel[role]);
+    }
+    expect(reveal).toHaveTextContent("the rest were Civilians");
+    expect(roster).not.toHaveTextContent("secret");
   });
 
   // renders the whole recorded game twice, which jsdom takes a few seconds to do

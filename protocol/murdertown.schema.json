@@ -454,6 +454,7 @@
               "resident_investigated": "#/$defs/ResidentInvestigated",
               "resident_protected": "#/$defs/ResidentProtected",
               "role_assigned": "#/$defs/RoleAssigned",
+              "roles_revealed": "#/$defs/RolesRevealed",
               "sheriff_fired": "#/$defs/SheriffFired",
               "sheriff_held_fire": "#/$defs/SheriffHeldFire",
               "statement_made": "#/$defs/StatementMade",
@@ -537,6 +538,9 @@
             },
             {
               "$ref": "#/$defs/DecisionFellBack"
+            },
+            {
+              "$ref": "#/$defs/RolesRevealed"
             },
             {
               "$ref": "#/$defs/GameEnded"
@@ -1838,6 +1842,29 @@
         "teammates"
       ],
       "title": "RoleAssigned",
+      "type": "object"
+    },
+    "RolesRevealed": {
+      "additionalProperties": false,
+      "description": "As a side wins, every role becomes public, so the story ends for every Spectator and\nfor the town. Only the roles: the Den, the Night actions and private Conversations stay\nas hidden as they were.",
+      "properties": {
+        "type": {
+          "const": "roles_revealed",
+          "default": "roles_revealed",
+          "type": "string"
+        },
+        "roles": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Role"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "type",
+        "roles"
+      ],
+      "title": "RolesRevealed",
       "type": "object"
     },
     "Rules": {

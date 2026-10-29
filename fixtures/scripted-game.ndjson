@@ -1126,4 +1126,5 @@
 {"seq":1126,"day":8,"phase":"night","visibility":{"scope":"residents","residents":["Finn"]},"decision_id":"d980","payload":{"type":"resident_protected","doctor":"Finn","target":"Tess"}}
 {"seq":1127,"day":9,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"phase_started","day":9,"phase":"dawn"}}
 {"seq":1128,"day":9,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"resident_died","resident":"Finn","cause":"murdered","role":"doctor"}}
-{"seq":1129,"day":9,"phase":"ended","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"game_ended","winner":"murderers","reason":"The Murderers now equal the rest of the town."}}
+{"seq":1129,"day":9,"phase":"dawn","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"roles_revealed","roles":{"Cyrus":"civilian","Ezra":"civilian","Bram":"civilian","Cora":"murderer","Bea":"civilian","Luna":"detective","Finn":"doctor","Vera":"civilian","Jonah":"civilian","Iris":"civilian","Tess":"murderer","Greta":"sheriff"}}}
+{"seq":1130,"day":9,"phase":"ended","visibility":{"scope":"everyone","residents":[]},"decision_id":null,"payload":{"type":"game_ended","winner":"murderers","reason":"The Murderers now equal the rest of the town."}}

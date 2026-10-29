@@ -53,6 +53,7 @@ from mm.engine.events import (
     ResidentInvestigated,
     ResidentProtected,
     RoleAssigned,
+    RolesRevealed,
     SheriffFired,
     SheriffHeldFire,
     StatementMade,
@@ -368,8 +369,9 @@ def _line(event: Event) -> str | None:  # noqa: C901, PLR0912 - one case per eve
         ):  # fmt: skip
             return None  # shown in the briefing or the Resident's own memory instead
         case (
-            BidPlaced() | SheriffHeldFire() | GameEnded() | GameAborted() | DecisionFellBack()
-            | RecapNarrated() | OpenFloorTimedOut() | GameConfigured() | DecisionUnanswered()
+            BidPlaced() | SheriffHeldFire() | RolesRevealed() | GameEnded() | GameAborted()
+            | DecisionFellBack() | RecapNarrated() | OpenFloorTimedOut() | GameConfigured()
+            | DecisionUnanswered()
         ):  # fmt: skip
             return None  # not needed for a decision (Residents saw what a recap tells), or unseen
         case unknown:

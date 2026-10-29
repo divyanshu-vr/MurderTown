@@ -2,9 +2,10 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { eventsOf, payloadsOf, recordedGame } from "../../test/recordedGame";
+import { beforeTheReveal, eventsOf, livingRoles, payloadsOf, recordedGame } from "../../test/recordedGame";
 import type { Event, Explanation, ModelCall } from "../protocol";
 import { GameConsole } from "./GameConsole";
+import { roleLabel } from "./labels";
 
 const events = recordedGame();
 const notes = eventsOf(events, "reflection_written");
@@ -122,8 +123,9 @@ describe("the Mind inspector", () => {
   });
 
   it("is hidden in mystery mode, which also hides private events and secret roles", () => {
-    const [assigned] = payloadsOf(events, "role_assigned");
-    render(<GameConsole events={events} connection="ended" />);
+    const untilTheEnd = beforeTheReveal(events); // once a side wins, every role is public
+    const [assigned] = payloadsOf(untilTheEnd, "role_assigned");
+    render(<GameConsole events={untilTheEnd} connection="live" />);
     inspect(found(assigned, "role assignment").resident);
 
     fireEvent.click(screen.getByRole("button", { name: "Mystery mode" }));
@@ -131,7 +133,9 @@ describe("the Mind inspector", () => {
     expect(screen.queryByRole("complementary", { name: /^Mind of/ })).toBeNull();
     const roster = screen.getByRole("list", { name: "Residents" });
     expect(within(roster).queryAllByRole("button")).toHaveLength(0);
-    expect(roster).not.toHaveTextContent("(secret)");
+    for (const { resident, role } of livingRoles(untilTheEnd)) {
+      expect(within(roster).getByRole("listitem", { name: resident })).not.toHaveTextContent(roleLabel[role]);
+    }
     const feed = screen.getByRole("log", { name: "Town feed" });
     const kinds = new Set(within(feed).getAllByRole("listitem").map((item) => item.dataset.kind));
     expect(kinds.has("bid_placed") || kinds.has("decision_fell_back")).toBe(false);
